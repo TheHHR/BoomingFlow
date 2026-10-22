@@ -9,7 +9,7 @@
         <intent
             android:action="com.mardous.booming.shortcut.LAST_ADDED"
             android:targetClass="com.mardous.booming.MainActivity"
-            android:targetPackage="com.mardous.booming" />
+            android:targetPackage="com.thehhr.boomingflow" />
     </shortcut>
     <shortcut
         android:enabled="true"
@@ -20,7 +20,7 @@
         <intent
             android:action="com.mardous.booming.shortcut.TOP_TRACKS"
             android:targetClass="com.mardous.booming.MainActivity"
-            android:targetPackage="com.mardous.booming" />
+            android:targetPackage="com.thehhr.boomingflow" />
     </shortcut>
     <shortcut
         android:enabled="true"
@@ -31,7 +31,7 @@
         <intent
             android:action="com.mardous.booming.shortcut.FAVORITES"
             android:targetClass="com.mardous.booming.MainActivity"
-            android:targetPackage="com.mardous.booming" />
+            android:targetPackage="com.thehhr.boomingflow" />
     </shortcut>
     <shortcut
         android:enabled="true"
@@ -42,6 +42,6 @@
         <intent
             android:action="com.mardous.booming.shortcut.SHUFFLE"
             android:targetClass="com.mardous.booming.MainActivity"
-            android:targetPackage="com.mardous.booming" />
+            android:targetPackage="com.thehhr.boomingflow" />
     </shortcut>
 </shortcuts>
