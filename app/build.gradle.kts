@@ -328,6 +328,11 @@ dependencies {
     implementation(libs.versioncompare)
     implementation(libs.commons.text)
     implementation(libs.juniversalchardet)
+
+    implementation(libs.newpipe.extractor)
+    implementation(libs.rhino)
+    implementation(libs.gson)
+    implementation(libs.okhttp)
 }
 
 fun getProperties(fileName: String): Properties? {

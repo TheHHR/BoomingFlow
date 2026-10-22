@@ -90,6 +90,8 @@ class App : Application(), SingletonImageLoader.Factory {
         super.onCreate()
         if (BuildConfig.DEBUG) enableStrictMode()
 
+        com.mardous.booming.online.data.innertube.NewPipeStreamExtractor.init(this)
+
         val prefs = PreferenceManager.getDefaultSharedPreferences(this)
         // we cannot call setDefaultValues for multiple fragment based XML preference
         // files with readAgain flag set to false, so always check KEY_HAS_SET_DEFAULT_VALUES

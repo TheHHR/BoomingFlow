@@ -51,6 +51,10 @@ taglib = "1.0.6"
 jaudiotagger = "2.3.16"
 versioncompare = "1.5.0"
 commons-text = "1.15.0"
+newpipe-extractor = "v0.26.1"
+rhino = "1.7.15"
+gson = "2.11.0"
+okhttp = "4.12.0"
 
 [libraries]
 material-components = { module = "com.google.android.material:material", version.ref = "material" }
@@ -145,6 +149,11 @@ jaudiotagger = { module = "com.github.mardous:jaudiotagger", version.ref = "jaud
 versioncompare = { module = "io.github.g00fy2:versioncompare", version.ref = "versioncompare" }
 commons-text = { module = "org.apache.commons:commons-text", version.ref = "commons-text" }
 juniversalchardet = { module = "com.github.albfernandez:juniversalchardet", version = "2.5.0" }
+
+newpipe-extractor = { module = "com.github.TeamNewPipe:NewPipeExtractor", version.ref = "newpipe-extractor" }
+rhino = { module = "org.mozilla:rhino", version.ref = "rhino" }
+gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
+okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
 
 [bundles]
 kotlinx = ["kotlinx-datetime", "kotlinx-coroutines-android", "kotlinx-coroutines-guava"]
