@@ -379,6 +379,10 @@ private val viewModule = module {
     viewModel {
         OnboardViewModel(backupManager = get())
     }
+
+    viewModel {
+        com.mardous.booming.online.viewmodel.StreamingAuthViewModel(application = androidApplication())
+    }
 }
 
 val appModules = listOf(networkModule, mainModule, roomModule, dataModule, viewModule)

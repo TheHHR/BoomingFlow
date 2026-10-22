@@ -1083,4 +1083,12 @@
     <string name="uncaught_error_restart_app">Restart app</string>
     <string name="uncaught_error_github">Open issue on GitHub</string>
     <string name="uncaught_error_send">Send report</string>
-</resources>
+    <string name="streaming_title">Streaming</string>
+    <string name="spotify_login_title">Sign in to Spotify</string>
+    <string name="spotify_login_summary">Sign in with your Spotify account in a browser window</string>
+    <string name="spotify_token_title">Spotify token login</string>
+    <string name="spotify_token_summary">Sign in by pasting your sp_dc session cookie</string>
+    <string name="youtube_login_title">Sign in to YouTube</string>
+    <string name="youtube_login_summary">Sign in with your Google account for YouTube Music</string>
+    <string name="youtube_token_title">YouTube token login</string>
+    <string name="youtube_token_summary">Sign in by pasting your browser session cookies</string></resources>

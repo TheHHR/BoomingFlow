@@ -84,6 +84,19 @@
 -keep class com.mardous.booming.data.model.search.** { *; }
 -keep class com.mardous.booming.data.model.replaygain.** { *; }
 
+# BoomingFlow streaming (ported code, R8 first pass)
+-keep class com.mardous.booming.online.data.innertube.** { *; }
+-keep class com.mardous.booming.online.data.spotify.** { *; }
+-keep class com.mardous.booming.online.data.sourcepool.** { *; }
+-keep class com.mardous.booming.online.model.** { *; }
+-keep class com.mardous.booming.online.domain.** { *; }
+-keep class org.schabi.newpipe.extractor.** { *; }
+-keep class org.mozilla.javascript.** { *; }
+-keep class * extends org.mozilla.javascript.VMBridge { *; }
+-keep class com.google.gson.** { *; }
+-keep class okhttp3.** { *; }
+-keep class okio.** { *; }
+
 # Hide an annoying compilation warning
 # http://stackoverflow.com/questions/3308010/what-is-the-ignoring-innerclasses-attribute-warning-output-during-compilation
 -keepattributes EnclosingMethod

@@ -251,7 +251,7 @@ androidComponents {
         variant.outputs.forEach { output ->
             val filter = output.filters.joinToString("-") { it.identifier }
             val abi = filter.ifEmpty { "universal" }
-            val appBaseName = if (variant.buildType == "debug") "BoomingFlow" else "BoomingMusic"
+            val appBaseName = "BoomingFlow"
             output.outputFileName = "$appBaseName-${output.versionName.get()}-${variant.flavorName}-$abi.apk"
         }
     }
@@ -287,6 +287,7 @@ dependencies {
     implementation(platform(libs.compose.bom))
     implementation(libs.compose.runtime.livedata)
     implementation(libs.compose.material3)
+    implementation(libs.compose.material.icons)
     implementation(libs.compose.ui)
     implementation(libs.compose.ui.tooling.preview)
     debugImplementation(libs.compose.ui.tooling)

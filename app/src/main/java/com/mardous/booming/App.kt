@@ -91,6 +91,7 @@ class App : Application(), SingletonImageLoader.Factory {
         if (BuildConfig.DEBUG) enableStrictMode()
 
         com.mardous.booming.online.data.innertube.NewPipeStreamExtractor.init(this)
+        com.mardous.booming.online.ui.OnlineToast.init(this)
 
         val prefs = PreferenceManager.getDefaultSharedPreferences(this)
         // we cannot call setDefaultValues for multiple fragment based XML preference

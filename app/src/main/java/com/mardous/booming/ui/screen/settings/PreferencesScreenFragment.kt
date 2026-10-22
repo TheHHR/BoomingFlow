@@ -70,6 +70,9 @@ import com.mardous.booming.ui.screen.backup.BackupActivity
 import com.mardous.booming.ui.screen.library.LibraryViewModel
 import com.mardous.booming.ui.screen.lyrics.LyricsViewModel
 import com.mardous.booming.ui.screen.scrobbling.ScrobblingServiceLoginFragment
+import com.mardous.booming.ui.screen.settings.streaming.StreamingLoginDialogFragment
+import com.mardous.booming.ui.screen.settings.streaming.StreamingLoginMode
+import com.mardous.booming.ui.screen.settings.streaming.StreamingService
 import com.mardous.booming.ui.screen.update.UpdateSearchResult
 import com.mardous.booming.ui.screen.update.UpdateViewModel
 import com.mardous.booming.util.ADD_EXTRA_CONTROLS
@@ -95,10 +98,14 @@ import com.mardous.booming.util.ON_CLEAR_QUEUE_ACTION
 import com.mardous.booming.util.ON_SONG_CLICK_ACTION
 import com.mardous.booming.util.PREFERRED_IMAGE_SIZE
 import com.mardous.booming.util.Preferences
+import com.mardous.booming.util.SPOTIFY_LOGIN
+import com.mardous.booming.util.SPOTIFY_TOKEN_LOGIN
 import com.mardous.booming.util.TRASH_MUSIC_FILES
 import com.mardous.booming.util.USE_CUSTOM_FONT
 import com.mardous.booming.util.USE_FOLDER_ART
 import com.mardous.booming.util.WHITELIST_ENABLED
+import com.mardous.booming.util.YOUTUBE_LOGIN
+import com.mardous.booming.util.YOUTUBE_TOKEN_LOGIN
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
@@ -192,6 +199,8 @@ open class PreferenceScreenFragment : PreferenceFragmentCompat(),
     fun preparePreferences() {
         findPreference<Preference>("about")?.summary =
             getString(R.string.about_summary, BuildConfig.VERSION_NAME)
+
+        updateStreamingPreferenceSummaries()
 
         findPreference<ThemePreference>(GENERAL_THEME)?.apply {
             customCallback = object : ThemePreference.Callback {
@@ -344,6 +353,29 @@ open class PreferenceScreenFragment : PreferenceFragmentCompat(),
         onUpdateQueuePreferences()
     }
 
+    private fun updateStreamingPreferenceSummaries() {
+        val context = requireContext()
+
+        findPreference<Preference>(SPOTIFY_LOGIN)?.summary =
+            if (com.mardous.booming.online.data.spotify.SpotifyPrefs.isConnected(context)) {
+                val name = com.mardous.booming.online.data.spotify.SpotifyPrefs.getAccountName(context)
+                if (name.isNotBlank()) {
+                    "${getString(R.string.connected_account_label)} $name"
+                } else {
+                    getString(R.string.connected_account_label)
+                }
+            } else {
+                getString(R.string.spotify_login_summary)
+            }
+
+        findPreference<Preference>(YOUTUBE_LOGIN)?.summary =
+            if (com.mardous.booming.online.data.innertube.AccountManager.isLoggedIn(context)) {
+                "${getString(R.string.connected_account_label)} ${com.mardous.booming.online.data.innertube.AccountManager.getAccountName(context)}"
+            } else {
+                getString(R.string.youtube_login_summary)
+            }
+    }
+
     @Suppress("DEPRECATION")
     override fun onDisplayPreferenceDialog(preference: Preference) {
         if (preference is ListPreference) {
@@ -366,6 +398,10 @@ open class PreferenceScreenFragment : PreferenceFragmentCompat(),
                 COVER_RIGHT_DOUBLE_TAP_ACTION -> ActionOnCoverPreferenceDialog.newInstance(preference.key)
                 LASTFM_LOGIN -> ScrobblingServiceLoginFragment.create(ScrobblingService.Lastfm)
                 LISTENBRAINZ_LOGIN -> ScrobblingServiceLoginFragment.create(ScrobblingService.ListenBrainz)
+                SPOTIFY_LOGIN -> StreamingLoginDialogFragment.create(StreamingService.Spotify, StreamingLoginMode.WebView)
+                SPOTIFY_TOKEN_LOGIN -> StreamingLoginDialogFragment.create(StreamingService.Spotify, StreamingLoginMode.Token)
+                YOUTUBE_LOGIN -> StreamingLoginDialogFragment.create(StreamingService.YouTube, StreamingLoginMode.WebView)
+                YOUTUBE_TOKEN_LOGIN -> StreamingLoginDialogFragment.create(StreamingService.YouTube, StreamingLoginMode.Token)
                 else -> null
             }
             if (dialogFragment != null) {

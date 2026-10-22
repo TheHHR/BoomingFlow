@@ -132,6 +132,41 @@
     </PreferenceCategory>
 
     <PreferenceCategory
+        app:title="@string/streaming_title"
+        app:layout="@layout/preference_category_title"
+        app:dependency="network_features">
+
+        <com.mardous.booming.ui.component.preferences.CustomDialogPreference
+            app:icon="@drawable/ic_person_24dp"
+            app:title="@string/spotify_login_title"
+            app:summary="@string/spotify_login_summary"
+            app:layout="@layout/list_item_view"
+            app:key="spotify_login"/>
+
+        <com.mardous.booming.ui.component.preferences.CustomDialogPreference
+            app:icon="@drawable/ic_lock_24dp"
+            app:title="@string/spotify_token_title"
+            app:summary="@string/spotify_token_summary"
+            app:layout="@layout/list_item_view"
+            app:key="spotify_token_login"/>
+
+        <com.mardous.booming.ui.component.preferences.CustomDialogPreference
+            app:icon="@drawable/ic_person_24dp"
+            app:title="@string/youtube_login_title"
+            app:summary="@string/youtube_login_summary"
+            app:layout="@layout/list_item_view"
+            app:key="youtube_login"/>
+
+        <com.mardous.booming.ui.component.preferences.CustomDialogPreference
+            app:icon="@drawable/ic_lock_24dp"
+            app:title="@string/youtube_token_title"
+            app:summary="@string/youtube_token_summary"
+            app:layout="@layout/list_item_view"
+            app:key="youtube_token_login"/>
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
         app:title="@string/lyrics_preferences_title"
         app:layout="@layout/preference_category_title"
         app:dependency="network_features">
