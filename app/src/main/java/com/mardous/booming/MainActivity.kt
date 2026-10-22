@@ -179,6 +179,7 @@ class MainActivity : AbsSlidingMusicPanelActivity(), MediaController.Listener {
             }
             when (destination.id) {
                 R.id.nav_home,
+                R.id.nav_discover,
                 R.id.nav_songs,
                 R.id.nav_albums,
                 R.id.nav_artists,

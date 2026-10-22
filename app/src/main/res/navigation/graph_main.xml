@@ -11,6 +11,11 @@
         android:label="HomeFragment"/>
 
     <fragment
+        android:id="@+id/nav_discover"
+        android:name="com.mardous.booming.ui.screen.discover.DiscoverFragment"
+        android:label="DiscoverFragment"/>
+
+    <fragment
         android:id="@+id/nav_songs"
         android:name="com.mardous.booming.ui.screen.library.songs.SongListFragment"
         android:label="SongsFragment"/>
@@ -93,6 +98,15 @@
         <argument
             android:name="playlistId"
             app:argType="long"/>
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_spotify_playlist"
+        android:name="com.mardous.booming.ui.screen.discover.SpotifyPlaylistFragment"
+        android:label="SpotifyPlaylistFragment">
+        <argument
+            android:name="playlistId"
+            app:argType="string"/>
     </fragment>
 
     <fragment

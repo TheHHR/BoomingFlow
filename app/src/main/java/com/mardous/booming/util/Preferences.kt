@@ -121,9 +121,13 @@ object Preferences : KoinComponent {
         }
 
     var libraryCategories: List<CategoryInfo>
-        get() = preferences.nullString(LIBRARY_CATEGORIES).deserialize(
-            getDefaultLibraryCategoryInfos()
-        )
+        get() {
+            val stored: List<CategoryInfo> = preferences.nullString(LIBRARY_CATEGORIES)
+                .deserialize(getDefaultLibraryCategoryInfos())
+            val missing = CategoryInfo.Category.entries
+                .filter { category -> stored.none { it.category == category } }
+            return if (missing.isEmpty()) stored else stored + missing.map { CategoryInfo(it, false) }
+        }
         set(categories) = preferences.edit { putString(LIBRARY_CATEGORIES, categories.serialize()) }
 
     fun getDefaultLibraryCategoryInfos() =

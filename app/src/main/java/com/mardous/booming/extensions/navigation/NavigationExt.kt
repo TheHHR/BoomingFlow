@@ -29,6 +29,7 @@ import androidx.navigation.fragment.FragmentNavigatorExtras
 import com.mardous.booming.core.model.CategoryInfo
 import com.mardous.booming.data.SearchFilter
 import com.mardous.booming.data.model.*
+import com.mardous.booming.ui.screen.discover.SpotifyPlaylistFragmentArgs
 import com.mardous.booming.ui.screen.info.PlayInfoFragmentArgs
 import com.mardous.booming.ui.screen.info.SongDetailFragmentArgs
 import com.mardous.booming.ui.screen.library.albums.AlbumDetailFragmentArgs
@@ -78,6 +79,11 @@ fun folderDetailArgs(folder: Folder) =
 
 fun playlistDetailArgs(playlistId: Long) =
     PlaylistDetailFragmentArgs.Builder(playlistId)
+        .build()
+        .toBundle()
+
+fun spotifyPlaylistArgs(playlistId: String) =
+    SpotifyPlaylistFragmentArgs.Builder(playlistId)
         .build()
         .toBundle()
 

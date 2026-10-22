@@ -290,6 +290,30 @@ class PlayerViewModel(
         }
     }
 
+    fun addOnlineQueue(items: List<OnlineQueueItem>) = viewModelScope.launch {
+        mediaController?.let { controller ->
+            if (items.isNotEmpty()) {
+                withContext(IO) {
+                    items.forEach { repository.registerOnlineSong(it.song.data, it.song) }
+                }
+                controller.addMediaItems(items.map { it.mediaItem })
+            }
+        }
+    }
+
+    fun playOnlineQueueNext(items: List<OnlineQueueItem>) = viewModelScope.launch {
+        mediaController?.let { controller ->
+            if (items.isNotEmpty()) {
+                withContext(IO) {
+                    items.forEach { repository.registerOnlineSong(it.song.data, it.song) }
+                }
+                val index = (controller.currentMediaItemIndex + 1)
+                    .coerceAtMost(controller.mediaItemCount)
+                controller.addMediaItems(index, items.map { it.mediaItem })
+            }
+        }
+    }
+
     fun openQueue(
         queue: List<Song>,
         position: Int = 0,

@@ -383,6 +383,17 @@ private val viewModule = module {
     viewModel {
         com.mardous.booming.online.viewmodel.StreamingAuthViewModel(application = androidApplication())
     }
+
+    viewModel {
+        com.mardous.booming.ui.screen.discover.DiscoverViewModel(application = androidApplication())
+    }
+
+    viewModel { (playlistId: String) ->
+        com.mardous.booming.ui.screen.discover.SpotifyPlaylistViewModel(
+            application = androidApplication(),
+            playlistId = playlistId
+        )
+    }
 }
 
 val appModules = listOf(networkModule, mainModule, roomModule, dataModule, viewModule)
