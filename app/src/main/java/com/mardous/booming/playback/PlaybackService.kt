@@ -89,6 +89,10 @@ import com.mardous.booming.util.MP3_INDEX_SEEKING
 import com.mardous.booming.util.PAUSE_ON_ZERO_VOLUME
 import com.mardous.booming.util.PLAY_ON_STARTUP_MODE
 import com.mardous.booming.util.PlayOnStartupMode
+import com.mardous.booming.online.data.innertube.NewPipeStreamExtractor
+import com.mardous.booming.online.data.innertube.YouTubeMusic
+import com.mardous.booming.online.playback.createStreamingDataSourceFactory
+import com.mardous.booming.online.playback.isOnlineContentUri
 import com.mardous.booming.util.Preferences
 import com.mardous.booming.util.Preferences.requireString
 import com.mardous.booming.util.QUEUE_NEXT_MODE
@@ -172,6 +176,7 @@ class PlaybackService :
     private var eqStateHandler: Handler = Handler(Looper.getMainLooper())
 
     private var errorRecoveryRetryCount = 0
+    private val streamRetryAttempts = java.util.concurrent.ConcurrentHashMap<String, Int>()
     private var pausedByZeroVolume = false
     private var hasSetUnshuffledOrder = false
     private var stopIndex = -1
@@ -277,7 +282,8 @@ class PlaybackService :
                 )
                 .setMediaSourceFactory(
                     DefaultMediaSourceFactory(
-                        this, DefaultExtractorsFactory()
+                        createStreamingDataSourceFactory(this),
+                        DefaultExtractorsFactory()
                             .setConstantBitrateSeekingEnabled(true)
                             .also {
                                 if (preferences.getBoolean(MP3_INDEX_SEEKING, false)) {
@@ -808,6 +814,7 @@ class PlaybackService :
 
     private fun submitReplayGain(currentItem: MediaItem? = player.currentMediaItem) {
         val uri = currentItem?.contentUri ?: return
+        if (isOnlineContentUri(uri)) return
         serviceScope.launch(IO) {
             replayGainProcessor.submitGain(uri, ReplayGainTagExtractor.getReplayGain(uri))
         }
@@ -819,6 +826,7 @@ class PlaybackService :
         val nextIndex = player.nextMediaItemIndex
         if (nextIndex == C.INDEX_UNSET) return
         val uri = player.getMediaItemAt(nextIndex).contentUri ?: return
+        if (isOnlineContentUri(uri)) return
         if (ReplayGainTagExtractor.peek(uri) != null) return
 
         prefetchGainJob?.cancel()
@@ -826,6 +834,20 @@ class PlaybackService :
     }
 
     override fun onPlayerError(error: PlaybackException) {
+        val currentUri = player.currentMediaItem?.contentUri
+        val videoId = currentUri?.takeIf { isOnlineContentUri(it) }?.host
+        if (videoId != null) {
+            val attempts = streamRetryAttempts.getOrDefault(videoId, 0)
+            if (attempts < 2) {
+                streamRetryAttempts[videoId] = attempts + 1
+                YouTubeMusic.clearVideoCache(videoId)
+                NewPipeStreamExtractor.clearVideoCache(videoId)
+                val position = player.currentPosition
+                player.seekTo(position)
+                player.prepare()
+                return
+            }
+        }
         val nextMediaIndex = player.nextMediaItemIndex
         if (nextMediaIndex != C.INDEX_UNSET &&
             errorRecoveryRetryCount < MAX_RETRY_COUNT_AFTER_ERROR) {
@@ -840,7 +862,12 @@ class PlaybackService :
         if (events.contains(Player.EVENT_IS_PLAYING_CHANGED) ||
             events.contains(Player.EVENT_MEDIA_ITEM_TRANSITION) ||
             events.contains(Player.EVENT_TIMELINE_CHANGED)) {
-            if (player.isPlaying) errorRecoveryRetryCount = 0
+            if (player.isPlaying) {
+                errorRecoveryRetryCount = 0
+                player.currentMediaItem?.contentUri?.takeIf { isOnlineContentUri(it) }?.host?.let {
+                    streamRetryAttempts.remove(it)
+                }
+            }
             cancelSleepTimerFadeOut()
         }
         if (events.contains(Player.EVENT_IS_PLAYING_CHANGED) &&

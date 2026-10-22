@@ -38,6 +38,7 @@ import com.mardous.booming.data.model.Playlist
 import com.mardous.booming.data.model.ReleaseYear
 import com.mardous.booming.data.model.Song
 import com.mardous.booming.data.model.Suggestion
+import com.mardous.booming.data.model.UnindexedSong
 import com.mardous.booming.data.model.network.LoginParams
 import com.mardous.booming.data.model.network.LoginState
 import com.mardous.booming.data.model.network.ScrobblingResult
@@ -112,6 +113,7 @@ interface Repository {
     suspend fun songsByUri(uri: Uri): List<Song>
     suspend fun songsByMediaItems(mediaItems: List<MediaItem>, ignoreBlacklist: Boolean): Pair<List<Song>, List<MediaItem>>
     suspend fun songByMediaItem(mediaItem: MediaItem?, ignoreBlacklist: Boolean): Song
+    fun registerOnlineSong(key: String, song: UnindexedSong)
     suspend fun songsByFolder(folderPath: String, includeSubfolders: Boolean): List<Song>
     suspend fun songByFilePath(path: String, ignoreBlacklist: Boolean): Song
     suspend fun homeSuggestions(): List<Suggestion>
@@ -336,6 +338,9 @@ class RealRepository(
 
     override suspend fun songByMediaItem(mediaItem: MediaItem?, ignoreBlacklist: Boolean): Song =
         songRepository.songByMediaItem(mediaItem, ignoreBlacklist)
+
+    override fun registerOnlineSong(key: String, song: UnindexedSong) =
+        songRepository.registerOnlineSong(key, song)
 
     override suspend fun songsByFolder(folderPath: String, includeSubfolders: Boolean) =
         specialRepository.songsByFolder(folderPath, includeSubfolders)

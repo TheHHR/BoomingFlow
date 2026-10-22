@@ -1091,4 +1091,6 @@
     <string name="youtube_login_title">Sign in to YouTube</string>
     <string name="youtube_login_summary">Sign in with your Google account for YouTube Music</string>
     <string name="youtube_token_title">YouTube token login</string>
-    <string name="youtube_token_summary">Sign in by pasting your browser session cookies</string></resources>
+    <string name="youtube_token_summary">Sign in by pasting your browser session cookies</string>    <string name="yt_stream_test_title">Play test stream</string>
+    <string name="yt_stream_test_summary">Smoke-test YouTube streaming playback (temporary entry)</string>
+</resources>

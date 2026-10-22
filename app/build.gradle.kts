@@ -334,6 +334,7 @@ dependencies {
     implementation(libs.rhino)
     implementation(libs.gson)
     implementation(libs.okhttp)
+    implementation(libs.media3.datasource.okhttp)
 }
 
 fun getProperties(fileName: String): Properties? {

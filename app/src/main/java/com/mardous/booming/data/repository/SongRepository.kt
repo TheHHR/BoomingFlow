@@ -60,6 +60,7 @@ interface SongRepository {
     suspend fun songsByMediaItems(mediaItems: List<MediaItem>, ignoreLibrarySettings: Boolean): Pair<List<Song>, List<MediaItem>>
     suspend fun songByMediaItem(mediaItem: MediaItem?, ignoreLibrarySettings: Boolean): Song
     fun songByFilePath(filePath: String, ignoreLibrarySettings: Boolean = false): Song
+    fun registerOnlineSong(key: String, song: UnindexedSong)
     suspend fun initializeBlacklist()
 }
 
@@ -69,7 +70,11 @@ class RealSongRepository(
     private val inclExclDao: InclExclDao
 ) : SongRepository {
 
-    private val nonIndexedFiles = mutableMapOf<String, UnindexedSong>()
+    private val nonIndexedFiles = java.util.concurrent.ConcurrentHashMap<String, UnindexedSong>()
+
+    override fun registerOnlineSong(key: String, song: UnindexedSong) {
+        nonIndexedFiles[key] = song
+    }
 
     override fun song(songId: Long): Song {
         return resolveSongById(songId, false)

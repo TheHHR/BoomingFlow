@@ -17,6 +17,7 @@ import androidx.media3.session.SessionCommand
 import androidx.media3.session.SessionError
 import androidx.media3.session.SessionResult
 import com.mardous.booming.core.model.PaletteColor
+import com.mardous.booming.online.playback.OnlineQueueItem
 import com.mardous.booming.core.model.action.QueueClearingBehavior
 import com.mardous.booming.core.model.action.SongClickBehavior
 import com.mardous.booming.core.model.player.MetadataField
@@ -274,6 +275,19 @@ class PlayerViewModel(
                 .build(),
             shuffleMode = shuffleMode
         )
+    }
+
+    fun playOnlineQueue(items: List<OnlineQueueItem>, startPlaying: Boolean = true) = viewModelScope.launch {
+        mediaController?.let { controller ->
+            if (items.isNotEmpty()) {
+                withContext(IO) {
+                    items.forEach { repository.registerOnlineSong(it.song.data, it.song) }
+                }
+                controller.setMediaItems(items.map { it.mediaItem }, 0, C.TIME_UNSET)
+                controller.playWhenReady = startPlaying
+                controller.prepare()
+            }
+        }
     }
 
     fun openQueue(

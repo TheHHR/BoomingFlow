@@ -164,6 +164,13 @@
             app:layout="@layout/list_item_view"
             app:key="youtube_token_login"/>
 
+        <Preference
+            app:icon="@drawable/ic_youtube_music"
+            app:title="@string/yt_stream_test_title"
+            app:summary="@string/yt_stream_test_summary"
+            app:layout="@layout/list_item_view"
+            app:key="yt_stream_test"/>
+
     </PreferenceCategory>
 
     <PreferenceCategory

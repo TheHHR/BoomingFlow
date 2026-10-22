@@ -70,6 +70,11 @@ import com.mardous.booming.ui.screen.backup.BackupActivity
 import com.mardous.booming.ui.screen.library.LibraryViewModel
 import com.mardous.booming.ui.screen.lyrics.LyricsViewModel
 import com.mardous.booming.ui.screen.scrobbling.ScrobblingServiceLoginFragment
+import com.mardous.booming.online.data.innertube.SearchFilter
+import com.mardous.booming.online.data.innertube.SearchItem
+import com.mardous.booming.online.data.innertube.YouTubeMusic
+import com.mardous.booming.online.playback.buildOnlineQueueItem
+import com.mardous.booming.ui.screen.player.PlayerViewModel
 import com.mardous.booming.ui.screen.settings.streaming.StreamingLoginDialogFragment
 import com.mardous.booming.ui.screen.settings.streaming.StreamingLoginMode
 import com.mardous.booming.ui.screen.settings.streaming.StreamingService
@@ -108,6 +113,8 @@ import com.mardous.booming.util.YOUTUBE_LOGIN
 import com.mardous.booming.util.YOUTUBE_TOKEN_LOGIN
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import com.mardous.booming.util.YT_STREAM_TEST
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
 
@@ -164,6 +171,7 @@ open class PreferenceScreenFragment : PreferenceFragmentCompat(),
     private val libraryViewModel: LibraryViewModel by activityViewModel()
     private val lyricsViewModel: LyricsViewModel by activityViewModel()
     private val updateViewModel: UpdateViewModel by activityViewModel()
+    private val playerViewModel: PlayerViewModel by activityViewModel()
 
     private val preferences: SharedPreferences by inject()
 
@@ -201,6 +209,12 @@ open class PreferenceScreenFragment : PreferenceFragmentCompat(),
             getString(R.string.about_summary, BuildConfig.VERSION_NAME)
 
         updateStreamingPreferenceSummaries()
+
+        findPreference<Preference>(YT_STREAM_TEST)?.onPreferenceClickListener =
+            Preference.OnPreferenceClickListener {
+                playTestYouTubeStream()
+                true
+            }
 
         findPreference<ThemePreference>(GENERAL_THEME)?.apply {
             customCallback = object : ThemePreference.Callback {
@@ -374,6 +388,30 @@ open class PreferenceScreenFragment : PreferenceFragmentCompat(),
             } else {
                 getString(R.string.youtube_login_summary)
             }
+    }
+
+    private fun playTestYouTubeStream() {
+        lifecycleScope.launch {
+            val result = runCatching {
+                withContext(Dispatchers.IO) {
+                    val searchResult = YouTubeMusic.search("Never Gonna Give You Up", SearchFilter.SONGS)
+                        .getOrElse { throw it }
+                    val online = searchResult.items.filterIsInstance<SearchItem.Song>().firstOrNull()?.song
+                        ?: searchResult.items.filterIsInstance<SearchItem.TopResult>().firstOrNull()?.song
+                        ?: error("No results found")
+                    buildOnlineQueueItem(online)
+                }
+            }
+            result.fold(
+                onSuccess = { item ->
+                    playerViewModel.playOnlineQueue(listOf(item))
+                    showToast("Playing: ${item.song.title}")
+                },
+                onFailure = { e ->
+                    showToast("YouTube test failed: ${e.message}")
+                }
+            )
+        }
     }
 
     @Suppress("DEPRECATION")
