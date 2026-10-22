@@ -97,6 +97,13 @@
 -keep class okhttp3.** { *; }
 -keep class okio.** { *; }
 
+# Desktop-only APIs referenced by Rhino's optimizer/script paths (never executed
+# on Android; VMBridge shim bypasses them) and jsoup's optional re2j enhancer
+-dontwarn jdk.dynalink.**
+-dontwarn java.beans.**
+-dontwarn javax.script.**
+-dontwarn com.google.re2j.**
+
 # Hide an annoying compilation warning
 # http://stackoverflow.com/questions/3308010/what-is-the-ignoring-innerclasses-attribute-warning-output-during-compilation
 -keepattributes EnclosingMethod
