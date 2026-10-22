@@ -3,6 +3,7 @@ name: Build & Release BoomingFlow APK
 on:
   push:
     tags: [ 'v*' ]
+  workflow_dispatch:
 
 permissions:
   contents: write
