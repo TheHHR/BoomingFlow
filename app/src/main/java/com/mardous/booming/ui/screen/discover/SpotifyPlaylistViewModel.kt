@@ -10,13 +10,13 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class SpotifyPlaylistViewModel(
-    application: Application,
-    private val playlistId: String
-) : AndroidViewModel(application) {
+class SpotifyPlaylistViewModel(application: Application) : AndroidViewModel(application) {
 
     private val _playlist = MutableStateFlow<SpotifyPlaylist?>(null)
     val playlist = _playlist.asStateFlow()
+
+    private val _isLiked = MutableStateFlow(false)
+    val isLiked = _isLiked.asStateFlow()
 
     private val _tracks = MutableStateFlow<List<SpotifyTrack>>(emptyList())
     val tracks = _tracks.asStateFlow()
@@ -24,16 +24,22 @@ class SpotifyPlaylistViewModel(
     private val _loading = MutableStateFlow(true)
     val loading = _loading.asStateFlow()
 
-    init {
-        load()
+    private var loaded = false
+
+    fun load(playlistId: String?) {
+        if (loaded) return
+        loaded = true
+        viewModelScope.launch {
+            if (playlistId == null) loadLikedSongs() else loadPlaylist(playlistId)
+        }
     }
 
-    private fun load() = viewModelScope.launch {
+    private suspend fun loadPlaylist(playlistId: String) {
         SpotifyClient.playlist(playlistId)
             .onSuccess { playlist -> _playlist.value = playlist }
             .onFailure {
                 _loading.value = false
-                return@launch
+                return
             }
 
         var offset = 0
@@ -49,6 +55,24 @@ class SpotifyPlaylistViewModel(
                     _tracks.value = allTracks.toList()
                     offset += page.items.size
                     hasMore = page.items.size == 100 && offset < page.total
+                }
+                .onFailure { hasMore = false }
+        }
+        _loading.value = false
+    }
+
+    private suspend fun loadLikedSongs() {
+        _isLiked.value = true
+        var offset = 0
+        var hasMore = true
+        val allTracks = mutableListOf<SpotifyTrack>()
+        while (hasMore) {
+            SpotifyClient.likedSongs(limit = 50, offset = offset)
+                .onSuccess { page ->
+                    allTracks += page.items.mapNotNull { it.track }
+                    _tracks.value = allTracks.toList()
+                    offset += page.items.size
+                    hasMore = page.items.size == 50 && offset < page.total
                 }
                 .onFailure { hasMore = false }
         }

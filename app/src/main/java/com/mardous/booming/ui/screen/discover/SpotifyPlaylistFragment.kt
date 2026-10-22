@@ -24,7 +24,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.androidx.viewmodel.ext.android.viewModel
-import org.koin.core.parameter.parametersOf
 
 class SpotifyPlaylistFragment : AbsMainActivityFragment(R.layout.fragment_detail_list), IScrollHelper {
 
@@ -33,10 +32,7 @@ class SpotifyPlaylistFragment : AbsMainActivityFragment(R.layout.fragment_detail
 
     private val arguments by navArgs<SpotifyPlaylistFragmentArgs>()
 
-    private val playlistId: String
-        get() = arguments.playlistId
-
-    private val viewModel: SpotifyPlaylistViewModel by viewModel { parametersOf(playlistId) }
+    private val viewModel: SpotifyPlaylistViewModel by viewModel()
 
     private lateinit var trackAdapter: SpotifyTrackAdapter
 
@@ -68,6 +64,8 @@ class SpotifyPlaylistFragment : AbsMainActivityFragment(R.layout.fragment_detail
         binding.playAction.setOnClickListener { playAll(shuffle = false) }
         binding.shuffleAction.setOnClickListener { playAll(shuffle = true) }
 
+        viewModel.load(arguments.playlistId)
+
         viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
             launch {
                 viewModel.playlist.collect { playlist ->
@@ -82,7 +80,20 @@ class SpotifyPlaylistFragment : AbsMainActivityFragment(R.layout.fragment_detail
                 }
             }
             launch {
-                viewModel.tracks.collect { tracks -> trackAdapter.dataSet = tracks }
+                viewModel.isLiked.collect { isLiked ->
+                    if (isLiked) {
+                        setSupportActionBar(binding.toolbar, getString(R.string.liked_songs_label))
+                    }
+                }
+            }
+            launch {
+                viewModel.tracks.collect { tracks ->
+                    trackAdapter.dataSet = tracks
+                    if (viewModel.isLiked.value) {
+                        binding.subtitle.text =
+                            getString(R.string.liked_songs_subtitle, tracks.size)
+                    }
+                }
             }
             launch {
                 viewModel.loading.collect { loading ->

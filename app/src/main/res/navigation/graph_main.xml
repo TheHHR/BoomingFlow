@@ -106,7 +106,8 @@
         android:label="SpotifyPlaylistFragment">
         <argument
             android:name="playlistId"
-            app:argType="string"/>
+            app:argType="string"
+            app:nullable="true"/>
     </fragment>
 
     <fragment

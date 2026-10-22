@@ -1107,4 +1107,8 @@
     <string name="queue_added">Added to queue</string>
     <string name="play_next_label">Play next</string>
     <string name="add_to_queue_label">Add to queue</string>
+    <string name="playlists_section_your">Your playlists</string>
+    <string name="liked_songs_label">Liked Songs</string>
+    <string name="playlists_section_spotify">Spotify</string>
+    <string name="liked_songs_subtitle">%1 tracks \u2022 Spotify</string>
 </resources>

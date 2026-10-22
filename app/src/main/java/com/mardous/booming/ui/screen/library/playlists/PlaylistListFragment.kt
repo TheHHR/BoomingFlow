@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Christians Martínez Alvarado
+ * Copyright (c) 2024 Christians MartA-nez Alvarado
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,31 +25,61 @@ import android.view.MenuItem
 import android.view.View
 import androidx.core.content.edit
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.mardous.booming.R
 import com.mardous.booming.core.model.GridViewType
 import com.mardous.booming.core.sort.PlaylistSortMode
 import com.mardous.booming.data.local.room.PlaylistWithSongs
+import com.mardous.booming.extensions.launchAndRepeatWithViewLifecycle
 import com.mardous.booming.extensions.navigation.playlistDetailArgs
+import com.mardous.booming.extensions.navigation.spotifyPlaylistArgs
+import com.mardous.booming.online.data.spotify.SpotifyHomeItem
+import com.mardous.booming.online.data.spotify.SpotifyPlaylist
+import com.mardous.booming.online.data.spotify.thumbnailUrl
+import com.mardous.booming.online.viewmodel.SpotifyAuthState
 import com.mardous.booming.ui.IPlaylistCallback
+import com.mardous.booming.ui.adapters.HorizontalListAdapter
 import com.mardous.booming.ui.adapters.PlaylistAdapter
+import com.mardous.booming.ui.adapters.SectionHeaderAdapter
 import com.mardous.booming.ui.component.base.AbsRecyclerViewCustomGridSizeFragment
 import com.mardous.booming.ui.component.menu.onPlaylistMenu
 import com.mardous.booming.ui.component.menu.onPlaylistsMenu
 import com.mardous.booming.ui.dialogs.playlists.CreatePlaylistDialog
 import com.mardous.booming.ui.dialogs.playlists.ImportPlaylistDialog
+import com.mardous.booming.ui.screen.discover.SpotifyCardAdapter
 import com.mardous.booming.ui.screen.library.ReloadType
+import com.mardous.booming.online.viewmodel.StreamingAuthViewModel
+import kotlinx.coroutines.launch
+import org.koin.androidx.viewmodel.ext.android.activityViewModel
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 /**
  * @author Christians M. A. (mardous)
  */
-class PlaylistListFragment : AbsRecyclerViewCustomGridSizeFragment<PlaylistAdapter, GridLayoutManager>(),
+class PlaylistListFragment : AbsRecyclerViewCustomGridSizeFragment<RecyclerView.Adapter<*>, GridLayoutManager>(),
     IPlaylistCallback {
 
     override val titleRes: Int = R.string.playlists_label
     override val isShuffleVisible: Boolean = false
     override val emptyMessageRes: Int
         get() = R.string.no_device_playlists
+
+    private val sectionsViewModel: PlaylistsSectionsViewModel by viewModel()
+    private val authViewModel: StreamingAuthViewModel by activityViewModel()
+
+    private var playlistAdapter: PlaylistAdapter? = null
+    private var yourHeaderAdapter: SectionHeaderAdapter? = null
+    private var likedHeaderAdapter: SectionHeaderAdapter? = null
+    private var likedRowAdapter: LikedSongsRowAdapter? = null
+    private var spotifyShelf: HorizontalListAdapter? = null
+    private var spotifyCardAdapter: SpotifyCardAdapter? = null
+
+    private var playlists: List<PlaylistWithSongs> = emptyList()
+    private var likedTotal: Int? = null
+    private var spotifyPlaylists: List<SpotifyPlaylist> = emptyList()
+    private var spotifyConnected = false
 
     override val maxGridSize: Int
         get() = if (isLandscape) resources.getInteger(R.integer.max_playlist_columns_land)
@@ -61,9 +91,66 @@ class PlaylistListFragment : AbsRecyclerViewCustomGridSizeFragment<PlaylistAdapt
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        libraryViewModel.getPlaylists().observe(viewLifecycleOwner) { playlists ->
-            adapter?.dataSet = playlists
+        libraryViewModel.getPlaylists().observe(viewLifecycleOwner) { list ->
+            playlists = list
+            playlistAdapter?.dataSet = list
+            refreshSectionVisibility()
         }
+        viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
+            launch {
+                authViewModel.authState.collect { state ->
+                    spotifyConnected = state == SpotifyAuthState.CONNECTED
+                    if (spotifyConnected) {
+                        sectionsViewModel.load()
+                    }
+                    refreshSectionVisibility()
+                }
+            }
+            launch {
+                sectionsViewModel.likedTotal.collect { total ->
+                    likedTotal = total
+                    refreshSectionVisibility()
+                }
+            }
+            launch {
+                sectionsViewModel.spotifyPlaylists.collect { list ->
+                    spotifyPlaylists = list
+                    refreshSectionVisibility()
+                }
+            }
+        }
+    }
+
+    private fun refreshSectionVisibility() {
+        val hasLocal = playlists.isNotEmpty()
+        val likedVisible = spotifyConnected && likedTotal != null
+        val spotifyVisible = spotifyConnected && spotifyPlaylists.isNotEmpty()
+
+        yourHeaderAdapter?.setVisible(hasLocal)
+        likedHeaderAdapter?.setVisible(likedVisible)
+        likedRowAdapter?.update(
+            visible = likedVisible,
+            subtitle = likedTotal?.let { getString(R.string.liked_songs_subtitle, it) }.orEmpty()
+        )
+        spotifyShelf?.setVisible(spotifyVisible)
+        spotifyCardAdapter?.dataSet = mapToCards(spotifyPlaylists)
+    }
+
+    private fun mapToCards(list: List<SpotifyPlaylist>): List<SpotifyHomeItem.Playlist> {
+        return list.map { playlist ->
+            SpotifyHomeItem.Playlist(
+                uri = playlist.uri ?: "spotify:playlist:${playlist.id}",
+                id = playlist.id,
+                name = playlist.name,
+                description = playlist.description,
+                imageUrl = playlist.thumbnailUrl(),
+                ownerName = playlist.owner?.displayName
+            )
+        }
+    }
+
+    private fun openLikedSongs() {
+        findNavController().navigate(R.id.nav_spotify_playlist)
     }
 
     override fun onResume() {
@@ -72,13 +159,45 @@ class PlaylistListFragment : AbsRecyclerViewCustomGridSizeFragment<PlaylistAdapt
     }
 
     override fun createLayoutManager(): GridLayoutManager {
-        return GridLayoutManager(requireContext(), gridSize)
+        return GridLayoutManager(requireContext(), gridSize).apply {
+            spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
+                override fun getSpanSize(position: Int): Int {
+                    val concat = adapter as? ConcatAdapter ?: return spanCount
+                    val adapterAndPosition = concat.getWrappedAdapterAndPosition(position)
+                    return if (adapterAndPosition.first is PlaylistAdapter) 1 else spanCount
+                }
+            }
+        }
     }
 
-    override fun createAdapter(): PlaylistAdapter {
+    override fun createAdapter(): RecyclerView.Adapter<*> {
         notifyLayoutResChanged(itemLayoutRes)
-        val dataSet = adapter?.dataSet ?: ArrayList()
-        return PlaylistAdapter(mainActivity, dataSet, itemLayoutRes, this)
+        val dataSet = playlistAdapter?.dataSet ?: ArrayList()
+        playlistAdapter = PlaylistAdapter(mainActivity, dataSet, itemLayoutRes, this)
+        yourHeaderAdapter = SectionHeaderAdapter(getString(R.string.playlists_section_your))
+        likedHeaderAdapter = SectionHeaderAdapter(getString(R.string.liked_songs_label))
+        likedRowAdapter = LikedSongsRowAdapter { openLikedSongs() }
+        spotifyCardAdapter = SpotifyCardAdapter { playlistId ->
+            findNavController().navigate(
+                R.id.nav_spotify_playlist,
+                spotifyPlaylistArgs(playlistId)
+            )
+        }
+        spotifyCardAdapter?.dataSet = mapToCards(spotifyPlaylists)
+        spotifyShelf = HorizontalListAdapter(
+            getString(R.string.playlists_section_spotify),
+            spotifyCardAdapter!!
+        )
+
+        val concat = ConcatAdapter(
+            yourHeaderAdapter!!,
+            playlistAdapter!!,
+            likedHeaderAdapter!!,
+            likedRowAdapter!!,
+            spotifyShelf!!
+        )
+        refreshSectionVisibility()
+        return concat
     }
 
     override fun playlistClick(playlist: PlaylistWithSongs) {
@@ -103,7 +222,7 @@ class PlaylistListFragment : AbsRecyclerViewCustomGridSizeFragment<PlaylistAdapt
 
     override fun onPause() {
         super.onPause()
-        adapter?.actionMode?.finish()
+        playlistAdapter?.actionMode?.finish()
     }
 
     override fun onCreateMenu(menu: Menu, inflater: MenuInflater) {

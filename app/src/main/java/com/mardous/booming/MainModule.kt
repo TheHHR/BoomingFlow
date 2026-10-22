@@ -388,11 +388,12 @@ private val viewModule = module {
         com.mardous.booming.ui.screen.discover.DiscoverViewModel(application = androidApplication())
     }
 
-    viewModel { (playlistId: String) ->
-        com.mardous.booming.ui.screen.discover.SpotifyPlaylistViewModel(
-            application = androidApplication(),
-            playlistId = playlistId
-        )
+    viewModel {
+        com.mardous.booming.ui.screen.discover.SpotifyPlaylistViewModel(application = androidApplication())
+    }
+
+    viewModel {
+        com.mardous.booming.ui.screen.library.playlists.PlaylistsSectionsViewModel(application = androidApplication())
     }
 }
 
