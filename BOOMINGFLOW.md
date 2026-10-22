@@ -16,7 +16,7 @@ A fork of [Booming Music](https://github.com/ChristiansM/BoomingMusic) reworked 
 | 2 | YouTube streaming playback (`innertube://` + ResolvingDataSource) + Settings→Streaming→"Play test stream" | ✅ |
 | 3 | **Discover tab**: Spotify connect card, `home()` shelves, playlist detail (Play all / Shuffle / Play next / Add to queue) | ✅ |
 | 4 | **Playlists 3-sections**: Your playlists / Liked Songs / Spotify shelf; Liked Songs detail screen; 1.0.1 | ✅ v1.0.1 |
-| 5 | Device smoke test + this document | ⏳ |
+| 5 | Device smoke test + this document | ✅ v1.0.2 |
 
 ## How playback works
 
@@ -74,7 +74,33 @@ Key mechanics (all in `app/src/main/java/com/mardous/booming/`):
 - No stream disk cache (no `SimpleCache`); no queue-persisted re-resolution after restart.
 - Spotify auth = cookie (`sp_dc`) → web-player TOTP token flow (not official OAuth).
 
+## Hotfix log
+
+- **1.0.2** (device smoke test, SM-G990E / Android 16): v1.0.1 crashed with
+  `UnknownFormatConversionException` in `refreshSectionVisibility` — three format strings
+  (`liked_songs_subtitle`, `discover_playlist_subtitle`, `no_youtube_match_found`) had been
+  written via shell expandable here-strings, which swallowed `$d`/`$s` (`%1$d` → `%1$ `).
+  **Lesson:** never author `%1$s`-style Android format strings through PowerShell `@"..."@`
+  here-strings; use the edit tool or single-quoted strings.
+- Verified fixed in 1.0.2 on-device: `aapt2 dump resources` shows intact `%1$d`/`%1$s`;
+  Playlists screen renders `68 tracks • Spotify`.
+
 ## Manual smoke checklist
+
+Executed on-device 2026-10-22 (Samsung SM-G990E, Android 16, release build 1.0.2):
+
+1. ✅ Install/update in place (same id + `CN=BoomingFlow` signer).
+2. ✅ Settings → Streaming → Play test stream → audio plays (streaming pipeline green).
+3. ✅ Discover tab → greeting + Spotify home shelves ("Popular radio", "Featured Charts",
+   "Discover Weekly") render from the connected account; playlist detail opens
+   ("Spotify Playlist • by TheHHR • 67 tracks", Play/Shuffle, numbered track rows).
+4. ✅ Playlists tab → three sections: "Your playlists" rows, "Liked Songs" row with
+   `68 tracks • Spotify`, "Spotify" shelf ("TheHHR-PLAYLIST", "T Playlist").
+5. ✅ Tap Play on a Spotify playlist → MediaSession `state=PLAYING(3)`, position advancing,
+   103 s buffered (YouTube CDN) — the full resolve→innertube→OkHttp→ExoPlayer chain.
+6. ✅ No entries in the crash log buffer across all of the above.
+
+Reference run (rerun anytime):
 
 1. Install `BoomingFlow-<v>-github-arm64-v8a.apk` → app id `com.thehhr.boomingflow`, coexists with Booming Music.
 2. **Settings → Streaming → Play test stream** → Rick Astley plays (proves resolver + headers + registry without Spotify).
