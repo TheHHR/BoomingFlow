@@ -107,7 +107,8 @@
         <argument
             android:name="playlistId"
             app:argType="string"
-            app:nullable="true"/>
+            app:nullable="true"
+            app:defaultValue="@null"/>
     </fragment>
 
     <fragment
