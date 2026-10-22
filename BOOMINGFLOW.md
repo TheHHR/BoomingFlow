@@ -82,8 +82,21 @@ Key mechanics (all in `app/src/main/java/com/mardous/booming/`):
   written via shell expandable here-strings, which swallowed `$d`/`$s` (`%1$d` → `%1$ `).
   **Lesson:** never author `%1$s`-style Android format strings through PowerShell `@"..."@`
   here-strings; use the edit tool or single-quoted strings.
-- Verified fixed in 1.0.2 on-device: `aapt2 dump resources` shows intact `%1$d`/`%1$s`;
-  Playlists screen renders `68 tracks • Spotify`.
+- **1.0.3 → 1.0.4**: opening **Liked Songs** crashed with
+  `IllegalArgumentException: Required argument "playlistId" is missing` from the generated
+  `SpotifyPlaylistFragmentArgs.fromBundle`. Marking the arg `app:nullable="true"` alone was
+  not enough, and adding `app:defaultValue="@null"` (1.0.3) still left it *required* in the
+  safe-args codegen. 1.0.4 abandons the delegate entirely: the arg is a plain required
+  string, Liked Songs navigates with the sentinel id `"liked"`,
+  `SpotifyPlaylistFragment` reads `arguments?.getString("playlistId")` manually (null ⇒
+  Liked Songs), and the VM maps `null`/`"liked"` to the `likedSongs()` loader. This also
+  survives restoring back-stack entries saved by older crashing builds.
+  **Lesson:** in this project's safe-args setup, only explicit `defaultValue` entries on
+  *typed* args count — nullable `string` args remain required; prefer manual
+  `getString()` reads when an argument must be optional.
+- Verified on-device (1.0.4): cold start restores the previously-crashing Liked Songs
+  entry and renders `68 tracks • Spotify` + track list, zero crash entries; tapping a liked
+  track plays (`state=PLAYING(3)`, 84 s played / 188 s buffered).
 
 ## Manual smoke checklist
 
