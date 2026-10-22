@@ -181,8 +181,8 @@ android {
             isEnable = !isCI && !isBuildingBundle
 
             reset()
-            include("arm64-v8a", "armeabi-v7a", "x86_64", "x86")
-            isUniversalApk = true
+            include("arm64-v8a")
+            isUniversalApk = false
         }
     }
     packaging {
@@ -251,7 +251,8 @@ androidComponents {
         variant.outputs.forEach { output ->
             val filter = output.filters.joinToString("-") { it.identifier }
             val abi = filter.ifEmpty { "universal" }
-            output.outputFileName = "BoomingMusic-${output.versionName.get()}-${variant.flavorName}-$abi.apk"
+            val appBaseName = if (variant.buildType == "debug") "BoomingFlow" else "BoomingMusic"
+            output.outputFileName = "$appBaseName-${output.versionName.get()}-${variant.flavorName}-$abi.apk"
         }
     }
 }

@@ -129,14 +129,7 @@ fun HomeScreen(
                         text = buildAnnotatedString {
                             withStyle(
                                 style = SpanStyle(color = MaterialTheme.colorScheme.onSurface)
-                            ) { append("Booming") }
-                            append(" ")
-                            withStyle(
-                                style = SpanStyle(
-                                    color = MaterialTheme.colorScheme.primary,
-                                    fontWeight = FontWeight.SemiBold
-                                )
-                            ) { append("Music") }
+                            ) { append(stringResource(R.string.app_name)) }
                         }
                     )
                 },
