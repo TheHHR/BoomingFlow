@@ -1101,8 +1101,8 @@
     <string name="discover_empty_home">Nothing to show here yet</string>
     <string name="discover_retry">Retry</string>
     <string name="discover_tracks_count">%d tracks</string>
-    <string name="discover_playlist_subtitle">Spotify Playlist \u2022 by %1\ \u2022 %2\ tracks</string>
-    <string name="no_youtube_match_found">No YouTube Music match found for \"%1\\"</string>
+    <string name="discover_playlist_subtitle">Spotify Playlist • by %1$s • %2$d tracks</string>
+    <string name="no_youtube_match_found">No YouTube Music match found for "%1$s"</string>
     <string name="queue_added_next">Playing next</string>
     <string name="queue_added">Added to queue</string>
     <string name="play_next_label">Play next</string>
@@ -1110,5 +1110,5 @@
     <string name="playlists_section_your">Your playlists</string>
     <string name="liked_songs_label">Liked Songs</string>
     <string name="playlists_section_spotify">Spotify</string>
-    <string name="liked_songs_subtitle">%1 tracks \u2022 Spotify</string>
+    <string name="liked_songs_subtitle">%1$d tracks • Spotify</string>
 </resources>
