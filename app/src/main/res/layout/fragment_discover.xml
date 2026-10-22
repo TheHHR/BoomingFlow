@@ -57,7 +57,7 @@
                 android:layout_width="72dp"
                 android:layout_height="72dp"
                 android:src="@drawable/ic_spotify_logo"
-                app:shapeAppearanceOverlay="?shapeAppearanceCornerRound"/>
+                app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Circle"/>
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/connect_title"
@@ -108,7 +108,6 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/retry_button"
-                style="?borderlessButtonStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
