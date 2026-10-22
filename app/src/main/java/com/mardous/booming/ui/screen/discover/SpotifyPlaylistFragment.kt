@@ -8,7 +8,6 @@ import android.view.View
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.mardous.booming.R
 import com.mardous.booming.databinding.FragmentDetailListBinding
@@ -30,7 +29,8 @@ class SpotifyPlaylistFragment : AbsMainActivityFragment(R.layout.fragment_detail
     private var _binding: FragmentDetailListBinding? = null
     private val binding get() = _binding!!
 
-    private val arguments by navArgs<SpotifyPlaylistFragmentArgs>()
+    private val playlistId: String?
+        get() = arguments?.getString(ARG_PLAYLIST_ID)
 
     private val viewModel: SpotifyPlaylistViewModel by viewModel()
 
@@ -64,7 +64,8 @@ class SpotifyPlaylistFragment : AbsMainActivityFragment(R.layout.fragment_detail
         binding.playAction.setOnClickListener { playAll(shuffle = false) }
         binding.shuffleAction.setOnClickListener { playAll(shuffle = true) }
 
-        viewModel.load(arguments.playlistId)
+        val id = playlistId
+        viewModel.load(if (id == LIKED_SONGS_ID) null else id)
 
         viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
             launch {
@@ -174,5 +175,10 @@ class SpotifyPlaylistFragment : AbsMainActivityFragment(R.layout.fragment_detail
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    companion object {
+        const val ARG_PLAYLIST_ID = "playlistId"
+        const val LIKED_SONGS_ID = "liked"
     }
 }

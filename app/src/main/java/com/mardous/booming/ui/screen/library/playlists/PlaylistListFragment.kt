@@ -49,6 +49,7 @@ import com.mardous.booming.ui.component.menu.onPlaylistsMenu
 import com.mardous.booming.ui.dialogs.playlists.CreatePlaylistDialog
 import com.mardous.booming.ui.dialogs.playlists.ImportPlaylistDialog
 import com.mardous.booming.ui.screen.discover.SpotifyCardAdapter
+import com.mardous.booming.ui.screen.discover.SpotifyPlaylistFragment
 import com.mardous.booming.ui.screen.library.ReloadType
 import com.mardous.booming.online.viewmodel.StreamingAuthViewModel
 import kotlinx.coroutines.launch
@@ -150,7 +151,10 @@ class PlaylistListFragment : AbsRecyclerViewCustomGridSizeFragment<RecyclerView.
     }
 
     private fun openLikedSongs() {
-        findNavController().navigate(R.id.nav_spotify_playlist)
+        findNavController().navigate(
+            R.id.nav_spotify_playlist,
+            spotifyPlaylistArgs(SpotifyPlaylistFragment.LIKED_SONGS_ID)
+        )
     }
 
     override fun onResume() {
