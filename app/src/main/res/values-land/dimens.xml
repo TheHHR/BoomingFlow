@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="header_margin_horizontal">20dp</dimen>
+
+    <dimen name="lyrics_editor_padding_vertical">8dp</dimen>
+    <dimen name="lyrics_editor_padding_horizontal">16dp</dimen>
+</resources>

@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Theme.Booming" parent="Base.Theme.Booming"/>
+
+    <style name="Theme.Booming.Light" parent="Base.Theme.Booming.Light"/>
+
+    <style name="Theme.Booming.Black" parent="Base.Theme.Booming.Black"/>
+
+    <style name="Theme.Booming.FollowSystem" parent="Base.Theme.Booming.Adaptive"/>
+
+    <style name="Theme.Booming.SplashScreen" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenAnimatedIcon">@drawable/boomingmusic_logo_splash</item>
+    </style>
+
+    <style name="Theme.Booming.AudioPreview" parent="Theme.Booming.FollowSystem">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+    </style>
+
+    <style name="Widget.Booming.AppWidget.Preview.Control" parent="">
+        <item name="android:scaleType">center</item>
+        <item name="android:background">@drawable/widget_shape_button</item>
+        <item name="android:backgroundTint">?attr/colorTertiary</item>
+        <item name="android:tint">?attr/colorOnTertiary</item>
+    </style>
+
+
+    <style name="Widget.Booming.AppWidget.Preview.Accent" parent="Widget.Booming.AppWidget.Preview.Control">
+        <item name="android:backgroundTint">?attr/colorPrimary</item>
+        <item name="android:tint">?attr/colorOnPrimary</item>
+    </style>
+
+    <style name="Widget.Booming.Expressive.Button" parent="Widget.Material3Expressive.Button">
+        <item name="iconGravity">textStart</item>
+    </style>
+
+    <style name="Widget.Booming.Expressive.Button.Tonal" parent="Widget.Material3Expressive.Button.TonalButton">
+        <item name="iconGravity">textStart</item>
+    </style>
+
+    <style name="PlayerIconButton" parent="Widget.Material3Expressive.Button.IconButton.Standard">
+        <item name="iconGravity">textStart</item>
+        <item name="iconTint">?colorOnSurface</item>
+        <item name="rippleColor">?colorControlHighlight</item>
+    </style>
+
+    <style name="PlayerIconButton.Medium">
+        <item name="iconSize">32dp</item>
+    </style>
+
+    <style name="PlayerIconButton.Large">
+        <item name="iconSize">64dp</item>
+    </style>
+
+    <style name="SearchChipStyle" parent="Widget.Material3.Chip.Filter">
+        <item name="android:checked">false</item>
+        <item name="android:textSize">16sp</item>
+        <item name="checkedIconVisible">false</item>
+        <item name="chipEndPadding">10dp</item>
+        <item name="chipMinHeight">40dp</item>
+        <item name="chipStartPadding">10dp</item>
+    </style>
+
+    <style name="MenuButtonStyle" parent="Widget.Material3Expressive.Button.IconButton.Standard">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:focusableInTouchMode">false</item>
+        <item name="android:focusable">false</item>
+        <item name="icon">@drawable/ic_more_vert_24dp</item>
+    </style>
+
+    <style name="BottomSheetStyle" parent="Widget.Material3.BottomSheet">
+        <item name="paddingBottomSystemWindowInsets">false</item>
+        <item name="android:maxWidth">@null</item>
+        <item name="shapeAppearance">?attr/shapeAppearanceCornerMedium</item>
+    </style>
+
+    <style name="ModalBottomSheetStyle" parent="Widget.Material3.BottomSheet.Modal">
+        <item name="backgroundTint">?colorSurfaceContainer</item>
+        <item name="shapeAppearance">?shapeAppearanceCornerLarge</item>
+    </style>
+
+    <style name="ModalBottomSheetStyle.EdgeToEdge">
+        <item name="paddingBottomSystemWindowInsets">false</item>
+    </style>
+
+    <style name="CircularShapeAppearance" parent="">
+        <item name="cornerSize">50%</item>
+        <item name="cornerFamily">rounded</item>
+    </style>
+
+    <style name="Base.SquigglySlider" parent="Widget.AppCompat.ProgressBar.Horizontal">
+        <item name="android:progressTint">?colorPrimary</item>
+        <item name="android:thumbTint">?colorPrimary</item>
+        <item name="android:progressBackgroundTint">?android:attr/textColorTertiary</item>
+        <item name="android:clickable">true</item>
+        <item name="android:splitTrack">false</item>
+        <item name="android:thumb">@drawable/squiggly_thumb</item>
+    </style>
+
+    <style name="SquigglySlider" parent="Base.SquigglySlider">
+        <item name="android:progressDrawable">@drawable/media_squiggly_progress</item>
+    </style>
+
+</resources>

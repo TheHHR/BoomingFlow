@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingTop="12dp"
+    android:paddingStart="?dialogPreferredPadding"
+    android:paddingEnd="?dialogPreferredPadding">
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@android:id/message"
+        style="?materialAlertDialogBodyTextStyle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:ellipsize="end"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:text="@tools:sample/lorem/random"/>
+
+    <com.google.android.material.progressindicator.LinearProgressIndicator
+        android:id="@android:id/progress"
+        style="@style/Widget.Material3Expressive.LinearProgressIndicator.Wavy"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:indeterminate="true"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@android:id/message"
+        tools:progress="25"/>
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/progressText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:maxLines="1"
+        android:ellipsize="end"
+        android:textAppearance="?textAppearanceCaption"
+        android:visibility="gone"
+        app:layout_constrainedWidth="true"
+        app:layout_constraintTop_toBottomOf="@android:id/progress"
+        app:layout_constraintStart_toStartOf="@android:id/progress"
+        tools:text="@tools:sample/lorem/random"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

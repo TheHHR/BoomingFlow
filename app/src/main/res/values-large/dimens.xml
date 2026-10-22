@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="fab_margin_top_left_right">24dp</dimen>
+    <dimen name="lyrics_editor_padding_horizontal">24dp</dimen>
+</resources>

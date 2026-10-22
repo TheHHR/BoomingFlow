@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="primary_text_dark">#ffffffff</color>
+    <color name="primary_text_light">#de000000</color>
+    <color name="primary_text_disabled_dark">#4Dffffff</color>
+    <color name="primary_text_disabled_light">#39000000</color>
+    <color name="secondary_text_dark">#b3ffffff</color>
+    <color name="secondary_text_light">#8a000000</color>
+    <color name="secondary_text_disabled_dark">#36ffffff</color>
+    <color name="secondary_text_disabled_light">#24000000</color>
+
+    <color name="surfaceContainerBlack">#090909</color>
+    <color name="surfaceContainerLowBlack">#070707</color>
+    <color name="surfaceContainerLowestBlack">#0B0B0B</color>
+    <color name="elevationOverlayBlack">@android:color/black</color>
+
+    <color name="radial_gradient_black_overlay">#B3000000</color>
+    <color name="twenty_percent_black_overlay">#34000000</color>
+    <color name="fifty_percent_black_overlay">#88000000</color>
+    <color name="eighty_percent_black_overlay">#D0000000</color>
+
+    <color name="ic_launcher_background">#ffffff</color>
+
+    <color name="app_shortcut_default_foreground">#2D276A</color>
+    <color name="app_shortcut_default_background">@color/ic_launcher_background</color>
+
+    <color name="splash_logo_color_1">#ffbbe2ff</color>
+    <color name="splash_logo_color_2">#ff3186ff</color>
+
+    <color name="md_theme_primary">#4D5C92</color>
+    <color name="md_theme_onPrimary">#FFFFFF</color>
+    <color name="md_theme_primaryContainer">#DCE1FF</color>
+    <color name="md_theme_onPrimaryContainer">#04164B</color>
+    <color name="md_theme_secondary">#595D72</color>
+    <color name="md_theme_onSecondary">#FFFFFF</color>
+    <color name="md_theme_secondaryContainer">#DEE1F9</color>
+    <color name="md_theme_onSecondaryContainer">#161B2C</color>
+    <color name="md_theme_tertiary">#75546F</color>
+    <color name="md_theme_onTertiary">#FFFFFF</color>
+    <color name="md_theme_tertiaryContainer">#FFD7F5</color>
+    <color name="md_theme_onTertiaryContainer">#2C122A</color>
+    <color name="md_theme_error">#BA1A1A</color>
+    <color name="md_theme_onError">#FFFFFF</color>
+    <color name="md_theme_errorContainer">#FFDAD6</color>
+    <color name="md_theme_onErrorContainer">#410002</color>
+    <color name="md_theme_background">#FAF8FF</color>
+    <color name="md_theme_onBackground">#1A1B21</color>
+    <color name="md_theme_surface">#FAF8FF</color>
+    <color name="md_theme_onSurface">#1A1B21</color>
+    <color name="md_theme_surfaceVariant">#E2E1EC</color>
+    <color name="md_theme_onSurfaceVariant">#45464F</color>
+    <color name="md_theme_outline">#767680</color>
+    <color name="md_theme_outlineVariant">#C6C5D0</color>
+    <color name="md_theme_scrim">#000000</color>
+    <color name="md_theme_inverseSurface">#2F3036</color>
+    <color name="md_theme_inverseOnSurface">#F1F0F7</color>
+    <color name="md_theme_inversePrimary">#B6C4FF</color>
+    <color name="md_theme_primaryFixed">#DCE1FF</color>
+    <color name="md_theme_onPrimaryFixed">#04164B</color>
+    <color name="md_theme_primaryFixedDim">#B6C4FF</color>
+    <color name="md_theme_onPrimaryFixedVariant">#354479</color>
+    <color name="md_theme_secondaryFixed">#DEE1F9</color>
+    <color name="md_theme_onSecondaryFixed">#161B2C</color>
+    <color name="md_theme_secondaryFixedDim">#C2C5DD</color>
+    <color name="md_theme_onSecondaryFixedVariant">#424659</color>
+    <color name="md_theme_tertiaryFixed">#FFD7F5</color>
+    <color name="md_theme_onTertiaryFixed">#2C122A</color>
+    <color name="md_theme_tertiaryFixedDim">#E3BADA</color>
+    <color name="md_theme_onTertiaryFixedVariant">#5B3D57</color>
+    <color name="md_theme_surfaceDim">#DAD9E0</color>
+    <color name="md_theme_surfaceBright">#FAF8FF</color>
+    <color name="md_theme_surfaceContainerLowest">#FFFFFF</color>
+    <color name="md_theme_surfaceContainerLow">#F4F3FA</color>
+    <color name="md_theme_surfaceContainer">#EFEDF4</color>
+    <color name="md_theme_surfaceContainerHigh">#E9E7EF</color>
+    <color name="md_theme_surfaceContainerHighest">#E3E1E9</color>
+</resources>

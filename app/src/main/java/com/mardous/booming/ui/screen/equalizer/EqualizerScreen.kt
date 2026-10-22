@@ -1,0 +1,1896 @@
+@file:SuppressLint("LocalContextGetResourceValueCall")
+
+package com.mardous.booming.ui.screen.equalizer
+
+import android.annotation.SuppressLint
+import android.content.ActivityNotFoundException
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts.CreateDocument
+import androidx.activity.result.contract.ActivityResultContracts.OpenDocument
+import androidx.annotation.StringRes
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.selection.toggleable
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ButtonGroupDefaults
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.CircularWavyProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.ListItemDefaults
+import androidx.compose.material3.ListItemShapes
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedCard
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SegmentedListItem
+import androidx.compose.material3.Slider
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.contentColorFor
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableStateSetOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import androidx.core.app.ShareCompat
+import com.mardous.booming.R
+import com.mardous.booming.core.model.LibraryMargin
+import com.mardous.booming.core.model.audiodevice.AudioDeviceType
+import com.mardous.booming.core.model.equalizer.EqBand
+import com.mardous.booming.core.model.equalizer.EqEngineMode
+import com.mardous.booming.core.model.equalizer.EqProfile
+import com.mardous.booming.core.model.equalizer.ReplayGainState
+import com.mardous.booming.core.model.equalizer.autoeq.AutoEqProfile
+import com.mardous.booming.core.model.equalizer.autoeq.AutoEqSyncState
+import com.mardous.booming.data.local.room.AutoEqEntity
+import com.mardous.booming.data.model.replaygain.ReplayGainMode
+import com.mardous.booming.extensions.MIME_TYPE_APPLICATION
+import com.mardous.booming.extensions.MIME_TYPE_PLAIN_TEXT
+import com.mardous.booming.extensions.isLandscape
+import com.mardous.booming.extensions.showToast
+import com.mardous.booming.ui.component.compose.ButtonGroup
+import com.mardous.booming.ui.component.compose.CollapsibleAppBarScaffold
+import com.mardous.booming.ui.component.compose.ConfirmDialog
+import com.mardous.booming.ui.component.compose.DialogCheckBox
+import com.mardous.booming.ui.component.compose.DialogListItemWithCheckBox
+import com.mardous.booming.ui.component.compose.DialogListItemWithRadio
+import com.mardous.booming.ui.component.compose.EmptyView
+import com.mardous.booming.ui.component.compose.EqualizerWaveform
+import com.mardous.booming.ui.component.compose.InputDialog
+import com.mardous.booming.ui.component.compose.MaterialSwitch
+import com.mardous.booming.ui.component.compose.ShapedText
+import com.mardous.booming.ui.component.compose.SwitchCard
+import com.mardous.booming.ui.component.compose.TipView
+import com.mardous.booming.ui.component.compose.TitledCard
+import com.mardous.booming.ui.component.compose.menu.MenuItem
+import com.mardous.booming.ui.component.compose.menu.TopAppBarMenu
+import com.mardous.booming.ui.screen.library.LibraryViewModel
+import com.mardous.booming.util.Preferences
+import org.koin.compose.viewmodel.koinActivityViewModel
+import org.koin.compose.viewmodel.koinViewModel
+import java.util.Locale
+
+private const val PRESET_NAME_MAX_LENGTH = 48
+
+private enum class ProfilesMode(@StringRes val nameRes: Int) {
+    EQ(R.string.eq_profiles_title),
+    AutoEq(R.string.autoeq_profiles_title)
+}
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@Composable
+fun EqualizerScreen(
+    onBackClick: () -> Unit,
+    libraryViewModel: LibraryViewModel = koinActivityViewModel(),
+    eqViewModel: EqualizerViewModel = koinViewModel()
+) {
+    val context = LocalContext.current
+    val configuration = LocalConfiguration.current
+
+    val hasSystemEqualizer = remember { eqViewModel.hasSystemEqualizer(context) }
+
+    val importProfileLauncher = rememberLauncherForActivityResult(OpenDocument()) { data: Uri? ->
+        eqViewModel.requestImport(data)
+    }
+
+    val importAutoEqProfileLauncher = rememberLauncherForActivityResult(OpenDocument()) { data: Uri? ->
+        eqViewModel.requestAutoEqImport(data)
+    }
+
+    var exportableContent by remember { mutableStateOf<String?>(null) }
+    val exportProfileLauncher =
+        rememberLauncherForActivityResult(CreateDocument(MIME_TYPE_APPLICATION)) { data: Uri? ->
+            eqViewModel.exportConfiguration(data, exportableContent)
+        }
+
+    fun importProfiles(autoEq: Boolean) {
+        try {
+            if (autoEq) {
+                importAutoEqProfileLauncher.launch(arrayOf(MIME_TYPE_PLAIN_TEXT))
+                context.showToast(R.string.select_a_file_containing_autoeq_params)
+            } else {
+                importProfileLauncher.launch(arrayOf(MIME_TYPE_APPLICATION))
+                context.showToast(R.string.select_a_file_containing_booming_eq_profiles)
+            }
+        } catch (_: ActivityNotFoundException) {
+            context.showToast("File picker not found")
+        }
+    }
+
+    fun shareConfiguration(data: Uri, mimeType: String) {
+        val builder = ShareCompat.IntentBuilder(context)
+            .setChooserTitle(R.string.share_eq_profiles)
+            .setStream(data)
+            .setType(mimeType)
+        try {
+            builder.startChooser()
+        } catch (_: ActivityNotFoundException) {
+        }
+    }
+
+    val miniPlayerMargin by libraryViewModel.getMiniPlayerMargin().observeAsState(LibraryMargin(0))
+
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    val equalizerSettings by eqViewModel.equalizerSettings.collectAsState()
+    val soundSettings by eqViewModel.soundSettings.collectAsState()
+
+    val eqState = equalizerSettings.eqState
+    val eqCurrentProfile = equalizerSettings.currentProfile
+    val eqProfiles by eqViewModel.eqProfiles.collectAsState(emptyList())
+    val eqBandCapabilities = equalizerSettings.bandCapabilities
+    val eqBands by eqViewModel.eqBands.collectAsState(emptyList())
+    val autoEqProfiles = equalizerSettings.autoEqProfiles
+
+    val virtualizer = equalizerSettings.virtualizer
+    val bassBoost = equalizerSettings.bassBoost
+    val loudnessGain = equalizerSettings.loudnessGain
+    val compressor = equalizerSettings.compressor
+    val limiter = equalizerSettings.limiter
+    val replayGain = soundSettings.replayGain
+
+    val autoEqSyncState by eqViewModel.autoEqSyncState.collectAsState()
+
+    val availableBandCounts = remember(eqBandCapabilities, eqState.proMode) {
+        eqBandCapabilities.getAvailableBandCounts(eqState.proMode)
+    }
+
+    val bandResponseValues = remember(eqBands) {
+        mutableStateListOf<Float>().also { values ->
+            eqBands.forEach { band ->
+                values.add(band.value)
+            }
+        }
+    }
+
+    var editProfileState by remember { mutableStateOf<Pair<EqProfile, Boolean>?>(null) }
+    var deleteProfileState by remember { mutableStateOf<Pair<EqProfile, Boolean>?>(null) }
+
+    var shareProfileState by remember { mutableStateOf<Pair<Uri, String>?>(null) }
+    LaunchedEffect(shareProfileState) {
+        val currentData = shareProfileState
+        if (currentData != null) {
+            val (data, mimeType) = currentData
+            val result = snackbarHostState.showSnackbar(
+                message = context.getString(R.string.profiles_exported_successfully),
+                actionLabel = context.getString(R.string.action_share),
+                duration = SnackbarDuration.Long
+            )
+            when (result) {
+                SnackbarResult.Dismissed -> shareProfileState = null
+                SnackbarResult.ActionPerformed -> {
+                    shareConfiguration(data, mimeType)
+                    shareProfileState = null
+                }
+            }
+        }
+    }
+
+    var showBandCountSelector by remember { mutableStateOf(false) }
+    var showShareProfileDialog by remember { mutableStateOf(false) }
+    var showProfileSaverDialog by remember { mutableStateOf(false) }
+    var showProfileSelectorDialog by remember { mutableStateOf(false) }
+    var showSetEngineDialog by remember { mutableStateOf(false) }
+    var showResetEqDialog by remember { mutableStateOf(false) }
+
+    LaunchedEffect(showProfileSelectorDialog) {
+        if (!showProfileSelectorDialog)
+            eqViewModel.searchAutoEq("")
+    }
+
+    var showImportDialog by remember { mutableStateOf(false) }
+    var profilesToImport by remember { mutableStateOf<List<EqProfile>>(emptyList()) }
+    var importAutoEqProfileState by remember { mutableStateOf<Pair<AutoEqProfile, Boolean>?>(null) }
+    var showExportDialog by remember { mutableStateOf(false) }
+    var changeBandCountState by remember { mutableStateOf<Pair<Int, Boolean>?>(null) }
+
+    val uiEvent by eqViewModel.uiEvent.collectAsState(null)
+    LaunchedEffect(uiEvent) {
+        when (val event = uiEvent) {
+            is EqualizerUiEvent.Action -> {
+                if (event.messageRes != 0) context.showToast(event.messageRes)
+                if (event.canDismiss) {
+                    showProfileSaverDialog = false
+                    editProfileState = null
+                    importAutoEqProfileState = null
+                }
+            }
+            is EqualizerUiEvent.Deletion -> {
+                if (event.success) {
+                    val message = if (event.isAutoEq) {
+                        context.getString(R.string.autoeq_profile_x_deleted, event.profileName)
+                    } else {
+                        context.getString(R.string.profile_x_deleted, event.profileName)
+                    }
+                    context.showToast(message)
+                }
+                deleteProfileState = null
+            }
+            is EqualizerUiEvent.ExportRequest -> {
+                if (event.success && event.data != null) {
+                    exportableContent = event.data.second
+                    try {
+                        exportProfileLauncher.launch(event.data.first)
+                        context.showToast(R.string.select_a_file_to_save_the_exported_profiles)
+                    } catch (_: ActivityNotFoundException) {
+                        exportableContent = null
+                        context.showToast("File picker not found")
+                    }
+                } else if (event.messageRes != 0) {
+                    context.showToast(event.messageRes)
+                }
+            }
+            is EqualizerUiEvent.ExportResult -> {
+                if (event.success && event.uri != null && event.mimeType != null) {
+                    if (event.isShare) {
+                        shareConfiguration(event.uri, event.mimeType)
+                    } else {
+                        shareProfileState = Pair(event.uri, event.mimeType)
+                    }
+                } else if (event.messageRes != 0) {
+                    context.showToast(event.messageRes)
+                }
+            }
+            is EqualizerUiEvent.ImportRequest -> {
+                if (event.success) {
+                    profilesToImport = event.profiles
+                    showImportDialog = true
+                } else if (event.messageRes != 0) {
+                    context.showToast(event.messageRes)
+                }
+            }
+            is EqualizerUiEvent.ImportResult -> {
+                if (event.success && event.count > 0) {
+                    context.showToast(context.getString(R.string.imported_x_profiles, event.count))
+                } else if (event.messageRes != 0) {
+                    context.showToast(event.messageRes)
+                }
+            }
+            is EqualizerUiEvent.AutoEqSyncResult -> {
+                if (event.success && event.count > 0) {
+                    context.showToast(context.getString(R.string.autoeq_sync_success, event.count))
+                } else {
+                    context.showToast(R.string.autoeq_sync_failed)
+                }
+            }
+            is EqualizerUiEvent.AutoEqImportRequest -> {
+                if (event.success && event.profile != null) {
+                    importAutoEqProfileState = Pair(event.profile, true)
+                } else if (event.messageRes != 0) {
+                    context.showToast(event.messageRes)
+                }
+            }
+            is EqualizerUiEvent.BandCountChange -> {
+                if (event.success) {
+                    context.showToast(R.string.band_configuration_changed_successfully)
+                } else {
+                    context.showToast(R.string.band_configuration_could_not_be_changed)
+                }
+            }
+            null -> {}
+        }
+    }
+
+    if (showImportDialog && profilesToImport.isNotEmpty()) {
+        ProfileCheckDialog(
+            icon = painterResource(R.drawable.ic_file_save_24dp),
+            title = stringResource(R.string.import_profiles),
+            message = stringResource(R.string.select_profiles_to_import),
+            confirmButton = stringResource(R.string.import_action),
+            profiles = profilesToImport,
+            onDismiss = { showImportDialog = false },
+            onConfirm = { selectedProfiles ->
+                eqViewModel.importProfiles(selectedProfiles)
+                showImportDialog = false
+            }
+        )
+    }
+
+    importAutoEqProfileState?.let { (profile, showDialog) ->
+        if (showDialog) {
+            InputDialog(
+                icon = painterResource(R.drawable.ic_file_save_24dp),
+                message = stringResource(R.string.please_enter_a_name_for_this_profile),
+                inputHint = stringResource(R.string.profile_name),
+                inputPrefill = profile.name,
+                inputMaxLength = PRESET_NAME_MAX_LENGTH,
+                checkBoxPrompt = stringResource(R.string.replace_profile_with_same_name),
+                confirmButton = stringResource(R.string.action_save),
+                onConfirm = { name, isChecked ->
+                    eqViewModel.importAutoEqProfile(profile, name, isChecked)
+                },
+                onDismiss = { importAutoEqProfileState = null }
+            )
+        }
+    }
+
+    if (showExportDialog && eqProfiles.isNotEmpty()) {
+        ProfileCheckDialog(
+            icon = painterResource(R.drawable.ic_file_export_24dp),
+            title = stringResource(R.string.export_profiles),
+            message = stringResource(R.string.select_profiles_to_export),
+            confirmButton = stringResource(android.R.string.ok),
+            profiles = eqProfiles,
+            onDismiss = { showExportDialog = false },
+            onConfirm = { selectedProfiles ->
+                eqViewModel.generateExportData(selectedProfiles)
+                showExportDialog = false
+            }
+        )
+    }
+
+    if (showShareProfileDialog && eqProfiles.isNotEmpty()) {
+        ProfileCheckDialog(
+            icon = painterResource(R.drawable.ic_share_24dp),
+            title = stringResource(R.string.share_profiles),
+            message = stringResource(R.string.select_profiles_to_share),
+            confirmButton = stringResource(R.string.action_share),
+            profiles = eqProfiles,
+            onDismiss = { showShareProfileDialog = false },
+            onConfirm = { selectedProfiles ->
+                eqViewModel.shareProfiles(context, selectedProfiles)
+                showShareProfileDialog = false
+            }
+        )
+    }
+
+    if (showProfileSaverDialog) {
+        ProfileSaverDialog(
+            onConfirm = { profileName: String, allowReplace: Boolean, associatedDevices: Set<AudioDeviceType> ->
+                eqViewModel.saveProfile(profileName, allowReplace, associatedDevices)
+            },
+            onDismiss = { showProfileSaverDialog = false }
+        )
+    }
+
+    editProfileState?.let { (targetProfile, showDialog) ->
+        if (showDialog) {
+            ProfileEditorDialog(
+                profile = targetProfile,
+                onConfirm = { newName, newAssociations ->
+                    eqViewModel.editProfile(targetProfile, newName, newAssociations)
+                },
+                onDismiss = { editProfileState = null }
+            )
+        }
+    }
+
+    deleteProfileState?.let { (targetProfile, showDialog) ->
+        if (showDialog) {
+            ConfirmDialog(
+                icon = painterResource(R.drawable.ic_delete_24dp),
+                title = stringResource(R.string.delete_profile_label),
+                message = stringResource(R.string.delete_profile_x, targetProfile.name),
+                confirmButton = stringResource(R.string.delete_action),
+                dismissButton = stringResource(R.string.no),
+                onConfirm = { eqViewModel.deleteProfile(context, targetProfile) },
+                onDismiss = { deleteProfileState = null }
+            )
+        }
+    }
+
+    changeBandCountState?.let { (bandCount, showDialog) ->
+        if (showDialog) {
+            ConfirmDialog(
+                icon = painterResource(R.drawable.ic_graphic_eq_24dp),
+                title = stringResource(R.string.change_band_count_title),
+                message = stringResource(R.string.change_band_count_message),
+                confirmButton = stringResource(R.string.continue_action),
+                dismissButton = stringResource(R.string.no),
+                onConfirm = {
+                    eqViewModel.setBandCount(bandCount)
+                    showBandCountSelector = false
+                    changeBandCountState = null
+                },
+                onDismiss = { changeBandCountState = null }
+            )
+        }
+    }
+
+    if (showProfileSelectorDialog) {
+        val autoEqSearchResults by eqViewModel.autoEqSearchState.collectAsState(emptyList())
+        ProfileSelectorDialog(
+            profiles = eqProfiles,
+            autoEqProfiles = autoEqProfiles,
+            autoEqSearchResults = autoEqSearchResults,
+            autoEqSyncState = autoEqSyncState,
+            selectedProfile = eqCurrentProfile,
+            onSelectEqProfile = { profile ->
+                eqViewModel.setEqualizerProfile(profile)
+                showProfileSelectorDialog = false
+            },
+            onSelectAutoEqProfile = { profile ->
+                eqViewModel.setAutoEqProfile(profile)
+                showProfileSelectorDialog = false
+            },
+            onSelectRemoteAutoEqProfile = { entity ->
+                eqViewModel.setRemoteAutoEqProfile(entity)
+                showProfileSelectorDialog = false
+            },
+            onSearchAutoEq = { eqViewModel.searchAutoEq(it) },
+            onEditEqProfile = { profile -> editProfileState = Pair(profile, true) },
+            onDeleteEqProfile = { profile -> deleteProfileState = Pair(profile, true) },
+            onDeleteAutoEqProfile = { eqViewModel.deleteAutoEqProfile(it) },
+            onImportAutoEqProfile = { importProfiles(autoEq = true) },
+            onSyncAutoEq = { eqViewModel.syncAutoEqDatabase() },
+            onDismiss = { showProfileSelectorDialog = false }
+        )
+    }
+
+    if (showSetEngineDialog) {
+        EngineSelectorDialog(
+            currentEngine = eqState.engineMode,
+            onConfirm = {
+                eqViewModel.setEngineMode(it)
+                showSetEngineDialog = false
+            },
+            onDismiss = {
+                showSetEngineDialog = false
+            }
+        )
+    }
+
+    if (showResetEqDialog) {
+        ConfirmDialog(
+            icon = painterResource(R.drawable.ic_restart_alt_24dp),
+            title = stringResource(R.string.reset_equalizer),
+            message = stringResource(R.string.are_you_sure_you_want_to_reset_the_equalizer),
+            confirmButton = stringResource(R.string.reset_action),
+            onConfirm = {
+                eqViewModel.resetEqualizer()
+                showResetEqDialog = false
+            },
+            onDismiss = { showResetEqDialog = false }
+        )
+    }
+
+    LaunchedEffect(Unit) {
+        eqViewModel.syncAutoEqDatabase(fetchRemote = false)
+    }
+
+    CollapsibleAppBarScaffold(
+        title = stringResource(R.string.equalizer_label),
+        actions = {
+            TopAppBarMenu(
+                items = listOf(
+                    MenuItem.Button.Action(
+                        text = stringResource(R.string.action_external_eq),
+                        icon = painterResource(R.drawable.ic_equalizer_24dp),
+                        onClick = { eqViewModel.openSystemEqualizer(context) },
+                        visible = !eqState.isDisabledByReason && hasSystemEqualizer
+                    ),
+                    MenuItem.Button.DropDown(
+                        text = stringResource(R.string.share_profiles),
+                        icon = painterResource(R.drawable.ic_share_24dp),
+                        onClick = { showShareProfileDialog = true },
+                        enabled = eqState.isUsable && eqProfiles.isNotEmpty()
+                    ),
+                    MenuItem.Button.DropDown(
+                        text = stringResource(R.string.export_profiles),
+                        icon = painterResource(R.drawable.ic_file_export_24dp),
+                        onClick = { showExportDialog = true },
+                        enabled = eqState.isUsable && eqProfiles.isNotEmpty()
+                    ),
+                    MenuItem.Button.DropDown(
+                        text = stringResource(R.string.import_profiles),
+                        icon = painterResource(R.drawable.ic_file_open_24dp),
+                        onClick = { importProfiles(autoEq = false) },
+                        enabled = eqState.isUsable
+                    ),
+                    MenuItem.Button.DropDown(
+                        text = stringResource(R.string.import_autoeq_profile),
+                        icon = painterResource(R.drawable.ic_graphic_eq_24dp),
+                        onClick = { importProfiles(autoEq = true) },
+                        enabled = eqState.isUsable
+                    ),
+                    MenuItem.Button.DropDown(
+                        text = stringResource(R.string.sync_autoeq_database),
+                        icon = painterResource(R.drawable.ic_restart_alt_24dp),
+                        onClick = { eqViewModel.syncAutoEqDatabase() },
+                        enabled = eqState.isUsable && autoEqSyncState !is AutoEqSyncState.Syncing
+                    ),
+                    MenuItem.Button.DropDown(
+                        text = stringResource(R.string.set_eq_engine_title),
+                        icon = painterResource(R.drawable.ic_equalizer_24dp),
+                        onClick = { showSetEngineDialog = true },
+                        enabled = !eqState.isDisabledByReason,
+                        visible = EqEngineMode.isSwitchingSupported()
+                    ),
+                    MenuItem.Button.Checkable(
+                        text = stringResource(R.string.eq_pro_mode),
+                        icon = painterResource(R.drawable.ic_instant_mix_24dp),
+                        onCheckedChange = { eqViewModel.setProMode(it) },
+                        isChecked = eqState.proMode,
+                        enabled = eqState.isUsable,
+                        visible = eqState.engineMode.supportsProMode
+                    ),
+                    MenuItem.Button.DropDown(
+                        text = stringResource(R.string.reset_equalizer),
+                        icon = painterResource(R.drawable.ic_restart_alt_24dp),
+                        onClick = { showResetEqDialog = true },
+                        dangerous = true,
+                        enabled = eqState.isUsable
+                    )
+                )
+            )
+        },
+        headerMode = Preferences.appBarMode,
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+        miniPlayerMargin = miniPlayerMargin.totalMargin,
+        onBackClick = onBackClick
+    ) { contentPadding ->
+        LazyColumn(
+            contentPadding = PaddingValues(
+                horizontal = if (configuration.isLandscape) 64.dp else 16.dp,
+                vertical = 16.dp
+            ),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(contentPadding)
+        ) {
+            if (eqState.isDisabledByReason) {
+                eqState.disableReason?.let {
+                    item {
+                        EmptyView(
+                            icon = painterResource(R.drawable.ic_equalizer_24dp),
+                            title = stringResource(it.titleRes),
+                            modifier = Modifier.fillParentMaxSize()
+                        )
+                    }
+                }
+            } else {
+                item {
+                    MaterialSwitch(
+                        title = stringResource(R.string.enable_equalizer),
+                        subtitle = if (!eqState.supported) stringResource(R.string.not_supported) else null,
+                        isChecked = eqState.isUsable,
+                        enabled = eqState.supported,
+                        onClick = {
+                            eqViewModel.setEqualizerState(isEnabled = eqState.enabled.not())
+                        }
+                    )
+                }
+
+                if (eqState.supported) {
+                    item {
+                        TitledCard(
+                            title = stringResource(R.string.eq_profile_title),
+                            titleEndContent = { SyncProgressIndicator(autoEqSyncState) },
+                            icon = painterResource(R.drawable.ic_equalizer_24dp),
+                            color = MaterialTheme.colorScheme.surfaceContainerLow
+                        ) { cardContentPadding ->
+                            Column(
+                                verticalArrangement = Arrangement.spacedBy(12.dp),
+                                modifier = Modifier.padding(cardContentPadding)
+                            ) {
+                                val containerColor = if (eqState.isUsable) {
+                                    MaterialTheme.colorScheme.surfaceContainerHigh
+                                } else {
+                                    MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = 0.7f)
+                                }
+                                val contentColor = contentColorFor(containerColor)
+
+                                Row(
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clip(MaterialTheme.shapes.medium)
+                                        .background(containerColor)
+                                        .clickable(
+                                            enabled = eqState.isUsable,
+                                            onClick = { showProfileSelectorDialog = true }
+                                        )
+                                        .padding(horizontal = 16.dp, vertical = 12.dp)
+                                ) {
+                                    Text(
+                                        text = eqCurrentProfile.getName(context),
+                                        style = MaterialTheme.typography.titleMedium,
+                                        color = contentColor,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
+                                        modifier = Modifier.weight(1f)
+                                    )
+
+                                    Icon(
+                                        painter = painterResource(R.drawable.ic_arrow_drop_down_24dp),
+                                        contentDescription = null,
+                                        modifier = Modifier.size(24.dp)
+                                    )
+                                }
+
+                                Row(
+                                    horizontalArrangement = Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    val deleteInteractionSource = remember { MutableInteractionSource() }
+                                    val deleteIsPressed by deleteInteractionSource.collectIsPressedAsState()
+                                    Button(
+                                        onClick = { deleteProfileState = Pair(eqCurrentProfile, true) },
+                                        colors = ButtonDefaults.buttonColors(
+                                            containerColor = MaterialTheme.colorScheme.errorContainer,
+                                            contentColor = MaterialTheme.colorScheme.onErrorContainer
+                                        ),
+                                        shape = if (deleteIsPressed) {
+                                            ButtonGroupDefaults.connectedLeadingButtonPressShape
+                                        } else {
+                                            ButtonGroupDefaults.connectedLeadingButtonShape
+                                        },
+                                        contentPadding = ButtonDefaults.ButtonWithIconContentPadding,
+                                        enabled = eqState.isUsable && !eqCurrentProfile.isCustom,
+                                        interactionSource = deleteInteractionSource,
+                                        modifier = Modifier.weight(1f)
+                                    ) {
+                                        Icon(painterResource(R.drawable.ic_delete_24dp), null)
+                                        Spacer(Modifier.width(ButtonDefaults.IconSpacing))
+                                        Text(stringResource(R.string.delete_action))
+                                    }
+
+                                    val saveInteractionSource = remember { MutableInteractionSource() }
+                                    val saveIsPressed by saveInteractionSource.collectIsPressedAsState()
+                                    Button(
+                                        onClick = { showProfileSaverDialog = true },
+                                        shape = if (saveIsPressed) {
+                                            ButtonGroupDefaults.connectedTrailingButtonPressShape
+                                        } else {
+                                            ButtonGroupDefaults.connectedTrailingButtonShape
+                                        },
+                                        contentPadding = ButtonDefaults.ButtonWithIconContentPadding,
+                                        enabled = eqState.isUsable && eqCurrentProfile.isCustom,
+                                        interactionSource = saveInteractionSource,
+                                        modifier = Modifier.weight(1f)
+                                    ) {
+                                        Icon(painterResource(R.drawable.ic_save_24dp), null)
+                                        Spacer(Modifier.width(ButtonDefaults.IconSpacing))
+                                        Text(stringResource(R.string.action_save))
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    item {
+                        TitledCard(
+                            title = stringResource(R.string.graphic_eq_label),
+                            icon = painterResource(R.drawable.ic_graphic_eq_24dp),
+                            titleEndContent = {
+                                if (eqBandCapabilities.hasMultipleBandConfigurations) {
+                                    ShapedText(
+                                        text = stringResource(
+                                            R.string.graphic_eq_band_count,
+                                            eqState.preferredBandCount
+                                        ),
+                                        style = MaterialTheme.typography.bodySmallEmphasized,
+                                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                        shape = CircleShape,
+                                        enabled = eqState.isUsable,
+                                        onClick = {
+                                            showBandCountSelector = showBandCountSelector.not()
+                                        }
+                                    )
+                                }
+                            },
+                            color = MaterialTheme.colorScheme.surfaceContainerLow
+                        ) { cardContentPadding ->
+                            Column(
+                                verticalArrangement = Arrangement.spacedBy(8.dp),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .wrapContentHeight()
+                                    .padding(cardContentPadding)
+                            ) {
+                                AnimatedVisibility(
+                                    visible = eqState.enabled && showBandCountSelector
+                                ) {
+                                    ButtonGroup(
+                                        onSelected = { newBandCount ->
+                                            if (newBandCount != eqState.preferredBandCount) {
+                                                changeBandCountState = Pair(newBandCount, true)
+                                            }
+                                        },
+                                        buttonItems = availableBandCounts,
+                                        buttonStateResolver = { it == eqState.preferredBandCount },
+                                        modifier = Modifier.padding(
+                                            vertical = 8.dp,
+                                            horizontal = 16.dp
+                                        )
+                                    )
+                                }
+
+                                if (eqBands.isNotEmpty()) {
+                                    EqualizerWaveform(
+                                        bands = bandResponseValues,
+                                        valueRange = eqBandCapabilities.bandRange,
+                                        enabled = eqState.isUsable,
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .height(100.dp)
+                                            .padding(vertical = 8.dp)
+                                    )
+                                    eqBands.forEachIndexed { index, band ->
+                                        EQBandSlider(
+                                            enabled = eqState.isUsable,
+                                            band = band,
+                                            onValueChange = { bandResponseValues[index] = it },
+                                            onValueChangeFinished = { bandGain ->
+                                                eqViewModel.setCustomProfileBandGain(
+                                                    band.index,
+                                                    bandGain
+                                                )
+                                            }
+                                        )
+                                    }
+                                } else {
+                                    Text(
+                                        text = stringResource(R.string.eq_empty_bands),
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        textAlign = TextAlign.Center,
+                                        modifier = Modifier.align(Alignment.CenterHorizontally)
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    if (virtualizer.supported) {
+                        item {
+                            var virtualizerStrength by remember(virtualizer.strength) {
+                                mutableFloatStateOf(virtualizer.strength)
+                            }
+                            SwitchCard(
+                                onCheckedChange = { eqViewModel.setVirtualizer(enabled = it) },
+                                checked = virtualizer.enabled && eqState.enabled,
+                                title = stringResource(R.string.virtualizer_label),
+                                icon = painterResource(R.drawable.ic_headphones_24dp),
+                                color = MaterialTheme.colorScheme.surfaceContainerLow,
+                                enabled = eqState.isUsable
+                            ) { cardContentPadding ->
+                                Row(
+                                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier.padding(cardContentPadding)
+                                ) {
+                                    Slider(
+                                        steps = 10,
+                                        value = virtualizerStrength,
+                                        onValueChange = { virtualizerStrength = it },
+                                        onValueChangeFinished = {
+                                            eqViewModel.setVirtualizer(strength = virtualizerStrength)
+                                        },
+                                        valueRange = virtualizer.strengthRange,
+                                        enabled = eqState.isUsable,
+                                        modifier = Modifier.weight(1f)
+                                    )
+
+                                    EQValueText(
+                                        text = "${((virtualizerStrength * 100) / virtualizer.strengthRange.endInclusive).toInt()}%",
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    if (bassBoost.supported) {
+                        item {
+                            var bassBoostStrength by remember(bassBoost.strength) {
+                                mutableFloatStateOf(bassBoost.strength)
+                            }
+                            SwitchCard(
+                                onCheckedChange = { eqViewModel.setBassBoost(enabled = it) },
+                                checked = bassBoost.enabled && eqState.enabled,
+                                title = stringResource(R.string.bassboost_label),
+                                icon = painterResource(R.drawable.ic_edit_audio_24dp),
+                                color = MaterialTheme.colorScheme.surfaceContainerLow,
+                                enabled = eqState.isUsable
+                            ) { cardContentPadding ->
+                                Row(
+                                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier.padding(cardContentPadding)
+                                ) {
+                                    Slider(
+                                        steps = 10,
+                                        value = bassBoostStrength,
+                                        onValueChange = { bassBoostStrength = it },
+                                        onValueChangeFinished = {
+                                            eqViewModel.setBassBoost(strength = bassBoostStrength)
+                                        },
+                                        valueRange = bassBoost.strengthRange,
+                                        enabled = eqState.isUsable,
+                                        modifier = Modifier.weight(1f)
+                                    )
+
+                                    EQValueText(
+                                        text = "${((bassBoostStrength * 100) / bassBoost.strengthRange.endInclusive).toInt()}%"
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    if (loudnessGain.supported) {
+                        item {
+                            var loudnessGainValue by remember(loudnessGain.gainInDb) {
+                                mutableFloatStateOf(loudnessGain.gainInDb)
+                            }
+                            SwitchCard(
+                                onCheckedChange = { eqViewModel.setLoudnessGain(enabled = it) },
+                                checked = loudnessGain.enabled && eqState.enabled,
+                                title = stringResource(R.string.loudness_enhancer),
+                                icon = painterResource(R.drawable.ic_volume_up_24dp),
+                                color = MaterialTheme.colorScheme.surfaceContainerLow,
+                                enabled = eqState.isUsable
+                            ) { cardContentPadding ->
+                                Row(
+                                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier.padding(cardContentPadding)
+                                ) {
+                                    Slider(
+                                        value = loudnessGainValue,
+                                        onValueChange = {
+                                            loudnessGainValue = it
+                                        },
+                                        onValueChangeFinished = {
+                                            eqViewModel.setLoudnessGain(gain = loudnessGainValue)
+                                        },
+                                        valueRange = loudnessGain.gainRange,
+                                        enabled = eqState.isUsable,
+                                        modifier = Modifier.weight(1f)
+                                    )
+
+                                    EQValueText(
+                                        text = "%.1f dB".format(Locale.ROOT, loudnessGainValue)
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    if (eqState.proMode) {
+                        item {
+                            SwitchCard(
+                                onCheckedChange = { eqViewModel.setCompressor(enabled = it) },
+                                checked = compressor.enabled && eqState.enabled,
+                                title = stringResource(R.string.compressor_label),
+                                icon = painterResource(R.drawable.ic_instant_mix_24dp),
+                                color = MaterialTheme.colorScheme.surfaceContainerLow,
+                                enabled = eqState.isUsable
+                            ) { cardContentPadding ->
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    modifier = Modifier.padding(cardContentPadding)
+                                ) {
+                                    ParameterSlider(
+                                        label = stringResource(R.string.eq_threshold),
+                                        value = compressor.threshold,
+                                        range = compressor.thresholdRange,
+                                        onValueChangeFinished = { eqViewModel.setCompressor(threshold = it) },
+                                        unit = " dB",
+                                        enabled = eqState.isUsable
+                                    )
+                                    ParameterSlider(
+                                        label = stringResource(R.string.eq_ratio),
+                                        value = compressor.ratio,
+                                        range = compressor.ratioRange,
+                                        onValueChangeFinished = { eqViewModel.setCompressor(ratio = it) },
+                                        format = "%.1f:1",
+                                        enabled = eqState.isUsable
+                                    )
+                                    ParameterSlider(
+                                        label = stringResource(R.string.eq_attack_time),
+                                        value = compressor.attackTimeMs,
+                                        range = compressor.attackTimeRange,
+                                        onValueChangeFinished = { eqViewModel.setCompressor(attackTimeMs = it) },
+                                        unit = " ms",
+                                        enabled = eqState.isUsable
+                                    )
+                                    ParameterSlider(
+                                        label = stringResource(R.string.eq_release_time),
+                                        value = compressor.releaseTimeMs,
+                                        range = compressor.releaseTimeRange,
+                                        onValueChangeFinished = { eqViewModel.setCompressor(releaseTimeMs = it) },
+                                        unit = " ms",
+                                        enabled = eqState.isUsable
+                                    )
+                                    ParameterSlider(
+                                        label = stringResource(R.string.eq_knee_width),
+                                        value = compressor.kneeWidth,
+                                        range = compressor.kneeWidthRange,
+                                        onValueChangeFinished = { eqViewModel.setCompressor(kneeWidth = it) },
+                                        unit = " dB",
+                                        enabled = eqState.isUsable
+                                    )
+                                    ParameterSlider(
+                                        label = stringResource(R.string.eq_noise_gate),
+                                        value = compressor.noiseGateThreshold,
+                                        range = compressor.noiseGateThresholdRange,
+                                        onValueChangeFinished = { eqViewModel.setCompressor(noiseGateThreshold = it) },
+                                        unit = " dB",
+                                        enabled = eqState.isUsable
+                                    )
+                                    ParameterSlider(
+                                        label = stringResource(R.string.eq_pre_gain),
+                                        value = compressor.preGain,
+                                        range = compressor.preGainRange,
+                                        onValueChangeFinished = { eqViewModel.setCompressor(preGain = it) },
+                                        unit = " dB",
+                                        enabled = eqState.isUsable
+                                    )
+                                    ParameterSlider(
+                                        label = stringResource(R.string.eq_post_gain),
+                                        value = compressor.postGain,
+                                        range = compressor.postGainRange,
+                                        onValueChangeFinished = { eqViewModel.setCompressor(postGain = it) },
+                                        unit = " dB",
+                                        enabled = eqState.isUsable
+                                    )
+                                    Spacer(Modifier.height(4.dp))
+                                    ResetButton(
+                                        onClick = {
+                                            eqViewModel.resetCompressor()
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    if (eqState.proMode) {
+                        item {
+                            SwitchCard(
+                                onCheckedChange = { eqViewModel.setLimiter(enabled = it) },
+                                checked = limiter.enabled && eqState.enabled,
+                                title = stringResource(R.string.limiter_label),
+                                icon = painterResource(R.drawable.ic_instant_mix_24dp),
+                                color = MaterialTheme.colorScheme.surfaceContainerLow,
+                                enabled = eqState.isUsable
+                            ) { cardContentPadding ->
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    modifier = Modifier.padding(cardContentPadding)
+                                ) {
+                                    ParameterSlider(
+                                        label = stringResource(R.string.eq_threshold),
+                                        value = limiter.threshold,
+                                        range = limiter.thresholdRange,
+                                        onValueChangeFinished = { eqViewModel.setLimiter(threshold = it) },
+                                        unit = " dB",
+                                        enabled = eqState.isUsable
+                                    )
+                                    ParameterSlider(
+                                        label = stringResource(R.string.eq_ratio),
+                                        value = limiter.ratio,
+                                        range = limiter.ratioRange,
+                                        onValueChangeFinished = { eqViewModel.setLimiter(ratio = it) },
+                                        format = "%.1f:1",
+                                        enabled = eqState.isUsable
+                                    )
+                                    ParameterSlider(
+                                        label = stringResource(R.string.eq_attack_time),
+                                        value = limiter.attackTimeMs,
+                                        range = limiter.attackTimeRange,
+                                        onValueChangeFinished = { eqViewModel.setLimiter(attackTimeMs = it) },
+                                        unit = " ms",
+                                        enabled = eqState.isUsable
+                                    )
+                                    ParameterSlider(
+                                        label = stringResource(R.string.eq_release_time),
+                                        value = limiter.releaseTimeMs,
+                                        range = limiter.releaseTimeRange,
+                                        onValueChangeFinished = { eqViewModel.setLimiter(releaseTimeMs = it) },
+                                        unit = " ms",
+                                        enabled = eqState.isUsable
+                                    )
+                                    ParameterSlider(
+                                        label = stringResource(R.string.eq_post_gain),
+                                        value = limiter.postGain,
+                                        range = limiter.postGainRange,
+                                        onValueChangeFinished = { eqViewModel.setLimiter(postGain = it) },
+                                        unit = " dB",
+                                        enabled = eqState.isUsable
+                                    )
+                                    Spacer(Modifier.height(4.dp))
+                                    ResetButton(
+                                        onClick = {
+                                            eqViewModel.resetLimiter()
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+
+                item {
+                    TitledCard(
+                        title = stringResource(R.string.replay_gain),
+                        icon = painterResource(R.drawable.ic_sound_sampler_24dp),
+                        color = MaterialTheme.colorScheme.surfaceContainerLow,
+                        modifier = Modifier.fillMaxWidth()
+                    ) { cardContentPadding ->
+                        Column(
+                            modifier = Modifier.padding(cardContentPadding)
+                        ) {
+                            ReplayGainModeSelector(replayGain) {
+                                eqViewModel.setReplayGain(mode = it)
+                            }
+
+                            AnimatedVisibility(
+                                visible = replayGain.mode.isOn,
+                                modifier = Modifier.padding(top = 8.dp)
+                            ) {
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    ParameterSlider(
+                                        label = stringResource(R.string.rg_with_tag),
+                                        value = replayGain.preamp,
+                                        range = -15f..15f,
+                                        onValueChangeFinished = {
+                                            eqViewModel.setReplayGain(preamp = it)
+                                        },
+                                        format = "%+.1f",
+                                        unit = " dB"
+                                    )
+                                    ParameterSlider(
+                                        label = stringResource(R.string.rg_without_tag),
+                                        value = replayGain.preampWithoutGain,
+                                        range = -15f..15f,
+                                        onValueChangeFinished = {
+                                            eqViewModel.setReplayGain(preampWithoutGain = it)
+                                        },
+                                        format = "%+.1f",
+                                        unit = " dB"
+                                    )
+                                    Spacer(Modifier.height(4.dp))
+                                    ResetButton(
+                                        onClick = {
+                                            eqViewModel.setReplayGain(
+                                                preamp = 0f,
+                                                preampWithoutGain = 0f
+                                            )
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun EQBandSlider(
+    enabled: Boolean,
+    band: EqBand,
+    onValueChange: (Float) -> Unit,
+    onValueChangeFinished: (Float) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    var bandLevel by remember(band.value) {
+        mutableFloatStateOf(band.value)
+    }
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp)
+    ) {
+        Text(
+            text = band.readableFrequency,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            maxLines = 1,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.width(48.dp)
+        )
+
+        Slider(
+            value = bandLevel,
+            onValueChange = {
+                bandLevel = it
+                onValueChange(it)
+            },
+            onValueChangeFinished = { onValueChangeFinished(bandLevel) },
+            valueRange = band.valueRange,
+            enabled = enabled,
+            modifier = Modifier.weight(1f)
+        )
+
+        EQValueText(
+            text = "%+.1f dB".format(Locale.ROOT, bandLevel)
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+@Composable
+private fun ProfileSelectorDialog(
+    profiles: List<EqProfile>,
+    autoEqProfiles: List<AutoEqProfile>,
+    autoEqSearchResults: List<AutoEqEntity>,
+    autoEqSyncState: AutoEqSyncState,
+    selectedProfile: EqProfile,
+    onSelectEqProfile: (EqProfile) -> Unit,
+    onSelectAutoEqProfile: (AutoEqProfile) -> Unit,
+    onSelectRemoteAutoEqProfile: (AutoEqEntity) -> Unit,
+    onSearchAutoEq: (String) -> Unit,
+    onEditEqProfile: (EqProfile) -> Unit,
+    onDeleteEqProfile: (EqProfile) -> Unit,
+    onDeleteAutoEqProfile: (AutoEqProfile) -> Unit,
+    onImportAutoEqProfile: () -> Unit,
+    onSyncAutoEq: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    var profilesMode by remember { mutableStateOf(ProfilesMode.EQ) }
+
+    ModalBottomSheet(onDismissRequest = onDismiss) {
+        Column(Modifier.padding(horizontal = 24.dp)) {
+            Text(
+                text = stringResource(R.string.select_profile),
+                style = MaterialTheme.typography.headlineSmallEmphasized
+            )
+
+            Spacer(Modifier.height(16.dp))
+
+            ButtonGroup(
+                onSelected = { profilesMode = it },
+                buttonItems = ProfilesMode.entries,
+                buttonTextResolver = { stringResource(it.nameRes) },
+                buttonStateResolver = { it == profilesMode }
+            )
+
+            Spacer(Modifier.height(8.dp))
+
+            when (profilesMode) {
+                ProfilesMode.EQ -> {
+                    LazyColumn(
+                        contentPadding = PaddingValues(bottom = 24.dp),
+                        verticalArrangement = Arrangement.spacedBy(ListItemDefaults.SegmentedGap)
+                    ) {
+                        itemsIndexed(profiles) { index, profile ->
+                            EqualizerProfileItem(
+                                shapes = ListItemDefaults.segmentedShapes(index, profiles.size),
+                                profile = profile,
+                                isCurrentProfile = profile == selectedProfile,
+                                onClick = { onSelectEqProfile(profile) },
+                                onEditClick = { onEditEqProfile(profile) },
+                                onDeleteClick = { onDeleteEqProfile(profile) }
+                            )
+                        }
+                    }
+                }
+
+                ProfilesMode.AutoEq -> {
+                    Column(Modifier.fillMaxSize()) {
+                        var searchQuery by remember { mutableStateOf("") }
+                        val focusRequester = remember { FocusRequester() }
+                        OutlinedTextField(
+                            value = searchQuery,
+                            onValueChange = {
+                                searchQuery = it
+                                onSearchAutoEq(it)
+                            },
+                            placeholder = { Text(stringResource(R.string.search_autoeq_placeholder)) },
+                            trailingIcon = { Icon(painterResource(R.drawable.ic_search_24dp), null) },
+                            shape = RoundedCornerShape(12.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .focusRequester(focusRequester)
+                        )
+
+                        if (autoEqProfiles.isEmpty() && autoEqSearchResults.isEmpty() && searchQuery.isEmpty()) {
+                            when (autoEqSyncState) {
+                                is AutoEqSyncState.Syncing -> {
+                                    Box(Modifier.fillMaxSize()) {
+                                        if (autoEqSyncState.isIndeterminate) {
+                                            CircularWavyProgressIndicator(Modifier.align(Alignment.Center))
+                                        } else {
+                                            CircularWavyProgressIndicator(
+                                                progress = { autoEqSyncState.fraction },
+                                                modifier = Modifier.align(Alignment.Center)
+                                            )
+                                        }
+                                    }
+                                }
+                                else -> {
+                                    EmptyView(
+                                        icon = painterResource(R.drawable.ic_equalizer_24dp),
+                                        title = stringResource(R.string.no_autoeq_profiles),
+                                        subtitle = when (autoEqSyncState) {
+                                            is AutoEqSyncState.Success -> {
+                                                stringResource(
+                                                    R.string.import_or_type_to_search_autoeq_profiles,
+                                                    autoEqSyncState.count
+                                                )
+                                            }
+
+                                            else -> stringResource(R.string.import_or_sync_autoeq_database)
+                                        },
+                                        button = {
+                                            Column(
+                                                horizontalAlignment = Alignment.CenterHorizontally,
+                                                verticalArrangement = Arrangement.spacedBy(8.dp)
+                                            ) {
+                                                Button(onClick = onImportAutoEqProfile) {
+                                                    Icon(
+                                                        painter = painterResource(R.drawable.ic_file_open_24dp),
+                                                        contentDescription = null
+                                                    )
+                                                    Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+                                                    Text(stringResource(R.string.import_autoeq_profile))
+                                                }
+                                                when (autoEqSyncState) {
+                                                    is AutoEqSyncState.Success -> {
+                                                        TextButton(onClick = { focusRequester.requestFocus() }) {
+                                                            Icon(
+                                                                painter = painterResource(R.drawable.ic_search_24dp),
+                                                                contentDescription = null
+                                                            )
+                                                            Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+                                                            Text(stringResource(R.string.autoeq_search_device_name))
+                                                        }
+                                                    }
+
+                                                    else -> {
+                                                        TextButton(onClick = onSyncAutoEq) {
+                                                            Icon(
+                                                                painter = painterResource(R.drawable.ic_restart_alt_24dp),
+                                                                contentDescription = null
+                                                            )
+                                                            Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+                                                            Text(stringResource(R.string.sync_autoeq_database))
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        modifier = Modifier.fillMaxSize()
+                                    )
+                                }
+                            }
+                        } else {
+                            LazyColumn(
+                                contentPadding = PaddingValues(bottom = 24.dp),
+                                verticalArrangement = Arrangement.spacedBy(ListItemDefaults.SegmentedGap),
+                                modifier = Modifier.padding(top = 12.dp)
+                            ) {
+                                if (autoEqSearchResults.isNotEmpty()) {
+                                    itemsIndexed(autoEqSearchResults) { index, entity ->
+                                        RemoteAutoEqProfileItem(
+                                            shapes = ListItemDefaults.segmentedShapes(index, autoEqSearchResults.size),
+                                            entity = entity,
+                                            onClick = { onSelectRemoteAutoEqProfile(entity) }
+                                        )
+                                    }
+                                } else {
+                                    itemsIndexed(autoEqProfiles) { index, profile ->
+                                        AutoEqProfileItem(
+                                            shapes = ListItemDefaults.segmentedShapes(index, autoEqProfiles.size),
+                                            profile = profile,
+                                            onClick = { onSelectAutoEqProfile(profile) },
+                                            onDeleteClick = { onDeleteAutoEqProfile(profile) }
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ProfileSaverDialog(
+    onConfirm: (profileName: String, allowReplace: Boolean, associatedDevices: Set<AudioDeviceType>) -> Unit,
+    onDismiss: () -> Unit
+) {
+    var allowReplace by remember { mutableStateOf(true) }
+    val associatedDevices = remember { mutableStateSetOf<AudioDeviceType>() }
+
+    InputDialog(
+        icon = painterResource(R.drawable.ic_save_24dp),
+        title = stringResource(R.string.save_profile_label),
+        message = stringResource(R.string.please_enter_a_name_for_this_profile),
+        inputHint = stringResource(R.string.profile_name),
+        inputMaxLength = PRESET_NAME_MAX_LENGTH,
+        additionalContent = {
+            DialogCheckBox(
+                text = stringResource(R.string.replace_profile_with_same_name),
+                isChecked = allowReplace,
+                onValueChange = { allowReplace = it }
+            )
+
+            Spacer(Modifier.height(4.dp))
+
+            ProfileAssociationView(
+                isChecked = { associatedDevices.contains(it) },
+                onDeviceStateChange = { device, isChecked ->
+                    if (isChecked)
+                        associatedDevices.add(device)
+                    else associatedDevices.remove(device)
+                }
+            )
+        },
+        confirmButton = stringResource(R.string.action_save),
+        onConfirm = { profileName ->
+            onConfirm(profileName, allowReplace, associatedDevices)
+        },
+        onDismiss = onDismiss
+    )
+}
+
+@Composable
+private fun ProfileEditorDialog(
+    profile: EqProfile,
+    onConfirm: (String, Set<AudioDeviceType>) -> Unit,
+    onDismiss: () -> Unit
+) {
+    val mutableAssociations = remember { mutableStateSetOf(*profile.associations.toTypedArray()) }
+
+    InputDialog(
+        icon = painterResource(R.drawable.ic_edit_24dp),
+        title = stringResource(R.string.edit_profile_label),
+        message = stringResource(R.string.please_enter_a_name_for_this_profile),
+        inputHint = stringResource(R.string.profile_name),
+        inputPrefill = profile.name,
+        inputMaxLength = PRESET_NAME_MAX_LENGTH,
+        additionalContent = {
+            ProfileAssociationView(
+                isChecked = { mutableAssociations.contains(it) },
+                onDeviceStateChange = { device, isChecked ->
+                    if (isChecked)
+                        mutableAssociations.add(device)
+                    else mutableAssociations.remove(device)
+                }
+            )
+        },
+        confirmButton = stringResource(R.string.action_save),
+        onConfirm = { input -> onConfirm(input, mutableAssociations) },
+        onDismiss = onDismiss
+    )
+}
+
+@Composable
+private fun ProfileCheckDialog(
+    icon: Painter,
+    title: String,
+    message: String,
+    confirmButton: String,
+    profiles: List<EqProfile>,
+    onDismiss: () -> Unit,
+    onConfirm: (List<EqProfile>) -> Unit
+) {
+    val selectedProfiles = remember {
+        mutableStateListOf<EqProfile>()
+            .apply { addAll(profiles.filterNot { it.isCustom }) }
+    }
+
+    AlertDialog(
+        icon = {
+            Icon(
+                painter = icon,
+                contentDescription = null
+            )
+        },
+        title = { Text(title) },
+        text = {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                Text(
+                    text = message,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+
+                LazyColumn {
+                    items(profiles) { profile ->
+                        if (profile.isCustom.not()) {
+                            val isChecked = selectedProfiles.contains(profile)
+                            DialogListItemWithCheckBox(
+                                title = profile.name,
+                                onClick = {
+                                    if (isChecked) {
+                                        selectedProfiles.remove(profile)
+                                    } else {
+                                        selectedProfiles.add(profile)
+                                    }
+                                },
+                                isSelected = isChecked,
+                                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 12.dp),
+                                modifier = Modifier.clip(RoundedCornerShape(8.dp))
+                            )
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = { onConfirm(selectedProfiles) },
+                enabled = selectedProfiles.isNotEmpty()
+            ) {
+                Text(confirmButton)
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(android.R.string.cancel))
+            }
+        },
+        onDismissRequest = onDismiss
+    )
+}
+
+@Composable
+private fun ProfileAssociationView(
+    isChecked: (AudioDeviceType) -> Boolean,
+    onDeviceStateChange: (AudioDeviceType, Boolean) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    OutlinedCard(
+        shape = RoundedCornerShape(8.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainer
+        ),
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(top = 8.dp)
+    ) {
+        Text(
+            text = stringResource(R.string.use_with_devices_title),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            color = MaterialTheme.colorScheme.secondary,
+            modifier = Modifier
+                .padding(horizontal = 12.dp)
+                .padding(top = 12.dp)
+        )
+
+        HorizontalDivider(
+            modifier = Modifier.padding(top = 8.dp)
+        )
+
+        AudioDeviceType.entries
+            .filterNot { it == AudioDeviceType.Unknown }
+            .forEach { device ->
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .toggleable(
+                            value = isChecked(device),
+                            onValueChange = { isChecked ->
+                                onDeviceStateChange(device, isChecked)
+                            },
+                            role = Role.Checkbox
+                        )
+                        .padding(12.dp)
+                ) {
+                    Icon(
+                        painter = painterResource(device.iconRes),
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.secondary,
+                        modifier = Modifier.size(20.dp)
+                    )
+
+                    Column(Modifier.weight(1f)) {
+                        Text(
+                            text = stringResource(device.nameRes),
+                            style = MaterialTheme.typography.bodyMedium,
+                            maxLines = 1
+                        )
+                    }
+
+                    Checkbox(
+                        checked = isChecked(device),
+                        onCheckedChange = null
+                    )
+                }
+            }
+    }
+}
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@Composable
+private fun EqualizerProfileItem(
+    profile: EqProfile,
+    shapes: ListItemShapes,
+    isCurrentProfile: Boolean,
+    onClick: () -> Unit,
+    onEditClick: () -> Unit,
+    onDeleteClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    SegmentedListItem(
+        onClick = onClick,
+        selected = isCurrentProfile,
+        shapes = shapes,
+        colors = ListItemDefaults.segmentedColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
+        ),
+        leadingContent = {
+            Icon(
+                painter = painterResource(R.drawable.ic_equalizer_24dp),
+                contentDescription = null
+            )
+        },
+        trailingContent = {
+            if (!profile.isCustom) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    IconButton(onClick = onEditClick) {
+                        Icon(
+                            painter = painterResource(R.drawable.ic_edit_24dp),
+                            contentDescription = "Edit profile ${profile.getName(LocalContext.current)}"
+                        )
+                    }
+                    IconButton(onClick = onDeleteClick) {
+                        Icon(
+                            painter = painterResource(R.drawable.ic_delete_24dp),
+                            contentDescription = "Delete profile ${profile.getName(LocalContext.current)}"
+                        )
+                    }
+                }
+            }
+        },
+        supportingContent = {
+            Text(
+                text = profile.getDescription(LocalContext.current),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        },
+        modifier = modifier
+    ) {
+        Text(
+            text = profile.getName(LocalContext.current),
+            style = MaterialTheme.typography.bodyLarge,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@Composable
+private fun AutoEqProfileItem(
+    profile: AutoEqProfile,
+    shapes: ListItemShapes,
+    onClick: () -> Unit,
+    onDeleteClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    SegmentedListItem(
+        onClick = onClick,
+        shapes = shapes,
+        colors = ListItemDefaults.segmentedColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
+        ),
+        leadingContent = {
+            Icon(
+                painter = painterResource(R.drawable.ic_equalizer_24dp),
+                contentDescription = null
+            )
+        },
+        trailingContent = {
+            IconButton(onClick = onDeleteClick) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_delete_24dp),
+                    contentDescription = "Delete profile ${profile.name}"
+                )
+            }
+        },
+        modifier = modifier
+    ) {
+        Text(
+            text = profile.name,
+            style = MaterialTheme.typography.bodyLarge,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@Composable
+private fun RemoteAutoEqProfileItem(
+    entity: AutoEqEntity,
+    shapes: ListItemShapes,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    SegmentedListItem(
+        onClick = onClick,
+        shapes = shapes,
+        colors = ListItemDefaults.segmentedColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
+        ),
+        leadingContent = {
+            Icon(
+                painter = painterResource(R.drawable.ic_equalizer_24dp),
+                contentDescription = null
+            )
+        },
+        supportingContent = {
+            Text(
+                text = "${entity.source} • ${entity.rig} • ${entity.form}",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        },
+        modifier = modifier
+    ) {
+        Text(
+            text = entity.label,
+            style = MaterialTheme.typography.bodyLarge,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+    }
+}
+
+@Composable
+private fun EngineSelectorDialog(
+    currentEngine: EqEngineMode,
+    onConfirm: (EqEngineMode) -> Unit,
+    onDismiss: () -> Unit
+) {
+    var selectedMode by remember { mutableStateOf(currentEngine) }
+
+    AlertDialog(
+        icon = {
+            Icon(
+                painter = painterResource(R.drawable.ic_equalizer_24dp),
+                contentDescription = null
+            )
+        },
+        title = { Text(stringResource(R.string.set_eq_engine_title)) },
+        text = {
+            LazyColumn {
+                items(EqEngineMode.entries) { mode ->
+                    DialogListItemWithRadio(
+                        onClick = { selectedMode = mode },
+                        isSelected = mode == selectedMode,
+                        title = stringResource(mode.titleRes),
+                        subtitle = stringResource(mode.descriptionRes),
+                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 12.dp),
+                        modifier = Modifier.clip(RoundedCornerShape(8.dp))
+                    )
+                }
+
+                item {
+                    Spacer(Modifier.height(16.dp))
+                }
+
+                item {
+                    TipView(
+                        text = stringResource(R.string.set_eq_engine_reset_warning),
+                        containerColor = MaterialTheme.colorScheme.errorContainer
+                    )
+                }
+            }
+        },
+        confirmButton = {
+            Button(onClick = { onConfirm(selectedMode) }) {
+                Text(stringResource(android.R.string.ok))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(android.R.string.cancel))
+            }
+        },
+        onDismissRequest = onDismiss
+    )
+}
+
+@Composable
+private fun ReplayGainModeSelector(
+    replayGain: ReplayGainState,
+    onModeSelected: (ReplayGainMode) -> Unit
+) {
+    ButtonGroup(
+        onSelected = onModeSelected,
+        buttonItems = replayGain.availableModes.toList(),
+        buttonStateResolver = { mode -> mode == replayGain.mode },
+        buttonIconResolver = { mode, isChecked ->
+            if (isChecked) when (mode) {
+                ReplayGainMode.Album -> painterResource(R.drawable.ic_album_24dp)
+                ReplayGainMode.Track -> painterResource(R.drawable.ic_music_note_24dp)
+                else -> null
+            } else {
+                null
+            }
+        },
+        buttonTextResolver = { mode ->
+            when (mode) {
+                ReplayGainMode.Album -> stringResource(R.string.album)
+                ReplayGainMode.Track -> stringResource(R.string.track)
+                else -> stringResource(R.string.label_none)
+            }
+        },
+        modifier = Modifier.fillMaxWidth()
+    )
+}
+
+@Composable
+private fun ParameterSlider(
+    label: String,
+    value: Float,
+    range: ClosedFloatingPointRange<Float>,
+    onValueChangeFinished: (Float) -> Unit,
+    format: String = "%.1f",
+    unit: String = "",
+    enabled: Boolean = true
+) {
+    var paramLevel by remember(value) {
+        mutableFloatStateOf(value)
+    }
+    Column(
+        verticalArrangement = Arrangement.spacedBy(6.dp),
+        modifier = Modifier.padding(vertical = 8.dp)
+    ) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            overflow = TextOverflow.Ellipsis
+        )
+
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Slider(
+                value = paramLevel,
+                onValueChange = { paramLevel = it },
+                onValueChangeFinished = { onValueChangeFinished(paramLevel) },
+                valueRange = range,
+                enabled = enabled,
+                modifier = Modifier.weight(1f)
+            )
+
+            EQValueText(
+                text = (format + unit).format(Locale.ROOT, paramLevel)
+            )
+        }
+    }
+}
+
+@Composable
+private fun EQValueText(
+    text: String,
+    modifier: Modifier = Modifier
+) {
+    Text(
+        text = text,
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.secondary,
+        maxLines = 1,
+        fontWeight = FontWeight.Bold,
+        textAlign = TextAlign.Center,
+        modifier = modifier.width(56.dp)
+    )
+}
+
+@Composable
+private fun ResetButton(onClick: () -> Unit) {
+    TextButton(onClick = onClick) {
+        Icon(
+            painter = painterResource(R.drawable.ic_restart_alt_24dp),
+            contentDescription = null
+        )
+        Spacer(Modifier.width(ButtonDefaults.IconSpacing))
+        Text(stringResource(R.string.reset_action))
+    }
+}
+
+@Composable
+private fun SyncProgressIndicator(
+    autoEqSyncState: AutoEqSyncState,
+    modifier: Modifier = Modifier
+) {
+    if (autoEqSyncState is AutoEqSyncState.Syncing) {
+        if (autoEqSyncState.isIndeterminate) {
+            CircularProgressIndicator(
+                strokeWidth = 3.dp,
+                modifier = modifier.size(24.dp)
+            )
+        } else {
+            CircularProgressIndicator(
+                progress = { autoEqSyncState.fraction },
+                strokeWidth = 3.dp,
+                modifier = modifier.size(24.dp)
+            )
+        }
+    }
+}

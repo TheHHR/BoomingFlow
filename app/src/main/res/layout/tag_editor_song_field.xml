@@ -1,0 +1,330 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingStart="16dp"
+    android:paddingEnd="16dp">
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/title_text_input_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/title"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:inputType="text|textCapWords"
+            tools:ignore="Autofill"/>
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/album_text_input_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:hint="@string/album"
+        app:layout_constraintTop_toBottomOf="@+id/title_text_input_layout">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/album"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:inputType="text|textCapWords"
+            tools:ignore="Autofill"/>
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/artist_text_input_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:hint="@string/artist"
+        app:layout_constraintTop_toBottomOf="@+id/album_text_input_layout">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/artist"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:inputType="text|textCapWords"
+            tools:ignore="Autofill"/>
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/album_artist_text_input_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:hint="@string/album_artist"
+        app:layout_constraintTop_toBottomOf="@+id/artist_text_input_layout">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/album_artist"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:inputType="text|textCapWords"
+            tools:ignore="Autofill"/>
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/composer_text_input_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:hint="@string/composer"
+        app:layout_constraintTop_toBottomOf="@+id/album_artist_text_input_layout">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/composer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:inputType="text|textCapWords"
+            tools:ignore="Autofill"/>
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/conductor_text_input_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:hint="@string/conductor"
+        app:layout_constraintTop_toBottomOf="@+id/composer_text_input_layout">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/conductor"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:inputType="text|textCapWords"
+            tools:ignore="Autofill"/>
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/publisher_text_input_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:hint="@string/publisher"
+        app:layout_constraintTop_toBottomOf="@+id/conductor_text_input_layout">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/publisher"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:inputType="text|textCapWords"
+            tools:ignore="Autofill"/>
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/genre_text_input_layout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="4dp"
+        android:hint="@string/genre"
+        app:endIconDrawable="@drawable/ic_arrow_drop_down_24dp"
+        app:endIconMode="custom"
+        app:layout_constraintTop_toBottomOf="@+id/publisher_text_input_layout"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/year_text_input_layout">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/genre"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:inputType="text|textCapWords"
+            tools:ignore="Autofill"/>
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/year_text_input_layout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:hint="@string/year"
+        app:layout_constraintTop_toTopOf="@+id/genre_text_input_layout"
+        app:layout_constraintStart_toEndOf="@+id/genre_text_input_layout"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/year"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:inputType="text|number"
+            tools:ignore="Autofill"/>
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/track_number_text_input_layout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:hint="@string/track"
+        app:layout_constraintTop_toBottomOf="@+id/genre_text_input_layout"
+        app:layout_constraintStart_toStartOf="@+id/genre_text_input_layout"
+        app:layout_constraintEnd_toEndOf="@+id/genre_text_input_layout">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/track_number"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:inputType="text|number"
+            tools:ignore="Autofill"/>
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/track_total_text_input_layout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="@string/track_total"
+        app:layout_constraintTop_toTopOf="@+id/track_number_text_input_layout"
+        app:layout_constraintStart_toStartOf="@+id/year_text_input_layout"
+        app:layout_constraintEnd_toEndOf="@+id/year_text_input_layout">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/track_total"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:inputType="text|number"
+            tools:ignore="Autofill"/>
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/disc_number_text_input_layout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:hint="@string/disc"
+        app:layout_constraintTop_toBottomOf="@+id/track_number_text_input_layout"
+        app:layout_constraintStart_toStartOf="@+id/track_number_text_input_layout"
+        app:layout_constraintEnd_toEndOf="@+id/track_number_text_input_layout">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/disc_number"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:inputType="text|number"
+            tools:ignore="Autofill"/>
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/disc_total_text_input_layout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="@string/disc_total"
+        app:layout_constraintTop_toTopOf="@+id/disc_number_text_input_layout"
+        app:layout_constraintStart_toStartOf="@+id/track_total_text_input_layout"
+        app:layout_constraintEnd_toEndOf="@+id/track_total_text_input_layout">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/disc_total"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:inputType="text|number"
+            tools:ignore="Autofill"/>
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/lyrics_text_input_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:hint="@string/lyrics"
+        app:layout_constraintTop_toBottomOf="@+id/disc_number_text_input_layout">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/lyrics"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:inputType="textMultiLine"
+            android:maxLines="15"
+            tools:ignore="Autofill"/>
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/lyricist_text_input_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:hint="@string/lyricist"
+        app:layout_constraintTop_toBottomOf="@+id/lyrics_text_input_layout">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/lyricist"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:inputType="text|textCapWords"
+            tools:ignore="Autofill"/>
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/arranger_text_input_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:hint="@string/arranger"
+        app:layout_constraintTop_toBottomOf="@+id/lyricist_text_input_layout">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/arranger"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:inputType="text|textCapWords"
+            tools:ignore="Autofill"/>
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/comment_text_input_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:hint="@string/comment"
+        app:layout_constraintTop_toBottomOf="@+id/arranger_text_input_layout">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/comment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:inputType="textMultiLine"
+            tools:ignore="Autofill"/>
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="toolbar_height">64dp</dimen>
+    <dimen name="list_item_song_height">72dp</dimen>
+    <dimen name="pref_title_padding">80dp</dimen>
+</resources>

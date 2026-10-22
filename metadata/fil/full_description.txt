@@ -1,0 +1,22 @@
+Ang Booming Music ay isang moderno at makapangyarihang local music player para sa Android, na idinisenyo para sa maayos, nako-customize, at kaakit-akit na karanasan. Binuo gamit ang Material You na disenyo at pinapagana ng Media3, pinagsasama nito ang pagiging simple at mga advanced na feature sa pag-playback.
+
+Tangkilikin ang iyong mga paboritong kanta na may lyrics na naka-sync bawat salita, suporta para sa mga isinaling lyrics (TTML/LRC), at magandang "Now Playing" interface na nagtatampok ng pinahusay na visuals, maayos na transitions, at malawak na opsyon sa pag-customize.
+
+I-fine-tune ang iyong pakikinig gamit ang built-in na equalizer, ReplayGain, Audio Offload, at gapless playback para sa tuluy-tuloy na transitions. Ayusin ang iyong musika ayon sa gusto mo gamit ang smart playlists, nako-customize na pag-aayos (sorting), at hierarchical folder view.
+
+Mga pangunahing feature:
+
+* Awtomatikong pag-download ng lyrics at in-app na lyric editor
+* Lyrics na naka-sync bawat salita at may mga salin (TTML, LRC)
+* Playback engine na nakabase sa Media3 na may suporta sa audio offload
+* ReplayGain para sa pare-parehong volume sa mga track
+* Native ALAC decoding
+* ListenBrainz scrobbling
+* Adaptive mini player at gesture controls
+* Mga custom na cover at paglalarawan para sa mga playlist
+* Tag editor na may agarang pag-update sa library
+* Smart auto playlists (Recently Played, Most Played, History)
+* Sleep timer, widgets, at suporta sa Android Auto
+* Material You na tema na may dark at black modes
+* Suporta sa maraming wika
+* Magaan, open-source, at walang mga ad

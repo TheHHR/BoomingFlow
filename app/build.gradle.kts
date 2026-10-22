@@ -1,0 +1,370 @@
+import com.android.build.api.variant.BuildConfigField
+import com.android.build.api.variant.ResValue
+import java.util.Properties
+
+plugins {
+    alias(libs.plugins.android)
+    alias(libs.plugins.android.safeargs)
+    id("kotlin-parcelize")
+    alias(libs.plugins.kotlin.compose.compiler)
+    alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.aboutlibraries)
+}
+
+sealed class Version(
+    private val versionOffset: Long,
+    private val versionMajor: Int,
+    private val versionMinor: Int,
+    private val versionPatch: Int,
+    private val versionBuild: Int = 0,
+    private val versionType: String = ""
+) {
+    companion object {
+        private const val MAJOR = 1_000_000L
+        private const val MINOR = 100_000L
+        private const val PATCH = 10_000L
+        private const val VARIANT = 100L
+
+        private const val ALPHA = 0L
+        private const val BETA = 1L
+        private const val RELEASE_CANDIDATE = 2L
+        private const val STABLE = 3L
+    }
+
+    init {
+        require(versionMajor >= 0 && versionMinor >= 0 && versionPatch >= 0 && versionBuild >= 0) {
+            "Version numbers must be non-negative"
+        }
+    }
+
+    class Alpha(versionMajor: Int, versionMinor: Int, versionPatch: Int, versionBuild: Int) :
+        Version(ALPHA, versionMajor, versionMinor, versionPatch, versionBuild, "alpha")
+
+    class Beta(versionMajor: Int, versionMinor: Int, versionPatch: Int, versionBuild: Int) :
+        Version(BETA, versionMajor, versionMinor, versionPatch, versionBuild, "beta")
+
+    class RC(versionMajor: Int, versionMinor: Int, versionPatch: Int, versionBuild: Int) :
+        Version(RELEASE_CANDIDATE, versionMajor, versionMinor, versionPatch, versionBuild, "rc")
+
+    class Stable(versionMajor: Int, versionMinor: Int, versionPatch: Int) :
+        Version(STABLE, versionMajor, versionMinor, versionPatch)
+
+    val name: String
+        get() {
+            val versionName = "${versionMajor}.${versionMinor}.${versionPatch}"
+            return if (versionType.isNotEmpty()) "$versionName-${versionType}.$versionBuild" else versionName
+        }
+
+    val code: Int
+        get() {
+            val versionCode = versionMajor * MAJOR +
+                    versionMinor * MINOR +
+                    versionPatch * PATCH +
+                    versionOffset * VARIANT +
+                    versionBuild
+            require(versionCode <= Int.MAX_VALUE) {
+                "Version code exceeds Int.MAX_VALUE"
+            }
+            return versionCode.toInt()
+        }
+}
+
+val currentVersion: Version = Version.Stable(
+    versionMajor = 1,
+    versionMinor = 4,
+    versionPatch = 2
+)
+val currentVersionCode = currentVersion.code
+
+android {
+    compileSdk = 37
+    namespace = "com.mardous.booming"
+
+    defaultConfig {
+        minSdk = 26
+        targetSdk = 36
+
+        applicationId = namespace
+        versionCode = 1420300
+        versionName = currentVersion.name
+        check(versionCode == currentVersionCode)
+    }
+
+    flavorDimensions += "version"
+    productFlavors {
+        create("github") {
+            dimension = "version"
+
+            resValue("bool", "network_features_enabled_by_default", "true")
+            resValue("bool", "enable_builtin_updater", "true")
+            resValue("bool", "enable_lyrically_provider", "true")
+        }
+        create("fdroid") {
+            dimension = "version"
+
+            resValue("bool", "network_features_enabled_by_default", "false")
+            resValue("bool", "enable_builtin_updater", "false")
+            resValue("bool", "enable_lyrically_provider", "true")
+        }
+        create("playstore") {
+            dimension = "version"
+
+            resValue("bool", "network_features_enabled_by_default", "true")
+            resValue("bool", "enable_builtin_updater", "false")
+            resValue("bool", "enable_lyrically_provider", "false")
+        }
+    }
+
+    sourceSets {
+        named("github") {
+            kotlin.directories.add("src/shared/java")
+        }
+        named("fdroid") {
+            kotlin.directories.add("src/shared/java")
+        }
+    }
+
+    val signingProperties = getProperties("keystore.properties")
+
+    val releaseSigning = if (System.getenv("KEYSTORE_FILE") != null) {
+        signingConfigs.create("release") {
+            keyAlias = System.getenv("KEY_ALIAS")
+            keyPassword = System.getenv("KEY_PASSWORD")
+            storePassword = System.getenv("STORE_PASSWORD")
+            storeFile = file(System.getenv("KEYSTORE_FILE"))
+        }
+    } else if (signingProperties != null) {
+        signingConfigs.create("release") {
+            keyAlias = signingProperties.property("keyAlias")
+            keyPassword = signingProperties.property("keyPassword")
+            storePassword = signingProperties.property("storePassword")
+            storeFile = file(signingProperties.property("storeFile"))
+        }
+    } else {
+        signingConfigs.getByName("debug")
+    }
+    buildTypes {
+        release {
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            signingConfig = releaseSigning
+        }
+        debug {
+            applicationIdSuffix = ".debug"
+            versionNameSuffix = ".debug"
+        }
+    }
+    buildFeatures {
+        buildConfig = true
+        resValues = true
+        viewBinding = true
+        compose = true
+    }
+    androidResources {
+        generateLocaleConfig = true
+    }
+    splits {
+        abi {
+            // Detect app bundle and conditionally disable split abis
+            // This is needed due to a "Sequence contains more than one matching element" error
+            // present since AGP 8.9.0, for more info see:
+            // https://issuetracker.google.com/issues/402800800
+
+            // AppBundle tasks usually contain "bundle" in their name
+            //noinspection WrongGradleMethod
+            val isCI = System.getenv("RELEASE_TYPE") == "CI"
+            val isBuildingBundle = gradle.startParameter.taskNames.any { it.lowercase().contains("bundle") }
+
+            // Disable split abis when building app bundle
+            isEnable = !isCI && !isBuildingBundle
+
+            reset()
+            include("arm64-v8a", "armeabi-v7a", "x86_64", "x86")
+            isUniversalApk = true
+        }
+    }
+    packaging {
+        resources {
+            excludes += "META-INF/LICENSE"
+            excludes += "META-INF/NOTICE"
+            excludes += "META-INF/java.properties"
+            excludes += "META-INF/androidx/*/*/LICENSE.txt"
+            excludes += "DebugProbesKt.bin"
+        }
+    }
+    lint {
+        abortOnError = true
+        warning += listOf("ImpliedQuantity", "Instantiatable", "MissingQuantity", "MissingTranslation")
+    }
+    dependenciesInfo {
+        includeInApk = false
+        includeInBundle = false
+    }
+}
+
+androidComponents {
+    onVariants { variant ->
+        val gitHash = runGitCommand("git rev-parse --short=7 HEAD")
+
+        val isCI = System.getenv("RELEASE_TYPE") == "CI"
+        if (isCI && variant.buildType == "release" && gitHash.isNotEmpty()) {
+            variant.outputs.forEach { output ->
+                val currentVersionName = output.versionName.get().substringBefore("-")
+                output.versionName.set("$currentVersionName.$gitHash")
+            }
+        }
+
+        variant.buildConfigFields?.putAll(
+            mapOf("IS_CI_BUILD" to BuildConfigField("boolean", isCI, null))
+        )
+
+        val flavorProps = loadFlavorProperties(variant.flavorName)
+        flavorProps.forEach { (key, value) ->
+            variant.buildConfigFields?.put(key.toString(), BuildConfigField("String", "\"$value\"", null))
+        }
+
+        val canUseLastFm = variant.flavorName == "github" || variant.flavorName == "playstore"
+
+        val localProperties = if (canUseLastFm) getProperties("local.properties") else null
+        val lastFmKey = if (canUseLastFm) {
+            localProperties?.getProperty("LASTFM_API_KEY") ?: System.getenv("LASTFM_API_KEY") ?: ""
+        } else ""
+
+        val lastFmSecret = if (canUseLastFm) {
+            localProperties?.getProperty("LASTFM_SECRET") ?: System.getenv("LASTFM_SECRET") ?: ""
+        } else ""
+
+        variant.buildConfigFields?.putAll(
+            mapOf(
+                "LASTFM_API_KEY" to BuildConfigField("String", "\"$lastFmKey\"", "LastFM API Key"),
+                "LASTFM_SECRET" to BuildConfigField("String", "\"$lastFmSecret\"", "LastFM Secret")
+            )
+        )
+
+        variant.resValues.put(
+            variant.makeResValueKey("bool", "enable_lastfm_integration"),
+            ResValue(lastFmKey.isNotEmpty().toString(), "Enable LastFM integration")
+        )
+
+        variant.outputs.forEach { output ->
+            val filter = output.filters.joinToString("-") { it.identifier }
+            val abi = filter.ifEmpty { "universal" }
+            output.outputFileName = "BoomingMusic-${output.versionName.get()}-${variant.flavorName}-$abi.apk"
+        }
+    }
+}
+
+kotlin {
+    compilerOptions {
+        optIn.add("kotlin.RequiresOptIn")
+        freeCompilerArgs.add("-Xannotation-default-target=param-property")
+    }
+    jvmToolchain(21)
+}
+
+dependencies {
+    implementation(libs.material.components)
+    implementation(libs.androidx.core)
+    implementation(libs.androidx.core.splashscreen)
+    implementation(libs.androidx.concurrent.futures)
+    implementation(libs.androidx.mediarouter)
+    implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.fragment)
+    implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.palette)
+    implementation(libs.androidx.preference)
+    implementation(libs.androidx.constraintlayout)
+    implementation(libs.androidx.swiperefreshlayout)
+    implementation(libs.androidx.recyclerview)
+    implementation(libs.androidx.cardview)
+    implementation(libs.androidx.viewpager)
+    implementation(libs.androidx.shapes)
+    implementation(libs.accompanist.permissions)
+
+    implementation(platform(libs.compose.bom))
+    implementation(libs.compose.runtime.livedata)
+    implementation(libs.compose.material3)
+    implementation(libs.compose.ui)
+    implementation(libs.compose.ui.tooling.preview)
+    debugImplementation(libs.compose.ui.tooling)
+
+    implementation(libs.bundles.kotlinx)
+    implementation(libs.bundles.lifecycle)
+    implementation(libs.bundles.media3)
+    implementation(libs.bundles.navigation)
+    implementation(libs.bundles.glance)
+    implementation(libs.bundles.koin)
+    implementation(libs.bundles.coil)
+    implementation(libs.bundles.ktor)
+    implementation(libs.bundles.markwon)
+
+    implementation(libs.room)
+    ksp(libs.room.compiler)
+
+    implementation(libs.m3color)
+    implementation(libs.coil.transformations)
+
+    implementation(libs.balloon)
+    implementation(libs.scrollbar)
+    implementation(libs.reorderable)
+    implementation(libs.compose.markdown)
+    implementation(libs.aboutlibraries)
+
+    implementation(libs.fadingedgelayout)
+    implementation(libs.advrecyclerview) {
+        isTransitive = true
+    }
+    implementation(libs.fastscroll)
+
+    implementation(libs.customactivityoncrash)
+    implementation(libs.keyboardvisibilityevent)
+
+    implementation(libs.taglib)
+    implementation(libs.jaudiotagger)
+
+    implementation(libs.versioncompare)
+    implementation(libs.commons.text)
+    implementation(libs.juniversalchardet)
+}
+
+fun getProperties(fileName: String): Properties? {
+    val file = rootProject.file(fileName)
+    return if (file.exists()) {
+        Properties().also { properties ->
+            file.inputStream().use { properties.load(it) }
+        }
+    } else null
+}
+
+fun Properties.property(key: String) =
+    this.getProperty(key) ?: "$key missing"
+
+fun loadFlavorProperties(flavorName: String?): Properties {
+    val finalProps = Properties()
+    val publicProperties = getProperties("public.properties")
+    if (publicProperties != null) {
+        for ((key, value) in publicProperties.entries) {
+            val keySplit = key.toString().split(".")
+            if (keySplit.size == 2) {
+                if (keySplit[0].equals(flavorName, ignoreCase = true)) {
+                    finalProps[keySplit[1]] = value
+                }
+            } else {
+                finalProps[key] = value
+            }
+        }
+    }
+    return finalProps
+}
+
+fun runGitCommand(command: String): String {
+    return try {
+        providers.exec {
+            commandLine(command.split(" "))
+        }.standardOutput.asText.get().trim()
+    } catch (e: Exception) {
+        ""
+    }
+}

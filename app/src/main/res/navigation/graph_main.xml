@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/main_graph"
+    app:startDestination="@id/nav_home">
+
+    <fragment
+        android:id="@+id/nav_home"
+        android:name="com.mardous.booming.ui.screen.library.home.HomeFragment"
+        android:label="HomeFragment"/>
+
+    <fragment
+        android:id="@+id/nav_songs"
+        android:name="com.mardous.booming.ui.screen.library.songs.SongListFragment"
+        android:label="SongsFragment"/>
+
+    <fragment
+        android:id="@+id/nav_albums"
+        android:name="com.mardous.booming.ui.screen.library.albums.AlbumListFragment"
+        android:label="AlbumsFragment"/>
+
+    <fragment
+        android:id="@+id/nav_artists"
+        android:name="com.mardous.booming.ui.screen.library.artists.ArtistListFragment"
+        android:label="ArtistsFragment"/>
+
+    <fragment
+        android:id="@+id/nav_genres"
+        android:name="com.mardous.booming.ui.screen.library.genres.GenresListFragment"
+        android:label="GenresFragment"/>
+
+    <fragment
+        android:id="@+id/nav_years"
+        android:name="com.mardous.booming.ui.screen.library.years.YearsListFragment"
+        android:label="YearsFragment"/>
+
+    <fragment
+        android:id="@+id/nav_playlists"
+        android:name="com.mardous.booming.ui.screen.library.playlists.PlaylistListFragment"
+        android:label="PlaylistsFragment"/>
+
+    <fragment
+        android:id="@+id/nav_folders"
+        android:name="com.mardous.booming.ui.screen.library.folders.FoldersListFragment"
+        android:label="FoldersFragment"/>
+
+    <fragment
+        android:id="@+id/nav_search"
+        android:name="com.mardous.booming.ui.screen.library.search.SearchFragment"
+        android:label="SearchFragment">
+        <argument
+            android:name="query"
+            app:argType="string"
+            app:nullable="true"/>
+        <argument
+            android:name="filter"
+            app:argType="com.mardous.booming.data.SearchFilter"
+            app:nullable="true"/>
+    </fragment>
+
+    <dialog
+        android:id="@+id/nav_queue"
+        android:name="com.mardous.booming.ui.screen.queue.QueueFragment"
+        android:label="QueueFragment"/>
+
+    <fragment
+        android:id="@+id/nav_album_detail"
+        android:name="com.mardous.booming.ui.screen.library.albums.AlbumDetailFragment"
+        android:label="AlbumDetailFragment">
+        <argument
+            android:name="album_id"
+            app:argType="long"/>
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_artist_detail"
+        android:name="com.mardous.booming.ui.screen.library.artists.ArtistDetailFragment"
+        android:label="ArtistDetailFragment">
+        <argument
+            android:name="artist_id"
+            app:argType="long"/>
+        <argument
+            android:name="artist_name"
+            app:argType="string"
+            app:nullable="true"/>
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_playlist_detail"
+        android:name="com.mardous.booming.ui.screen.library.playlists.PlaylistDetailFragment"
+        android:label="PlaylistDetailFragment">
+        <argument
+            android:name="playlistId"
+            app:argType="long"/>
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_genre_detail"
+        android:name="com.mardous.booming.ui.screen.library.genres.GenreDetailFragment"
+        android:label="GenreDetailFragment">
+        <argument
+            android:name="extraGenre"
+            app:argType="com.mardous.booming.data.model.Genre"/>
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_year_detail"
+        android:name="com.mardous.booming.ui.screen.library.years.YearDetailFragment"
+        android:label="YearDetailFragment">
+        <argument
+            android:name="extraYear"
+            app:argType="integer"/>
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_folder_detail"
+        android:name="com.mardous.booming.ui.screen.library.folders.FolderDetailFragment"
+        android:label="FolderDetailFragment">
+        <argument
+            android:name="extraFolderPath"
+            app:argType="string"/>
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_detail_list"
+        android:name="com.mardous.booming.ui.screen.other.DetailListFragment"
+        android:label="DetailListFragment">
+        <argument
+            android:name="type"
+            app:argType="com.mardous.booming.data.model.ContentType"/>
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_lyrics"
+        android:name="com.mardous.booming.ui.screen.lyrics.LyricsFragment"
+        android:label="LyricsFragment"/>
+
+    <fragment
+        android:id="@+id/nav_lyrics_editor"
+        android:name="com.mardous.booming.ui.screen.lyrics.LyricsEditorFragment"
+        android:label="LyricsEditorFragment">
+        <argument
+            android:name="extraSong"
+            app:argType="com.mardous.booming.data.model.Song" />
+    </fragment>
+
+    <dialog
+        android:id="@+id/nav_song_details"
+        android:name="com.mardous.booming.ui.screen.info.SongDetailFragment"
+        android:label="SongDetailFragment">
+        <argument
+            android:name="extraSong"
+            app:argType="com.mardous.booming.data.model.Song" />
+    </dialog>
+
+    <dialog
+        android:id="@+id/nav_sleep_timer"
+        android:name="com.mardous.booming.ui.screen.sleeptimer.SleepTimerFragment"
+        android:label="SleepTimerFragment">
+    </dialog>
+
+    <fragment
+        android:id="@+id/nav_play_info"
+        android:name="com.mardous.booming.ui.screen.info.PlayInfoFragment"
+        android:label="PlayInfoFragment">
+        <argument
+            android:name="isArtist"
+            app:argType="boolean" />
+        <argument
+            android:name="id"
+            app:argType="long" />
+        <argument
+            android:name="name"
+            app:argType="string"
+            app:nullable="true" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_equalizer"
+        android:name="com.mardous.booming.ui.screen.equalizer.EqualizerFragment"
+        android:label="EqualizerFragment">
+        <argument
+            android:name="from_player"
+            app:argType="boolean"
+            android:defaultValue="false" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_settings"
+        android:name="com.mardous.booming.ui.screen.settings.SettingsFragment"
+        android:label="SettingsFragment"/>
+
+    <dialog
+        android:id="@+id/nav_sound_settings"
+        android:name="com.mardous.booming.ui.screen.sound.SoundSettingsFragment"
+        android:label="SoundSettingsFragment"/>
+
+    <fragment
+        android:id="@+id/nav_about"
+        android:name="com.mardous.booming.ui.screen.about.AboutFragment"
+        android:label="AboutFragment"/>
+
+</navigation>

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingTop="16dp"
+    android:paddingBottom="16dp"
+    android:minHeight="?listPreferredItemHeight"
+    android:paddingStart="?listPreferredItemPaddingStart"
+    android:paddingEnd="?listPreferredItemPaddingEnd">
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/number"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:gravity="center"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:background="@drawable/floating_surface_oval"
+        android:backgroundTint="?colorSurfaceContainer"
+        android:textStyle="bold"
+        app:layout_constraintDimensionRatio="1:1"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/guideline_front_margin"
+        app:layout_constraintTop_toTopOf="@+id/title"
+        tools:text="1"/>
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:maxLines="2"
+        android:textAlignment="viewStart"
+        android:textAppearance="?textAppearanceSubtitle1"
+        app:layout_constrainedWidth="true"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/guideline_front_margin"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:text="@string/permission_bluetooth_title"/>
+
+    <com.mardous.booming.ui.component.views.BaselineGridTextView
+        android:id="@+id/text"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:textAlignment="viewStart"
+        android:textAppearance="?textAppearanceBody2"
+        android:textColor="?android:textColorSecondary"
+        app:layout_constrainedWidth="true"
+        app:layout_constraintTop_toBottomOf="@+id/title"
+        app:layout_constraintStart_toStartOf="@+id/guideline_front_margin"
+        app:layout_constraintEnd_toEndOf="@+id/title"
+        tools:text="@string/permission_bluetooth_description"/>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/button"
+        style="?materialButtonOutlinedStyle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:paddingVertical="12dp"
+        app:iconGravity="start"
+        app:layout_constraintTop_toBottomOf="@+id/text"
+        app:layout_constraintStart_toStartOf="@+id/guideline_front_margin"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:icon="@drawable/ic_bluetooth_connected_24dp"
+        tools:text="@string/grant_access_action"/>
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline_front_margin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_begin="@dimen/list_pref_guideline_begin" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

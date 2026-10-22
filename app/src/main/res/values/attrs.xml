@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="InfoView">
+        <attr name="infoTitle" format="string"/>
+        <attr name="infoTitleColor" format="color"/>
+        <attr name="infoText" format="string"/>
+        <attr name="infoTextColor" format="color"/>
+        <attr name="infoStyle" format="enum">
+            <enum name="horizontal" value="0"/>
+            <enum name="vertical" value="1"/>
+        </attr>
+    </declare-styleable>
+
+    <declare-styleable name="PermissionView">
+        <attr name="permissionTitle" format="string"/>
+        <attr name="permissionDescription" format="string"/>
+        <attr name="buttonIcon" format="reference"/>
+        <attr name="buttonText" format="string"/>
+        <attr name="number" format="integer"/>
+        <attr name="granted" format="boolean"/>
+    </declare-styleable>
+
+    <declare-styleable name="BaselineGridTextView">
+        <attr name="lineHeightMultiplierHint" format="float" />
+        <attr name="lineHeightHint" format="dimension"/>
+        <attr name="maxLinesByHeight" format="boolean" />
+        <attr name="android:textAppearance" />
+        <attr name="android:fontFamily" />
+    </declare-styleable>
+
+    <declare-styleable name="BoomingShapeableImageView">
+        <attr name="boomingCornerSize" format="dimension" />
+        <attr name="circleShape" format="boolean" />
+    </declare-styleable>
+
+    <declare-styleable name="MusicSlider">
+        <attr name="squigglyStyle" format="boolean"/>
+        <attr name="musicSliderThumbHeight" format="dimension"/>
+        <attr name="musicSliderTrackHeight" format="dimension"/>
+        <attr name="android:progress" format="integer"/>
+        <attr name="android:max" format="integer"/>
+        <attr name="android:min" format="integer"/>
+    </declare-styleable>
+
+    <declare-styleable name="MorphicIconButton">
+        <attr name="morphicIconTint" format="color" />
+        <attr name="morphicIcon" format="reference" />
+        <attr name="morphicDuration" format="integer" />
+        <attr name="morphicRotationDuration" format="integer" />
+        <attr name="morphicShape" format="enum">
+            <enum name="square" value="0" />
+            <enum name="soft_burst" value="1" />
+            <enum name="cookie_9" value="2" />
+            <enum name="pentagon" value="3" />
+            <enum name="pill" value="4" />
+            <enum name="sunny" value="5" />
+            <enum name="cookie_4" value="6" />
+            <enum name="circle" value="7" />
+            <enum name="cookie_12" value="8" />
+        </attr>
+    </declare-styleable>
+</resources>

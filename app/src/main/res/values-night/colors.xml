@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright (c) 2024 Christians Martínez Alvarado
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<resources>
+    <color name="md_theme_primary">#B6C4FF</color>
+    <color name="md_theme_onPrimary">#1E2D61</color>
+    <color name="md_theme_primaryContainer">#354479</color>
+    <color name="md_theme_onPrimaryContainer">#DCE1FF</color>
+    <color name="md_theme_secondary">#C2C5DD</color>
+    <color name="md_theme_onSecondary">#2B3042</color>
+    <color name="md_theme_secondaryContainer">#424659</color>
+    <color name="md_theme_onSecondaryContainer">#DEE1F9</color>
+    <color name="md_theme_tertiary">#E3BADA</color>
+    <color name="md_theme_onTertiary">#43273F</color>
+    <color name="md_theme_tertiaryContainer">#5B3D57</color>
+    <color name="md_theme_onTertiaryContainer">#FFD7F5</color>
+    <color name="md_theme_error">#FFB4AB</color>
+    <color name="md_theme_onError">#690005</color>
+    <color name="md_theme_errorContainer">#93000A</color>
+    <color name="md_theme_onErrorContainer">#FFDAD6</color>
+    <color name="md_theme_background">#121318</color>
+    <color name="md_theme_onBackground">#E3E1E9</color>
+    <color name="md_theme_surface">#121318</color>
+    <color name="md_theme_onSurface">#E3E1E9</color>
+    <color name="md_theme_surfaceVariant">#45464F</color>
+    <color name="md_theme_onSurfaceVariant">#C6C5D0</color>
+    <color name="md_theme_outline">#90909A</color>
+    <color name="md_theme_outlineVariant">#45464F</color>
+    <color name="md_theme_scrim">#000000</color>
+    <color name="md_theme_inverseSurface">#E3E1E9</color>
+    <color name="md_theme_inverseOnSurface">#2F3036</color>
+    <color name="md_theme_inversePrimary">#4D5C92</color>
+    <color name="md_theme_primaryFixed">#DCE1FF</color>
+    <color name="md_theme_onPrimaryFixed">#04164B</color>
+    <color name="md_theme_primaryFixedDim">#B6C4FF</color>
+    <color name="md_theme_onPrimaryFixedVariant">#354479</color>
+    <color name="md_theme_secondaryFixed">#DEE1F9</color>
+    <color name="md_theme_onSecondaryFixed">#161B2C</color>
+    <color name="md_theme_secondaryFixedDim">#C2C5DD</color>
+    <color name="md_theme_onSecondaryFixedVariant">#424659</color>
+    <color name="md_theme_tertiaryFixed">#FFD7F5</color>
+    <color name="md_theme_onTertiaryFixed">#2C122A</color>
+    <color name="md_theme_tertiaryFixedDim">#E3BADA</color>
+    <color name="md_theme_onTertiaryFixedVariant">#5B3D57</color>
+    <color name="md_theme_surfaceDim">#121318</color>
+    <color name="md_theme_surfaceBright">#38393F</color>
+    <color name="md_theme_surfaceContainerLowest">#0D0E13</color>
+    <color name="md_theme_surfaceContainerLow">#1A1B21</color>
+    <color name="md_theme_surfaceContainer">#1E1F25</color>
+    <color name="md_theme_surfaceContainerHigh">#292A2F</color>
+    <color name="md_theme_surfaceContainerHighest">#34343A</color>
+
+    <color name="radial_gradient_black_overlay">@color/eighty_percent_black_overlay</color>
+</resources>

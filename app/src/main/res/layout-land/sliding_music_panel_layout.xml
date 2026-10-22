@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mainContent"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.google.android.material.navigationrail.NavigationRailView
+            android:id="@+id/navigationView"
+            style="?navigationRailStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            app:itemHorizontalTranslationEnabled="false"
+            app:menu="@menu/menu_bottom_navigation"
+            tools:viewBindingType="com.google.android.material.navigation.NavigationBarView" />
+
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/fragment_container"
+            android:name="androidx.navigation.fragment.NavHostFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="?attr/colorSurface"
+            app:defaultNavHost="true" />
+    </LinearLayout>
+
+    <FrameLayout
+        android:id="@+id/sheet_view"
+        style="@style/BottomSheetStyle"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:behavior_hideable="true"
+        app:behavior_peekHeight="@dimen/mini_player_height"
+        app:enableEdgeToEdge="true"
+        app:gestureInsetBottomIgnored="true"
+        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
+
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/player_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+        <fragment
+            android:id="@+id/mini_player_container"
+            android:name="com.mardous.booming.ui.screen.other.MiniPlayerFragment"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/mini_player_height"
+            tools:layout="@layout/fragment_mini_player"/>
+
+    </FrameLayout>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

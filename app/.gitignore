@@ -1,0 +1,8 @@
+# Build files
+/build
+
+# Release output files
+/release
+/github
+/fdroid
+/playstore

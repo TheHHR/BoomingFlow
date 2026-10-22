@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <ListPreference
+        app:icon="@drawable/ic_language_24dp"
+        app:title="@string/app_language_title"
+        app:entryValues="@array/pref_language_codes"
+        app:negativeButtonText="@null"
+        app:positiveButtonText="@null"
+        app:useSimpleSummaryProvider="true"
+        app:defaultValue="auto"
+        app:layout="@layout/list_item_view"
+        app:key="language_name"/>
+
+    <Preference
+        app:title="@string/backup_restore_title"
+        app:summary="@string/backup_restore_summary"
+        app:persistent="false"
+        app:layout="@layout/list_item_view"
+        app:key="backup_and_restore" />
+
+    <SwitchPreferenceCompat
+        app:title="@string/rotation_lock_title"
+        app:summary="@string/rotation_lock_summary"
+        app:defaultValue="false"
+        app:layout="@layout/list_item_view"
+        app:widgetLayout="@layout/preference_switch"
+        app:key="enable_rotation_lock"/>
+
+</PreferenceScreen>

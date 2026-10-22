@@ -1,0 +1,54 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:descendantFocusability="blocksDescendants"
+	android:focusable="true"
+	android:foreground="?attr/selectableItemBackground"
+	android:minHeight="?listPreferredItemHeightSmall"
+	android:orientation="horizontal"
+	android:paddingEnd="?dialogPreferredPadding"
+	android:paddingStart="?dialogPreferredPadding"
+	tools:gravity="start|center_vertical"
+	tools:ignore="PrivateResource,UnusedAttribute">
+
+	<ImageView
+		android:id="@+id/drag_view"
+		android:layout_width="wrap_content"
+		android:layout_height="match_parent"
+		android:layout_gravity="end|center_vertical"
+		android:clickable="false"
+		android:focusable="false"
+		android:minHeight="?listPreferredItemHeightSmall"
+		app:srcCompat="@drawable/ic_drag_handle_24dp"
+		tools:ignore="PrivateResource,UnusedAttribute"/>
+
+    <com.google.android.material.textview.MaterialTextView
+		android:id="@+id/title"
+		android:layout_width="0dp"
+		android:layout_height="match_parent"
+		android:layout_weight="1"
+		android:singleLine="true"
+		android:ellipsize="end"
+		android:gravity="center_vertical"
+		android:minHeight="?listPreferredItemHeightSmall"
+		android:paddingTop="8dp"
+		android:paddingBottom="8dp"
+		android:paddingStart="16dp"
+		android:paddingEnd="16dp"
+		android:textAppearance="?textAppearanceBody2"
+		tools:text="@tools:sample/lorem"
+		tools:ignore="RtlSymmetry"/>
+	
+	<com.google.android.material.checkbox.MaterialCheckBox
+        android:id="@+id/checkbox"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+		android:minWidth="0dp"
+        android:background="@null"
+        android:clickable="false"
+        android:focusable="false"
+        android:gravity="center_vertical"/>
+
+</LinearLayout>

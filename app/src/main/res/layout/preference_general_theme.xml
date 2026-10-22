@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.button.MaterialButtonToggleGroup xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/buttonGroup"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingVertical="8dp"
+    android:gravity="center"
+    app:singleSelection="true"
+    app:selectionRequired="true"
+    tools:checkedButton="@+id/systemDefault">
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/systemDefault"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:singleLine="true"
+        android:text="@string/auto_theme_name" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/lightTheme"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:singleLine="true"
+        android:text="@string/light_theme_name" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/darkTheme"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:singleLine="true"
+        android:text="@string/dark_theme_name" />
+
+</com.google.android.material.button.MaterialButtonToggleGroup>

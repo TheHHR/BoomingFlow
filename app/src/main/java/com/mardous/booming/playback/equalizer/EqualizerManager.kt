@@ -1,0 +1,1211 @@
+/*
+ * Copyright (c) 2024 Christians Martínez Alvarado
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+package com.mardous.booming.playback.equalizer
+
+import android.annotation.SuppressLint
+import android.content.Context
+import android.content.Intent
+import android.media.audiofx.AudioEffect
+import android.net.Uri
+import android.util.JsonReader
+import android.util.JsonToken
+import android.util.Log
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.floatPreferencesKey
+import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.preferencesDataStore
+import androidx.media3.common.util.UnstableApi
+import com.mardous.booming.core.audio.AudioOutputObserver
+import com.mardous.booming.core.audio.AutoEqParser
+import com.mardous.booming.core.model.audiodevice.AudioDevice
+import com.mardous.booming.core.model.audiodevice.AudioDeviceType
+import com.mardous.booming.core.model.audiodevice.BitPerfectState
+import com.mardous.booming.core.model.equalizer.BalanceState
+import com.mardous.booming.core.model.equalizer.BassBoostState
+import com.mardous.booming.core.model.equalizer.CompressorState
+import com.mardous.booming.core.model.equalizer.EqBandCapabilities
+import com.mardous.booming.core.model.equalizer.EqEngineMode
+import com.mardous.booming.core.model.equalizer.EqProfile
+import com.mardous.booming.core.model.equalizer.EqSession
+import com.mardous.booming.core.model.equalizer.EqSession.SessionType
+import com.mardous.booming.core.model.equalizer.EqState
+import com.mardous.booming.core.model.equalizer.EqualizerSettings
+import com.mardous.booming.core.model.equalizer.LimiterState
+import com.mardous.booming.core.model.equalizer.LoudnessGainState
+import com.mardous.booming.core.model.equalizer.ReplayGainState
+import com.mardous.booming.core.model.equalizer.SoundSettings
+import com.mardous.booming.core.model.equalizer.TempoState
+import com.mardous.booming.core.model.equalizer.VirtualizerState
+import com.mardous.booming.core.model.equalizer.VolumeState
+import com.mardous.booming.core.model.equalizer.autoeq.AutoEqProfile
+import com.mardous.booming.data.local.room.AutoEqEntity
+import com.mardous.booming.data.model.replaygain.ReplayGainMode
+import com.mardous.booming.data.repository.RealAutoEqRepository
+import com.mardous.booming.extensions.MIME_TYPE_PLAIN_TEXT
+import com.mardous.booming.extensions.files.getFormattedFileName
+import com.mardous.booming.extensions.utilities.toEnum
+import com.mardous.booming.playback.equalizer.engine.BasicEQEngine
+import com.mardous.booming.playback.equalizer.engine.DynamicsProcessingEngine
+import com.mardous.booming.playback.equalizer.engine.EQEngine
+import com.mardous.booming.playback.processor.BalanceAudioProcessor
+import com.mardous.booming.playback.processor.ReplayGainAudioProcessor
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.filterNot
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.withContext
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.decodeFromStream
+import kotlin.time.Duration.Companion.milliseconds
+
+val Context.eqDataStore by preferencesDataStore("equalizer")
+
+@OptIn(FlowPreview::class)
+@androidx.annotation.OptIn(UnstableApi::class)
+class EqualizerManager(
+    private val context: Context,
+    private val balanceProcessor: BalanceAudioProcessor,
+    private val replayGainProcessor: ReplayGainAudioProcessor,
+    private val eqRepository: RealAutoEqRepository,
+    audioOutputObserver: AudioOutputObserver,
+) {
+
+    private val eqScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
+    private var eqEngine: EQEngine? = null
+    private var pendingDevice: AudioDevice? = null
+
+    private val _bandCapabilities = MutableStateFlow(EqBandCapabilities.Empty)
+
+    val equalizerSettings: StateFlow<EqualizerSettings> =
+        combine(
+            audioOutputObserver.bitPerfectState,
+            context.eqDataStore.data,
+            _bandCapabilities
+        ) { bitPerfectState, prefs, bandCapabilities ->
+            buildEqualizerSettings(bitPerfectState, prefs, bandCapabilities)
+        }
+        .stateIn(eqScope, SharingStarted.Eagerly, EqualizerSettings.Unspecified)
+
+    val soundSettings: StateFlow<SoundSettings> = context.eqDataStore.data
+        .map { prefs -> buildSoundSettings(prefs) }
+        .stateIn(eqScope, SharingStarted.Eagerly, SoundSettings.Unspecified)
+
+    /**
+     * Sound settings the player must apply right now. While the user is dragging a slider,
+     * this returns the in-memory preview; otherwise it mirrors the persisted [soundSettings].
+     */
+    private val _liveSoundPreview = MutableStateFlow<SoundSettings?>(null)
+    val liveSoundSettings: StateFlow<SoundSettings> =
+        combine(soundSettings, _liveSoundPreview) { persisted, live -> live ?: persisted }
+            .stateIn(eqScope, SharingStarted.Eagerly, SoundSettings.Unspecified)
+
+    var eqSession = EqSession(SessionType.Internal, NO_SESSION_ID, false)
+        private set
+
+    init {
+        equalizerSettings.map { it.eqState }
+            .filterNot { it == EqState.Unspecified }
+            .debounce(100.milliseconds)
+            .onEach { newState ->
+                val isDisabled = newState.isDisabledByReason
+                if (eqEngine == null && eqSession.id != NO_SESSION_ID && !isDisabled) {
+                    eqEngine = createEngine(
+                        mode = newState.engineMode,
+                        sessionId = eqSession.id,
+                        bandCount = newState.preferredBandCount
+                    )
+                    if (pendingDevice != null) {
+                        setCurrentDevice(pendingDevice!!)
+                    }
+                }
+                if (!isDisabled) {
+                    if (newState.isUsable) {
+                        setSession(eqSession.copy(type = SessionType.Internal), newState)
+                    } else {
+                        setSession(eqSession.copy(type = SessionType.External), newState)
+                    }
+                } else {
+                    setSessionIsActive(false, newState)
+                }
+            }
+            .launchIn(eqScope)
+
+        liveSoundSettings.map { it.balance }
+            .onEach { balanceState ->
+                balanceProcessor.setBalance(balanceState.left, balanceState.right)
+            }
+            .flowOn(Dispatchers.Main)
+            .launchIn(eqScope)
+
+        soundSettings.map { it.replayGain }
+            .filterNot { it == ReplayGainState.Unspecified }
+            .onEach { state ->
+                if (state.mode.isOn) {
+                    replayGainProcessor.mode = state.mode
+                    replayGainProcessor.preAmpGain = state.preamp
+                    replayGainProcessor.preAmpGainWithoutTag = state.preampWithoutGain
+                } else {
+                    replayGainProcessor.mode = ReplayGainMode.Off
+                    replayGainProcessor.preAmpGain = 0f
+                    replayGainProcessor.preAmpGainWithoutTag = 0f
+                }
+            }
+            .flowOn(Dispatchers.Main)
+            .launchIn(eqScope)
+
+        /*
+        bitPerfectAudio.debounce(100.milliseconds)
+            .onEach { bitPerfectEnabled ->
+                audioOutputObserver.setBitPerfectEnabled(bitPerfectEnabled)
+            }
+            .flowOn(Dispatchers.Main)
+            .launchIn(eqScope)
+         */
+
+        audioOutputObserver.audioDevice
+            .onEach { setCurrentDevice(it) }
+            .flowOn(IO)
+            .launchIn(eqScope)
+    }
+
+    @SuppressLint("NewApi")
+    suspend fun initializeEqualizer(
+        engineMode: EqEngineMode = this.equalizerSettings.value.eqState.engineMode
+    ) = withContext(IO) {
+        try {
+            val effects = AudioEffect.queryEffects().orEmpty()
+            context.eqDataStore.edit { prefs ->
+                val eqInitialized = prefs[Keys.EQ_INITIALIZED]
+                if (eqInitialized != true) {
+                    prefs[Keys.EQ_ENGINE_MODE] = engineMode.ordinal
+                    prefs[Keys.PROFILES] = Json.encodeToString(
+                        getProfilesByBandCount(engineMode.defaultBandCount)
+                    )
+                    prefs[Keys.EQ_INITIALIZED] = true
+                }
+                prefs[Keys.EQ_SUPPORTED] = effects.any {
+                    it.type == engineMode.type
+                }
+                prefs[Keys.VIRTUALIZER_SUPPORTED] = effects.any {
+                    it.type == AudioEffect.EFFECT_TYPE_VIRTUALIZER
+                }
+                prefs[Keys.BASS_BOOST_SUPPORTED] = effects.any {
+                    it.type == AudioEffect.EFFECT_TYPE_BASS_BOOST
+                }
+                prefs[Keys.LOUDNESS_SUPPORTED] = effects.any {
+                    it.type == AudioEffect.EFFECT_TYPE_LOUDNESS_ENHANCER
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "The EQ couldn't be initialized. Maybe audio effects aren't available on this device?", e)
+        }
+    }
+
+    fun release() {
+        setSession(EqSession(SessionType.Internal, NO_SESSION_ID, false))
+        eqEngine?.release()
+        eqEngine = null
+    }
+
+    fun isProfileNameAvailable(profileName: String): Boolean {
+        return equalizerSettings.value.profiles.none { it.name.equals(profileName, ignoreCase = true) }
+    }
+
+    fun isAutoEqProfileNameAvailable(profileName: String): Boolean {
+        return equalizerSettings.value.autoEqProfiles.none { it.name.equals(profileName, ignoreCase = true) }
+    }
+
+    fun getNewExportName(): String = getFormattedFileName("BoomingEQ", "json")
+
+    fun getEmptyCustomProfile(bandCount: Int): EqProfile {
+        return EqProfile(EqProfile.CUSTOM_PROFILE_NAME, FloatArray(bandCount), isCustom = true)
+    }
+
+    fun getNewProfileFromCustom(
+        profileName: String,
+        associatedDevices: Set<AudioDeviceType>
+    ): EqProfile {
+        return equalizerSettings.value.customProfile.copy(
+            name = profileName,
+            associations = associatedDevices,
+            isCustom = false,
+            isAutoEq = false
+        )
+    }
+
+    suspend fun editProfile(
+        profile: EqProfile,
+        newName: String,
+        newAssociations: Set<AudioDeviceType>
+    ): Boolean {
+        val trimmedName = newName.trim()
+        if (trimmedName.isEmpty()) return false
+
+        val currentProfiles = equalizerSettings.value.profiles
+        if (profile.name != trimmedName &&
+            currentProfiles.any { it.name.equals(trimmedName, ignoreCase = true) }) {
+            return false
+        }
+
+        val targetIndex = currentProfiles.indexOfFirst { it.name == profile.name }
+        if (targetIndex == -1) return false
+
+        val newProfiles = currentProfiles.mapIndexedTo(mutableListOf()) { itemIndex, oldProfile ->
+            when {
+                itemIndex == targetIndex -> oldProfile.copy(
+                    name = trimmedName,
+                    associations = newAssociations
+                )
+                else -> oldProfile.associations.intersect(newAssociations).let { intersect ->
+                    if (intersect.isNotEmpty()) {
+                        oldProfile.copy(associations = oldProfile.associations - intersect)
+                    } else {
+                        oldProfile
+                    }
+                }
+            }
+        }
+
+        setEqualizerProfiles(newProfiles)
+        if (profile == equalizerSettings.value.currentProfile) {
+            setCurrentProfile(newProfiles[targetIndex])
+        }
+        return true
+    }
+
+    suspend fun addProfile(profile: EqProfile, allowReplace: Boolean, useProfile: Boolean): Boolean {
+        if (!profile.isValid) return false
+
+        val currentProfiles = equalizerSettings.value.profiles.toMutableList()
+        val index = currentProfiles.indexOfFirst { it.name.equals(profile.name, ignoreCase = true) }
+        if (index != -1) {
+            if (allowReplace) {
+                currentProfiles[index] = profile
+                setEqualizerProfiles(currentProfiles)
+                if (useProfile) {
+                    setCurrentProfile(profile)
+                }
+                return true
+            }
+            return false
+        }
+
+        currentProfiles.add(profile)
+        setEqualizerProfiles(currentProfiles)
+        if (useProfile) {
+            setCurrentProfile(profile)
+        }
+        return true
+    }
+
+    suspend fun removeProfile(profile: EqProfile): Boolean {
+        val currentProfiles = equalizerSettings.value.profiles.toMutableList()
+        val removed = currentProfiles.removeIf { it.name == profile.name }
+        if (!removed) return false
+
+        setEqualizerProfiles(currentProfiles)
+        if (profile == equalizerSettings.value.currentProfile) {
+            setCurrentProfile(equalizerSettings.value.customProfile)
+        }
+        return true
+    }
+
+    suspend fun deleteAutoEqProfile(profile: AutoEqProfile): Boolean {
+        val currentAutoEqProfiles = equalizerSettings.value.autoEqProfiles.toMutableList()
+        val removed = currentAutoEqProfiles.removeIf { it.name == profile.name }
+        if (!removed) return false
+
+        setAutoEqProfiles(currentAutoEqProfiles)
+        return true
+    }
+
+    suspend fun importProfiles(toImport: List<EqProfile>): Int {
+        if (toImport.isEmpty()) return 0
+
+        val currentProfiles = equalizerSettings.value.profiles.toMutableList()
+        val bandCapabilities = equalizerSettings.value.bandCapabilities
+
+        var imported = 0
+        for (profile in toImport) {
+            if (!profile.isValid ||
+                profile.isCustom ||
+                !bandCapabilities.isBandCountSupported(profile.numberOfBands)) {
+                continue
+            }
+            val existingIndex = currentProfiles.indexOfFirst { it.name.equals(profile.name, ignoreCase = true) }
+            if (existingIndex >= 0) {
+                currentProfiles[existingIndex] = profile
+                imported++
+            } else {
+                currentProfiles.add(profile)
+                imported++
+            }
+        }
+        if (imported > 0) {
+            setEqualizerProfiles(currentProfiles)
+        }
+        return imported
+    }
+
+    suspend fun importAutoEqProfile(
+        profile: AutoEqProfile,
+        suggestedName: String,
+        allowReplace: Boolean
+    ): Boolean {
+        val actualProfile = if (profile.name == suggestedName) {
+            profile
+        } else {
+            profile.copy(name = suggestedName)
+        }
+        if (actualProfile.name.isNotEmpty() && actualProfile.points.isNotEmpty()) {
+            val autoEqProfiles = this.equalizerSettings.value.autoEqProfiles.toMutableList()
+
+            val existingIndex = autoEqProfiles.indexOfFirst { it.name == actualProfile.name }
+            if (existingIndex != -1) {
+                if (allowReplace) {
+                    if (autoEqProfiles.add(actualProfile)) {
+                        setAutoEqProfiles(autoEqProfiles)
+                        return true
+                    }
+                }
+                return false
+            }
+
+            if (autoEqProfiles.add(actualProfile)) {
+                setAutoEqProfiles(autoEqProfiles)
+                return true
+            }
+        }
+        return false
+    }
+
+    private suspend fun setEqualizerProfiles(profiles: List<EqProfile>) {
+        context.eqDataStore.edit {
+            it[Keys.PROFILES] = Json.encodeToString(profiles)
+        }
+    }
+
+    private suspend fun setAutoEqProfiles(profiles: List<AutoEqProfile>) {
+        context.eqDataStore.edit {
+            it[Keys.AUTO_EQ_PROFILES] = Json.encodeToString(profiles)
+        }
+    }
+
+    suspend fun setCurrentProfile(eqProfile: EqProfile) {
+        if (equalizerSettings.value.bandCapabilities.isBandCountSupported(eqProfile.numberOfBands)) {
+            if (eqProfile.numberOfBands != equalizerSettings.value.eqState.preferredBandCount) {
+                setBandCount(
+                    bandCount = eqProfile.numberOfBands,
+                    profileAfterChange = eqProfile
+                )
+            } else {
+                context.eqDataStore.edit {
+                    it[Keys.PROFILE] = Json.encodeToString(eqProfile)
+                }
+                applyChangesToEngine(profile = eqProfile)
+            }
+        }
+    }
+
+    suspend fun setCustomProfileBandGain(band: Int, gainInDb: Float) {
+        val currentProfile = equalizerSettings.value.currentProfile
+        val newBandLevels = currentProfile.levels.copyOf()
+        if (band in newBandLevels.indices) {
+            newBandLevels[band] = gainInDb
+        }
+        val customProfile = currentProfile.copy(
+            name = EqProfile.CUSTOM_PROFILE_NAME,
+            levels = newBandLevels,
+            isAutoEq = false,
+            isCustom = true
+        )
+        setCustomProfile(customProfile, fromUser = true)
+    }
+
+    private suspend fun setCustomProfile(profile: EqProfile, fromUser: Boolean) {
+        if (profile.isCustom) {
+            val serializedProfile = Json.encodeToString(profile)
+            context.eqDataStore.edit {
+                it[Keys.CUSTOM_PROFILE] = serializedProfile
+                if (fromUser) {
+                    it[Keys.PROFILE] = serializedProfile
+                }
+            }
+            if (fromUser) {
+                applyChangesToEngine(profile = profile)
+            }
+        }
+    }
+
+    fun setSessionId(audioSessionId: Int, eqState: EqState = this.equalizerSettings.value.eqState) {
+        setSession(
+            eqSession.copy(
+                id = audioSessionId,
+                type = if (eqState.enabled) {
+                    SessionType.Internal
+                } else {
+                    SessionType.External
+                }
+            )
+        )
+    }
+
+    fun setSessionIsActive(isActive: Boolean, eqState: EqState = this.equalizerSettings.value.eqState) {
+        setSession(
+            newSession = eqSession.copy(
+                active = isActive,
+                type = if (eqState.enabled) {
+                    SessionType.Internal
+                } else {
+                    SessionType.External
+                }
+            ),
+            eqState = eqState
+        )
+    }
+
+    private fun setSession(newSession: EqSession, eqState: EqState = this.equalizerSettings.value.eqState) {
+        val oldSession = this.eqSession
+        if (newSession == oldSession)
+            return
+
+        this.eqSession = newSession
+        when (oldSession.type) {
+            SessionType.Internal -> {
+                eqEngine?.setEnabled(false)
+                if (eqState.isDisabledByReason) {
+                    eqEngine?.release()
+                    eqEngine = null
+                }
+            }
+
+            SessionType.External -> {
+                if (oldSession.id != NO_SESSION_ID) {
+                    val intent = Intent(AudioEffect.ACTION_CLOSE_AUDIO_EFFECT_CONTROL_SESSION)
+                        .putExtra(AudioEffect.EXTRA_PACKAGE_NAME, context.packageName)
+                        .putExtra(AudioEffect.EXTRA_AUDIO_SESSION, oldSession.id)
+
+                    context.sendBroadcast(intent)
+                }
+            }
+        }
+
+        if (!eqState.isDisabledByReason && newSession.active && newSession.id != NO_SESSION_ID) {
+            when (newSession.type) {
+                SessionType.Internal -> {
+                    if (newSession.id != this.eqEngine?.sessionId) {
+                        eqEngine?.release()
+                        eqEngine = createEngine(
+                            mode = eqState.engineMode,
+                            sessionId = newSession.id,
+                            bandCount = eqState.preferredBandCount
+                        )
+                    }
+                    eqEngine?.setEnabled(true)
+                }
+
+                SessionType.External -> {
+                    val intent = Intent(AudioEffect.ACTION_OPEN_AUDIO_EFFECT_CONTROL_SESSION)
+                        .putExtra(AudioEffect.EXTRA_AUDIO_SESSION, newSession.id)
+                        .putExtra(AudioEffect.EXTRA_PACKAGE_NAME, context.packageName)
+                        .putExtra(AudioEffect.EXTRA_CONTENT_TYPE, AudioEffect.CONTENT_TYPE_MUSIC)
+
+                    context.sendBroadcast(intent)
+                }
+            }
+        }
+    }
+
+    suspend fun setEqualizerState(state: EqState, newProfile: EqProfile? = null) {
+        context.eqDataStore.edit { prefs ->
+            prefs[Keys.EQ_ENABLED] = state.enabled
+            prefs[Keys.EQ_ENGINE_MODE] = state.engineMode.ordinal
+            prefs[Keys.EQ_BAND_COUNT] = state.preferredBandCount
+            prefs[Keys.EQ_PRO_MODE_ENABLED] = state.proMode
+            if (newProfile != null) {
+                val serializedProfile = Json.encodeToString(newProfile)
+                prefs[Keys.PROFILE] = serializedProfile
+                if (newProfile.isCustom) {
+                    prefs[Keys.CUSTOM_PROFILE] = serializedProfile
+                }
+            }
+        }
+        if (newProfile != null) {
+            applyChangesToEngine(state = state, profile = newProfile)
+        } else {
+            applyChangesToEngine(state = state)
+        }
+    }
+
+    suspend fun setProMode(proModeEnabled: Boolean) {
+        if (!proModeEnabled) {
+            val newBandCount = minOf(
+                equalizerSettings.value.eqState.preferredBandCount,
+                equalizerSettings.value.bandCapabilities.maxBandCountInNormalMode
+            )
+            setBandCount(newBandCount)
+        }
+        setEqualizerState(
+            state = equalizerSettings.value.eqState.copy(
+                proMode = proModeEnabled
+            )
+        )
+    }
+
+    suspend fun setLoudnessGain(state: LoudnessGainState) {
+        context.eqDataStore.edit { prefs ->
+            prefs[Keys.LOUDNESS_ENABLED] = state.enabled
+            prefs[Keys.LOUDNESS_GAIN] = state.gainInDb
+        }
+        applyChangesToEngine(loudnessGainState = state)
+    }
+
+    suspend fun setBassBoost(state: BassBoostState) {
+        context.eqDataStore.edit { prefs ->
+            prefs[Keys.BASS_BOOST_ENABLED] = state.enabled
+            prefs[Keys.BASS_BOOST_STRENGTH] = state.strength
+        }
+        applyChangesToEngine(bassBoostState = state)
+    }
+
+    suspend fun setVirtualizer(state: VirtualizerState) {
+        context.eqDataStore.edit { prefs ->
+            prefs[Keys.VIRTUALIZER_ENABLED] = state.enabled
+            prefs[Keys.VIRTUALIZER_STRENGTH] = state.strength
+        }
+        applyChangesToEngine(virtualizerState = state)
+    }
+
+    suspend fun setBandCount(
+        bandCount: Int,
+        profileAfterChange: EqProfile = getEmptyCustomProfile(bandCount = bandCount)
+    ): Boolean {
+        if (equalizerSettings.value.eqState.preferredBandCount == bandCount)
+            return false
+
+        val bandCapabilities = equalizerSettings.value.bandCapabilities
+        if (bandCapabilities.hasMultipleBandConfigurations &&
+            bandCapabilities.isBandCountSupported(bandCount)) {
+            eqEngine?.let { engine ->
+                if (engine.setBandCount(bandCount)) {
+                    setEqualizerState(
+                        state = equalizerSettings.value.eqState.copy(preferredBandCount = bandCount),
+                        newProfile = profileAfterChange
+                    )
+                    return true
+                }
+            }
+        }
+        return false
+    }
+
+    suspend fun setEnableBitPerfect(bitPerfect: Boolean) {
+        context.eqDataStore.edit { prefs ->
+            prefs[Keys.BIT_PERFECT] = bitPerfect
+        }
+    }
+
+    suspend fun setEnableAudioOffload(audioOffload: Boolean) {
+        context.eqDataStore.edit { prefs ->
+            prefs[Keys.AUDIO_OFFLOAD] = audioOffload
+        }
+    }
+
+    suspend fun setEnableAudioFloatOutput(audioFloatOutput: Boolean) {
+        context.eqDataStore.edit { prefs ->
+            prefs[Keys.AUDIO_FLOAT_OUTPUT] = audioFloatOutput
+        }
+    }
+
+    suspend fun setEnableSkipSilence(skipSilence: Boolean) {
+        context.eqDataStore.edit { prefs ->
+            prefs[Keys.SKIP_SILENCE] = skipSilence
+        }
+    }
+
+    suspend fun setVolume(volume: Float, apply: Boolean) {
+        if (apply) {
+            context.eqDataStore.edit { prefs ->
+                prefs[Keys.VOLUME] = volume
+            }
+            clearLiveSoundPreview()
+        } else {
+            _liveSoundPreview.value = soundSettings.value.copy(
+                volume = soundSettings.value.volume.copy(currentVolume = volume)
+            )
+        }
+    }
+
+    suspend fun setBalance(balance: BalanceState, apply: Boolean) {
+        if (apply) {
+            context.eqDataStore.edit { prefs ->
+                prefs[Keys.CENTER_BALANCE] = balance.center
+            }
+            clearLiveSoundPreview()
+        } else {
+            _liveSoundPreview.value = soundSettings.value.copy(
+                balance = soundSettings.value.balance.copy(center = balance.center)
+            )
+        }
+    }
+
+    suspend fun setTempo(tempo: TempoState, apply: Boolean) {
+        if (apply) {
+            context.eqDataStore.edit { prefs ->
+                prefs[Keys.SPEED] = tempo.speed
+                prefs[Keys.PITCH] = tempo.pitch
+                prefs[Keys.IS_FIXED_PITCH] = tempo.isFixedPitch
+            }
+            clearLiveSoundPreview()
+        } else {
+            _liveSoundPreview.value = soundSettings.value.copy(
+                tempo = soundSettings.value.tempo.copy(
+                    speed = tempo.speed,
+                    pitch = tempo.pitch,
+                    isFixedPitch = tempo.isFixedPitch
+                )
+            )
+        }
+    }
+
+    suspend fun setReplayGain(replayGain: ReplayGainState) {
+        context.eqDataStore.edit { prefs ->
+            prefs[Keys.REPLAYGAIN_PREAMP] = replayGain.preamp
+            prefs[Keys.REPLAYGAIN_PREAMP_WITHOUT_GAIN] = replayGain.preampWithoutGain
+            prefs[Keys.REPLAYGAIN_MODE] = replayGain.mode.name
+        }
+    }
+
+    fun clearLiveSoundPreview() {
+        _liveSoundPreview.value = null
+    }
+
+    suspend fun setCompressor(state: CompressorState) {
+        context.eqDataStore.edit { prefs ->
+            prefs[Keys.COMPRESSOR_ENABLED] = state.enabled
+            prefs[Keys.COMPRESSOR_ATTACK] = state.attackTimeMs
+            prefs[Keys.COMPRESSOR_RELEASE] = state.releaseTimeMs
+            prefs[Keys.COMPRESSOR_KNEE] = state.kneeWidth
+            prefs[Keys.COMPRESSOR_NOISE_GATE] = state.noiseGateThreshold
+            prefs[Keys.COMPRESSOR_PRE_GAIN] = state.preGain
+            prefs[Keys.COMPRESSOR_POST_GAIN] = state.postGain
+            prefs[Keys.COMPRESSOR_RATIO] = state.ratio
+            prefs[Keys.COMPRESSOR_EXPANDER_RATIO] = state.expanderRatio
+            prefs[Keys.COMPRESSOR_THRESHOLD] = state.threshold
+        }
+        applyChangesToEngine(compressorState = state)
+    }
+
+    suspend fun setLimiter(state: LimiterState) {
+        context.eqDataStore.edit { prefs ->
+            prefs[Keys.LIMITER_ENABLED] = state.enabled
+            prefs[Keys.LIMITER_ATTACK] = state.attackTimeMs
+            prefs[Keys.LIMITER_RELEASE] = state.releaseTimeMs
+            prefs[Keys.LIMITER_POST_GAIN] = state.postGain
+            prefs[Keys.LIMITER_RATIO] = state.ratio
+            prefs[Keys.LIMITER_THRESHOLD] = state.threshold
+        }
+        applyChangesToEngine(limiterState = state)
+    }
+
+    suspend fun setEngineMode(engineMode: EqEngineMode) {
+        resetConfigurationWithNewEngineMode(engineMode)
+    }
+
+    private fun setBandCapabilities(bandCapabilities: EqBandCapabilities) {
+        _bandCapabilities.value = bandCapabilities
+    }
+
+    private suspend fun setCurrentDevice(device: AudioDevice) {
+        val eqState = equalizerSettings.value.eqState
+        if (eqState == EqState.Unspecified || !eqState.supported || device == AudioDevice.Unknown) {
+            if (device != AudioDevice.Unknown && !device.isPending) {
+                pendingDevice = device.copy(isPending = true)
+            }
+            return
+        }
+        this.pendingDevice = null
+        val profileByDevice = equalizerSettings.value.profiles.firstOrNull { profile ->
+            profile.associations.contains(device.type)
+        }
+        if (profileByDevice != null) {
+            setCurrentProfile(profileByDevice)
+        }
+    }
+
+    suspend fun setAutoEqProfile(profile: AutoEqProfile) {
+        val currentBandCount = equalizerSettings.value.eqState.preferredBandCount
+        val bandCapabilities = equalizerSettings.value.bandCapabilities
+        if (bandCapabilities.isBandCountSupported(currentBandCount)) {
+            val frequencies = bandCapabilities.getFrequencies(currentBandCount)
+            val profile = EqProfile(
+                name = profile.name,
+                levels = profile.getBandGains(frequencies, bandCapabilities.bandRange),
+                isCustom = true,
+                isAutoEq = true
+            )
+            setCustomProfile(profile, fromUser = true)
+        }
+    }
+
+    fun syncAutoEqDatabase() = eqRepository.syncAutoEqDatabase()
+
+    suspend fun getRemoteAutoEqProfilesCount() = eqRepository.getRemoteProfilesCount()
+
+    suspend fun setRemoteAutoEqProfile(entity: AutoEqEntity) = withContext(IO) {
+        eqRepository.loadAutoEqProfile(entity)?.let { profile ->
+            setAutoEqProfile(profile)
+            importAutoEqProfile(
+                profile = profile,
+                suggestedName = profile.name,
+                allowReplace = true
+            )
+        }
+    }
+
+    suspend fun searchAutoEqHeadphones(query: String) = eqRepository.searchHeadphones(query)
+
+    @OptIn(ExperimentalSerializationApi::class)
+    suspend fun parseProfilesFromUri(uri: Uri): Result<List<EqProfile>> = withContext(IO) {
+        runCatching {
+            val mimeType = context.contentResolver.getType(uri)
+            if (mimeType == null || (
+                        mimeType != "application/json" &&
+                                mimeType != "text/plain" &&
+                                !mimeType.startsWith("application/"))) {
+                throw IllegalArgumentException("Invalid MIME type: $mimeType")
+            }
+
+            context.contentResolver.openInputStream(uri)?.buffered()?.use { bufferedStream ->
+                bufferedStream.mark(1024)
+                val reader = JsonReader(bufferedStream.reader())
+                if (reader.peek() != JsonToken.BEGIN_ARRAY) {
+                    throw IllegalArgumentException("Not a JSON array")
+                }
+
+                bufferedStream.reset()
+
+                Json.decodeFromStream<List<EqProfile>>(bufferedStream)
+            } ?: throw IllegalStateException("Could not open stream for $uri")
+        }
+    }
+
+    suspend fun parseAutoEqProfileFromUri(uri: Uri): Result<AutoEqProfile> = withContext(IO) {
+        runCatching {
+            val mimeType = context.contentResolver.getType(uri)
+            if (mimeType == null || mimeType != MIME_TYPE_PLAIN_TEXT) {
+                throw IllegalArgumentException("Invalid MIME type: $mimeType")
+            }
+            AutoEqParser.parse(context, uri) ?: throw IllegalStateException("Failed to parse AutoEq profile")
+        }
+    }
+
+    private fun getProfilesByBandCount(bandCount: Int) = when (bandCount) {
+        5 -> listOf(
+            EqProfile("Bass Boost", floatArrayOf(11f, 6f, -1f, -2.5f, -0.5f)),
+            EqProfile("Classical", floatArrayOf(4f, 0.5f, 0.5f, 2.5f, 4.5f)),
+            EqProfile("Flat", floatArrayOf(0f, 0f, 0f, 0f, 0f)),
+            EqProfile("Jazz", floatArrayOf(4f, 2f, 1f, 3.5f, 1.5f)),
+            EqProfile("Pop", floatArrayOf(0.5f, 6f, 2f, 0.5f, 4.5f)),
+            EqProfile("Rock", floatArrayOf(7f, 2.5f, -2f, 3.5f, 7.5f)),
+            EqProfile("Treble Boost", floatArrayOf(-2f, -0.5f, 2f, 7f, 11f)),
+            EqProfile("Vocal", floatArrayOf(-2.5f, 2f, 9f, 4f, -0.5f))
+        )
+
+        15 -> listOf(
+            EqProfile("Bass Boost", floatArrayOf(13f, 12f, 10f, 8f, 6f, 3f, 0f, -2f, -3f, -3f, -2f, -1f, 0f, 0f, 0f)),
+            EqProfile("Classical", floatArrayOf(6f, 5f, 3f, 2f, 1f, 0f, 0f, 1f, 2f, 3f, 4f, 5f, 6f, 7f, 7f)),
+            EqProfile("Flat", floatArrayOf(0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f)),
+            EqProfile("Jazz", floatArrayOf(4f, 5f, 4f, 3f, 2f, 1f, 0f, 2f, 4f, 5f, 4f, 3f, 2f, 1f, 0f)),
+            EqProfile("Pop", floatArrayOf(-1f, 0f, 3f, 5f, 7f, 5f, 2f, 0f, -1f, 0f, 2f, 4f, 5f, 6f, 6f)),
+            EqProfile("Rock", floatArrayOf(9f, 8f, 6f, 4f, 2f, 0f, -2f, -3f, -2f, 0f, 3f, 6f, 8f, 9f, 10f)),
+            EqProfile("Treble Boost", floatArrayOf(-3f, -2f, -1f, 0f, 1f, 2f, 3f, 4f, 6f, 8f, 10f, 12f, 13f, 14f, 14f)),
+            EqProfile("Vocal", floatArrayOf(-4f, -3f, -2f, 0f, 4f, 8f, 11f, 12f, 9f, 6f, 3f, 1f, 0f, -1f, -1f))
+        )
+
+        else -> listOf(
+            EqProfile("Bass Boost", floatArrayOf(12f, 10f, 8f, 4f, 0f, -2f, -3f, -2f, -1f, 0f)),
+            EqProfile("Classical", floatArrayOf(5f, 3f, 1f, 0f, 0f, 1f, 2f, 3f, 4f, 5f)),
+            EqProfile("Flat", floatArrayOf(0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f)),
+            EqProfile("Jazz", floatArrayOf(3f, 5f, 3f, 1f, 0f, 2f, 4f, 3f, 2f, 1f)),
+            EqProfile("Pop", floatArrayOf(-1f, 2f, 5f, 7f, 4f, 0f, -1f, 2f, 4f, 5f)),
+            EqProfile("Rock", floatArrayOf(8f, 6f, 4f, 1f, -2f, -2f, 2f, 5f, 7f, 8f)),
+            EqProfile("Treble Boost", floatArrayOf(-2f, -2f, -1f, 0f, 1f, 3f, 6f, 8f, 10f, 12f)),
+            EqProfile("Vocal", floatArrayOf(-3f, -2f, 0f, 4f, 8f, 10f, 6f, 2f, 0f, -1f))
+        )
+    }
+
+    private fun createEngine(mode: EqEngineMode, sessionId: Int, bandCount: Int): EQEngine? {
+        return runCatching {
+            if (EqEngineMode.isSwitchingSupported()) when (mode) {
+                EqEngineMode.Basic -> BasicEQEngine(sessionId)
+                EqEngineMode.DynamicsProcessing -> DynamicsProcessingEngine(sessionId, bandCount)
+            } else {
+                BasicEQEngine(sessionId)
+            }
+        }.onSuccess { newEngine ->
+            applyChangesToEngine(engine = newEngine)
+            setBandCapabilities(newEngine.bandCapabilities)
+        }.onFailure {
+            Log.e(TAG, "Failed to open EQ session", it)
+        }.getOrNull()
+    }
+
+    private fun applyChangesToEngine(
+        engine: EQEngine? = this.eqEngine,
+        state: EqState = this.equalizerSettings.value.eqState,
+        profile: EqProfile = this.equalizerSettings.value.currentProfile,
+        bassBoostState: BassBoostState = this.equalizerSettings.value.bassBoost,
+        virtualizerState: VirtualizerState = this.equalizerSettings.value.virtualizer,
+        loudnessGainState: LoudnessGainState = this.equalizerSettings.value.loudnessGain,
+        compressorState: CompressorState = this.equalizerSettings.value.compressor,
+        limiterState: LimiterState = this.equalizerSettings.value.limiter
+    ) {
+        engine?.let {
+            applyEngine(
+                engine = it,
+                state = state,
+                profile = profile,
+                bassBoostState = bassBoostState,
+                virtualizerState = virtualizerState,
+                loudnessGainState = loudnessGainState,
+                compressorState = compressorState,
+                limiterState = limiterState
+            )
+        }
+    }
+
+    private fun applyEngine(
+        engine: EQEngine,
+        state: EqState,
+        profile: EqProfile,
+        bassBoostState: BassBoostState,
+        virtualizerState: VirtualizerState,
+        loudnessGainState: LoudnessGainState,
+        compressorState: CompressorState,
+        limiterState: LimiterState
+    ) {
+        runCatching {
+            if (state.isUsable) {
+                // Apply EQ
+                engine.setEnabled(true)
+                engine.setProfile(profile)
+
+                // Apply Bass Boost
+                runCatching {
+                    if (bassBoostState.isUsable) {
+                        engine.setBassBoostState(bassBoostState)
+                    } else {
+                        engine.setBassBoostState(BassBoostState.Unspecified)
+                    }
+                }.onFailure { Log.e(TAG, "Error setting up bass boost!", it) }
+
+                // Apply Virtualizer
+                runCatching {
+                    if (virtualizerState.isUsable) {
+                        engine.setVirtualizerState(virtualizerState)
+                    } else {
+                        engine.setVirtualizerState(VirtualizerState.Unspecified)
+                    }
+                }.onFailure { Log.e(TAG, "Error setting up virtualizer!", it) }
+
+                // Apply Loudness Enhancer
+                runCatching {
+                    if (loudnessGainState.isUsable) {
+                        engine.setLoudnessGainState(loudnessGainState)
+                    } else {
+                        engine.setLoudnessGainState(LoudnessGainState.Unspecified)
+                    }
+                }.onFailure { Log.e(TAG, "Error setting up loudness enhancer!", it) }
+
+                // Apply Compressor
+                runCatching {
+                    if (engine.isMBCSupported && compressorState.enabled && state.proMode) {
+                        engine.setCompressorState(compressorState)
+                    } else {
+                        engine.setCompressorState(CompressorState.Unspecified)
+                    }
+                }.onFailure { Log.e(TAG, "Error setting up compressor!", it) }
+
+                // Apply Limiter
+                runCatching {
+                    if (engine.isLimiterSupported && limiterState.enabled && state.proMode) {
+                        engine.setLimiterState(limiterState)
+                    } else {
+                        engine.setLimiterState(LimiterState.Unspecified)
+                    }
+                }.onFailure { Log.e(TAG, "Error setting up limiter!", it) }
+            } else {
+                engine.setEnabled(false)
+                engine.setVirtualizerState(VirtualizerState.Unspecified)
+                engine.setBassBoostState(BassBoostState.Unspecified)
+                engine.setLoudnessGainState(LoudnessGainState.Unspecified)
+                engine.setCompressorState(CompressorState.Unspecified)
+                engine.setLimiterState(LimiterState.Unspecified)
+            }
+        }.onFailure {
+            Log.e(TAG, "Error setting up EQ engine", it)
+        }
+    }
+
+    private fun buildEqualizerSettings(
+        bitPerfectState: BitPerfectState,
+        prefs: Preferences,
+        bandCapabilities: EqBandCapabilities
+    ): EqualizerSettings {
+        val engineMode = prefs[Keys.EQ_ENGINE_MODE]
+            ?.toEnum<EqEngineMode>()
+            ?: EqEngineMode.Auto
+
+        val eqState = EqState(
+            supported = prefs[Keys.EQ_SUPPORTED] ?: false,
+            enabled = prefs[Keys.EQ_ENABLED] ?: false,
+            disableReason = when {
+                bitPerfectState.isActive -> EqState.DisableReason.BitPerfect
+                prefs[Keys.AUDIO_OFFLOAD] == true -> EqState.DisableReason.AudioOffload
+                else -> null
+            },
+            preferredBandCount = prefs[Keys.EQ_BAND_COUNT] ?: engineMode.defaultBandCount,
+            engineMode = engineMode,
+            proMode = prefs[Keys.EQ_PRO_MODE_ENABLED] ?: false
+        )
+
+        val customProfile = runCatching {
+            Json.decodeFromString<EqProfile>(prefs[Keys.CUSTOM_PROFILE].orEmpty().trim())
+        }.getOrNull()
+            ?.takeIf { it.isValid }
+            ?: getEmptyCustomProfile(eqState.preferredBandCount)
+
+        val profiles = runCatching {
+            Json.decodeFromString<List<EqProfile>>(prefs[Keys.PROFILES].orEmpty().trim())
+        }.getOrElse {
+            emptyList()
+        }
+
+        val currentProfile = runCatching {
+            Json.decodeFromString<EqProfile>(prefs[Keys.PROFILE].orEmpty().trim())
+        }.getOrElse {
+            profiles.firstOrNull()
+                ?: getEmptyCustomProfile(eqState.preferredBandCount)
+        }
+
+        val autoEqProfiles = runCatching {
+            Json.decodeFromString<List<AutoEqProfile>>(prefs[Keys.AUTO_EQ_PROFILES].orEmpty().trim())
+        }.getOrElse {
+            emptyList()
+        }
+
+        return EqualizerSettings(
+            eqState = eqState,
+            currentProfile = currentProfile,
+            customProfile = customProfile,
+            profiles = profiles,
+            autoEqProfiles = autoEqProfiles,
+            bandCapabilities = bandCapabilities,
+            bassBoost = BassBoostState(
+                supported = prefs[Keys.BASS_BOOST_SUPPORTED] ?: false,
+                enabled = prefs[Keys.BASS_BOOST_ENABLED] ?: false,
+                strength = prefs[Keys.BASS_BOOST_STRENGTH] ?: 0f,
+                strengthRange = BASSBOOST_MIN_STRENGTH..BASSBOOST_MAX_STRENGTH
+            ),
+            virtualizer = VirtualizerState(
+                supported = prefs[Keys.VIRTUALIZER_SUPPORTED] ?: false,
+                enabled = prefs[Keys.VIRTUALIZER_ENABLED] ?: false,
+                strength = prefs[Keys.VIRTUALIZER_STRENGTH] ?: 0f,
+                strengthRange = VIRTUALIZER_MIN_STRENGTH..VIRTUALIZER_MAX_STRENGTH
+            ),
+            loudnessGain = LoudnessGainState(
+                supported = prefs[Keys.LOUDNESS_SUPPORTED] ?: false,
+                enabled = prefs[Keys.LOUDNESS_ENABLED] ?: false,
+                gainInDb = prefs[Keys.LOUDNESS_GAIN] ?: MINIMUM_LOUDNESS_GAIN,
+                gainRange = MINIMUM_LOUDNESS_GAIN..MAXIMUM_LOUDNESS_GAIN
+            ),
+            compressor = CompressorState(
+                enabled = prefs[Keys.COMPRESSOR_ENABLED] ?: false,
+                attackTimeMs = prefs[Keys.COMPRESSOR_ATTACK] ?: CompressorState.Unspecified.attackTimeMs,
+                attackTimeRange = CompressorState.Unspecified.attackTimeRange,
+                releaseTimeMs = prefs[Keys.COMPRESSOR_RELEASE] ?: CompressorState.Unspecified.releaseTimeMs,
+                releaseTimeRange = CompressorState.Unspecified.releaseTimeRange,
+                kneeWidth = prefs[Keys.COMPRESSOR_KNEE] ?: CompressorState.Unspecified.kneeWidth,
+                kneeWidthRange = CompressorState.Unspecified.kneeWidthRange,
+                noiseGateThreshold = prefs[Keys.COMPRESSOR_NOISE_GATE] ?: CompressorState.Unspecified.noiseGateThreshold,
+                noiseGateThresholdRange = CompressorState.Unspecified.noiseGateThresholdRange,
+                preGain = prefs[Keys.COMPRESSOR_PRE_GAIN] ?: CompressorState.Unspecified.preGain,
+                preGainRange = CompressorState.Unspecified.preGainRange,
+                postGain = prefs[Keys.COMPRESSOR_POST_GAIN] ?: CompressorState.Unspecified.postGain,
+                postGainRange = CompressorState.Unspecified.postGainRange,
+                ratio = prefs[Keys.COMPRESSOR_RATIO] ?: CompressorState.Unspecified.ratio,
+                ratioRange = CompressorState.Unspecified.ratioRange,
+                expanderRatio = prefs[Keys.COMPRESSOR_EXPANDER_RATIO] ?: CompressorState.Unspecified.expanderRatio,
+                expanderRatioRange = CompressorState.Unspecified.expanderRatioRange,
+                threshold = prefs[Keys.COMPRESSOR_THRESHOLD] ?: CompressorState.Unspecified.threshold,
+                thresholdRange = CompressorState.Unspecified.thresholdRange
+            ),
+            limiter = LimiterState(
+                enabled = prefs[Keys.LIMITER_ENABLED] ?: false,
+                attackTimeMs = prefs[Keys.LIMITER_ATTACK] ?: LimiterState.Unspecified.attackTimeMs,
+                attackTimeRange = LimiterState.Unspecified.attackTimeRange,
+                releaseTimeMs = prefs[Keys.LIMITER_RELEASE] ?: LimiterState.Unspecified.releaseTimeMs,
+                releaseTimeRange = LimiterState.Unspecified.releaseTimeRange,
+                postGain = prefs[Keys.LIMITER_POST_GAIN] ?: LimiterState.Unspecified.postGain,
+                postGainRange = LimiterState.Unspecified.postGainRange,
+                ratio = prefs[Keys.LIMITER_RATIO] ?: LimiterState.Unspecified.ratio,
+                ratioRange = LimiterState.Unspecified.ratioRange,
+                threshold = prefs[Keys.LIMITER_THRESHOLD] ?: LimiterState.Unspecified.threshold,
+                thresholdRange = LimiterState.Unspecified.thresholdRange
+            )
+        )
+    }
+
+    private fun buildSoundSettings(prefs: Preferences): SoundSettings {
+        return SoundSettings(
+            volume = VolumeState(
+                currentVolume = prefs[Keys.VOLUME] ?: 1f,
+                volumeRange = MIN_VOLUME..MAX_VOLUME
+            ),
+            balance = BalanceState(
+                center = prefs[Keys.CENTER_BALANCE] ?: 0f,
+                range = -MAX_VOLUME..MAX_VOLUME
+            ),
+            tempo = TempoState(
+                speed = prefs[Keys.SPEED] ?: 1f,
+                speedRange = MIN_SPEED..MAX_SPEED,
+                pitch = prefs[Keys.PITCH] ?: 1f,
+                pitchRange = MIN_PITCH..MAX_PITCH,
+                isFixedPitch = prefs[Keys.IS_FIXED_PITCH] ?: true
+            ),
+            replayGain = ReplayGainState(
+                mode = prefs[Keys.REPLAYGAIN_MODE]?.toEnum<ReplayGainMode>() ?: ReplayGainMode.Off,
+                preamp = prefs[Keys.REPLAYGAIN_PREAMP] ?: 0f,
+                preampWithoutGain = prefs[Keys.REPLAYGAIN_PREAMP_WITHOUT_GAIN] ?: 0f
+            ),
+            bitPerfect = prefs[Keys.BIT_PERFECT] ?: false,
+            audioOffload = prefs[Keys.BIT_PERFECT] != true && prefs[Keys.AUDIO_OFFLOAD] == true,
+            audioFloatOutput = prefs[Keys.AUDIO_FLOAT_OUTPUT] ?: false,
+            skipSilence = prefs[Keys.SKIP_SILENCE] ?: false
+        )
+    }
+
+    suspend fun resetConfiguration() {
+        resetConfigurationWithNewEngineMode(equalizerSettings.value.eqState.engineMode)
+    }
+
+    private suspend fun resetConfigurationWithNewEngineMode(newEngineMode: EqEngineMode) {
+        setBandCapabilities(EqBandCapabilities.Empty)
+        context.eqDataStore.edit {
+            it.clear()
+        }
+        eqEngine?.release()
+        eqEngine = null
+        initializeEqualizer(newEngineMode)
+    }
+
+    interface Keys {
+        companion object {
+            val EQ_INITIALIZED = booleanPreferencesKey("eq.initialized")
+            val EQ_ENABLED = booleanPreferencesKey("eq.enabled")
+            val EQ_SUPPORTED = booleanPreferencesKey("eq.supported")
+            val EQ_BAND_COUNT = intPreferencesKey("eq.band.count")
+            val EQ_ENGINE_MODE = intPreferencesKey("eq.engine")
+            val EQ_PRO_MODE_ENABLED = booleanPreferencesKey("eq.pro.enabled")
+            val VIRTUALIZER_SUPPORTED = booleanPreferencesKey("eq.virtualizer.supported")
+            val VIRTUALIZER_ENABLED = booleanPreferencesKey("eq.virtualizer.enabled")
+            val VIRTUALIZER_STRENGTH = floatPreferencesKey("eq.virtualizer.strength")
+            val BASS_BOOST_SUPPORTED = booleanPreferencesKey("eq.bassboost.supported")
+            val BASS_BOOST_ENABLED = booleanPreferencesKey("eq.bassboost.enabled")
+            val BASS_BOOST_STRENGTH = floatPreferencesKey("eq.bassboost.strength")
+            val LOUDNESS_SUPPORTED = booleanPreferencesKey("eq.loudness.supported")
+            val LOUDNESS_ENABLED = booleanPreferencesKey("eq.loudness.enabled")
+            val LOUDNESS_GAIN = floatPreferencesKey("eq.loudness.gain")
+            val AUTO_EQ_PROFILES = stringPreferencesKey("eq.profiles.autoeq")
+            val PROFILES = stringPreferencesKey("eq.profiles")
+            val PROFILE = stringPreferencesKey("eq.profile")
+            val CUSTOM_PROFILE = stringPreferencesKey("eq.profile.custom")
+            val BIT_PERFECT = booleanPreferencesKey("audio.bitperfect")
+            val AUDIO_OFFLOAD = booleanPreferencesKey("audio.offload")
+            val AUDIO_FLOAT_OUTPUT = booleanPreferencesKey("audio.float_output")
+            val SKIP_SILENCE = booleanPreferencesKey("audio.skip_silence")
+            val REPLAYGAIN_MODE = stringPreferencesKey("replaygain.mode")
+            val REPLAYGAIN_PREAMP = floatPreferencesKey("replaygain.preamp")
+            val REPLAYGAIN_PREAMP_WITHOUT_GAIN = floatPreferencesKey("replaygain.preamp.without_gain")
+            val VOLUME = floatPreferencesKey("player.volume")
+            val CENTER_BALANCE = floatPreferencesKey("eq.balance")
+            val SPEED = floatPreferencesKey("eq.speed")
+            val PITCH = floatPreferencesKey("eq.pitch")
+            val IS_FIXED_PITCH = booleanPreferencesKey("eq.pitch.fixed")
+
+            val COMPRESSOR_ENABLED = booleanPreferencesKey("eq.compressor.enabled")
+            val COMPRESSOR_ATTACK = floatPreferencesKey("eq.compressor.attack")
+            val COMPRESSOR_RELEASE = floatPreferencesKey("eq.compressor.release")
+            val COMPRESSOR_KNEE = floatPreferencesKey("eq.compressor.knee")
+            val COMPRESSOR_NOISE_GATE = floatPreferencesKey("eq.compressor.noisegate")
+            val COMPRESSOR_PRE_GAIN = floatPreferencesKey("eq.compressor.pregain")
+            val COMPRESSOR_POST_GAIN = floatPreferencesKey("eq.compressor.postgain")
+            val COMPRESSOR_RATIO = floatPreferencesKey("eq.compressor.ratio")
+            val COMPRESSOR_EXPANDER_RATIO = floatPreferencesKey("eq.compressor.expanderratio")
+            val COMPRESSOR_THRESHOLD = floatPreferencesKey("eq.compressor.threshold")
+
+            val LIMITER_ENABLED = booleanPreferencesKey("eq.limiter.enabled")
+            val LIMITER_ATTACK = floatPreferencesKey("eq.limiter.attack")
+            val LIMITER_RELEASE = floatPreferencesKey("eq.limiter.release")
+            val LIMITER_POST_GAIN = floatPreferencesKey("eq.limiter.postgain")
+            val LIMITER_RATIO = floatPreferencesKey("eq.limiter.ratio")
+            val LIMITER_THRESHOLD = floatPreferencesKey("eq.limiter.threshold")
+        }
+    }
+
+    companion object {
+        private const val TAG = "EqualizerManager"
+
+        private const val NO_SESSION_ID = 0
+
+        const val MINIMUM_LOUDNESS_GAIN = 0f
+        const val MAXIMUM_LOUDNESS_GAIN = 40f
+
+        const val BASSBOOST_MIN_STRENGTH = 0f
+        const val BASSBOOST_MAX_STRENGTH = 1000f
+
+        const val VIRTUALIZER_MIN_STRENGTH = 0f
+        const val VIRTUALIZER_MAX_STRENGTH = 1000f
+
+        const val MIN_SPEED = .5f
+        const val MAX_SPEED = 2f
+
+        const val MIN_PITCH = .5f
+        const val MAX_PITCH = 2f
+
+        const val MIN_VOLUME = 0f
+        const val MAX_VOLUME = 1f
+    }
+}

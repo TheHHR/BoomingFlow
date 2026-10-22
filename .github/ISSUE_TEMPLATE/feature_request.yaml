@@ -1,0 +1,62 @@
+name: Feature Request
+description: Suggest an idea or improvement for Booming Music
+title: "[Feature] "
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting a new feature! Please fill out the following form to help us understand your idea.
+
+  - type: dropdown
+    id: source
+    attributes:
+      label: Download source
+      description: From which source did you download Booming Music?
+      options:
+        - GitHub
+        - F-Droid/IzzyOnDroid
+        - Play Store
+        - Other
+      default: 0
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: App version
+      description: What version of Booming Music are you using?
+      placeholder: e.g. v1.3.0
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Describe the feature
+      description: A clear and concise description of the feature you'd like to see.
+      placeholder: I would like the app to...
+
+  - type: textarea
+    id: motivation
+    attributes:
+      label: Why is this feature important?
+      description: Tell us why this would be helpful or valuable for users.
+      placeholder: This would be useful because...
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Have you considered other solutions or workarounds?
+      placeholder: Maybe something similar like...
+
+  - type: checkboxes
+    id: checked
+    attributes:
+      label: Checklist
+      options:
+        - label: I have checked if this feature request already exists
+        - label: I have checked that this feature is not already implemented in the latest CI build
+        - label: I agree to follow this project's [Code of Conduct](CODE_OF_CONDUCT.md)

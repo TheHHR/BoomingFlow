@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:transitionName="search">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/app_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fitsSystemWindows="true">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?actionBarSize"
+            app:navigationIcon="?homeAsUpIndicator"
+            app:layout_scrollFlags="scroll|enterAlways">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:gravity="center_vertical">
+
+                <androidx.appcompat.widget.AppCompatEditText
+                    android:id="@+id/search_view"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:ellipsize="end"
+                    android:gravity="start|center_vertical"
+                    android:background="@android:color/transparent"
+                    android:inputType="text|textAutoComplete|textNoSuggestions"
+                    android:imeOptions="actionSearch"
+                    android:hint="@string/search_hint"
+                    android:paddingStart="8dp"
+                    android:textAlignment="viewStart"
+                    tools:ignore="Autofill,RtlSymmetry" />
+
+                <FrameLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/voiceSearch"
+                        style="?materialIconButtonStyle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:icon="@drawable/ic_mic_24dp"
+                        app:iconTint="?attr/colorOnSurface" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/clearText"
+                        style="?materialIconButtonStyle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:visibility="gone"
+                        app:icon="@drawable/ic_close_24dp"
+                        app:iconTint="?attr/colorOnSurface" />
+
+                </FrameLayout>
+
+            </LinearLayout>
+
+        </com.google.android.material.appbar.MaterialToolbar>
+
+        <HorizontalScrollView
+            android:id="@+id/filterScrollView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="6dp"
+            android:paddingBottom="6dp"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:overScrollMode="@integer/overScrollMode"
+            android:clipToPadding="false"
+            android:scrollbars="none">
+
+            <com.google.android.material.button.MaterialButtonToggleGroup
+                android:id="@+id/modeButtonGroup"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:overflowMode="none"
+                app:singleSelection="true"
+                tools:checkedButton="@id/modeSongs">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/modeSongs"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/songs_label" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/modeAlbums"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/albums_label" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/modeArtists"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/artists_label" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/modeGenres"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/genres_label" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/modePlaylists"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/playlists_label" />
+
+            </com.google.android.material.button.MaterialButtonToggleGroup>
+
+        </HorizontalScrollView>
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:scrollbarStyle="outsideOverlay"
+        android:scrollbars="vertical"
+        android:overScrollMode="@integer/overScrollMode"
+        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"
+        tools:listitem="@layout/item_list" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@android:id/empty"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:gravity="center"
+        android:text="@string/no_results"
+        android:textAlignment="gravity"
+        android:textAppearance="?textAppearanceHeadline6"
+        android:visibility="gone"
+        tools:visibility="visible" />
+
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/keyboardPopup"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end|bottom"
+        android:layout_marginEnd="@dimen/fab_margin_top_left_right"
+        android:text="@string/keyboard"
+        app:icon="@drawable/ic_keyboard_24dp" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

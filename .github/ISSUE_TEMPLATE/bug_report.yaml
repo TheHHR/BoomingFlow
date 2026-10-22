@@ -1,0 +1,67 @@
+name: Bug Report
+description: Report a problem you encountered with the app
+title: "[Bug] "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report an issue. Please fill out the form below to help us understand the problem.
+
+  - type: dropdown
+    id: source
+    attributes:
+      label: Download source
+      description: From which source did you download Booming Music?
+      options:
+        - GitHub
+        - F-Droid/IzzyOnDroid
+        - Play Store
+        - Other
+      default: 0
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: App version
+      description: What version of Booming Music are you using?
+      placeholder: e.g. v1.3.0
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Describe the issue
+      description: Provide a clear and concise description of what the bug is and how to reproduce it.
+      placeholder: |
+        1. Open the app
+        2. Tap on ...
+        3. See error or unexpected behavior
+    validations:
+      required: true
+
+  - type: input
+    id: device
+    attributes:
+      label: Device information
+      description: Device model and Android version
+      placeholder: e.g. Pixel 9, Android 16
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Crash logs (if any)
+      description: If the app crashed, paste the log here or attach it as a file.
+      placeholder: Paste logs here
+
+  - type: checkboxes
+    id: checked
+    attributes:
+      label: Checklist
+      options:
+        - label: I have verified that this issue is not already reported
+        - label: I have verified that this issue is not already fixed in the latest CI build
+        - label: I agree to follow this project's [Code of Conduct](CODE_OF_CONDUCT.md)
