@@ -14,6 +14,7 @@ import androidx.media3.datasource.okhttp.OkHttpDataSource
 import com.mardous.booming.online.data.innertube.OnlineSong
 import com.mardous.booming.online.data.innertube.YouTubeMusic
 import com.mardous.booming.online.data.network.FastFallbackDns
+import com.mardous.booming.online.download.DownloadRegistry
 import com.mardous.booming.online.util.StreamClientUtils
 import com.mardous.booming.data.model.UnindexedSong
 import com.mardous.booming.playback.RESOLVED_FROM_FILE
@@ -76,12 +77,17 @@ fun createStreamingDataSourceFactory(context: Context): DataSource.Factory {
         } else {
             val videoId = uri.host
                 ?: throw IOException("innertube URI is missing a video id: $uri")
-            val url = runBlocking {
-                YouTubeMusic.getStreamUrl(videoId = videoId)
-            }.getOrElse { cause ->
-                throw IOException("Failed to resolve a stream for $videoId", cause)
+            val localUri = DownloadRegistry.get(context, videoId)
+            if (localUri != null) {
+                dataSpec.buildUpon().setUri(Uri.parse(localUri)).build()
+            } else {
+                val url = runBlocking {
+                    YouTubeMusic.getStreamUrl(videoId = videoId)
+                }.getOrElse { cause ->
+                    throw IOException("Failed to resolve a stream for $videoId", cause)
+                }
+                dataSpec.buildUpon().setUri(url).build()
             }
-            dataSpec.buildUpon().setUri(url).build()
         }
     }
 }

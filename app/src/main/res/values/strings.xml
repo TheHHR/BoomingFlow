@@ -1111,4 +1111,15 @@
     <string name="liked_songs_label">Liked Songs</string>
     <string name="playlists_section_spotify">Spotify</string>
     <string name="liked_songs_subtitle">%1$d tracks • Spotify</string>
+    <string name="download_channel_name">Downloads</string>
+    <string name="download_notification_title">Downloading music</string>
+    <string name="download_notification_text">%1$d download(s) in progress</string>
+    <string name="download_select_tracks">Select tracks to download</string>
+    <string name="download_select_all">Select all</string>
+    <string name="download_format_m4a">M4A (AAC)</string>
+    <string name="download_format_opus">Opus</string>
+    <string name="download_queued_toast">Download queued for %1$d track(s)</string>
+    <string name="download_action_count">Download %1$d tracks</string>
+    <string name="download_already_downloaded">Already downloaded</string>
+    <string name="download_started_label">Download</string>
 </resources>

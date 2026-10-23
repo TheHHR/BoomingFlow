@@ -69,7 +69,8 @@ class SpotifyCardAdapter(
 class SpotifyTrackAdapter(
     private val onTrackClick: (Int) -> Unit,
     private val onPlayNext: (Int) -> Unit,
-    private val onAddToQueue: (Int) -> Unit
+    private val onAddToQueue: (Int) -> Unit,
+    private val onDownload: (Int) -> Unit = {}
 ) : RecyclerView.Adapter<SpotifyTrackAdapter.ViewHolder>() {
 
     var dataSet: List<SpotifyTrack> by Delegates.observable(emptyList()) { _, _, _ ->
@@ -112,10 +113,12 @@ class SpotifyTrackAdapter(
             val popup = android.widget.PopupMenu(context, view)
             popup.menu.add(0, 1, 0, context.getString(R.string.play_next_label))
             popup.menu.add(0, 2, 1, context.getString(R.string.add_to_queue_label))
+            popup.menu.add(0, 3, 2, context.getString(R.string.download_started_label))
             popup.setOnMenuItemClickListener { menuItem ->
                 when (menuItem.itemId) {
                     1 -> onPlayNext(position)
                     2 -> onAddToQueue(position)
+                    3 -> onDownload(position)
                 }
                 true
             }
