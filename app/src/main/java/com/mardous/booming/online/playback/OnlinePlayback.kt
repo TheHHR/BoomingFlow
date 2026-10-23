@@ -115,11 +115,13 @@ fun buildOnlineQueueItem(
     album: String? = null,
     durationMs: Long,
     thumbnailUrl: String?,
+    localUri: Uri? = null,
 ): OnlineQueueItem {
     val mediaId = onlineMediaId(videoId)
     val artworkUri = thumbnailUrl?.let(Uri::parse)
+    val playUri = localUri ?: onlineContentUri(videoId)
     val mediaItem = MediaItem.Builder()
-        .setUri(onlineContentUri(videoId))
+        .setUri(playUri)
         .setMediaId(mediaId)
         .setMediaMetadata(
             MediaMetadata.Builder()
@@ -139,7 +141,7 @@ fun buildOnlineQueueItem(
         .build()
 
     val song = UnindexedSong(
-        uri = artworkUri ?: onlineContentUri(videoId),
+        uri = localUri ?: (artworkUri ?: onlineContentUri(videoId)),
         id = videoId.hashCode().toLong(),
         data = mediaId,
         title = title,

@@ -13,7 +13,6 @@ import com.google.android.material.progressindicator.LinearProgressIndicator
 import com.google.android.material.textview.MaterialTextView
 import com.mardous.booming.R
 import com.mardous.booming.online.download.DownloadProgress
-import com.mardous.booming.online.download.DownloadRegistry
 import com.mardous.booming.online.download.SongDownloader
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
@@ -25,7 +24,6 @@ class DownloadsManagerSheet : BottomSheetDialogFragment() {
 
     private lateinit var recycler: RecyclerView
     private lateinit var emptyText: MaterialTextView
-    private lateinit var hideDownloaded: com.google.android.material.checkbox.MaterialCheckBox
     private lateinit var adapter: DownloadsAdapter
 
     override fun onCreateView(
@@ -39,13 +37,6 @@ class DownloadsManagerSheet : BottomSheetDialogFragment() {
         super.onViewCreated(view, savedInstanceState)
         recycler = view.findViewById(R.id.recycler)
         emptyText = view.findViewById(R.id.empty_text)
-        hideDownloaded = view.findViewById(R.id.hide_downloaded)
-
-        hideDownloaded.isChecked = DownloadRegistry.hideDownloaded(requireContext())
-        hideDownloaded.setOnCheckedChangeListener { _, checked ->
-            DownloadRegistry.setHideDownloaded(context, checked)
-            refresh()
-        }
 
         adapter = DownloadsAdapter(
             onDelete = { videoId ->
@@ -67,14 +58,10 @@ class DownloadsManagerSheet : BottomSheetDialogFragment() {
         if (!isAdded) return
         val active = songDownloader.progress.value.values
             .sortedWith(compareBy({ it.state != DownloadProgress.State.RUNNING }, { it.title }))
-        val completed = if (hideDownloaded.isChecked) {
-            emptyList()
-        } else {
-            songDownloader.downloadedVideoIds
-                .mapNotNull { videoId ->
-                    songDownloader.downloadedDisplayName(videoId)?.let { Row.Completed(videoId, it) }
-                }
-        }
+        val completed = songDownloader.downloadedVideoIds
+            .mapNotNull { videoId ->
+                songDownloader.downloadedDisplayName(videoId)?.let { Row.Completed(videoId, it) }
+            }
         adapter.rows = active.map { Row.Active(it) } + completed
         adapter.notifyDataSetChanged()
         emptyText.isVisible = adapter.rows.isEmpty()

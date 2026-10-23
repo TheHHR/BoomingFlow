@@ -206,7 +206,13 @@ class SpotifyPlaylistFragment : AbsMainActivityFragment(R.layout.fragment_detail
         get() = viewModel.tracks.value
 
     private fun refreshDownloadedBadges() {
-        trackAdapter.downloadedTrackIds = songDownloader.downloadedSpotifyTrackIds()
+        val downloadedIds = songDownloader.downloadedSpotifyTrackIds()
+        trackAdapter.downloadedTrackIds = downloadedIds
+        val tracks = viewModel.tracks.value
+        val allDownloaded = tracks.isNotEmpty() && tracks.all { downloadedIds.contains(it.id) }
+        downloadMenuItem?.setIcon(
+            if (allDownloaded) R.drawable.ic_check_24dp else R.drawable.ic_download_24dp
+        )
     }
 
     private fun eventTitle(videoId: String): String =
@@ -250,6 +256,7 @@ class SpotifyPlaylistFragment : AbsMainActivityFragment(R.layout.fragment_detail
         if (songDownloader.activeCount.value > 0) {
             updateDownloadMenu(true)
         }
+        refreshDownloadedBadges()
     }
 
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {

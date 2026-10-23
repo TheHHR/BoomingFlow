@@ -13,6 +13,13 @@ object DownloadRegistry {
     private const val PREFS_NAME = "booming_download_registry"
     private const val KEY_PREFIX = "uri_"
 
+    @Volatile
+    private var appContext: Context? = null
+
+    fun init(context: Context) {
+        appContext = context.applicationContext
+    }
+
     private fun prefs(context: Context): SharedPreferences =
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 
@@ -56,5 +63,14 @@ object DownloadRegistry {
 
     fun setHideDownloaded(context: Context?, value: Boolean) {
         context?.let { prefs(it).edit().putBoolean("hide_downloaded", value).apply() }
+    }
+
+    // ── Context-free helpers (app-wide registry initialized at startup) ───────
+
+    fun get(videoId: String): String? = appContext?.let { get(it, videoId) }
+
+    fun spotifyTrackUri(trackId: String): String? {
+        if (trackId.isBlank()) return null
+        return appContext?.let { get(it, "sp:$trackId") }
     }
 }

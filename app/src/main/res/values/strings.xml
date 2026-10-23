@@ -1135,10 +1135,5 @@
     <string name="download_state_failed">Failed</string>
     <string name="download_failed_track">Couldn\'t download "%1$s"</string>
     <string name="spotify_search_hint">Search Spotify</string>
-    <string name="search_category_all">All</string>
-    <string name="search_category_tracks">Tracks</string>
-    <string name="search_category_playlists">Playlists</string>
-    <string name="search_category_artists">Artists</string>
-    <string name="spotify_artist_subtitle">Top tracks • Spotify</string>
     <string name="download_started_label">Download</string>
 </resources>

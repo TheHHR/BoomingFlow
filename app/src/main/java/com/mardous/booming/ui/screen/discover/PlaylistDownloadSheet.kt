@@ -15,10 +15,16 @@ import com.google.android.material.textview.MaterialTextView
 import com.mardous.booming.R
 import com.mardous.booming.online.data.spotify.SpotifyTrack
 import com.mardous.booming.online.download.DownloadFormat
+import com.mardous.booming.online.download.DownloadRegistry
+import com.mardous.booming.online.download.SongDownloader
+import org.koin.android.ext.android.inject
 
 class PlaylistDownloadSheet : BottomSheetDialogFragment() {
 
+    private val songDownloader: SongDownloader by inject()
+
     private val selected = mutableSetOf<Int>()
+    private var shownTracks: List<SpotifyTrack> = emptyList()
 
     private val playlistFragment: SpotifyPlaylistFragment?
         get() = parentFragment as? SpotifyPlaylistFragment
@@ -37,21 +43,29 @@ class PlaylistDownloadSheet : BottomSheetDialogFragment() {
         super.onViewCreated(view, savedInstanceState)
         val recycler = view.findViewById<RecyclerView>(R.id.recycler)
         val selectAll = view.findViewById<MaterialCheckBox>(R.id.select_all)
+        val hideDownloaded = view.findViewById<MaterialCheckBox>(R.id.hide_downloaded)
         val formatGroup = view.findViewById<MaterialButtonToggleGroup>(R.id.format_group)
         val downloadButton = view.findViewById<MaterialButton>(R.id.download_button)
 
-        val trackList = tracks
-        for (i in trackList.indices) selected.add(i)
+        val downloadedIds = songDownloader.downloadedSpotifyTrackIds()
+        hideDownloaded.isChecked = DownloadRegistry.hideDownloaded(requireContext())
+        hideDownloaded.setOnCheckedChangeListener { _, checked ->
+            rebuildList(recycler, selectAll, downloadButton, downloadedIds, checked)
+        }
 
         recycler.layoutManager = LinearLayoutManager(requireContext())
-        recycler.adapter = TrackPickAdapter(trackList, selected) {
-            selectAll.isChecked = selected.size == trackList.size
-            updateButton(downloadButton)
-        }
-        selectAll.isChecked = true
+        recycler.adapter = TrackPickAdapter(
+            selected = selected,
+            shownTracks = { shownTracks },
+            onSelectionChanged = {
+                selectAll.isChecked = shownTracks.isNotEmpty() && selected.size == shownTracks.size
+                updateButton(downloadButton)
+            }
+        )
+
         selectAll.setOnCheckedChangeListener { _, checked ->
             if (checked) {
-                for (i in trackList.indices) selected.add(i)
+                for (i in shownTracks.indices) selected.add(i)
             } else {
                 selected.clear()
             }
@@ -60,14 +74,18 @@ class PlaylistDownloadSheet : BottomSheetDialogFragment() {
         }
 
         formatGroup.check(R.id.format_m4a)
-        updateButton(downloadButton)
+        rebuildList(
+            recycler, selectAll, downloadButton, downloadedIds,
+            DownloadRegistry.hideDownloaded(requireContext())
+        )
+
         downloadButton.setOnClickListener {
             val format = if (formatGroup.checkedButtonId == R.id.format_opus) {
                 DownloadFormat.OPUS
             } else {
                 DownloadFormat.M4A
             }
-            val picked = selected.mapNotNull { trackList.getOrNull(it) }
+            val picked = selected.mapNotNull { shownTracks.getOrNull(it) }
             if (picked.isNotEmpty()) {
                 playlistFragment?.startDownload(picked, format)
             }
@@ -75,13 +93,34 @@ class PlaylistDownloadSheet : BottomSheetDialogFragment() {
         }
     }
 
+    @SuppressLint("NotifyDataSetChanged")
+    private fun rebuildList(
+        recycler: RecyclerView,
+        selectAll: MaterialCheckBox,
+        downloadButton: MaterialButton,
+        downloadedIds: Set<String>,
+        hide: Boolean
+    ) {
+        DownloadRegistry.setHideDownloaded(requireContext(), hide)
+        shownTracks = if (hide) {
+            tracks.filterNot { downloadedIds.contains(it.id) }
+        } else {
+            tracks
+        }
+        selected.clear()
+        for (i in shownTracks.indices) selected.add(i)
+        selectAll.isChecked = shownTracks.isNotEmpty()
+        recycler.adapter?.notifyDataSetChanged()
+        updateButton(downloadButton)
+    }
+
     private fun updateButton(button: MaterialButton) {
         button.text = getString(R.string.download_action_count, selected.size)
     }
 
     private class TrackPickAdapter(
-        private val items: List<SpotifyTrack>,
         private val selected: MutableSet<Int>,
+        private val shownTracks: () -> List<SpotifyTrack>,
         private val onSelectionChanged: () -> Unit
     ) : RecyclerView.Adapter<TrackPickAdapter.Holder>() {
 
@@ -94,10 +133,10 @@ class PlaylistDownloadSheet : BottomSheetDialogFragment() {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder =
             Holder(LayoutInflater.from(parent.context).inflate(R.layout.item_download_pick, parent, false))
 
-        override fun getItemCount(): Int = items.size
+        override fun getItemCount(): Int = shownTracks().size
 
         override fun onBindViewHolder(holder: Holder, position: Int) {
-            val track = items[position]
+            val track = shownTracks()[position]
             holder.title.text = track.name
             holder.subtitle.text = track.artists.joinToString { it.name }
             holder.checkbox.isChecked = selected.contains(position)
