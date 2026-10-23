@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="app_widget_circle">Circle</string>
     <string name="app_widget_circle_desc">A round player with the controls orbiting it</string>
@@ -35,7 +35,7 @@
     <string name="import_action">Import</string>
     <string name="create_action">Create</string>
     <string name="search_label">Search</string>
-    <string name="search_hint">Search your libraryâ€¦</string>
+    <string name="search_hint">Search your library…</string>
     <string name="action_voice_search">Voice search</string>
     <string name="speech_not_supported">Your device doesn\'t support speech input</string>
     <string name="search_artist_x_label">Search artist: %s</string>
@@ -60,7 +60,7 @@
     <string name="select_all_title">Select all</string>
     <string name="x_selected">%d selected</string>
     <string name="preparing_playback_title">Preparing</string>
-    <string name="restoring_playback_state">Restoring playback state and queueâ€¦</string>
+    <string name="restoring_playback_state">Restoring playback state and queue…</string>
     <string name="playback_stopped_title">Playback stopped</string>
     <string name="playing_notification_description">The playing notification provides actions for play/pause etc.</string>
     <string name="playing_notification_name">Playing notification</string>
@@ -73,7 +73,7 @@
     <string name="could_not_import_the_playlist_x">Couldn\'t import the playlist \"%s\"</string>
     <string name="there_are_no_importable_playlists">There are no importable playlists.</string>
     <string name="playlist_x_not_imported">Playlist %s not imported.</string>
-    <string name="action_import_playlist">Import playlistâ€¦</string>
+    <string name="action_import_playlist">Import playlist…</string>
     <string name="select_playlists_title">Select playlists</string>
     <string name="new_playlist_title">New playlist</string>
     <string name="new_playlist_action">New</string>
@@ -113,7 +113,7 @@
     <string name="action_lyrics_editor">Lyrics editor</string>
     <string name="action_tag_editor">Tag editor</string>
     <string name="action_auto_fill_from_musicbrainz">Auto-fill from MusicBrainz</string>
-    <string name="searching">Searchingâ€¦</string>
+    <string name="searching">Searching…</string>
     <string name="musicbrainz_search_title">MusicBrainz search</string>
     <string name="musicbrainz_search_message">Search for song metadata on MusicBrainz using the title and artist.</string>
     <string name="musicbrainz_no_results">No results found on MusicBrainz.</string>
@@ -137,8 +137,8 @@
     <string name="delete_songs_title">Delete songs</string>
     <string name="delete_x_songs">Delete %d songs?</string>
     <string name="delete_the_song_x">Delete the song %s?</string>
-    <string name="deleting_songs">Deleting songs, waitâ€¦</string>
-    <string name="song_x_of_x">%1$d of %2$d â€¢ %3$s</string>
+    <string name="deleting_songs">Deleting songs, wait…</string>
+    <string name="song_x_of_x">%1$d of %2$d • %3$s</string>
     <string name="no_equalizer">No equalizer found.</string>
     <string name="audio_focus_denied">Audio focus denied.</string>
     <string name="no_audio_ID">Bad audio ID.</string>
@@ -199,8 +199,8 @@
     <string name="added_title_to_playing_queue">"Added 1 title to the playing queue."</string>
     <string name="added_x_titles_to_playing_queue">Added %1$d titles to the playing queue.</string>
     <string name="next_song_label">Next Song</string>
-    <string name="next_song_x">Next â€¢ %1$s</string>
-    <string name="next_song_x_by_artist_x">Next â€¢ %1$s by %2$s</string>
+    <string name="next_song_x">Next • %1$s</string>
+    <string name="next_song_x_by_artist_x">Next • %1$s by %2$s</string>
     <string name="similar_artists">Similar artists</string>
     <string name="label_more_from_artist">More from artist</string>
     <string name="label_more_from_x">More from %s</string>
@@ -898,7 +898,7 @@
 
     <!-- Library preferences -->
     <string name="ignore_articles_when_sorting_title">Ignore articles when sorting</string>
-    <string name="ignore_articles_when_sorting_summary">Skip leading articles (â€œtheâ€, â€œaâ€, â€œanâ€) when ordering items.</string>
+    <string name="ignore_articles_when_sorting_summary">Skip leading articles (“the”, “a”, “an”) when ordering items.</string>
     <string name="trash_music_title">Send to trash</string>
     <string name="trash_music_summary">Send deleted files to trash.</string>
     <string name="recursive_folder_actions_title">Actions affecting subfolders</string>
@@ -925,7 +925,7 @@
     <string name="wifi_only_network_features_summary">Allow internet features only when connected to Wi-Fi.</string>
     <string name="online_artist_images_title">Download artist images</string>
     <string name="online_album_covers_title">Download missing album covers</string>
-    <string name="online_album_covers_summary">Downloaded images arenâ€™t embedded into audio files; theyâ€™re only visible within the app.</string>
+    <string name="online_album_covers_summary">Downloaded images aren’t embedded into audio files; they’re only visible within the app.</string>
     <string name="preferred_image_size_title">Preferred image size</string>
     <string name="lastfm_login_title">Sign in to Last.fm</string>
     <string name="lastfm_login_summary">Authenticate with your Last.fm account to enable scrobbling and now playing updates.</string>
@@ -942,6 +942,8 @@
     <string name="listenbrainz_scrobbling_summary">Automatically submit played tracks to your ListenBrainz listening history.</string>
     <string name="listenbrainz_now_playing_title">Update now playing on ListenBrainz</string>
     <string name="listenbrainz_now_playing_summary">Show the currently playing track on your ListenBrainz profile in real time.</string>
+    <string name="use_spotify_provider_title">Use Spotify provider</string>
+    <string name="use_spotify_provider_summary">Synced lyrics from Spotify\'s catalog (recommended).</string>
     <string name="use_lrclib_provider_title">Use LRCLib provider</string>
     <string name="use_lrclib_provider_summary">Community-driven lyrics database.</string>
     <string name="use_betterlyrics_provider_title">Use BetterLyrics provider</string>
@@ -983,7 +985,7 @@
     <string name="backup_warning_app_ver_newer">This backup was created in a newer version of the app.
         Restoring it in this version may result in errors or incomplete data restoration.</string>
     <string name="select_content_to_restore">Select content to restore:</string>
-    <string name="restoring_data">Restoring your dataâ€¦</string>
+    <string name="restoring_data">Restoring your data…</string>
     <string name="could_not_restore_data">Couldn\'t not restore data. Verify backup file and retry.</string>
     <string name="data_restored_successfully">Data restored successfully.</string>
     <string name="restart_app_message">The app will restart to complete the process.</string>
@@ -1067,7 +1069,7 @@
     <string name="receive_experimental_updates_summary">Please note that these updates are often very unstable and are intended for experienced users.</string>
     <string name="search_for_update_title">Search for update</string>
     <string name="last_update_search_x">Last check: %s</string>
-    <string name="checking_please_wait">Checking, please waitâ€¦</string>
+    <string name="checking_please_wait">Checking, please wait…</string>
     <string name="could_not_check_for_updates">Could not check for updates.</string>
     <string name="the_app_is_up_to_date">The app is up-to-date</string>
     <string name="update_available_title">Update available</string>
@@ -1101,7 +1103,7 @@
     <string name="discover_empty_home">Nothing to show here yet</string>
     <string name="discover_retry">Retry</string>
     <string name="discover_tracks_count">%d tracks</string>
-    <string name="discover_playlist_subtitle">Spotify Playlist â€¢ by %1$s â€¢ %2$d tracks</string>
+    <string name="discover_playlist_subtitle">Spotify Playlist • by %1$s • %2$d tracks</string>
     <string name="no_youtube_match_found">No YouTube Music match found for "%1$s"</string>
     <string name="queue_added_next">Playing next</string>
     <string name="queue_added">Added to queue</string>
@@ -1110,7 +1112,7 @@
     <string name="playlists_section_your">Your playlists</string>
     <string name="liked_songs_label">Liked Songs</string>
     <string name="playlists_section_spotify">Spotify</string>
-    <string name="liked_songs_subtitle">%1$d tracks â€¢ Spotify</string>
+    <string name="liked_songs_subtitle">%1$d tracks • Spotify</string>
     <string name="download_channel_name">Downloads</string>
     <string name="download_notification_title">Downloading music</string>
     <string name="download_notification_text">%1$d download(s) in progress</string>

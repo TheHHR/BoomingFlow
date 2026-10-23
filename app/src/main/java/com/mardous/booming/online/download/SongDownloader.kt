@@ -2,6 +2,7 @@ package com.mardous.booming.online.download
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.content.ContentUris
 import android.content.ContentValues
 import android.content.Context
 import android.graphics.Bitmap
@@ -117,6 +118,21 @@ class SongDownloader(private val context: Context) {
                     mark(videoId, track.name, DownloadProgress.State.DONE, 100)
                     return@launch
                 }
+                // A matching file may already exist in the user's music library
+                // (downloaded by an older build, another app, or before the
+                // Spotify-id registry existed). Adopt it instead of re-downloading.
+                val existing = withContext(Dispatchers.IO) {
+                    findExistingLocalFile(track.name, artistOf(track), track.durationMs)
+                }
+                if (existing != null) {
+                    DownloadRegistry.put(context, videoId, existing.toString(), track.name)
+                    if (track.id.isNotBlank()) {
+                        DownloadRegistry.put(context, "sp:${track.id}", existing.toString(), track.name)
+                    }
+                    mark(videoId, track.name, DownloadProgress.State.DONE, 100)
+                    _events.tryEmit(DownloadEvent.Completed(videoId, track.id))
+                    return@launch
+                }
                 queue.trySend(
                     DownloadTask(
                         videoId = videoId,
@@ -130,6 +146,47 @@ class SongDownloader(private val context: Context) {
                 )
                 _activeCount.value = _activeCount.value + 1
             }
+        }
+    }
+
+    /**
+     * Looks for an existing audio file in the device's music collection whose
+     * title and artist match the given track (duration within a few seconds).
+     */
+    private fun findExistingLocalFile(title: String, artist: String, durationMs: Int): Uri? {
+        val resolver = context.contentResolver
+        val projection = arrayOf(
+            MediaStore.Audio.Media._ID,
+            MediaStore.Audio.Media.DURATION
+        )
+        val selection =
+            "${MediaStore.Audio.Media.TITLE} = ? COLLATE NOCASE AND " +
+            "${MediaStore.Audio.Media.ARTIST} = ? COLLATE NOCASE"
+        val selectionArgs = arrayOf(title.trim(), artist.trim())
+        return try {
+            resolver.query(
+                MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                projection,
+                selection,
+                selectionArgs,
+                null
+            )?.use { cursor ->
+                while (cursor.moveToNext()) {
+                    val duration = cursor.getLong(1)
+                    if (durationMs <= 0 || duration <= 0 ||
+                        Math.abs(duration - durationMs) <= 3000L
+                    ) {
+                        val id = cursor.getLong(0)
+                        return ContentUris.withAppendedId(
+                            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, id
+                        )
+                    }
+                }
+                null
+            }
+        } catch (e: Exception) {
+            Log.w(TAG, "Local file lookup failed", e)
+            null
         }
     }
 

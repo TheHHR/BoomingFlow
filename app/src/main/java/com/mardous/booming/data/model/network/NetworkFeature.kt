@@ -45,6 +45,7 @@ sealed class NetworkFeature(
 
     sealed class Lyrics(preferenceKey: String, isOnByDefault: Boolean) :
         NetworkFeature(preferenceKey, isOnByDefault) {
+        object Spotify : Lyrics(SPOTIFY_LYRICS_ENABLED_KEY, true)
         object LRCLib : Lyrics(LRCLIB_ENABLED_KEY, true)
         object BetterLyrics : Lyrics(BETTERLYRICS_ENABLED_KEY, false)
         object Lyrically : Lyrics(LYRICALLY_ENABLED_KEY, false) {
@@ -99,6 +100,7 @@ sealed class NetworkFeature(
         const val BETTERLYRICS_ENABLED_KEY = "betterlyrics_enabled"
         const val LYRICALLY_ENABLED_KEY = "lyrically_enabled"
         const val LRCLIB_ENABLED_KEY = "lrclib_enabled"
+        const val SPOTIFY_LYRICS_ENABLED_KEY = "spotify_lyrics_enabled"
         const val LASTFM_SCROBBLING_ENABLED_KEY = "lastfm_scrobbling_enabled"
         const val LASTFM_NOW_PLAYING_ENABLED_KEY = "lastfm_now_playing_enabled"
         const val LASTFM_INFO_ENABLED_KEY = "lastfm_info_enabled"

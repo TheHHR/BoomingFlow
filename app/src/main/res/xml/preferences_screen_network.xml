@@ -180,6 +180,15 @@
 
         <SwitchPreferenceCompat
             app:iconSpaceReserved="true"
+            app:title="@string/use_spotify_provider_title"
+            app:summary="@string/use_spotify_provider_summary"
+            app:defaultValue="true"
+            app:layout="@layout/list_item_view"
+            app:widgetLayout="@layout/preference_switch"
+            app:key="spotify_lyrics_enabled"/>
+
+        <SwitchPreferenceCompat
+            app:iconSpaceReserved="true"
             app:title="@string/use_lrclib_provider_title"
             app:summary="@string/use_lrclib_provider_summary"
             app:defaultValue="true"

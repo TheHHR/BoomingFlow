@@ -23,6 +23,7 @@ enum class LyricsProvider(
     val displayName: String,
     private val networkFeature: NetworkFeature
 ) {
+    Spotify("Spotify", NetworkFeature.Lyrics.Spotify),
     LRCLib("LRCLib", NetworkFeature.Lyrics.LRCLib),
     BetterLyrics("BetterLyrics", NetworkFeature.Lyrics.BetterLyrics),
     Lyrically("Lyrically", NetworkFeature.Lyrics.Lyrically);
