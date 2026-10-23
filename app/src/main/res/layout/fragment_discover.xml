@@ -16,7 +16,6 @@
         android:transitionGroup="true"
         android:visibility="gone"
         app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"
-        tools:listitem="@layout/item_spotify_card"
         tools:visibility="visible"/>
 
     <com.mardous.booming.ui.component.views.TopAppBarLayout

@@ -218,6 +218,49 @@ class SongDownloader(private val context: Context) {
         }
     }
 
+    /**
+     * Enqueues a download for an already-resolved online song (used by the
+     * like-to-favorite flow in the playback service, which has no Spotify
+     * track object — only the queue song).
+     */
+    fun enqueueRemote(
+        videoId: String,
+        title: String,
+        artist: String,
+        album: String?,
+        thumbnailUrl: String?
+    ) {
+        if (videoId.isBlank()) return
+        worker
+        notifyStart()
+        scope.launch {
+            val key = "yt:$videoId"
+            if (isDownloaded(videoId) || !enqueuedTrackIds.add(key)) {
+                return@launch
+            }
+            val existing = withContext(Dispatchers.IO) { findExistingLocalFile(title, artist, 0) }
+            if (existing != null) {
+                DownloadRegistry.put(context, videoId, existing.toString(), title)
+                mark(videoId, title, DownloadProgress.State.DONE, 100)
+                _events.tryEmit(DownloadEvent.Completed(videoId, null))
+                enqueuedTrackIds.remove(key)
+                return@launch
+            }
+            queue.trySend(
+                DownloadTask(
+                    videoId = videoId,
+                    spotifyTrackId = null,
+                    title = title,
+                    artist = artist,
+                    album = album,
+                    thumbnailUrl = thumbnailUrl,
+                    format = DownloadFormat.M4A
+                )
+            )
+            _activeCount.value = _activeCount.value + 1
+        }
+    }
+
     fun deleteDownloaded(videoId: String) {
         val uri = DownloadRegistry.get(context, videoId) ?: return
         deleteUri(uri)
@@ -273,6 +316,7 @@ class SongDownloader(private val context: Context) {
             if (!task.spotifyTrackId.isNullOrBlank()) {
                 enqueuedTrackIds.remove(task.spotifyTrackId)
             }
+            enqueuedTrackIds.remove("yt:${task.videoId}")
         }
     }
 

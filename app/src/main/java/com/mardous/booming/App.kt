@@ -34,6 +34,7 @@ import androidx.core.os.LocaleListCompat
 import androidx.preference.PreferenceManager
 import cat.ereza.customactivityoncrash.config.CaocConfig
 import coil3.ImageLoader
+import okio.Path.Companion.toOkioPath
 import coil3.PlatformContext
 import coil3.SingletonImageLoader
 import coil3.network.ktor3.KtorNetworkFetcherFactory
@@ -140,6 +141,12 @@ class App : Application(), SingletonImageLoader.Factory {
         return ImageLoader.Builder(context)
             .crossfade(true)
             .allowHardware(false)
+            .diskCache {
+                coil3.disk.DiskCache.Builder()
+                    .directory(context.filesDir.resolve("image_cache").toOkioPath())
+                    .maxSizeBytes(256L * 1024 * 1024)
+                    .build()
+            }
             .components {
                 // Song/album
                 add(SongMapper(preferences = get()))

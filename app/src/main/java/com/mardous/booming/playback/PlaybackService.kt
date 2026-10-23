@@ -91,8 +91,13 @@ import com.mardous.booming.util.PLAY_ON_STARTUP_MODE
 import com.mardous.booming.util.PlayOnStartupMode
 import com.mardous.booming.online.data.innertube.NewPipeStreamExtractor
 import com.mardous.booming.online.data.innertube.YouTubeMusic
+import com.mardous.booming.online.download.DownloadEvent
+import com.mardous.booming.online.download.DownloadRegistry
+import com.mardous.booming.online.download.SongDownloader
 import com.mardous.booming.online.playback.createStreamingDataSourceFactory
+import android.net.Uri
 import com.mardous.booming.online.playback.isOnlineContentUri
+import com.mardous.booming.online.ui.OnlineToast
 import com.mardous.booming.util.Preferences
 import com.mardous.booming.util.Preferences.requireString
 import com.mardous.booming.util.QUEUE_NEXT_MODE
@@ -136,6 +141,8 @@ class PlaybackService :
     private val equalizerManager: EqualizerManager by inject()
     private val audioOutputObserver: AudioOutputObserver by inject()
     private val repository: Repository by inject()
+    private val songDownloader: SongDownloader by inject()
+    private val pendingFavoriteVideoIds = java.util.concurrent.ConcurrentHashMap.newKeySet<String>()
 
     private val queueStateHolder: QueueStateHolder by inject()
     private val isInTimelineUpdate = AtomicBoolean(false)
@@ -239,6 +246,7 @@ class PlaybackService :
         super.onCreate()
         nm = requireNotNull(getSystemService<NotificationManager>())
         createNotificationChannel()
+        collectDownloadEvents()
 
         customCommands = listOf(
             CommandButton.Builder(CommandButton.ICON_SHUFFLE_OFF)
@@ -985,7 +993,13 @@ class PlaybackService :
     private suspend fun toggleFavorite() {
         withContext(IO) {
             val song = queueStateHolder.currentSong.first()
-            if (song != Song.emptySong) repository.toggleFavorite(song)
+            if (song != Song.emptySong) {
+                if (song.data.startsWith("yt:")) {
+                    toggleOnlineFavorite(song)
+                } else {
+                    repository.toggleFavorite(song)
+                }
+            }
         }
 
         widgets.refresh()
@@ -994,6 +1008,75 @@ class PlaybackService :
             SessionCommand(Playback.EVENT_FAVORITE_CONTENT_CHANGED, Bundle.EMPTY),
             Bundle.EMPTY
         )
+    }
+
+    /**
+     * Online songs must be favorited by their downloaded local-library twin
+     * (a playlist entry holding the fake online id can never be resolved at
+     * playback time). If the track isn't downloaded yet, the like triggers a
+     * download and the favorite is applied when it completes.
+     */
+    private suspend fun toggleOnlineFavorite(song: Song) {
+        val videoId = song.data.removePrefix("yt:")
+        if (pendingFavoriteVideoIds.remove(videoId)) {
+            // Second tap while the download is still pending = unlike/cancel.
+            OnlineToast.show(applicationContext.getString(R.string.favorite_download_canceled))
+            return
+        }
+
+        val registeredUri = DownloadRegistry.get(videoId)
+        if (registeredUri != null) {
+            val realSong = repository.songsByUri(Uri.parse(registeredUri)).firstOrNull()
+            if (realSong != null && realSong != Song.emptySong) {
+                repository.toggleFavorite(realSong)
+                return
+            }
+        }
+
+        pendingFavoriteVideoIds.add(videoId)
+        OnlineToast.show(applicationContext.getString(R.string.favorite_download_started))
+        songDownloader.enqueueRemote(
+            videoId = videoId,
+            title = song.title,
+            artist = song.artistName,
+            album = song.albumName.takeIf { it.isNotBlank() },
+            thumbnailUrl = song.uri.takeIf { it.scheme == "https" || it.scheme == "http" }?.toString()
+        )
+    }
+
+    private suspend fun applyPendingFavorite(videoId: String) {
+        withContext(IO) {
+            val registeredUri = DownloadRegistry.get(videoId) ?: return@withContext
+            val realSong = repository.songsByUri(Uri.parse(registeredUri)).firstOrNull()
+            if (realSong != null && realSong != Song.emptySong) {
+                repository.toggleFavorite(realSong)
+            }
+        }
+        widgets.refresh()
+        refreshMediaButtonCustomLayout()
+        mediaSession?.broadcastCustomCommand(
+            SessionCommand(Playback.EVENT_FAVORITE_CONTENT_CHANGED, Bundle.EMPTY),
+            Bundle.EMPTY
+        )
+    }
+
+    private fun collectDownloadEvents() {
+        serviceScope.launch {
+            songDownloader.events.collect { event ->
+                when (event) {
+                    is DownloadEvent.Completed -> {
+                        if (pendingFavoriteVideoIds.remove(event.videoId)) {
+                            applyPendingFavorite(event.videoId)
+                        }
+                    }
+                    is DownloadEvent.Failed -> {
+                        if (pendingFavoriteVideoIds.remove(event.videoId)) {
+                            OnlineToast.show(applicationContext.getString(R.string.favorite_download_failed))
+                        }
+                    }
+                }
+            }
+        }
     }
 
     /** Only the fields that genuinely come from the player; the rest is [WidgetDataSource]'s. */

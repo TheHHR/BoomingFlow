@@ -29,6 +29,8 @@ import com.mardous.booming.data.local.room.PlayCountEntity
 import com.mardous.booming.data.local.room.PlaylistEntity
 import com.mardous.booming.data.local.room.PlaylistWithSongs
 import com.mardous.booming.data.local.room.SongEntity
+import com.mardous.booming.data.mapper.toSongEntity
+import com.mardous.booming.online.download.DownloadRegistry
 import com.mardous.booming.data.model.Album
 import com.mardous.booming.data.model.Artist
 import com.mardous.booming.data.model.ContentType
@@ -291,13 +293,38 @@ class RealRepository(
         playlistRepository.updatePlaylistsContainingIds(songIds)
 
     override suspend fun deleteMissingContent() {
+        // Online playlist entries ("yt:<videoId>") that have a downloaded file
+        // are repaired into real library songs first; unresolvable online
+        // entries are purged like any other missing file.
+        runCatching { repairOnlinePlaylistEntries() }
+
         // Clean up playlists
         val playlists = playlistRepository.playlistsWithSongs()
         playlists.forEach { playlistWithSongs ->
             val missingSongs = playlistWithSongs.songs.filterNot {
-                File(it.data).exists()
+                if (it.data.startsWith("yt:")) {
+                    DownloadRegistry.get(it.data.removePrefix("yt:")) != null
+                } else File(it.data).exists()
             }
             playlistRepository.deleteSongsFromPlaylist(missingSongs)
+        }
+    }
+
+    private suspend fun repairOnlinePlaylistEntries() {
+        val playlists = playlistRepository.playlistsWithSongs()
+        playlists.forEach { playlistWithSongs ->
+            playlistWithSongs.songs
+                .filter { it.data.startsWith("yt:") }
+                .forEach { entity ->
+                    val videoId = entity.data.removePrefix("yt:")
+                    val uri = DownloadRegistry.get(videoId) ?: return@forEach
+                    val localSong = songsByUri(Uri.parse(uri)).firstOrNull()
+                        ?: return@forEach
+                    playlistRepository.deleteSongsFromPlaylist(listOf(entity))
+                    playlistRepository.insertSongs(
+                        listOf(localSong.toSongEntity(playlistWithSongs.playlistEntity.playListId))
+                    )
+                }
         }
     }
 

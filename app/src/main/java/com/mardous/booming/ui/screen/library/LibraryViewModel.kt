@@ -456,7 +456,19 @@ class LibraryViewModel(
     }
 
     fun isSongFavorite(song: Song): LiveData<Boolean> = liveData(IO) {
-        emit(repository.isSongFavorite(song.id))
+        if (song.data.startsWith("yt:")) {
+            val uri = com.mardous.booming.online.download.DownloadRegistry.get(
+                song.data.removePrefix("yt:")
+            )
+            val real = uri?.let { repository.songsByUri(android.net.Uri.parse(it)).firstOrNull() }
+            if (real != null && real != Song.emptySong) {
+                emit(repository.isSongFavorite(real.id))
+            } else {
+                emit(repository.isSongFavorite(song.id))
+            }
+        } else {
+            emit(repository.isSongFavorite(song.id))
+        }
     }
 
     suspend fun insertSongs(songs: List<SongEntity>) = repository.insertSongsInPlaylist(songs)

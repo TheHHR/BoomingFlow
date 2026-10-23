@@ -11,29 +11,14 @@ import com.mardous.booming.R
 import com.mardous.booming.coil.DEFAULT_PLAYLIST_IMAGE
 import com.mardous.booming.coil.DEFAULT_SONG_IMAGE
 import com.mardous.booming.coil.placeholderDrawableRes
+import com.mardous.booming.coil.songImage
+import com.mardous.booming.data.model.UnindexedSong
 import com.mardous.booming.online.data.spotify.SpotifyHomeItem
 import com.mardous.booming.online.data.spotify.SpotifyTrack
 import com.mardous.booming.online.data.spotify.thumbnailUrl
+import com.mardous.booming.online.download.DownloadRegistry
 import coil3.load
 import kotlin.properties.Delegates
-
-class GreetingAdapter(private var text: String) : RecyclerView.Adapter<GreetingAdapter.ViewHolder>() {
-
-    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val greeting: MaterialTextView = itemView.findViewById(R.id.greeting)
-    }
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_spotify_greeting, parent, false)
-        return ViewHolder(view)
-    }
-
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.greeting.text = text
-    }
-
-    override fun getItemCount(): Int = 1
-}
 
 class SpotifyCardAdapter(
     private val onPlaylistClick: (String) -> Unit
@@ -112,12 +97,34 @@ class SpotifyTrackAdapter(
         }
         holder.text.text = parts.joinToString(" \u2022 ")
 
-        holder.image.load(track.thumbnailUrl()) {
-            placeholderDrawableRes(context, DEFAULT_SONG_IMAGE)
+        val isDownloaded = downloadedTrackIds.contains(track.id)
+        if (isDownloaded) {
+            val localUri = DownloadRegistry.spotifyTrackUri(track.id)
+            if (localUri != null) {
+                holder.image.songImage(
+                    UnindexedSong(
+                        uri = android.net.Uri.parse(localUri),
+                        id = track.id.hashCode().toLong(),
+                        data = "yt:${track.id}",
+                        title = track.name,
+                        size = 0,
+                        duration = track.durationMs.toLong(),
+                        albumName = track.album?.name.orEmpty(),
+                        artistName = track.artists.joinToString { it.name }
+                    )
+                )
+            } else {
+                holder.image.load(track.thumbnailUrl()) {
+                    placeholderDrawableRes(context, DEFAULT_SONG_IMAGE)
+                }
+            }
+        } else {
+            holder.image.load(track.thumbnailUrl()) {
+                placeholderDrawableRes(context, DEFAULT_SONG_IMAGE)
+            }
         }
 
         holder.itemView.setOnClickListener { onTrackClick(position) }
-        val isDownloaded = downloadedTrackIds.contains(track.id)
         holder.badge.isVisible = isDownloaded
         holder.menu.setOnClickListener { view ->
             val popup = android.widget.PopupMenu(context, view)

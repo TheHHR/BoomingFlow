@@ -1128,6 +1128,9 @@
     <string name="download_action_count">Download %1$d tracks</string>
     <string name="download_already_downloaded">Already downloaded</string>
     <string name="downloads_manager_title">Downloads</string>
+    <string name="favorite_download_started">Downloading — the song will be added to Favorites when finished</string>
+    <string name="favorite_download_canceled">Favorite canceled</string>
+    <string name="favorite_download_failed">Couldn\'t download — song not added to Favorites</string>
     <string name="downloads_hide_downloaded">Hide downloaded</string>
     <string name="downloads_empty">No downloads yet</string>
     <string name="download_state_queued">Queued</string>

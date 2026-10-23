@@ -15,6 +15,7 @@ import com.mardous.booming.R
 import com.mardous.booming.online.download.DownloadProgress
 import com.mardous.booming.online.download.SongDownloader
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.sample
 import org.koin.android.ext.android.inject
 import androidx.lifecycle.lifecycleScope
 
@@ -48,7 +49,9 @@ class DownloadsManagerSheet : BottomSheetDialogFragment() {
         recycler.adapter = adapter
 
         viewLifecycleOwner.lifecycleScope.launch {
-            songDownloader.progress.collect { refresh() }
+            songDownloader.progress
+                .sample(200)
+                .collect { refresh() }
         }
         refresh()
     }
@@ -78,6 +81,14 @@ class DownloadsManagerSheet : BottomSheetDialogFragment() {
     ) : RecyclerView.Adapter<DownloadsAdapter.Holder>() {
 
         var rows: List<Row> = emptyList()
+            set(value) {
+                field = value
+                notifyDataSetChanged()
+            }
+
+        init {
+            setHasStableIds(true)
+        }
 
         class Holder(view: View) : RecyclerView.ViewHolder(view) {
             val title: MaterialTextView = view.findViewById(R.id.title)
@@ -90,6 +101,11 @@ class DownloadsManagerSheet : BottomSheetDialogFragment() {
             Holder(LayoutInflater.from(parent.context).inflate(R.layout.item_download_progress, parent, false))
 
         override fun getItemCount(): Int = rows.size
+
+        override fun getItemId(position: Int): Long = when (val row = rows[position]) {
+            is Row.Active -> "a:${row.progress.videoId}".hashCode().toLong()
+            is Row.Completed -> "c:${row.videoId}".hashCode().toLong()
+        }
 
         override fun onBindViewHolder(holder: Holder, position: Int) {
             when (val row = rows[position]) {
@@ -108,7 +124,7 @@ class DownloadsManagerSheet : BottomSheetDialogFragment() {
                         }
                         else -> {
                             holder.progress.isIndeterminate = false
-                            holder.progress.setProgressCompat(row.progress.percent, true)
+                            holder.progress.setProgressCompat(row.progress.percent, false)
                             holder.percent.text = "${row.progress.percent}%"
                         }
                     }

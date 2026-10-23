@@ -110,10 +110,6 @@ class DiscoverFragment : AbsMainActivityFragment(R.layout.fragment_discover), IS
                 binding.recyclerView.isVisible = true
 
                 val adapters = mutableListOf<RecyclerView.Adapter<*>>()
-                val greeting = state.feed.greeting
-                if (!greeting.isNullOrEmpty()) {
-                    adapters += GreetingAdapter(greeting)
-                }
                 for (section in state.feed.sections) {
                     val playlists = section.items.filterIsInstance<SpotifyHomeItem.Playlist>()
                     if (playlists.isEmpty()) continue
