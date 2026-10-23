@@ -30,7 +30,7 @@ object Constants {
     const val PRIVACY_POLICY_LINK = "$WEBSITE_LINK/privacy-policy"
 
     const val AUTHOR_GITHUB_URL = "https://www.github.com/mardous"
-    const val APP_GITHUB_URL = "https://www.github.com/mardous/BoomingMusic"
+    const val APP_GITHUB_URL = "https://www.github.com/TheHHR/BoomingFlow"
     const val ISSUE_TRACKER_LINK = "$APP_GITHUB_URL/issues"
     const val COMMUNITY_LINK = "$APP_GITHUB_URL/wiki/Community"
     const val FAQ_LINK = "$APP_GITHUB_URL/wiki/FAQ"
@@ -40,8 +40,7 @@ object Constants {
 
     // External Links
     const val DOWNLOAD_URL = BuildConfig.DOWNLOAD_URL
-    const val DONATION_LINK = BuildConfig.DONATION_LINK
 
-    const val USER_AGENT = "BoomingMusic/${BuildConfig.VERSION_NAME} ($APP_GITHUB_URL)"
-    const val SIMPLE_USER_AGENT = "BoomingMusic/${BuildConfig.VERSION_NAME}"
+    const val USER_AGENT = "BoomingFlow/${BuildConfig.VERSION_NAME} ($APP_GITHUB_URL)"
+    const val SIMPLE_USER_AGENT = "BoomingFlow/${BuildConfig.VERSION_NAME}"
 }

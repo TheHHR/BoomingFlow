@@ -140,6 +140,13 @@ data class SpotifyPaging<T>(
     val next: String? = null,
 )
 
+@Immutable
+@Serializable
+data class SpotifySearchResults(
+    val tracks: List<SpotifyTrack> = emptyList(),
+    val playlists: List<SpotifyPlaylist> = emptyList(),
+)
+
 // ── Library Item (for folder-aware library tree) ─────────────────────────────
 
 @Immutable

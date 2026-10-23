@@ -40,4 +40,14 @@ object DownloadRegistry {
             .remove("name_" + videoId)
             .apply()
     }
+
+    fun removeByUri(context: Context, uri: String) {
+        val editor = prefs(context).edit()
+        prefs(context).all.forEach { (key, value) ->
+            if (key.startsWith(KEY_PREFIX) && value == uri) {
+                editor.remove(key).remove("name_" + key.removePrefix(KEY_PREFIX))
+            }
+        }
+        editor.apply()
+    }
 }

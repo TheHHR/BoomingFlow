@@ -27,8 +27,11 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -46,6 +49,11 @@ data class DownloadProgress(
     val state: State
 ) {
     enum class State { QUEUED, RUNNING, DONE, FAILED }
+}
+
+sealed interface DownloadEvent {
+    data class Completed(val videoId: String, val spotifyTrackId: String?) : DownloadEvent
+    data class Failed(val videoId: String, val spotifyTrackId: String?) : DownloadEvent
 }
 
 /**
@@ -72,11 +80,17 @@ class SongDownloader(private val context: Context) {
     private val _progress = MutableStateFlow<Map<String, DownloadProgress>>(emptyMap())
     val progress: StateFlow<Map<String, DownloadProgress>> = _progress.asStateFlow()
 
+    private val _events = MutableSharedFlow<DownloadEvent>(extraBufferCapacity = 64)
+    val events = _events.asSharedFlow()
+
     private val _activeCount = MutableStateFlow(0)
     val activeCount: StateFlow<Int> = _activeCount.asStateFlow()
 
     val downloadedVideoIds: Set<String>
         get() = DownloadRegistry.all(context).keys
+
+    fun downloadedDisplayName(videoId: String): String? =
+        DownloadRegistry.displayName(context, videoId)
 
     fun isDownloaded(videoId: String): Boolean {
         val uri = DownloadRegistry.get(context, videoId) ?: return false
@@ -103,10 +117,53 @@ class SongDownloader(private val context: Context) {
                     mark(videoId, track.name, DownloadProgress.State.DONE, 100)
                     return@launch
                 }
-                queue.trySend(DownloadTask(videoId, track.name, artistOf(track), track.album?.name, track.thumbnailUrl(), format))
+                queue.trySend(
+                    DownloadTask(
+                        videoId = videoId,
+                        spotifyTrackId = track.id,
+                        title = track.name,
+                        artist = artistOf(track),
+                        album = track.album?.name,
+                        thumbnailUrl = track.thumbnailUrl(),
+                        format = format
+                    )
+                )
                 _activeCount.value = _activeCount.value + 1
             }
         }
+    }
+
+    fun deleteDownloaded(videoId: String) {
+        val uri = DownloadRegistry.get(context, videoId) ?: return
+        deleteUri(uri)
+    }
+
+    fun isSpotifyTrackDownloaded(trackId: String): Boolean =
+        DownloadRegistry.get(context, "sp:$trackId") != null
+
+    fun downloadedSpotifyTrackIds(): Set<String> =
+        DownloadRegistry.all(context).keys
+            .filter { it.startsWith("sp:") }
+            .map { it.removePrefix("sp:") }
+            .toSet()
+
+    fun deleteSpotifyTrackDownload(trackId: String) {
+        val uri = DownloadRegistry.get(context, "sp:$trackId") ?: return
+        deleteUri(uri)
+    }
+
+    private fun deleteUri(uri: String) {
+        try {
+            val parsed = Uri.parse(uri)
+            if (parsed.scheme == "content") {
+                context.contentResolver.delete(parsed, null, null)
+            } else {
+                parsed.path?.let { java.io.File(it).delete() }
+            }
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed to delete download $uri", e)
+        }
+        DownloadRegistry.removeByUri(context, uri)
     }
 
     private suspend fun processTask(task: DownloadTask) = withContext(Dispatchers.IO) {
@@ -116,6 +173,8 @@ class SongDownloader(private val context: Context) {
                 try {
                     performDownload(task)
                     mark(task.videoId, task.title, DownloadProgress.State.DONE, 100)
+                    _progress.value = _progress.value - task.videoId
+                    _events.tryEmit(DownloadEvent.Completed(task.videoId, task.spotifyTrackId))
                     notifyUpdate()
                     return@withContext
                 } catch (e: Exception) {
@@ -123,9 +182,9 @@ class SongDownloader(private val context: Context) {
                 }
             }
             mark(task.videoId, task.title, DownloadProgress.State.FAILED, 0)
+            _events.tryEmit(DownloadEvent.Failed(task.videoId, task.spotifyTrackId))
         } finally {
             _activeCount.value = (_activeCount.value - 1).coerceAtLeast(0)
-            _progress.value = _progress.value - task.videoId
         }
     }
 
@@ -178,9 +237,7 @@ class SongDownloader(private val context: Context) {
 
             writeTags(tempFile, task)
             val uri = publish(tempFile, task)
-            if (uri != null) {
-                DownloadRegistry.put(context, task.videoId, uri.toString(), task.title)
-            } else {
+            if (uri == null) {
                 throw IOException("Publish failed for ${task.videoId}")
             }
         } finally {
@@ -216,11 +273,18 @@ class SongDownloader(private val context: Context) {
 
     private fun publish(tempFile: File, task: DownloadTask): Uri? {
         val fileName = sanitize("${task.title} - ${task.artist}") + task.format.fileExtension
-        return if (hasQ()) {
+        val uri = if (hasQ()) {
             publishScoped(tempFile, task, fileName)
         } else {
             publishLegacy(tempFile, task, fileName)
         }
+        if (uri != null) {
+            DownloadRegistry.put(context, task.videoId, uri.toString(), task.title)
+            if (!task.spotifyTrackId.isNullOrBlank()) {
+                DownloadRegistry.put(context, "sp:${task.spotifyTrackId}", uri.toString(), task.title)
+            }
+        }
+        return uri
     }
 
     private fun publishScoped(tempFile: File, task: DownloadTask, fileName: String): Uri? {
@@ -338,6 +402,7 @@ class SongDownloader(private val context: Context) {
 
     private data class DownloadTask(
         val videoId: String,
+        val spotifyTrackId: String?,
         val title: String,
         val artist: String,
         val album: String?,

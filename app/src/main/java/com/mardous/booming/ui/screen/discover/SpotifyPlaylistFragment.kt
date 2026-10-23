@@ -15,6 +15,7 @@ import com.mardous.booming.extensions.launchAndRepeatWithViewLifecycle
 import com.mardous.booming.extensions.setSupportActionBar
 import com.mardous.booming.extensions.showToast
 import com.mardous.booming.online.data.spotify.SpotifyTrack
+import com.mardous.booming.online.download.DownloadEvent
 import com.mardous.booming.online.download.DownloadFormat
 import com.mardous.booming.online.download.SongDownloader
 import com.mardous.booming.online.spotify.resolveBatchForPlayback
@@ -107,9 +108,25 @@ class SpotifyPlaylistFragment : AbsMainActivityFragment(R.layout.fragment_detail
             launch {
                 viewModel.tracks.collect { tracks ->
                     trackAdapter.dataSet = tracks
+                    refreshDownloadedBadges()
                     if (viewModel.isLiked.value) {
                         binding.subtitle.text =
                             getString(R.string.liked_songs_subtitle, tracks.size)
+                    }
+                }
+            }
+            launch {
+                songDownloader.activeCount.collect { active ->
+                    updateDownloadMenu(active > 0)
+                }
+            }
+            launch {
+                songDownloader.events.collect { event ->
+                    when (event) {
+                        is DownloadEvent.Completed -> refreshDownloadedBadges()
+                        is DownloadEvent.Failed -> showToast(
+                            getString(R.string.download_failed_track, eventTitle(event.videoId))
+                        )
                     }
                 }
             }
@@ -184,6 +201,34 @@ class SpotifyPlaylistFragment : AbsMainActivityFragment(R.layout.fragment_detail
     val downloadableTracks: List<SpotifyTrack>
         get() = viewModel.tracks.value
 
+    private fun refreshDownloadedBadges() {
+        trackAdapter.downloadedTrackIds = songDownloader.downloadedSpotifyTrackIds()
+    }
+
+    private fun eventTitle(videoId: String): String =
+        songDownloader.progress.value[videoId]?.title ?: videoId
+
+    private var downloadMenuItem: MenuItem? = null
+
+    private fun updateDownloadMenu(downloading: Boolean) {
+        val item = downloadMenuItem ?: return
+        if (downloading) {
+            if (item.actionView == null) {
+                val actionView = layoutInflater.inflate(R.layout.action_view_download_progress, null)
+                actionView.setOnClickListener { openDownloadsManager() }
+                item.actionView = actionView
+            }
+        } else {
+            if (item.actionView != null) {
+                item.actionView = null
+            }
+        }
+    }
+
+    private fun openDownloadsManager() {
+        DownloadsManagerSheet().show(childFragmentManager, "downloads_manager")
+    }
+
     fun startDownload(tracks: List<SpotifyTrack>, format: DownloadFormat) {
         if (tracks.isEmpty()) return
         songDownloader.enqueue(tracks, format)
@@ -197,11 +242,19 @@ class SpotifyPlaylistFragment : AbsMainActivityFragment(R.layout.fragment_detail
 
     override fun onCreateMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.menu_spotify_playlist, menu)
+        downloadMenuItem = menu.findItem(R.id.action_download)
+        if (songDownloader.activeCount.value > 0) {
+            updateDownloadMenu(true)
+        }
     }
 
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
         if (menuItem.itemId == R.id.action_download) {
-            openDownloadSheet()
+            if (songDownloader.activeCount.value > 0) {
+                openDownloadsManager()
+            } else {
+                openDownloadSheet()
+            }
             return true
         }
         return false

@@ -129,7 +129,7 @@ class GitHubRelease(
             Log.w("GitHubService", "Refusing update asset from untrusted origin")
             return null
         }
-        val apkName = File(apkAsset.name).name.sanitize().ifEmpty { "BoomingMusic-update.apk" }
+        val apkName = File(apkAsset.name).name.sanitize().ifEmpty { "BoomingFlow-update.apk" }
         return DownloadManager.Request(apkAsset.downloadUrl.toUri())
             .setTitle(apkName)
             .setDescription(context.getString(R.string.downloading_update))

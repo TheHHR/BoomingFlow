@@ -42,7 +42,7 @@ class DiscoverFragment : AbsMainActivityFragment(R.layout.fragment_discover), IS
         binding.appBarLayout.title = getString(R.string.discover_label)
         binding.appBarLayout.setExpanded(true, true)
         binding.appBarLayout.toolbar.setNavigationOnClickListener {
-            findNavController().navigate(R.id.nav_search)
+            findNavController().navigate(R.id.nav_spotify_search)
         }
         binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
         checkForMargins(binding.recyclerView)

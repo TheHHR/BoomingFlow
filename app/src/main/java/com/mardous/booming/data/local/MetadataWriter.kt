@@ -117,7 +117,7 @@ class MetadataWriter : KoinComponent {
         }
         return Picture(
             data = byteArray,
-            description = "Embedded Front Cover - Booming Music",
+            description = "Embedded Front Cover",
             pictureType = "Front Cover",
             mimeType = "image/jpeg"
         )

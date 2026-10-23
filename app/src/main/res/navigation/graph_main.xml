@@ -64,6 +64,11 @@
             app:nullable="true"/>
     </fragment>
 
+    <fragment
+        android:id="@+id/nav_spotify_search"
+        android:name="com.mardous.booming.ui.screen.discover.SpotifySearchFragment"
+        android:label="SpotifySearchFragment"/>
+
     <dialog
         android:id="@+id/nav_queue"
         android:name="com.mardous.booming.ui.screen.queue.QueueFragment"

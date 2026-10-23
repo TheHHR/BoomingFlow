@@ -1,5 +1,5 @@
-/*
- * Copyright (c) 2026 Christians Martínez Alvarado
+﻿/*
+ * Copyright (c) 2026 Christians MartÃ­nez Alvarado
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -86,7 +86,7 @@ class GitHubService(private val context: Context, private val client: HttpClient
         private const val GITHUB_API_URL = "https://api.github.com/"
         private const val GITHUB_CONTENT_URL = "https://raw.githubusercontent.com/"
 
-        private const val DEFAULT_USER = "mardous"
-        private const val DEFAULT_REPO = "BoomingMusic"
+        private const val DEFAULT_USER = "TheHHR"
+        private const val DEFAULT_REPO = "BoomingFlow"
     }
 }

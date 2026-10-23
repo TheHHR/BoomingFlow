@@ -826,6 +826,86 @@ object SpotifyClient {
         }
         null
     }.getOrNull()
+
+    /**
+     * Searches Spotify (tracks + playlists) via the searchDesktop persisted query.
+     */
+    suspend fun search(query: String, limit: Int = 20): SpotifySearchResults {
+        if (query.isBlank()) return SpotifySearchResults()
+
+        val tracks = searchTracks(query, limit)
+        val playlists = searchPlaylists(query, limit)
+        return SpotifySearchResults(tracks = tracks, playlists = playlists)
+    }
+
+    suspend fun searchTracks(query: String, limit: Int = 20): List<SpotifyTrack> =
+        runCatching {
+            val vars = buildJsonObject {
+                put("searchTerm", query)
+                put("offset", 0)
+                put("limit", limit)
+                put("numberOfTopResults", minOf(limit, 5))
+                put("includeAudiobooks", false)
+                put("includeArtistHasConcertsField", false)
+                put("includePreReleases", false)
+                put("includeLocalConcertsField", false)
+            }
+            val response = graphqlPost(operationName = "searchDesktop", variables = vars)
+            val items = response.obj("data")?.obj("searchV2")?.obj("tracksV2")?.arr("items")
+                ?: return@runCatching emptyList()
+            items.mapNotNull { elem ->
+                val itemData = elem.jsonObject.obj("item")?.obj("data") ?: return@mapNotNull null
+                if (itemData.str("uri")?.startsWith("spotify:track:") != true) return@mapNotNull null
+                parseGqlTrack(itemData)
+            }
+        }.getOrDefault(emptyList())
+
+    suspend fun searchPlaylists(query: String, limit: Int = 10): List<SpotifyPlaylist> =
+        runCatching {
+            val vars = buildJsonObject {
+                put("searchTerm", query)
+                put("offset", 0)
+                put("limit", limit)
+                put("numberOfTopResults", 0)
+                put("includeAudiobooks", false)
+                put("includeArtistHasConcertsField", false)
+                put("includePreReleases", false)
+                put("includeLocalConcertsField", false)
+            }
+            val response = graphqlPost(operationName = "searchDesktop", variables = vars)
+            val items = response.obj("data")?.obj("searchV2")?.obj("playlistsV2")?.arr("items")
+                ?: return@runCatching emptyList()
+            items.mapNotNull { elem ->
+                parseSearchPlaylist(elem.jsonObject)
+            }
+        }.getOrDefault(emptyList())
+
+    private fun parseSearchPlaylist(source: JsonObject): SpotifyPlaylist? {
+        val data = source.obj("data") ?: source
+        val uri = data.str("uri") ?: return null
+        if (!uri.startsWith("spotify:playlist:")) return null
+        val id = uri.removePrefix("spotify:playlist:")
+        val owner = data.obj("owner")?.let { ownerObj ->
+            SpotifyPlaylistOwner(
+                id = ownerObj.str("id") ?: ownerObj.str("uri")?.substringAfterLast(":") ?: "",
+                displayName = ownerObj.obj("profile")?.str("name")
+                    ?: ownerObj.str("displayName")
+                    ?: ownerObj.str("name"),
+                uri = ownerObj.str("uri"),
+            )
+        }
+        return SpotifyPlaylist(
+            id = id,
+            name = data.str("name") ?: "",
+            images = parseGqlImages(
+                data.obj("images")?.arr("items")
+                    ?.flatMap { it.jsonObject.arr("sources").orEmpty() }
+                    ?.let { JsonArray(it) }
+                    ?: data.obj("coverArt")?.arr("sources")
+            ),
+            owner = owner,
+        )
+    }
 }
 
 /** Returns the highest resolution thumbnail URL from a SpotifyPlaylist. */

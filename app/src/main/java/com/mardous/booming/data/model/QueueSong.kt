@@ -17,6 +17,7 @@
 
 package com.mardous.booming.data.model
 
+import android.net.Uri
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
@@ -25,6 +26,8 @@ class QueueSong(
     val isUnindexed: Boolean,
     override val id: Long,
     override val data: String,
+    override val uri: Uri,
+    override val resolvedFromFile: Boolean,
     override val title: String,
     override val trackNumber: Int,
     override val year: Int,
@@ -55,13 +58,16 @@ class QueueSong(
     artistName = artistName,
     albumArtistName = albumArtistName,
     genreName = genreName,
-    volumeName = volumeName
+    volumeName = volumeName,
+    resolvedFromFile = resolvedFromFile
 ) {
     constructor(key: Pair<Long, Int>, song: Song) : this(
         key = key,
         isUnindexed = (song is UnindexedSong),
         id = song.id,
         data = song.data,
+        uri = song.uri,
+        resolvedFromFile = song.resolvedFromFile,
         title = song.title,
         trackNumber = song.trackNumber,
         year = song.year,

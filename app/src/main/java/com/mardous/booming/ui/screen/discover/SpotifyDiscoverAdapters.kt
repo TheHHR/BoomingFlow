@@ -3,6 +3,7 @@ package com.mardous.booming.ui.screen.discover
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.textview.MaterialTextView
@@ -77,9 +78,16 @@ class SpotifyTrackAdapter(
         notifyDataSetChanged()
     }
 
+    var downloadedTrackIds: Set<String> = emptySet()
+        set(value) {
+            field = value
+            notifyDataSetChanged()
+        }
+
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val index: MaterialTextView = itemView.findViewById(R.id.index)
         val image: ShapeableImageView = itemView.findViewById(R.id.image)
+        val badge: ShapeableImageView = itemView.findViewById(R.id.badge)
         val title: MaterialTextView = itemView.findViewById(R.id.title)
         val text: MaterialTextView = itemView.findViewById(R.id.text)
         val menu: View = itemView.findViewById(R.id.menu)
@@ -109,11 +117,18 @@ class SpotifyTrackAdapter(
         }
 
         holder.itemView.setOnClickListener { onTrackClick(position) }
+        val isDownloaded = downloadedTrackIds.contains(track.id)
+        holder.badge.isVisible = isDownloaded
         holder.menu.setOnClickListener { view ->
             val popup = android.widget.PopupMenu(context, view)
             popup.menu.add(0, 1, 0, context.getString(R.string.play_next_label))
             popup.menu.add(0, 2, 1, context.getString(R.string.add_to_queue_label))
-            popup.menu.add(0, 3, 2, context.getString(R.string.download_started_label))
+            if (isDownloaded) {
+                val item = popup.menu.add(0, 3, 2, context.getString(R.string.download_already_downloaded))
+                item.isEnabled = false
+            } else {
+                popup.menu.add(0, 3, 2, context.getString(R.string.download_started_label))
+            }
             popup.setOnMenuItemClickListener { menuItem ->
                 when (menuItem.itemId) {
                     1 -> onPlayNext(position)
