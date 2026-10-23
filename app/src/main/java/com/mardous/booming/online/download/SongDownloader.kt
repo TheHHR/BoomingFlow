@@ -67,6 +67,7 @@ class SongDownloader(private val context: Context) {
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val queue = Channel<DownloadTask>(Channel.UNLIMITED)
+    private val enqueuedTrackIds = java.util.concurrent.ConcurrentHashMap.newKeySet<String>()
     private val worker by lazy {
         scope.launch { for (task in queue) processTask(task) }
     }
@@ -108,14 +109,23 @@ class SongDownloader(private val context: Context) {
         notifyStart()
         for (track in tracks) {
             scope.launch {
+                val trackKey = track.id.ifEmpty { track.name }
+                if (track.id.isNotBlank() && isSpotifyTrackDownloaded(track.id)) {
+                    return@launch
+                }
+                if (!enqueuedTrackIds.add(trackKey)) {
+                    return@launch
+                }
                 val resolved = withContext(Dispatchers.IO) { track.resolveForPlayback() }
                 if (resolved == null) {
                     mark(track.id, track.name, DownloadProgress.State.FAILED, 0)
+                    enqueuedTrackIds.remove(trackKey)
                     return@launch
                 }
                 val videoId = resolved.song.data.removePrefix("yt:")
                 if (isDownloaded(videoId)) {
                     mark(videoId, track.name, DownloadProgress.State.DONE, 100)
+                    enqueuedTrackIds.remove(trackKey)
                     return@launch
                 }
                 // A matching file may already exist in the user's music library
@@ -131,6 +141,7 @@ class SongDownloader(private val context: Context) {
                     }
                     mark(videoId, track.name, DownloadProgress.State.DONE, 100)
                     _events.tryEmit(DownloadEvent.Completed(videoId, track.id))
+                    enqueuedTrackIds.remove(trackKey)
                     return@launch
                 }
                 queue.trySend(
@@ -152,17 +163,34 @@ class SongDownloader(private val context: Context) {
     /**
      * Looks for an existing audio file in the device's music collection whose
      * title and artist match the given track (duration within a few seconds).
+     * Falls back to a title + duration match when the artist tag differs.
      */
     private fun findExistingLocalFile(title: String, artist: String, durationMs: Int): Uri? {
+        val byTitleAndArtist = queryLocalFile(
+            selection = "${MediaStore.Audio.Media.TITLE} = ? COLLATE NOCASE AND " +
+                "${MediaStore.Audio.Media.ARTIST} = ? COLLATE NOCASE",
+            selectionArgs = arrayOf(title.trim(), artist.trim()),
+            durationMs = durationMs
+        )
+        if (byTitleAndArtist != null) return byTitleAndArtist
+        if (durationMs <= 0) return null
+        return queryLocalFile(
+            selection = "${MediaStore.Audio.Media.TITLE} = ? COLLATE NOCASE",
+            selectionArgs = arrayOf(title.trim()),
+            durationMs = durationMs
+        )
+    }
+
+    private fun queryLocalFile(
+        selection: String,
+        selectionArgs: Array<String>,
+        durationMs: Int
+    ): Uri? {
         val resolver = context.contentResolver
         val projection = arrayOf(
             MediaStore.Audio.Media._ID,
             MediaStore.Audio.Media.DURATION
         )
-        val selection =
-            "${MediaStore.Audio.Media.TITLE} = ? COLLATE NOCASE AND " +
-            "${MediaStore.Audio.Media.ARTIST} = ? COLLATE NOCASE"
-        val selectionArgs = arrayOf(title.trim(), artist.trim())
         return try {
             resolver.query(
                 MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
@@ -242,6 +270,9 @@ class SongDownloader(private val context: Context) {
             _events.tryEmit(DownloadEvent.Failed(task.videoId, task.spotifyTrackId))
         } finally {
             _activeCount.value = (_activeCount.value - 1).coerceAtLeast(0)
+            if (!task.spotifyTrackId.isNullOrBlank()) {
+                enqueuedTrackIds.remove(task.spotifyTrackId)
+            }
         }
     }
 
@@ -293,6 +324,19 @@ class SongDownloader(private val context: Context) {
             }
 
             writeTags(tempFile, task)
+
+            // Race guard: another download (or an import finishing while we
+            // were streaming) may have published a matching file. Adopt it
+            // instead of writing a duplicate into MediaStore.
+            val existing = findExistingLocalFile(task.title, task.artist, 0)
+            if (existing != null) {
+                DownloadRegistry.put(context, task.videoId, existing.toString(), task.title)
+                if (!task.spotifyTrackId.isNullOrBlank()) {
+                    DownloadRegistry.put(context, "sp:${task.spotifyTrackId}", existing.toString(), task.title)
+                }
+                return
+            }
+
             val uri = publish(tempFile, task)
             if (uri == null) {
                 throw IOException("Publish failed for ${task.videoId}")

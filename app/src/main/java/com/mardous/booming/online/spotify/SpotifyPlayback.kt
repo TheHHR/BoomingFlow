@@ -21,10 +21,12 @@ private val spotifyResolutionCache = ConcurrentHashMap<String, OnlineQueueItem>(
 
 suspend fun SpotifyTrack.resolveForPlayback(): OnlineQueueItem? {
     val key = id.ifEmpty { buildSearchQuery() }
-    spotifyResolutionCache[key]?.let { return it }
 
     // Offline-first: if this Spotify track has a downloaded local file,
-    // build the queue item straight from it — no network involved.
+    // build the queue item straight from it — no network involved. This
+    // check must run BEFORE the resolution cache: a cached entry may be a
+    // stale streaming item (https artwork + innertube uri) that would show
+    // no cover and fail playback while offline.
     DownloadRegistry.spotifyTrackUri(id)?.let { uri ->
         val item = buildOnlineQueueItem(
             videoId = id,
@@ -37,6 +39,14 @@ suspend fun SpotifyTrack.resolveForPlayback(): OnlineQueueItem? {
         )
         spotifyResolutionCache[key] = item
         return item
+    }
+
+    val cached = spotifyResolutionCache[key]
+    if (cached != null) {
+        // A cached local item whose download was deleted is stale: re-resolve.
+        val isLocal = cached.song.uri.scheme == "content"
+        if (!isLocal) return cached
+        // Local but no longer in the registry — fall through to a fresh resolve.
     }
 
     val query = buildSearchQuery()

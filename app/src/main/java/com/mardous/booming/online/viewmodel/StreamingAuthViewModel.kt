@@ -214,14 +214,34 @@ class StreamingAuthViewModel(application: Application) : AndroidViewModel(applic
                 _authState.value = SpotifyAuthState.CONNECTED
             }.onFailure { e ->
                 Log.e("StreamingAuthViewModel", "Session verification failed", e)
-                _authState.value = SpotifyAuthState.ERROR
-                _errorMessage.value = e.message ?: "Failed to verify Spotify session"
+                if (isOfflineTolerableFailure(e)) {
+                    // Network unreachable but we hold a cached token: stay
+                    // connected so offline playlists/downloads keep working.
+                    _authState.value = SpotifyAuthState.CONNECTED
+                } else {
+                    _authState.value = SpotifyAuthState.ERROR
+                    _errorMessage.value = e.message ?: "Failed to verify Spotify session"
+                }
             }
         } catch (e: Throwable) {
             Log.e("StreamingAuthViewModel", "Session verification failed", e)
-            _authState.value = SpotifyAuthState.ERROR
-            _errorMessage.value = e.message ?: "Failed to verify Spotify session"
+            if (isOfflineTolerableFailure(e)) {
+                _authState.value = SpotifyAuthState.CONNECTED
+            } else {
+                _authState.value = SpotifyAuthState.ERROR
+                _errorMessage.value = e.message ?: "Failed to verify Spotify session"
+            }
         }
+    }
+
+    private fun isOfflineTolerableFailure(e: Throwable): Boolean {
+        if (!SpotifyPrefs.isConnected(context) || !SpotifyClient.isAuthenticated()) return false
+        val message = e.message.orEmpty().lowercase()
+        val offlineHints = listOf(
+            "timeout", "timed out", "resolve host", "unresolved", "unreachable",
+            "connection", "connect", "network", "no address associated", "software caused connection abort"
+        )
+        return offlineHints.any { message.contains(it) }
     }
 
     fun ytOnLoggedIn(cookies: String) {
