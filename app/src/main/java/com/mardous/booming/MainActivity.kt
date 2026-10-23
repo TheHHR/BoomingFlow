@@ -48,6 +48,7 @@ import com.mardous.booming.extensions.navigation.isValidCategory
 import com.mardous.booming.extensions.showToast
 import com.mardous.booming.extensions.utilities.toEnum
 import com.mardous.booming.extensions.whichFragment
+import com.mardous.booming.online.viewmodel.StreamingAuthViewModel
 import com.mardous.booming.playback.Playback
 import com.mardous.booming.playback.library.MediaIDs
 import com.mardous.booming.playback.library.SearchQueryProvider
@@ -67,6 +68,7 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 class MainActivity : AbsSlidingMusicPanelActivity(), MediaController.Listener {
 
     private val updateViewModel: UpdateViewModel by viewModel()
+    private val streamingAuthViewModel: StreamingAuthViewModel by viewModel()
     private val mediaEventBus: MediaEventBus by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -78,6 +80,8 @@ class MainActivity : AbsSlidingMusicPanelActivity(), MediaController.Listener {
 
         val shortcutManager = getSystemService<ShortcutManager>()
         shortcutManager?.removeDynamicShortcuts(OLD_SHORTCUT_IDS)
+
+        streamingAuthViewModel.authState.value
 
         prepareUpdateViewModel()
     }

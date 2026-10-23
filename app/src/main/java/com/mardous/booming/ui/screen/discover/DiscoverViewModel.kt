@@ -35,6 +35,12 @@ class DiscoverViewModel(application: Application) : AndroidViewModel(application
             _uiState.value = DiscoverUiState.NotConnected
             return@launch
         }
+        if (!SpotifyClient.isAuthenticated()) {
+            // User token not installed yet (session restore in progress).
+            // Never fall back to an anonymous token here — it would render a
+            // generic feed as if it were the account's own home page.
+            return@launch
+        }
         SpotifyClient.home()
             .onSuccess { feed ->
                 _uiState.value = if (feed.sections.isEmpty()) {
@@ -43,8 +49,12 @@ class DiscoverViewModel(application: Application) : AndroidViewModel(application
                     DiscoverUiState.Success(feed)
                 }
             }
-            .onFailure { error ->
-                _uiState.value = DiscoverUiState.Error(error.message)
-            }
+        .onFailure { error ->
+            _uiState.value = DiscoverUiState.Error(error.message)
+        }
+    }
+
+    fun onNotConnected() {
+        _uiState.value = DiscoverUiState.NotConnected
     }
 }

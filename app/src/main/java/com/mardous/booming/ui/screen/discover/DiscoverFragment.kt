@@ -15,12 +15,16 @@ import com.mardous.booming.databinding.FragmentDiscoverBinding
 import com.mardous.booming.extensions.launchAndRepeatWithViewLifecycle
 import com.mardous.booming.extensions.navigation.spotifyPlaylistArgs
 import com.mardous.booming.online.data.spotify.SpotifyHomeItem
+import com.mardous.booming.online.viewmodel.SpotifyAuthState
+import com.mardous.booming.online.viewmodel.StreamingAuthViewModel
 import com.mardous.booming.ui.IScrollHelper
 import com.mardous.booming.ui.adapters.HorizontalListAdapter
 import com.mardous.booming.ui.component.base.AbsMainActivityFragment
 import com.mardous.booming.ui.screen.settings.streaming.StreamingLoginDialogFragment
 import com.mardous.booming.ui.screen.settings.streaming.StreamingLoginMode
 import com.mardous.booming.ui.screen.settings.streaming.StreamingService
+import kotlinx.coroutines.launch
+import org.koin.androidx.viewmodel.ext.android.activityViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class DiscoverFragment : AbsMainActivityFragment(R.layout.fragment_discover), IScrollHelper {
@@ -29,6 +33,7 @@ class DiscoverFragment : AbsMainActivityFragment(R.layout.fragment_discover), IS
     private val binding get() = _binding!!
 
     private val discoverViewModel: DiscoverViewModel by viewModel()
+    private val authViewModel: StreamingAuthViewModel by activityViewModel()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -36,6 +41,9 @@ class DiscoverFragment : AbsMainActivityFragment(R.layout.fragment_discover), IS
 
         binding.appBarLayout.title = getString(R.string.discover_label)
         binding.appBarLayout.setExpanded(true, true)
+        binding.appBarLayout.toolbar.setNavigationOnClickListener {
+            findNavController().navigate(R.id.nav_search)
+        }
         binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
         checkForMargins(binding.recyclerView)
 
@@ -46,7 +54,24 @@ class DiscoverFragment : AbsMainActivityFragment(R.layout.fragment_discover), IS
         binding.retryButton.setOnClickListener { discoverViewModel.load() }
 
         viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
-            discoverViewModel.uiState.collect { state -> render(state) }
+            launch {
+                discoverViewModel.uiState.collect { state -> render(state) }
+            }
+            launch {
+                var previousState: SpotifyAuthState? = null
+                authViewModel.authState.collect { state ->
+                    when (state) {
+                        SpotifyAuthState.CONNECTED -> {
+                            if (previousState != SpotifyAuthState.CONNECTED) {
+                                discoverViewModel.load()
+                            }
+                        }
+                        SpotifyAuthState.NOT_CONNECTED -> discoverViewModel.onNotConnected()
+                        else -> Unit
+                    }
+                    previousState = state
+                }
+            }
         }
     }
 

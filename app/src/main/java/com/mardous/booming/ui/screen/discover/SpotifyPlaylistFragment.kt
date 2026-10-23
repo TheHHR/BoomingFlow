@@ -15,6 +15,8 @@ import com.mardous.booming.extensions.launchAndRepeatWithViewLifecycle
 import com.mardous.booming.extensions.setSupportActionBar
 import com.mardous.booming.extensions.showToast
 import com.mardous.booming.online.data.spotify.SpotifyTrack
+import com.mardous.booming.online.download.DownloadFormat
+import com.mardous.booming.online.download.SongDownloader
 import com.mardous.booming.online.spotify.resolveBatchForPlayback
 import com.mardous.booming.online.spotify.resolveForPlayback
 import com.mardous.booming.ui.IScrollHelper
@@ -22,6 +24,7 @@ import com.mardous.booming.ui.component.base.AbsMainActivityFragment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class SpotifyPlaylistFragment : AbsMainActivityFragment(R.layout.fragment_detail_list), IScrollHelper {
@@ -33,6 +36,7 @@ class SpotifyPlaylistFragment : AbsMainActivityFragment(R.layout.fragment_detail
         get() = arguments?.getString(ARG_PLAYLIST_ID)
 
     private val viewModel: SpotifyPlaylistViewModel by viewModel()
+    private val songDownloader: SongDownloader by inject()
 
     private lateinit var trackAdapter: SpotifyTrackAdapter
 
@@ -57,6 +61,11 @@ class SpotifyPlaylistFragment : AbsMainActivityFragment(R.layout.fragment_detail
                 viewModel.tracks.value.getOrNull(index)?.let { track ->
                     resolveAndEnqueue(track)
                 }
+            },
+            onDownload = { index ->
+                viewModel.tracks.value.getOrNull(index)?.let { track ->
+                    startDownload(listOf(track), DownloadFormat.M4A)
+                }
             }
         )
         binding.recyclerView.adapter = trackAdapter
@@ -71,7 +80,12 @@ class SpotifyPlaylistFragment : AbsMainActivityFragment(R.layout.fragment_detail
             launch {
                 viewModel.playlist.collect { playlist ->
                     if (playlist != null) {
-                        setSupportActionBar(binding.toolbar, playlist.name)
+                        val name = playlist.name.ifBlank {
+                            playlist.description?.ifBlank { null } ?: playlist.owner?.displayName.orEmpty()
+                        }
+                        setSupportActionBar(binding.toolbar, name)
+                        binding.toolbar.setNavigationOnClickListener { findNavController().navigateUp() }
+                        binding.title.text = name
                         binding.subtitle.text = getString(
                             R.string.discover_playlist_subtitle,
                             playlist.owner?.displayName.orEmpty(),
@@ -83,7 +97,10 @@ class SpotifyPlaylistFragment : AbsMainActivityFragment(R.layout.fragment_detail
             launch {
                 viewModel.isLiked.collect { isLiked ->
                     if (isLiked) {
-                        setSupportActionBar(binding.toolbar, getString(R.string.liked_songs_label))
+                        val label = getString(R.string.liked_songs_label)
+                        setSupportActionBar(binding.toolbar, label)
+                        binding.toolbar.setNavigationOnClickListener { findNavController().navigateUp() }
+                        binding.title.text = label
                     }
                 }
             }
@@ -164,9 +181,31 @@ class SpotifyPlaylistFragment : AbsMainActivityFragment(R.layout.fragment_detail
         }
     }
 
-    override fun onCreateMenu(menu: Menu, inflater: MenuInflater) = Unit
+    val downloadableTracks: List<SpotifyTrack>
+        get() = viewModel.tracks.value
 
-    override fun onMenuItemSelected(menuItem: MenuItem): Boolean = false
+    fun startDownload(tracks: List<SpotifyTrack>, format: DownloadFormat) {
+        if (tracks.isEmpty()) return
+        songDownloader.enqueue(tracks, format)
+        showToast(getString(R.string.download_queued_toast, tracks.size))
+    }
+
+    private fun openDownloadSheet() {
+        if (viewModel.tracks.value.isEmpty()) return
+        PlaylistDownloadSheet().show(childFragmentManager, "playlist_download_sheet")
+    }
+
+    override fun onCreateMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu_spotify_playlist, menu)
+    }
+
+    override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+        if (menuItem.itemId == R.id.action_download) {
+            openDownloadSheet()
+            return true
+        }
+        return false
+    }
 
     override fun scrollToTop() {
         binding.recyclerView.scrollToPosition(0)

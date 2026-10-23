@@ -34,6 +34,15 @@ class AudioCoverFetcher(
     private val contentResolver get() = options.context.contentResolver
 
     override suspend fun fetch(): FetchResult? {
+        val scheme = cover.uri.scheme?.lowercase()
+        if (scheme == "http" || scheme == "https") {
+            val data = loader.components.map(cover.uri.toString(), options)
+            val output = loader.components.newFetcher(data, options, loader)
+            if (output != null) {
+                val (fetcher) = output
+                return fetcher.fetch()
+            }
+        }
         val stream = try {
             if (cover.isIgnoreMediaStore) {
                 AudioCoverUtils.fallback(cover.path, cover.isUseFolderArt)
