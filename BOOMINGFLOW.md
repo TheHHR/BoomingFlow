@@ -17,6 +17,8 @@ A fork of [Booming Music](https://github.com/ChristiansM/BoomingMusic) reworked 
 | 3 | **Discover tab**: Spotify connect card, `home()` shelves, playlist detail (Play all / Shuffle / Play next / Add to queue) | ✅ |
 | 4 | **Playlists 3-sections**: Your playlists / Liked Songs / Spotify shelf; Liked Songs detail screen; 1.0.1 | ✅ v1.0.1 |
 | 5 | Device smoke test + this document | ✅ v1.0.2 |
+| 6 | **Fixes (1.0.5)**: online-song covers in player/mini-player/queue (`AudioCoverFetcher` http(s) branch), playlist detail big title + back-arrow listener, Discover anonymous-feed race (authState wiring + eager `StreamingAuthViewModel` bootstrap in `MainActivity` + `isAuthenticated()` gate), Discover toolbar search button, official Material explore icon | ✅ |
+| 7 | **Downloads (1.1.0)**: batch download playlists / Liked Songs (M4A default / Opus picker, track-pick sheet), per-track Download popup action, TagLib tags + embedded art, MediaStore publish to `Music/BoomingFlow`, playback prefers downloaded local copy via registry lookup in `ResolvingDataSource` | ✅ |
 
 ## How playback works
 
@@ -68,11 +70,12 @@ Key mechanics (all in `app/src/main/java/com/mardous/booming/`):
 ## Known limitations (v1)
 
 - Online queue items are not persisted across process death (same as external-open preview files).
-- In-app cover for online tracks falls back to Deezer/placeholder; the notification/lockscreen shows the exact YouTube thumbnail (Coil `artworkUri`).
+- ~~In-app cover for online tracks falls back to Deezer/placeholder~~ **Fixed in 1.0.5** — `AudioCoverFetcher` now delegates http(s) cover URIs (the YT thumbnail stored on `UnindexedSong.uri`) to Coil's network fetcher; downloaded tracks read embedded art via TagLib.
 - Spotify home parser keeps **playlist** items only (upstream `filterIsInstance<Playlist>()`); album/artist cards need `parseHomeItem` branches.
 - Liked Songs loads pages of 50; the row subtitle uses `paging.total`.
 - No stream disk cache (no `SimpleCache`); no queue-persisted re-resolution after restart.
 - Spotify auth = cookie (`sp_dc`) → web-player TOTP token flow (not official OAuth).
+- Downloads (1.1.0): Opus format saves the raw WebM/Opus byte stream with `.opus` extension (no remux — no FFmpeg in deps); tags are best-effort on non-MP4 containers. Sequential worker, no pause/resume UI, no WorkManager (long batches may be killed by the OS if the app is backgrounded). Downloaded-state badges / "downloaded songs" manager are v2.
 
 ## Hotfix log
 
@@ -121,3 +124,11 @@ Reference run (rerun anytime):
 4. **Playlists tab** → three sections; Liked Songs opens detail (title "Liked Songs"); Spotify shelf cards open detail; sort/grid-size/new/import menus still work; sections hide with Spotify disconnected.
 5. Kill the app while an online track plays → restart → local queue restored, online items dropped (expected).
 6. Airplane mode mid-stream → error → skip to next (after 2 re-resolve attempts fail).
+
+Additions for 1.0.5 / 1.1.0 (pending device run):
+
+7. **Player covers**: open Discover → play an online track → full player + mini player show the real thumbnail (was placeholder); queue rows too.
+8. **Playlist detail title**: open a Spotify playlist → big header shows the playlist NAME (not just "Spotify Playlist • by …"); back arrow still navigates up after title loads. Liked Songs header shows "Liked Songs".
+9. **Discover feed**: cold-start app straight to the Discover tab (never visiting Playlists) → personalized feed (greeting + account shelves), not the generic/anonymous page. Toolbar search icon (left) → opens Search. Log out → Discover shows the connect card.
+10. **Icon**: Discover bottom-nav icon is a proper compass (correct needle, continuous ring, filled state when selected).
+11. **Downloads**: playlist detail → toolbar Download → sheet with track checkboxes + M4A/Opus toggle → Download → files land in `Music/BoomingFlow` (visible in library Songs after scan), progress notification counts down. Per-track popup → Download. After a download finishes, tapping that track in the playlist plays the LOCAL file (logcat: ResolvingDataSource picks `content://media…`, no googlevideo request).
