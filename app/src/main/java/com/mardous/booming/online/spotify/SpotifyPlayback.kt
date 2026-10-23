@@ -64,7 +64,7 @@ suspend fun SpotifyTrack.resolveForPlayback(): OnlineQueueItem? {
         artist = match.artist,
         album = null,
         durationMs = match.durationMs,
-        thumbnailUrl = match.thumbnailUrl
+        thumbnailUrl = thumbnailUrl() ?: match.thumbnailUrl
     )
     spotifyResolutionCache[key] = item
     return item

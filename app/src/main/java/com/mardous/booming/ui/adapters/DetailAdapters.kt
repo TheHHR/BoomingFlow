@@ -176,6 +176,7 @@ class HorizontalListAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.binding.header.title.text = title
+        holder.binding.header.root.isInvisible = title.isBlank()
         holder.binding.header.sortOrder.isInvisible = onSortClick == null
         holder.binding.header.sortOrder.setOnClickListener { onSortClick?.invoke(it) }
         holder.binding.recyclerView.apply {

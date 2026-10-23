@@ -142,7 +142,6 @@ class PlaybackService :
     private val audioOutputObserver: AudioOutputObserver by inject()
     private val repository: Repository by inject()
     private val songDownloader: SongDownloader by inject()
-    private val pendingFavoriteVideoIds = java.util.concurrent.ConcurrentHashMap.newKeySet<String>()
 
     private val queueStateHolder: QueueStateHolder by inject()
     private val isInTimelineUpdate = AtomicBoolean(false)
@@ -1011,53 +1010,43 @@ class PlaybackService :
     }
 
     /**
-     * Online songs must be favorited by their downloaded local-library twin
-     * (a playlist entry holding the fake online id can never be resolved at
-     * playback time). If the track isn't downloaded yet, the like triggers a
-     * download and the favorite is applied when it completes.
+     * Online songs are favorited by their downloaded local-library twin when
+     * one exists. Otherwise the online row is favorited immediately (instant
+     * feedback) and a download is kicked off in the background; once it
+     * finishes the row is replaced with the real library song, so the
+     * favorite plays like any local track.
      */
     private suspend fun toggleOnlineFavorite(song: Song) {
         val videoId = song.data.removePrefix("yt:")
-        if (pendingFavoriteVideoIds.remove(videoId)) {
-            // Second tap while the download is still pending = unlike/cancel.
-            OnlineToast.show(applicationContext.getString(R.string.favorite_download_canceled))
-            return
-        }
 
-        val registeredUri = DownloadRegistry.get(videoId)
+        val registeredUri = DownloadRegistry.get(videoId) ?: DownloadRegistry.get("sp:$videoId")
         if (registeredUri != null) {
             val realSong = repository.songsByUri(Uri.parse(registeredUri)).firstOrNull()
             if (realSong != null && realSong != Song.emptySong) {
+                android.util.Log.d(
+                    "BoomingFavorite",
+                    "Toggling favorite via real library song id=${realSong.id}"
+                )
                 repository.toggleFavorite(realSong)
                 return
             }
         }
 
-        pendingFavoriteVideoIds.add(videoId)
-        OnlineToast.show(applicationContext.getString(R.string.favorite_download_started))
-        songDownloader.enqueueRemote(
-            videoId = videoId,
-            title = song.title,
-            artist = song.artistName,
-            album = song.albumName.takeIf { it.isNotBlank() },
-            thumbnailUrl = song.uri.takeIf { it.scheme == "https" || it.scheme == "http" }?.toString()
+        android.util.Log.d(
+            "BoomingFavorite",
+            "Not downloaded — toggling online row (videoId=$videoId) and enqueueing download"
         )
-    }
-
-    private suspend fun applyPendingFavorite(videoId: String) {
-        withContext(IO) {
-            val registeredUri = DownloadRegistry.get(videoId) ?: return@withContext
-            val realSong = repository.songsByUri(Uri.parse(registeredUri)).firstOrNull()
-            if (realSong != null && realSong != Song.emptySong) {
-                repository.toggleFavorite(realSong)
-            }
+        val added = repository.toggleFavorite(song)
+        if (added) {
+            OnlineToast.show(applicationContext.getString(R.string.favorite_download_started))
+            songDownloader.enqueueRemote(
+                videoId = videoId,
+                title = song.title,
+                artist = song.artistName,
+                album = song.albumName.takeIf { it.isNotBlank() },
+                thumbnailUrl = song.uri.takeIf { it.scheme == "https" || it.scheme == "http" }?.toString()
+            )
         }
-        widgets.refresh()
-        refreshMediaButtonCustomLayout()
-        mediaSession?.broadcastCustomCommand(
-            SessionCommand(Playback.EVENT_FAVORITE_CONTENT_CHANGED, Bundle.EMPTY),
-            Bundle.EMPTY
-        )
     }
 
     private fun collectDownloadEvents() {
@@ -1065,15 +1054,22 @@ class PlaybackService :
             songDownloader.events.collect { event ->
                 when (event) {
                     is DownloadEvent.Completed -> {
-                        if (pendingFavoriteVideoIds.remove(event.videoId)) {
-                            applyPendingFavorite(event.videoId)
+                        val replaced = withContext(IO) {
+                            repository.replaceOnlinePlaylistEntry(event.videoId)
+                        }
+                        if (replaced) {
+                            android.util.Log.d(
+                                "BoomingFavorite",
+                                "Replaced online favorite row with real song (videoId=${event.videoId})"
+                            )
+                            widgets.refresh()
+                            mediaSession?.broadcastCustomCommand(
+                                SessionCommand(Playback.EVENT_FAVORITE_CONTENT_CHANGED, Bundle.EMPTY),
+                                Bundle.EMPTY
+                            )
                         }
                     }
-                    is DownloadEvent.Failed -> {
-                        if (pendingFavoriteVideoIds.remove(event.videoId)) {
-                            OnlineToast.show(applicationContext.getString(R.string.favorite_download_failed))
-                        }
-                    }
+                    is DownloadEvent.Failed -> Unit
                 }
             }
         }

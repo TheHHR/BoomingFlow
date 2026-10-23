@@ -50,7 +50,18 @@ class AudioCoverFetcher(
                         TagLib.getFrontCover(fd.dup().detachFd())?.data?.inputStream()
                     }
             } else {
-                contentResolver.openInputStream(cover.albumId.asAlbumCoverUri())
+                val albumArt = if (cover.albumId > 0) {
+                    runCatching {
+                        contentResolver.openInputStream(cover.albumId.asAlbumCoverUri())
+                    }.getOrNull()
+                } else {
+                    null
+                }
+                albumArt
+                    ?: AudioCoverUtils.fallback(cover.path, cover.isUseFolderArt)
+                    ?: contentResolver.openFileDescriptor(cover.uri, "r")?.use { fd ->
+                        TagLib.getFrontCover(fd.dup().detachFd())?.data?.inputStream()
+                    }
             }
         } catch (e: IOException) {
             Log.e("AudioCoverFetcher", "Unable to decode cover image for ${cover.path}", e)

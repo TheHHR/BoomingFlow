@@ -99,6 +99,9 @@ interface Repository {
     suspend fun deleteSongs(songs: List<Song>)
     fun updatePlaylistsContainingIds(songIds: List<Long>)
     suspend fun deleteMissingContent()
+
+    /** Replaces "yt:"-keyed playlist rows for [videoId] with the real library song. */
+    suspend fun replaceOnlinePlaylistEntry(videoId: String): Boolean
     suspend fun albumById(albumId: Long): Album
     suspend fun albumByIdAsync(albumId: Long): Album
     suspend fun similarAlbums(album: Album): List<Album>
@@ -316,16 +319,29 @@ class RealRepository(
             playlistWithSongs.songs
                 .filter { it.data.startsWith("yt:") }
                 .forEach { entity ->
-                    val videoId = entity.data.removePrefix("yt:")
-                    val uri = DownloadRegistry.get(videoId) ?: return@forEach
-                    val localSong = songsByUri(Uri.parse(uri)).firstOrNull()
-                        ?: return@forEach
+                    replaceOnlinePlaylistEntry(entity.data.removePrefix("yt:"))
+                }
+        }
+    }
+
+    override suspend fun replaceOnlinePlaylistEntry(videoId: String): Boolean {
+        val uri = DownloadRegistry.get(videoId) ?: DownloadRegistry.get("sp:$videoId") ?: return false
+        val localSong = songsByUri(Uri.parse(uri)).firstOrNull()
+            ?: return false
+        val playlists = playlistRepository.playlistsWithSongs()
+        var replaced = false
+        playlists.forEach { playlistWithSongs ->
+            playlistWithSongs.songs
+                .filter { it.data == "yt:$videoId" }
+                .forEach { entity ->
                     playlistRepository.deleteSongsFromPlaylist(listOf(entity))
                     playlistRepository.insertSongs(
                         listOf(localSong.toSongEntity(playlistWithSongs.playlistEntity.playListId))
                     )
+                    replaced = true
                 }
         }
+        return replaced
     }
 
     override suspend fun albumById(albumId: Long): Album = albumRepository.album(albumId)

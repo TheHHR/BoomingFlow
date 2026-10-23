@@ -457,9 +457,9 @@ class LibraryViewModel(
 
     fun isSongFavorite(song: Song): LiveData<Boolean> = liveData(IO) {
         if (song.data.startsWith("yt:")) {
-            val uri = com.mardous.booming.online.download.DownloadRegistry.get(
-                song.data.removePrefix("yt:")
-            )
+            val key = song.data.removePrefix("yt:")
+            val uri = com.mardous.booming.online.download.DownloadRegistry.get(key)
+                ?: com.mardous.booming.online.download.DownloadRegistry.get("sp:$key")
             val real = uri?.let { repository.songsByUri(android.net.Uri.parse(it)).firstOrNull() }
             if (real != null && real != Song.emptySong) {
                 emit(repository.isSongFavorite(real.id))
