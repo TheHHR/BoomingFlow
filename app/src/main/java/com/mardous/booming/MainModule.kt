@@ -398,6 +398,10 @@ private val viewModule = module {
     }
 
     viewModel {
+        com.mardous.booming.ui.screen.discover.SpotifyArtistViewModel(application = androidApplication())
+    }
+
+    viewModel {
         com.mardous.booming.ui.screen.library.playlists.PlaylistsSectionsViewModel(application = androidApplication())
     }
 }

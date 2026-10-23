@@ -18,6 +18,7 @@
 package com.mardous.booming.ui.screen.settings
 
 import android.content.Intent
+import android.content.Context
 import android.content.SharedPreferences
 import android.graphics.Color
 import android.net.Uri
@@ -196,6 +197,13 @@ open class PreferenceScreenFragment : PreferenceFragmentCompat(),
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         preferences.registerOnSharedPreferenceChangeListener(this)
+        findPreference<ListPreference>("stream_quality")?.setOnPreferenceChangeListener { _, newValue ->
+            requireContext().getSharedPreferences("AppSettings", Context.MODE_PRIVATE)
+                .edit().putString("audio_quality", newValue as? String ?: "High").apply()
+            com.mardous.booming.online.data.innertube.YouTubeMusic.clearCache()
+            com.mardous.booming.online.data.innertube.NewPipeStreamExtractor.clearCache()
+            true
+        }
         libraryViewModel.getMiniPlayerMargin().observe(viewLifecycleOwner) {
             listView.updatePadding(bottom = it.getWithSpace())
         }

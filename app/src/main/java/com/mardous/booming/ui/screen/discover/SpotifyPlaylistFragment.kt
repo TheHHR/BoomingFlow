@@ -6,6 +6,7 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import androidx.core.view.isVisible
+import androidx.core.view.updatePadding
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -50,6 +51,9 @@ class SpotifyPlaylistFragment : AbsMainActivityFragment(R.layout.fragment_detail
 
         binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
         checkForMargins(binding.recyclerView)
+        libraryViewModel.getMiniPlayerMargin().observe(viewLifecycleOwner) {
+            binding.recyclerView.updatePadding(bottom = it.getWithSpace())
+        }
 
         trackAdapter = SpotifyTrackAdapter(
             onTrackClick = { index -> playTrackAt(index) },

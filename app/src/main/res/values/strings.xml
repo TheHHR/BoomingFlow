@@ -1086,6 +1086,10 @@
     <string name="uncaught_error_github">Open issue on GitHub</string>
     <string name="uncaught_error_send">Send report</string>
     <string name="streaming_title">Streaming</string>
+    <string name="stream_quality_title">Stream quality</string>
+    <string name="stream_quality_opus">Opus (~160 kbps, efficient)</string>
+    <string name="stream_quality_aac">AAC (~256 kbps, best fidelity)</string>
+    <string name="stream_quality_data_saver">Data saver (lowest)</string>
     <string name="spotify_login_title">Sign in to Spotify</string>
     <string name="spotify_login_summary">Sign in with your Spotify account in a browser window</string>
     <string name="spotify_token_title">Spotify token login</string>
@@ -1124,11 +1128,17 @@
     <string name="download_action_count">Download %1$d tracks</string>
     <string name="download_already_downloaded">Already downloaded</string>
     <string name="downloads_manager_title">Downloads</string>
+    <string name="downloads_hide_downloaded">Hide downloaded</string>
     <string name="downloads_empty">No downloads yet</string>
     <string name="download_state_queued">Queued</string>
     <string name="download_state_done">Done</string>
     <string name="download_state_failed">Failed</string>
     <string name="download_failed_track">Couldn\'t download "%1$s"</string>
     <string name="spotify_search_hint">Search Spotify</string>
+    <string name="search_category_all">All</string>
+    <string name="search_category_tracks">Tracks</string>
+    <string name="search_category_playlists">Playlists</string>
+    <string name="search_category_artists">Artists</string>
+    <string name="spotify_artist_subtitle">Top tracks • Spotify</string>
     <string name="download_started_label">Download</string>
 </resources>

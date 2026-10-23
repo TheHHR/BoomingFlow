@@ -145,6 +145,15 @@ data class SpotifyPaging<T>(
 data class SpotifySearchResults(
     val tracks: List<SpotifyTrack> = emptyList(),
     val playlists: List<SpotifyPlaylist> = emptyList(),
+    val artists: List<SpotifyArtist> = emptyList(),
+)
+
+@Immutable
+@Serializable
+data class SpotifyArtist(
+    val id: String = "",
+    val name: String = "",
+    val imageUrl: String? = null,
 )
 
 // ── Library Item (for folder-aware library tree) ─────────────────────────────

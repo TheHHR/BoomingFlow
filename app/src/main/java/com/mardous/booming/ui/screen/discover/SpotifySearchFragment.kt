@@ -14,6 +14,7 @@ import android.widget.ImageButton
 import androidx.appcompat.widget.AppCompatEditText
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
+import androidx.core.view.updatePadding
 import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.lifecycleScope
@@ -27,11 +28,13 @@ import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.textview.MaterialTextView
 import com.mardous.booming.R
 import com.mardous.booming.coil.DEFAULT_PLAYLIST_IMAGE
+import com.mardous.booming.coil.DEFAULT_SONG_IMAGE
 import com.mardous.booming.coil.placeholderDrawableRes
 import com.mardous.booming.databinding.FragmentSpotifySearchBinding
 import com.mardous.booming.extensions.launchAndRepeatWithViewLifecycle
 import com.mardous.booming.extensions.navigation.spotifyPlaylistArgs
 import com.mardous.booming.extensions.showToast
+import com.mardous.booming.online.data.spotify.SpotifyArtist
 import com.mardous.booming.online.data.spotify.SpotifyClient
 import com.mardous.booming.online.data.spotify.SpotifyPlaylist
 import com.mardous.booming.online.data.spotify.SpotifyPrefs
@@ -129,7 +132,10 @@ class SpotifySearchFragment : AbsMainActivityFragment(R.layout.fragment_spotify_
     private val songDownloader: SongDownloader by inject()
 
     private var playlistAdapter: SearchPlaylistAdapter? = null
+    private var artistAdapter: SearchArtistAdapter? = null
     private var trackAdapter: SpotifyTrackAdapter? = null
+
+    private var category = SearchCategory.ALL
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -141,8 +147,24 @@ class SpotifySearchFragment : AbsMainActivityFragment(R.layout.fragment_spotify_
         binding.searchView.doAfterTextChanged { viewModel.updateQuery(it?.toString().orEmpty()) }
         showKeyboard()
 
+        binding.categoryGroup.check(R.id.category_all)
+        binding.categoryGroup.addOnButtonCheckedListener { _, checkedId, isChecked ->
+            if (isChecked) {
+                category = when (checkedId) {
+                    R.id.category_tracks -> SearchCategory.TRACKS
+                    R.id.category_playlists -> SearchCategory.PLAYLISTS
+                    R.id.category_artists -> SearchCategory.ARTISTS
+                    else -> SearchCategory.ALL
+                }
+                render(viewModel.uiState.value)
+            }
+        }
+
         playlistAdapter = SearchPlaylistAdapter { playlistId ->
             findNavController().navigate(R.id.nav_spotify_playlist, spotifyPlaylistArgs(playlistId))
+        }
+        artistAdapter = SearchArtistAdapter { artist ->
+            findNavController().navigate(R.id.nav_spotify_artist, SpotifyArtistFragment.args(artist))
         }
         trackAdapter = SpotifyTrackAdapter(
             onTrackClick = { index -> playTrackAt(index) },
@@ -156,7 +178,11 @@ class SpotifySearchFragment : AbsMainActivityFragment(R.layout.fragment_spotify_
             }
         )
         binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
-        binding.recyclerView.adapter = ConcatAdapter(playlistAdapter, trackAdapter)
+        checkForMargins(binding.recyclerView)
+        libraryViewModel.getMiniPlayerMargin().observe(viewLifecycleOwner) {
+            binding.recyclerView.updatePadding(bottom = it.getWithSpace())
+        }
+        binding.recyclerView.adapter = ConcatAdapter(playlistAdapter, artistAdapter, trackAdapter)
 
         viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
             launch { viewModel.uiState.collect { render(it) } }
@@ -174,8 +200,7 @@ class SpotifySearchFragment : AbsMainActivityFragment(R.layout.fragment_spotify_
         when (state) {
             SpotifySearchUiState.Idle -> {
                 binding.empty.isVisible = false
-                playlistAdapter?.submit(emptyList())
-                trackAdapter?.dataSet = emptyList()
+                submitResults(null)
             }
             SpotifySearchUiState.NotConnected -> {
                 binding.empty.setText(R.string.discover_connect_summary)
@@ -184,13 +209,38 @@ class SpotifySearchFragment : AbsMainActivityFragment(R.layout.fragment_spotify_
             SpotifySearchUiState.Loading -> Unit
             is SpotifySearchUiState.Results -> {
                 binding.empty.isVisible = false
-                playlistAdapter?.submit(state.results.playlists)
-                trackAdapter?.dataSet = state.results.tracks
+                submitResults(state.results)
             }
             is SpotifySearchUiState.Error -> {
                 binding.empty.setText(R.string.discover_error)
                 binding.empty.isVisible = true
             }
+        }
+    }
+
+    private fun submitResults(results: SpotifySearchResults?) {
+        val playlists = if (category == SearchCategory.ALL || category == SearchCategory.PLAYLISTS) {
+            results?.playlists.orEmpty()
+        } else {
+            emptyList()
+        }
+        val artists = if (category == SearchCategory.ALL || category == SearchCategory.ARTISTS) {
+            results?.artists.orEmpty()
+        } else {
+            emptyList()
+        }
+        val tracks = if (category == SearchCategory.ALL || category == SearchCategory.TRACKS) {
+            results?.tracks.orEmpty()
+        } else {
+            emptyList()
+        }
+        playlistAdapter?.submit(playlists)
+        artistAdapter?.submit(artists)
+        trackAdapter?.dataSet = tracks
+        if (results != null && playlists.isEmpty() && artists.isEmpty() && tracks.isEmpty()) {
+            binding.empty.isVisible = true
+        } else if (results == null) {
+            binding.empty.isVisible = false
         }
     }
 
@@ -249,6 +299,40 @@ class SpotifySearchFragment : AbsMainActivityFragment(R.layout.fragment_spotify_
     override fun onCreateMenu(menu: Menu, inflater: MenuInflater) = Unit
 
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean = false
+}
+
+private enum class SearchCategory { ALL, TRACKS, PLAYLISTS, ARTISTS }
+
+private class SearchArtistAdapter(
+    private val onClick: (SpotifyArtist) -> Unit
+) : RecyclerView.Adapter<SearchArtistAdapter.Holder>() {
+
+    private var items: List<SpotifyArtist> = emptyList()
+
+    @SuppressLint("NotifyDataSetChanged")
+    fun submit(items: List<SpotifyArtist>) {
+        this.items = items
+        notifyDataSetChanged()
+    }
+
+    class Holder(view: View) : RecyclerView.ViewHolder(view) {
+        val image: ShapeableImageView = view.findViewById(R.id.image)
+        val title: MaterialTextView = view.findViewById(R.id.title)
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder =
+        Holder(LayoutInflater.from(parent.context).inflate(R.layout.item_spotify_artist, parent, false))
+
+    override fun getItemCount(): Int = items.size
+
+    override fun onBindViewHolder(holder: Holder, position: Int) {
+        val artist = items[position]
+        holder.title.text = artist.name
+        holder.image.load(artist.imageUrl) {
+            placeholderDrawableRes(holder.itemView.context, DEFAULT_SONG_IMAGE)
+        }
+        holder.itemView.setOnClickListener { onClick(artist) }
+    }
 }
 
 private class SearchPlaylistAdapter(

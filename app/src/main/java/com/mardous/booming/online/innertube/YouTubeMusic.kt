@@ -237,7 +237,8 @@ object YouTubeMusic {
         
         val (audioQuality, dataSaver, forceOpus) = NewPipeStreamExtractor.getPreferencesSnapshot()
         val isDataSaver = dataSaver || audioQuality.equals("Data Saver", ignoreCase = true) || audioQuality.equals("Low", ignoreCase = true)
-        val preferOpus = overridePreferOpus ?: (!isDataSaver && (forceHighQuality || forceOpus || true))
+        val isAacOnly = audioQuality.equals("AAC Only", ignoreCase = true)
+        val preferOpus = overridePreferOpus ?: (!isDataSaver && !isAacOnly)
         val cacheKey = "$videoId:$audioQuality:${if (preferOpus) "opus" else "aac"}${if (isRetry) ":retry" else ""}"
 
         // Check Level 1 Cache: Instant memory map retrieval (bypassed on retry)

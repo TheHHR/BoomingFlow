@@ -50,4 +50,11 @@ object DownloadRegistry {
         }
         editor.apply()
     }
+
+    fun hideDownloaded(context: Context): Boolean =
+        prefs(context).getBoolean("hide_downloaded", true)
+
+    fun setHideDownloaded(context: Context?, value: Boolean) {
+        context?.let { prefs(it).edit().putBoolean("hide_downloaded", value).apply() }
+    }
 }

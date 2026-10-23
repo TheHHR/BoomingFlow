@@ -171,6 +171,16 @@
             app:layout="@layout/list_item_view"
             app:key="yt_stream_test"/>
 
+        <ListPreference
+            app:iconSpaceReserved="true"
+            app:title="@string/stream_quality_title"
+            app:entries="@array/pref_stream_quality_entries"
+            app:entryValues="@array/pref_stream_quality_values"
+            app:defaultValue="High"
+            app:useSimpleSummaryProvider="true"
+            app:layout="@layout/list_item_view"
+            app:key="stream_quality"/>
+
     </PreferenceCategory>
 
     <PreferenceCategory
