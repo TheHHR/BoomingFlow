@@ -131,8 +131,7 @@ class SpotifyTrackAdapter(
             popup.menu.add(0, 1, 0, context.getString(R.string.play_next_label))
             popup.menu.add(0, 2, 1, context.getString(R.string.add_to_queue_label))
             if (isDownloaded) {
-                val item = popup.menu.add(0, 3, 2, context.getString(R.string.download_already_downloaded))
-                item.isEnabled = false
+                popup.menu.add(0, 3, 2, context.getString(R.string.download_refresh))
             } else {
                 popup.menu.add(0, 3, 2, context.getString(R.string.download_started_label))
             }

@@ -76,6 +76,9 @@ class SpotifySearchViewModel(application: Application) : AndroidViewModel(applic
 
     private val queryFlow = MutableStateFlow("")
     private var searchJob: Job? = null
+    private var currentQuery = ""
+    private var trackOffset = 0
+    private var loadingMore = false
 
     init {
         viewModelScope.launch {
@@ -99,6 +102,36 @@ class SpotifySearchViewModel(application: Application) : AndroidViewModel(applic
         executeSearch(queryFlow.value)
     }
 
+    fun loadMore() {
+        if (loadingMore || currentQuery.isBlank()) return
+        val current = results ?: return
+        if (!current.canLoadMore) return
+        loadingMore = true
+        viewModelScope.launch {
+            try {
+                val more = SpotifyClient.searchTracks(currentQuery, limit = PAGE_SIZE, offset = trackOffset + PAGE_SIZE)
+                trackOffset += PAGE_SIZE
+                if (more.isNotEmpty()) {
+                    _uiState.value = SpotifySearchUiState.Results(
+                        SpotifySearchResults(
+                            tracks = current.tracks + more,
+                            playlists = current.playlists,
+                            canLoadMore = more.size >= PAGE_SIZE
+                        )
+                    )
+                } else {
+                    _uiState.value = SpotifySearchUiState.Results(
+                        current.copy(canLoadMore = false)
+                    )
+                }
+            } catch (_: Exception) {
+                // Keep current results on failure; user can retry by scrolling again.
+            } finally {
+                loadingMore = false
+            }
+        }
+    }
+
     private fun executeSearch(query: String) {
         if (query.isBlank()) return
         searchJob?.cancel()
@@ -109,16 +142,22 @@ class SpotifySearchViewModel(application: Application) : AndroidViewModel(applic
             }
             _uiState.value = SpotifySearchUiState.Loading
             _uiState.value = try {
-                val results = SpotifyClient.search(query)
+                val results = SpotifyClient.search(query, limit = PAGE_SIZE)
                 if (results.tracks.isEmpty() && results.playlists.isEmpty()) {
                     SpotifySearchUiState.Error(null)
                 } else {
+                    currentQuery = query
+                    trackOffset = 0
                     SpotifySearchUiState.Results(results)
                 }
             } catch (e: Exception) {
                 SpotifySearchUiState.Error(e.message)
             }
         }
+    }
+
+    companion object {
+        private const val PAGE_SIZE = 20
     }
 }
 
@@ -158,6 +197,16 @@ class SpotifySearchFragment : AbsMainActivityFragment(R.layout.fragment_spotify_
             }
         )
         binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
+        binding.recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                if (dy <= 0) return
+                val layoutManager = recyclerView.layoutManager as? LinearLayoutManager ?: return
+                val itemCount = recyclerView.adapter?.itemCount ?: return
+                if (layoutManager.findLastVisibleItemPosition() >= itemCount - 6) {
+                    viewModel.loadMore()
+                }
+            }
+        })
         checkForMargins(binding.recyclerView)
         libraryViewModel.getMiniPlayerMargin().observe(viewLifecycleOwner) {
             binding.recyclerView.updatePadding(bottom = it.getWithSpace())

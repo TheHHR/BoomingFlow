@@ -835,7 +835,11 @@ object SpotifyClient {
 
         val tracks = searchTracks(query, limit)
         val playlists = searchPlaylists(query, limit)
-        return SpotifySearchResults(tracks = tracks, playlists = playlists)
+        return SpotifySearchResults(
+            tracks = tracks,
+            playlists = playlists,
+            canLoadMore = tracks.size >= limit
+        )
     }
 
     private fun searchEntityItems(response: JsonObject, vararg entityKeys: String): JsonArray? {
@@ -846,11 +850,11 @@ object SpotifyClient {
         return null
     }
 
-    suspend fun searchTracks(query: String, limit: Int = 20): List<SpotifyTrack> =
+    suspend fun searchTracks(query: String, limit: Int = 20, offset: Int = 0): List<SpotifyTrack> =
         runCatching {
             val vars = buildJsonObject {
                 put("searchTerm", query)
-                put("offset", 0)
+                put("offset", offset)
                 put("limit", limit)
                 put("numberOfTopResults", minOf(limit, 5))
                 put("includeAudiobooks", false)
@@ -867,6 +871,19 @@ object SpotifyClient {
                 parseGqlTrack(itemData)
             }
         }.getOrDefault(emptyList())
+
+    suspend fun artistGenres(artistId: String): String? =
+        runCatching {
+            val token = getEffectiveToken() ?: return@runCatching null
+            val response = restClient.get("https://api.spotify.com/v1/artists/$artistId") {
+                header("Authorization", "Bearer $token")
+            }
+            if (response.status != HttpStatusCode.OK) return@runCatching null
+            val parsed = json.parseToJsonElement(response.bodyAsText()).jsonObject
+            parsed.arr("genres")
+                ?.mapNotNull { it.jsonPrimitive.contentOrNull }
+                ?.firstOrNull { it.isNotBlank() }
+        }.getOrNull()
 
     suspend fun searchPlaylists(query: String, limit: Int = 10): List<SpotifyPlaylist> =
         runCatching {

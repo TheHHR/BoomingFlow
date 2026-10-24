@@ -145,6 +145,7 @@ data class SpotifyPaging<T>(
 data class SpotifySearchResults(
     val tracks: List<SpotifyTrack> = emptyList(),
     val playlists: List<SpotifyPlaylist> = emptyList(),
+    val canLoadMore: Boolean = false
 )
 
 // ── Library Item (for folder-aware library tree) ─────────────────────────────

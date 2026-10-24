@@ -21,6 +21,7 @@ import com.kyant.taglib.TagLib
 import com.mardous.booming.R
 import com.mardous.booming.extensions.hasQ
 import com.mardous.booming.online.data.innertube.YouTubeMusic
+import com.mardous.booming.online.data.spotify.SpotifyClient
 import com.mardous.booming.online.data.spotify.SpotifyTrack
 import com.mardous.booming.online.data.spotify.thumbnailUrl
 import com.mardous.booming.online.spotify.resolveForPlayback
@@ -95,13 +96,16 @@ class SongDownloader(private val context: Context) {
         DownloadRegistry.displayName(context, videoId)
 
     fun isDownloaded(videoId: String): Boolean {
-        val uri = DownloadRegistry.get(context, videoId) ?: return false
+        val uri = registeredUri(videoId) ?: return false
         return try {
             context.contentResolver.openInputStream(Uri.parse(uri))?.use { true } ?: false
         } catch (e: Exception) {
             false
         }
     }
+
+    private fun registeredUri(videoId: String): String? =
+        DownloadRegistry.get(context, videoId) ?: DownloadRegistry.get(context, "sp:$videoId")
 
     fun enqueue(tracks: List<SpotifyTrack>, format: DownloadFormat = DownloadFormat.M4A) {
         if (tracks.isEmpty()) return
@@ -110,9 +114,6 @@ class SongDownloader(private val context: Context) {
         for (track in tracks) {
             scope.launch {
                 val trackKey = track.id.ifEmpty { track.name }
-                if (track.id.isNotBlank() && isSpotifyTrackDownloaded(track.id)) {
-                    return@launch
-                }
                 if (!enqueuedTrackIds.add(trackKey)) {
                     return@launch
                 }
@@ -123,9 +124,26 @@ class SongDownloader(private val context: Context) {
                     return@launch
                 }
                 val videoId = resolved.song.data.removePrefix("yt:")
-                if (isDownloaded(videoId)) {
-                    mark(videoId, track.name, DownloadProgress.State.DONE, 100)
-                    enqueuedTrackIds.remove(trackKey)
+                // Already downloaded: re-verify the file and refresh its
+                // tags/artwork with the current metadata instead of skipping.
+                val existingUri = registeredUri(videoId)
+                if (existingUri != null) {
+                    queue.trySend(
+                        DownloadTask(
+                            videoId = videoId,
+                            spotifyTrackId = track.id,
+                            title = track.name,
+                            artist = artistOf(track),
+                            album = track.album?.name,
+                            thumbnailUrl = track.thumbnailUrl(),
+                            format = format,
+                            trackNumber = track.trackNumber,
+                            year = releaseYear(track),
+                            genreArtistId = track.artists.firstOrNull()?.id,
+                            refreshUri = existingUri
+                        )
+                    )
+                    _activeCount.value = _activeCount.value + 1
                     return@launch
                 }
                 // A matching file may already exist in the user's music library
@@ -152,7 +170,10 @@ class SongDownloader(private val context: Context) {
                         artist = artistOf(track),
                         album = track.album?.name,
                         thumbnailUrl = track.thumbnailUrl(),
-                        format = format
+                        format = format,
+                        trackNumber = track.trackNumber,
+                        year = releaseYear(track),
+                        genreArtistId = track.artists.firstOrNull()?.id
                     )
                 )
                 _activeCount.value = _activeCount.value + 1
@@ -299,7 +320,11 @@ class SongDownloader(private val context: Context) {
             mark(task.videoId, task.title, DownloadProgress.State.RUNNING, 0)
             for (attempt in 1..MAX_ATTEMPTS) {
                 try {
-                    performDownload(task)
+                    if (task.isRefresh) {
+                        performRefresh(task)
+                    } else {
+                        performDownload(task)
+                    }
                     mark(task.videoId, task.title, DownloadProgress.State.DONE, 100)
                     _progress.value = _progress.value - task.videoId
                     _events.tryEmit(DownloadEvent.Completed(task.videoId, task.spotifyTrackId))
@@ -367,7 +392,8 @@ class SongDownloader(private val context: Context) {
                 }
             }
 
-            writeTags(tempFile, task)
+            val genre = task.genreArtistId?.let { fetchGenre(it) }
+            writeTags(tempFile, task, genre)
 
             // Race guard: another download (or an import finishing while we
             // were streaming) may have published a matching file. Adopt it
@@ -381,7 +407,7 @@ class SongDownloader(private val context: Context) {
                 return
             }
 
-            val uri = publish(tempFile, task)
+            val uri = publish(tempFile, task, genre)
             if (uri == null) {
                 throw IOException("Publish failed for ${task.videoId}")
             }
@@ -390,15 +416,97 @@ class SongDownloader(private val context: Context) {
         }
     }
 
-    private fun writeTags(file: File, task: DownloadTask) {
+    /**
+     * Re-verifies a downloaded song: rewrites its tags (genre, year, track
+     * number, album artist) and re-embeds the artwork on the published file,
+     * then rescans so the library picks the changes up. If the file is gone
+     * from the media collection the stale registry entry is dropped so the
+     * next download can start fresh.
+     */
+    private suspend fun performRefresh(task: DownloadTask) {
+        val uri = Uri.parse(task.refreshUri.orEmpty())
+        val genre = task.genreArtistId?.let { fetchGenre(it) }
+
+        val opened = runCatching {
+            context.contentResolver.openFileDescriptor(uri, "rw")
+        }.getOrNull() ?: run {
+            DownloadRegistry.removeByUri(context, task.refreshUri.orEmpty())
+            throw IOException("Refresh target missing for ${task.videoId}")
+        }
+
+        opened.use { fd ->
+            runCatching {
+                TagLib.savePropertyMap(fd.dup().detachFd(), tagProperties(task, genre))
+                task.thumbnailUrl?.let { url ->
+                    decodeBitmap(url)?.let { bitmap ->
+                        val data = ByteArrayOutputStream().use { out ->
+                            bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out)
+                            out.toByteArray()
+                        }
+                        TagLib.savePictures(
+                            fd.dup().detachFd(),
+                            arrayOf(Picture(data, "Embedded Front Cover", "Front Cover", "image/jpeg"))
+                        )
+                    }
+                }
+            }.onFailure { Log.w(TAG, "Refresh tag write failed for ${task.videoId}", it) }
+        }
+
+        // Update the MediaStore row's genre/year columns and rescan.
+        val path = queryDataPath(uri)
+        if (path != null) {
+            runCatching {
+                val values = ContentValues().apply {
+                    genre?.let { put(MediaStore.Audio.Media.GENRE, it) }
+                    task.year?.let { put(MediaStore.Audio.Media.YEAR, it) }
+                    task.trackNumber?.let { put(MediaStore.Audio.Media.TRACK, it) }
+                }
+                if (values.size() > 0) {
+                    context.contentResolver.update(uri, values, null, null)
+                }
+                MediaScannerConnection.scanFile(context, arrayOf(path), null, null)
+            }
+        }
+    }
+
+    private fun queryDataPath(uri: Uri): String? = runCatching {
+        context.contentResolver.query(
+            uri,
+            arrayOf(MediaStore.Audio.Media.DATA),
+            null,
+            null,
+            null
+        )?.use { cursor ->
+            if (cursor.moveToFirst()) cursor.getString(0) else null
+        }
+    }.getOrNull()
+
+    private suspend fun fetchGenre(artistId: String): String? =
+        runCatching { SpotifyClient.artistGenres(artistId) }.getOrNull()
+
+    private fun tagProperties(
+        task: DownloadTask,
+        genre: String?
+    ): HashMap<String, Array<String>> {
+        val properties = HashMap<String, Array<String>>().apply {
+            put("TITLE", arrayOf(task.title))
+            put("ARTIST", arrayOf(task.artist))
+            put("ALBUMARTIST", arrayOf(task.artist))
+            if (!task.album.isNullOrBlank()) put("ALBUM", arrayOf(task.album))
+            task.trackNumber?.let { put("TRACKNUMBER", arrayOf(it.toString())) }
+            task.year?.let {
+                put("YEAR", arrayOf(it.toString()))
+                put("DATE", arrayOf(it.toString()))
+            }
+            if (!genre.isNullOrBlank()) put("GENRE", arrayOf(genre))
+        }
+        return properties
+    }
+
+    private fun writeTags(file: File, task: DownloadTask, genre: String?) {
         runCatching {
             ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_WRITE).use { fd ->
-                val properties = HashMap<String, Array<String>>().apply {
-                    put("TITLE", arrayOf(task.title))
-                    put("ARTIST", arrayOf(task.artist))
-                    if (!task.album.isNullOrBlank()) put("ALBUM", arrayOf(task.album))
-                }
-                TagLib.savePropertyMap(fd.dup().detachFd(), properties)
+                TagLib.savePropertyMap(fd.dup().detachFd(), tagProperties(task, genre))
 
                 task.thumbnailUrl?.let { url ->
                     decodeBitmap(url)?.let { bitmap ->
@@ -416,10 +524,10 @@ class SongDownloader(private val context: Context) {
         }.onFailure { Log.w(TAG, "Tag write failed for ${task.videoId}", it) }
     }
 
-    private fun publish(tempFile: File, task: DownloadTask): Uri? {
+    private fun publish(tempFile: File, task: DownloadTask, genre: String?): Uri? {
         val fileName = sanitize("${task.title} - ${task.artist}") + task.format.fileExtension
         val uri = if (hasQ()) {
-            publishScoped(tempFile, task, fileName)
+            publishScoped(tempFile, task, fileName, genre)
         } else {
             publishLegacy(tempFile, task, fileName)
         }
@@ -432,7 +540,7 @@ class SongDownloader(private val context: Context) {
         return uri
     }
 
-    private fun publishScoped(tempFile: File, task: DownloadTask, fileName: String): Uri? {
+    private fun publishScoped(tempFile: File, task: DownloadTask, fileName: String, genre: String?): Uri? {
         val resolver = context.contentResolver
         val values = ContentValues().apply {
             put(MediaStore.Audio.Media.DISPLAY_NAME, fileName)
@@ -442,6 +550,9 @@ class SongDownloader(private val context: Context) {
             put(MediaStore.Audio.Media.TITLE, task.title)
             put(MediaStore.Audio.Media.ARTIST, task.artist)
             if (!task.album.isNullOrBlank()) put(MediaStore.Audio.Media.ALBUM, task.album)
+            task.year?.let { put(MediaStore.Audio.Media.YEAR, it) }
+            task.trackNumber?.let { put(MediaStore.Audio.Media.TRACK, it) }
+            if (!genre.isNullOrBlank()) put(MediaStore.Audio.Media.GENRE, genre)
         }
         val collection = MediaStore.Audio.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
         val itemUri = resolver.insert(collection, values) ?: return null
@@ -543,6 +654,9 @@ class SongDownloader(private val context: Context) {
     private fun artistOf(track: SpotifyTrack): String =
         track.artists.joinToString(", ") { it.name }.ifEmpty { "Unknown artist" }
 
+    private fun releaseYear(track: SpotifyTrack): Int? =
+        track.album?.releaseDate?.take(4)?.toIntOrNull()
+
     private fun sanitize(name: String): String = name.replace(Regex("[\\\\/:*?\"<>|]"), "_")
 
     private data class DownloadTask(
@@ -552,8 +666,14 @@ class SongDownloader(private val context: Context) {
         val artist: String,
         val album: String?,
         val thumbnailUrl: String?,
-        val format: DownloadFormat
-    )
+        val format: DownloadFormat,
+        val trackNumber: Int? = null,
+        val year: Int? = null,
+        val genreArtistId: String? = null,
+        val refreshUri: String? = null
+    ) {
+        val isRefresh get() = refreshUri != null
+    }
 
     companion object {
         private const val TAG = "SongDownloader"

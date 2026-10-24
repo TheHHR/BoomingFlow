@@ -1127,6 +1127,7 @@
     <string name="download_queued_toast">Download queued for %1$d track(s)</string>
     <string name="download_action_count">Download %1$d tracks</string>
     <string name="download_already_downloaded">Already downloaded</string>
+    <string name="download_refresh">Refresh download</string>
     <string name="downloads_manager_title">Downloads</string>
     <string name="favorite_download_started">Downloading — the song will keep playing from your library once finished</string>
     <string name="downloads_hide_downloaded">Hide downloaded</string>
