@@ -225,7 +225,8 @@ class SearchFragment : AbsMainActivityFragment(R.layout.fragment_search),
             val filterMode = arguments?.let {
                 BundleCompat.getSerializable(it, MODE, SearchQuery.FilterMode::class.java)
             }
-            binding.modeButtonGroup.check(filterMode?.buttonId ?: View.NO_ID)
+            binding.modeButtonGroup.isSelectionRequired = true
+            binding.modeButtonGroup.check(filterMode?.buttonId ?: SearchQuery.FilterMode.Songs.buttonId)
             binding.searchView.setText(arguments?.getString(QUERY))
             viewModel.updateFilter(arguments?.let {
                 BundleCompat.getParcelable(it, FILTER, SearchFilter::class.java)

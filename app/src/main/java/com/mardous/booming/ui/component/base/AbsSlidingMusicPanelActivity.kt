@@ -488,15 +488,12 @@ abstract class AbsSlidingMusicPanelActivity : AbsBaseActivity(),
 
         val selectedCategories = Preferences.libraryCategories.filter { it.visible }
         for (info in selectedCategories) {
-            val filterMode = SearchQuery.FilterMode.entries.firstOrNull {
-                it.name == info.category.name
-            }
-
             val gestureDetector = GestureDetector(this, object : SimpleOnGestureListener() {
                 override fun onLongPress(e: MotionEvent) {
+                    // Holding any tab opens the unified search on the Songs filter.
                     findNavController(R.id.fragment_container)
                         .navigate(R.id.nav_search, Bundle().apply {
-                            putSerializable(SearchFragment.MODE, filterMode)
+                            putSerializable(SearchFragment.MODE, SearchQuery.FilterMode.Songs)
                         })
                 }
             })
