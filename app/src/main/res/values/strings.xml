@@ -1131,6 +1131,7 @@
     <string name="favorite_download_canceled">Download canceled — song not added</string>
     <string name="favorite_download_failed">Couldn\'t download — song not added</string>
     <string name="spotify_section_title">Spotify</string>
+    <string name="remote_action_unavailable">Not available for remote songs</string>
     <string name="downloads_manager_title">Downloads</string>
     <string name="favorite_download_started">Downloading — the song will keep playing from your library once finished</string>
     <string name="downloads_hide_downloaded">Hide downloaded</string>

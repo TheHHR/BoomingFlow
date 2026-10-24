@@ -1027,17 +1027,28 @@ class PlaybackService :
     private fun collectDownloadEvents() {
         serviceScope.launch {
             songDownloader.events.collect { event ->
-                if (event is DownloadEvent.Completed) {
-                    val replaced = withContext(IO) {
-                        repository.replaceOnlinePlaylistEntry(event.videoId)
+                when (event) {
+                    is DownloadEvent.Completed -> {
+                        val replaced = withContext(IO) {
+                            repository.replaceOnlinePlaylistEntry(event.videoId)
+                        }
+                        if (replaced) {
+                            widgets.refresh()
+                            mediaSession?.broadcastCustomCommand(
+                                SessionCommand(Playback.EVENT_FAVORITE_CONTENT_CHANGED, Bundle.EMPTY),
+                                Bundle.EMPTY
+                            )
+                        }
                     }
-                    if (replaced) {
+                    is com.mardous.booming.online.download.DownloadEvent.FavoriteApplied -> {
                         widgets.refresh()
+                        refreshMediaButtonCustomLayout()
                         mediaSession?.broadcastCustomCommand(
                             SessionCommand(Playback.EVENT_FAVORITE_CONTENT_CHANGED, Bundle.EMPTY),
                             Bundle.EMPTY
                         )
                     }
+                    else -> Unit
                 }
             }
         }

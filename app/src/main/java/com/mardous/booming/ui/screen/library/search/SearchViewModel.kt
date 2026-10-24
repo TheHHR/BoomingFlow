@@ -77,10 +77,10 @@ class SearchViewModel(private val repository: Repository) : ViewModel() {
                 val playlists = if (mode == null || mode == SearchQuery.FilterMode.Playlists) {
                     SpotifyClient.searchPlaylists(text)
                 } else emptyList()
-                val artists = if (mode == SearchQuery.FilterMode.Artists) {
+                val artists = if (mode == null || mode == SearchQuery.FilterMode.Artists) {
                     SpotifyClient.searchArtists(text)
                 } else emptyList()
-                val albums = if (mode == SearchQuery.FilterMode.Albums) {
+                val albums = if (mode == null || mode == SearchQuery.FilterMode.Albums) {
                     SpotifyClient.searchAlbums(text)
                 } else emptyList()
                 SpotifySearchResults(

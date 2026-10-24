@@ -57,6 +57,7 @@ data class DownloadProgress(
 sealed interface DownloadEvent {
     data class Completed(val videoId: String, val spotifyTrackId: String?) : DownloadEvent
     data class Failed(val videoId: String, val spotifyTrackId: String?) : DownloadEvent
+    data class FavoriteApplied(val videoId: String) : DownloadEvent
 }
 
 /**
@@ -67,7 +68,8 @@ sealed interface DownloadEvent {
  */
 class SongDownloader(
     private val context: Context,
-    private val repository: com.mardous.booming.data.repository.Repository
+    private val repository: com.mardous.booming.data.repository.Repository,
+    private val musicBrainzService: com.mardous.booming.data.remote.musicbrainz.MusicBrainzService
 ) {
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -202,6 +204,7 @@ class SongDownloader(
         if (pendingFavoriteVideoIds.remove(videoId)) {
             repository.toggleFavorite(realSong)
             OnlineToast.show(context.getString(R.string.favorite_added))
+            _events.tryEmit(DownloadEvent.FavoriteApplied(videoId))
         }
     }
 
@@ -584,8 +587,16 @@ class SongDownloader(
         }
     }.getOrNull()
 
-    private suspend fun fetchGenre(title: String, artist: String): String? =
-        runCatching { queryItunesGenre(title, artist) }.getOrNull()
+    private suspend fun fetchGenre(title: String, artist: String): String? {
+        // MusicBrainz first — community-maintained tags with vote counts.
+        runCatching {
+            val search = musicBrainzService.searchRecording(title, artist)
+            val recording = search.recordings.firstOrNull() ?: return@runCatching null
+            val details = musicBrainzService.getRecordingDetails(recording.id)
+            details.genres.maxByOrNull { it.count ?: 0 }?.name
+        }.getOrNull()?.let { return it }
+        return runCatching { queryItunesGenre(title, artist) }.getOrNull()
+    }
 
     /**
      * Genre lookup via the public iTunes Search API (tokenless) — the same

@@ -352,7 +352,46 @@ class SearchFragment : AbsMainActivityFragment(R.layout.fragment_search),
     }
 
     override fun onMultipleItemAction(menuItem: MenuItem, selection: List<Song>) {
-        selection.onSongsMenu(this, menuItem)
+        val onlineSongs = selection.filter { it.data.startsWith("yt:") }
+        val localSongs = selection.filterNot { it.data.startsWith("yt:") }
+        if (onlineSongs.isNotEmpty()) {
+            handleOnlineSongsMenu(menuItem, onlineSongs)
+        }
+        if (localSongs.isNotEmpty()) {
+            localSongs.onSongsMenu(this, menuItem)
+        }
+    }
+
+    private fun handleOnlineSongsMenu(menuItem: MenuItem, songs: List<Song>) {
+        val tracks = songs.mapNotNull { song ->
+            searchAdapter.dataSet.filterIsInstance<SpotifyTrack>()
+                .firstOrNull { it.id == song.data.removePrefix("yt:") }
+        }
+        when (menuItem.itemId) {
+            R.id.action_play_next, R.id.action_add_to_playing_queue -> {
+                viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
+                    val items = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                        tracks.mapNotNull { it.resolveForPlayback() }
+                    }
+                    if (items.isNotEmpty()) {
+                        if (menuItem.itemId == R.id.action_play_next) {
+                            playerViewModel.playOnlineQueueNext(items)
+                            showToast(R.string.queue_added_next)
+                        } else {
+                            playerViewModel.addOnlineQueue(items)
+                            showToast(R.string.queue_added)
+                        }
+                    }
+                }
+            }
+
+            R.id.action_add_to_playlist -> {
+                com.mardous.booming.ui.dialogs.playlists.AddToPlaylistDialog.create(songs)
+                    .show(childFragmentManager, "ADD_TO_PLAYLIST")
+            }
+
+            else -> showToast(R.string.remote_action_unavailable)
+        }
     }
 
     override fun genreClick(genre: Genre) {
@@ -362,6 +401,10 @@ class SearchFragment : AbsMainActivityFragment(R.layout.fragment_search),
     // ── Spotify results ─────────────────────────────────────────────────────
 
     override fun spotifyTrackClick(track: SpotifyTrack, tracks: List<SpotifyTrack>) {
+        spotifyTrackPlay(track, tracks)
+    }
+
+    override fun spotifyTrackPlay(track: SpotifyTrack, tracks: List<SpotifyTrack>) {
         viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
             val item = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
                 track.resolveForPlayback()
@@ -409,6 +452,50 @@ class SearchFragment : AbsMainActivityFragment(R.layout.fragment_search),
     override fun spotifyTrackDownload(track: SpotifyTrack) {
         songDownloader.enqueue(listOf(track))
         showToast(getString(R.string.download_queued_toast, 1))
+    }
+
+    override fun spotifyTrackAddToPlaylist(track: SpotifyTrack) {
+        com.mardous.booming.ui.dialogs.playlists.AddToPlaylistDialog.create(
+            listOf(
+                com.mardous.booming.data.model.UnindexedSong(
+                    uri = android.net.Uri.parse("https://open.spotify.com"),
+                    id = track.id.hashCode().toLong(),
+                    data = "yt:${track.id}",
+                    title = track.name,
+                    size = 0,
+                    duration = track.durationMs.toLong(),
+                    albumName = track.album?.name.orEmpty(),
+                    artistName = track.artists.joinToString { it.name }
+                )
+            )
+        ).show(childFragmentManager, "ADD_TO_PLAYLIST")
+    }
+
+    override fun spotifyTrackGoToAlbum(track: SpotifyTrack) {
+        val album = track.album ?: return
+        findNavController().navigate(
+            R.id.nav_spotify_album,
+            com.mardous.booming.ui.screen.discover.SpotifyAlbumFragment.args(
+                com.mardous.booming.online.data.spotify.SpotifyAlbum(
+                    id = album.id,
+                    name = album.name,
+                    artistName = track.artists.joinToString { it.name },
+                    year = null,
+                    imageUrl = album.images.maxByOrNull { (it.width ?: 0) }?.url
+                )
+            )
+        )
+    }
+
+    override fun spotifyTrackGoToArtist(track: SpotifyTrack) {
+        val artist = track.artists.firstOrNull { it.id?.isNotBlank() == true } ?: return
+        findNavController().navigate(
+            R.id.nav_spotify_artist,
+            Bundle().apply {
+                putString("artistId", artist.id)
+                putString("artistName", artist.name)
+            }
+        )
     }
 
     override fun spotifyPlaylistClick(playlist: SpotifyPlaylist) {

@@ -898,7 +898,7 @@ object SpotifyClient {
         runCatching {
             val vars = searchVars(query, limit, 0)
             val response = graphqlPost(operationName = "searchDesktop", variables = vars)
-            val items = searchEntityItems(response, "albums")
+            val items = searchEntityItems(response, "albumsV2", "albums")
                 ?: return@runCatching emptyList()
             items.mapNotNull { elem ->
                 parseSearchAlbum(elem.jsonObject)
@@ -910,7 +910,8 @@ object SpotifyClient {
             put("searchTerm", query)
             put("offset", offset)
             put("limit", limit)
-            put("numberOfTopResults", 0)
+            // The API rejects the whole searchV2 response when this is < 1.
+            put("numberOfTopResults", 5)
             put("includeAudiobooks", false)
             put("includeArtistHasConcertsField", false)
             put("includePreReleases", false)
@@ -987,6 +988,12 @@ object SpotifyClient {
                     ?: ownerObj.str("name"),
                 uri = ownerObj.str("uri"),
             )
+        } ?: data.obj("ownerV2")?.obj("data")?.let { ownerObj ->
+            SpotifyPlaylistOwner(
+                id = ownerObj.str("uri")?.substringAfterLast(":") ?: "",
+                displayName = ownerObj.str("name") ?: ownerObj.str("username"),
+                uri = ownerObj.str("uri"),
+            )
         }
         return SpotifyPlaylist(
             id = id,
@@ -1032,7 +1039,8 @@ object SpotifyClient {
             ?: data.obj("artists")?.arr("items")?.firstOrNull()
                 ?.jsonObject?.str("name")
             ?: ""
-        val year = data.str("date")?.take(4)?.toIntOrNull()
+        val year = data.obj("date")?.int("year")
+            ?: data.str("date")?.take(4)?.toIntOrNull()
             ?: data.obj("releaseDate")?.str("year")?.toIntOrNull()
         val image = data.obj("coverArt")?.arr("sources")?.firstOrNull()
             ?.jsonObject?.str("url")

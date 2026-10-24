@@ -67,8 +67,24 @@ class SearchAdapter(
 
     override fun getIdentifier(position: Int): Song? {
         val item = dataSet[position]
-        return item as? Song
+        return when (item) {
+            is Song -> item
+            is com.mardous.booming.online.data.spotify.SpotifyTrack -> item.toSong()
+            else -> null
+        }
     }
+
+    private fun com.mardous.booming.online.data.spotify.SpotifyTrack.toSong(): Song =
+        com.mardous.booming.data.model.UnindexedSong(
+            uri = android.net.Uri.parse("https://open.spotify.com"),
+            id = id.hashCode().toLong(),
+            data = "yt:$id",
+            title = name,
+            size = 0,
+            duration = durationMs.toLong(),
+            albumName = album?.name.orEmpty(),
+            artistName = artists.joinToString { it.name }
+        )
 
     override fun getName(item: Song): String {
         return item.title
@@ -296,15 +312,28 @@ class SearchAdapter(
                     setOnClickListener { anchor ->
                         val track = dataSet[bindingAdapterPosition]
                             as com.mardous.booming.online.data.spotify.SpotifyTrack
+                        val tracks = dataSet.filterIsInstance<com.mardous.booming.online.data.spotify.SpotifyTrack>()
                         val popup = android.widget.PopupMenu(anchor.context, anchor)
-                        popup.menu.add(0, 1, 0, anchor.context.getString(R.string.play_next_label))
-                        popup.menu.add(0, 2, 1, anchor.context.getString(R.string.add_to_queue_label))
-                        popup.menu.add(0, 3, 2, anchor.context.getString(R.string.download_started_label))
+                        popup.menu.add(0, 1, 0, anchor.context.getString(R.string.action_play))
+                        popup.menu.add(0, 2, 1, anchor.context.getString(R.string.action_queue_next))
+                        popup.menu.add(0, 3, 2, anchor.context.getString(R.string.action_add_to_playing_queue))
+                        popup.menu.add(0, 4, 3, anchor.context.getString(R.string.action_add_to_playlist))
+                        popup.menu.add(0, 5, 4, anchor.context.getString(R.string.download_started_label))
+                        track.album?.takeIf { it.id.isNotBlank() }?.let {
+                            popup.menu.add(0, 6, 5, anchor.context.getString(R.string.album))
+                        }
+                        track.artists.firstOrNull { it.id?.isNotBlank() == true }?.let {
+                            popup.menu.add(0, 7, 6, anchor.context.getString(R.string.artist))
+                        }
                         popup.setOnMenuItemClickListener { menuItem ->
                             when (menuItem.itemId) {
-                                1 -> spotifyCallback?.spotifyTrackPlayNext(track)
-                                2 -> spotifyCallback?.spotifyTrackEnqueue(track)
-                                3 -> spotifyCallback?.spotifyTrackDownload(track)
+                                1 -> spotifyCallback?.spotifyTrackPlay(track, tracks)
+                                2 -> spotifyCallback?.spotifyTrackPlayNext(track)
+                                3 -> spotifyCallback?.spotifyTrackEnqueue(track)
+                                4 -> spotifyCallback?.spotifyTrackAddToPlaylist(track)
+                                5 -> spotifyCallback?.spotifyTrackDownload(track)
+                                6 -> spotifyCallback?.spotifyTrackGoToAlbum(track)
+                                7 -> spotifyCallback?.spotifyTrackGoToArtist(track)
                             }
                             true
                         }

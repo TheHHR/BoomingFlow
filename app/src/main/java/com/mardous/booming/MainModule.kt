@@ -99,7 +99,7 @@ val networkModule = module {
     single { MusicBrainzService(client = get()) }
     single { LyricsDownloadService(client = get()) }
     single { QueueStateHolder() }
-    single { com.mardous.booming.online.download.SongDownloader(androidContext(), get()) }
+    single { com.mardous.booming.online.download.SongDownloader(androidContext(), get(), get()) }
 }
 
 private val mainModule = module {

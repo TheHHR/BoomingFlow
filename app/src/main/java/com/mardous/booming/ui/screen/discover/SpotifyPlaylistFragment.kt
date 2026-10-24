@@ -131,6 +131,7 @@ class SpotifyPlaylistFragment : AbsMainActivityFragment(R.layout.fragment_detail
                         is DownloadEvent.Failed -> showToast(
                             getString(R.string.download_failed_track, eventTitle(event.videoId))
                         )
+                        else -> Unit
                     }
                 }
             }
