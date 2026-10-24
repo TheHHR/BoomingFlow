@@ -6,8 +6,7 @@ import android.graphics.Color
 import android.util.Log
 import androidx.core.graphics.scale
 import androidx.palette.graphics.Palette
-import com.kyant.m3color.quantize.QuantizerCelebi
-import com.kyant.m3color.score.Score
+import androidx.core.graphics.ColorUtils
 import com.mardous.booming.core.model.PaletteColor
 import com.mardous.booming.extensions.resources.isColorLight
 import com.mardous.booming.util.color.NotificationColorUtil
@@ -34,14 +33,6 @@ object PaletteProcessor {
         !isWhiteOrBlack(hsl)
     }
 
-    fun getVibrantColor(bitmap: Bitmap): Int {
-        val width = bitmap.width
-        val height = bitmap.height
-        val bitmapPixels = IntArray(width * height)
-        bitmap.getPixels(bitmapPixels, 0, width, 0, 0, width, height)
-        return Score.score(QuantizerCelebi.quantize(bitmapPixels, 128))[0]
-    }
-
     suspend fun getPaletteColor(
         context: Context,
         bitmap: Bitmap,
@@ -52,46 +43,85 @@ object PaletteProcessor {
                 return@withContext PaletteColor.errorColor(context)
             }
 
-            val requestedSize = if (colorAccuracy) 64 else 16
+            val requestedSize = if (colorAccuracy) 128 else 32
             val workingBitmap =
                 if (bitmap.width > requestedSize || bitmap.height > requestedSize)
                     bitmap.scale(requestedSize, requestedSize)
                 else bitmap
 
-            val bitmapWidth = workingBitmap.width
-            val bitmapHeight = workingBitmap.height
-            if (bitmapWidth <= 0 || bitmapHeight <= 0) {
-                if (workingBitmap !== bitmap) workingBitmap.recycle()
-                return@withContext PaletteColor.errorColor(context)
-            }
-
-            // extract vibrant color using Celebi
-            val vibrantColor = getVibrantColor(workingBitmap)
-
-            // extraction for background
-            val paletteBuilder = Palette.from(workingBitmap)
-                .setRegion(0, 0, bitmapWidth / 2, bitmapHeight)
-                .clearFilters()
+            // SpatialFlow-style extraction: a richer swatch pool, a
+            // population-weighted chromatic accent and HSL post-processing
+            // with monochrome fallbacks.
+            val palette = Palette.from(workingBitmap)
+                .maximumColorCount(24)
                 .resizeBitmapArea(RESIZE_BITMAP_AREA)
+                .generate()
 
-            var palette = paletteBuilder.generate()
-            val backgroundColorAndFilter = findBackgroundColorAndFilter(palette)
+            val allSwatches = palette.swatches
+            val totalPopulation = allSwatches.sumOf { it.population }.coerceAtLeast(1)
 
-            // extraction for foreground
-            paletteBuilder.setRegion((bitmapWidth * 0.4f).toInt(), 0, bitmapWidth, bitmapHeight)
-
-            backgroundColorAndFilter.second?.let { backgroundHsl ->
-                paletteBuilder.addFilter { _: Int, hsl: FloatArray ->
-                    val diff = abs(hsl[0] - backgroundHsl[0])
-                    diff > 10 && diff < 350
-                }
+            val candidateSwatches = listOfNotNull(
+                palette.vibrantSwatch, palette.darkVibrantSwatch, palette.lightVibrantSwatch,
+                palette.mutedSwatch, palette.darkMutedSwatch, palette.lightMutedSwatch,
+                palette.dominantSwatch
+            )
+            val bestAccentSwatch = candidateSwatches.maxByOrNull { swatch ->
+                val sat = swatch.hsl[1]
+                val pop = swatch.population.toFloat() / totalPopulation.toFloat()
+                sat * (0.25f + pop)
             }
 
-            paletteBuilder.addFilter(mBlackWhiteFilter)
-            palette = paletteBuilder.generate()
+            val accentHsl = FloatArray(3)
+            ColorUtils.colorToHSL(
+                bestAccentSwatch?.rgb ?: palette.getVibrantColor(0xFF8338EC.toInt()),
+                accentHsl
+            )
 
-            val backgroundColor = backgroundColorAndFilter.first
-            val foregroundColor = if (backgroundColor.isColorLight) {
+            val backgroundSwatch = palette.dominantSwatch
+            val bgHsl = FloatArray(3)
+            ColorUtils.colorToHSL(
+                backgroundSwatch?.rgb ?: palette.getDominantColor(0xFF0F0F0F.toInt()),
+                bgHsl
+            )
+
+            // Monochrome detection: three heuristics combined.
+            val bgRed = Color.red(backgroundSwatch?.rgb ?: 0xFF0F0F0F.toInt())
+            val bgGreen = Color.green(backgroundSwatch?.rgb ?: 0xFF0F0F0F.toInt())
+            val bgBlue = Color.blue(backgroundSwatch?.rgb ?: 0xFF0F0F0F.toInt())
+            val maxChannelDelta = (maxOf(bgRed, bgGreen, bgBlue) - minOf(bgRed, bgGreen, bgBlue)) / 255f
+            val colorfulPopulation = allSwatches.filter { it.hsl[1] >= 0.16f }.sumOf { it.population }
+            val colorfulRatio = colorfulPopulation.toFloat() / totalPopulation.toFloat()
+            val isMonochromatic = (
+                colorfulRatio < 0.08f && bgHsl[1] < 0.14f && accentHsl[1] < 0.18f && maxChannelDelta < 0.09f
+            ) || (bgHsl[1] < 0.06f && accentHsl[1] < 0.08f)
+
+            // Accent post-processing: make it pop.
+            val finalAccent = if (isMonochromatic) {
+                accentHsl[0] = 0f; accentHsl[1] = 0f; accentHsl[2] = 1f
+                ColorUtils.HSLToColor(accentHsl)
+            } else {
+                if (accentHsl[2] < 0.60f) accentHsl[2] = 0.65f
+                if (accentHsl[1] < 0.30f) accentHsl[1] = 0.60f
+                ColorUtils.HSLToColor(accentHsl)
+            }
+
+            // Background post-processing.
+            val finalBackground = if (isMonochromatic) {
+                bgHsl[0] = 0f; bgHsl[1] = 0f; bgHsl[2] = 0.30f
+                ColorUtils.HSLToColor(bgHsl)
+            } else {
+                if (bgHsl[1] < 0.16f) {
+                    // Borrow hue from the accent when the dominant is muddy.
+                    bgHsl[0] = accentHsl[0]
+                    bgHsl[1] = (accentHsl[1] * 0.36f).coerceIn(0.18f, 0.40f)
+                } else {
+                    bgHsl[1] = bgHsl[1].coerceIn(0.18f, 0.60f)
+                }
+                bgHsl[2] = bgHsl[2].coerceIn(0.22f, 0.48f)
+                ColorUtils.HSLToColor(bgHsl)
+            }
+
+            val foregroundColor = if (finalBackground.isColorLight) {
                 selectForegroundColorForSwatches(
                     palette.darkVibrantSwatch,
                     palette.vibrantSwatch,
@@ -111,49 +141,21 @@ object PaletteProcessor {
                 )
             }
 
-            val foregroundColors = ensureColors(backgroundColor, foregroundColor)
+            val foregroundColors = ensureColors(finalBackground, foregroundColor)
 
             if (workingBitmap !== bitmap) {
                 workingBitmap.recycle()
             }
 
             PaletteColor(
-                backgroundColor = backgroundColor,
-                primaryColor = vibrantColor,
+                backgroundColor = finalBackground,
+                primaryColor = finalAccent,
                 primaryTextColor = foregroundColors.first,
                 secondaryTextColor = foregroundColors.second
             )
         } catch (t: Throwable) {
             Log.e("PaletteProcessor", "Failed to extract palette colors from bitmap", t)
             PaletteColor.errorColor(context)
-        }
-    }
-
-    private fun findBackgroundColorAndFilter(palette: Palette): Pair<Int, FloatArray?> {
-        val dominantSwatch = palette.dominantSwatch ?: return Color.WHITE to null
-
-        if (!isWhiteOrBlack(dominantSwatch.hsl)) {
-            return dominantSwatch.rgb to dominantSwatch.hsl
-        }
-
-        val swatches = palette.swatches
-        var highestNonWhitePopulation = -1f
-        var second: Palette.Swatch? = null
-        for (swatch in swatches) {
-            if (swatch !== dominantSwatch && swatch.population > highestNonWhitePopulation && !isWhiteOrBlack(swatch.hsl)) {
-                second = swatch
-                highestNonWhitePopulation = swatch.population.toFloat()
-            }
-        }
-
-        if (second == null) {
-            return dominantSwatch.rgb to null
-        }
-
-        return if (dominantSwatch.population / highestNonWhitePopulation > POPULATION_FRACTION_FOR_WHITE_OR_BLACK) {
-            dominantSwatch.rgb to null
-        } else {
-            second.rgb to second.hsl
         }
     }
 

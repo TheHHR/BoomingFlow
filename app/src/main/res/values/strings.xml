@@ -1006,6 +1006,7 @@
     <string name="full_cover_style">Full Cover</string>
     <string name="gradient_style">Gradient</string>
     <string name="peek_style">Peek</string>
+    <string name="spatial_style">Spatial</string>
     <string name="plain_style">Plain</string>
     <string name="m3_style">M3</string>
     <string name="expressive_style">Expressive</string>

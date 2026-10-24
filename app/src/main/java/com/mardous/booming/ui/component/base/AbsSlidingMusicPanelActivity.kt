@@ -94,6 +94,7 @@ import com.mardous.booming.ui.screen.player.styles.gradientstyle.GradientPlayerF
 import com.mardous.booming.ui.screen.player.styles.m3style.M3PlayerFragment
 import com.mardous.booming.ui.screen.player.styles.peekplayerstyle.PeekPlayerFragment
 import com.mardous.booming.ui.screen.player.styles.plainstyle.PlainPlayerFragment
+import com.mardous.booming.ui.screen.player.styles.spatialstyle.SpatialPlayerFragment
 import com.mardous.booming.util.ADAPTIVE_CONTROLS
 import com.mardous.booming.util.ADD_EXTRA_CONTROLS
 import com.mardous.booming.util.CAROUSEL_EFFECT
@@ -542,6 +543,10 @@ abstract class AbsSlidingMusicPanelActivity : AbsBaseActivity(),
                     setLightNavigationBar(navigationbarColor.isColorLight)
                     setLightStatusBar(isColorLight)
                 }
+                NowPlayingScreen.Spatial -> {
+                    setLightStatusBar(false)
+                    setLightNavigationBar(false)
+                }
             }
         }
     }
@@ -633,6 +638,8 @@ abstract class AbsSlidingMusicPanelActivity : AbsBaseActivity(),
             NowPlayingScreen.Plain -> PlainPlayerFragment()
             NowPlayingScreen.M3 -> M3PlayerFragment()
             NowPlayingScreen.Expressive -> ExpressivePlayerFragment()
+            NowPlayingScreen.Spatial -> com.mardous.booming.ui.screen.player.styles.spatialstyle.SpatialPlayerFragment()
+            NowPlayingScreen.Spatial -> SpatialPlayerFragment()
             else -> DefaultPlayerFragment()
         }
 
