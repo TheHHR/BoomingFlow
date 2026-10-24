@@ -1,199 +1,72 @@
 <div align="center">
 
-<img src="metadata/en-US/images/icon.png" width="160" height="160" alt="Booming Music icon">
+<img src="metadata/en-US/images/icon.png" width="160" height="160" alt="BoomingFlow icon">
 
-# Booming Music
+# BoomingFlow
 
-### Modern design. Pure sound. Fully yours.
+### Your local library, your Spotify, one player.
 
-[![Latest Release](https://img.shields.io/github/v/release/mardous/BoomingMusic?style=for-the-badge&label=Release&logo=github)](https://github.com/mardous/BoomingMusic/releases/latest)
-[![F-Droid version](https://img.shields.io/f-droid/v/com.mardous.booming?style=for-the-badge&label=F-Droid&logo=fdroid)](https://f-droid.org/packages/com.mardous.booming/)
-[![Downloads](https://img.shields.io/github/downloads/mardous/BoomingMusic/total?style=for-the-badge&logo=github&label=Downloads)](https://github.com/mardous/BoomingMusic/releases)
-[![License: GPL v3](https://img.shields.io/github/license/mardous/BoomingMusic?style=for-the-badge&color=orange&label=License&logo=gnu)](LICENSE.txt)
-[![Contributor Covenant](https://img.shields.io/badge/Contributor_Covenant-2.1-4baaaa.svg?style=for-the-badge&logo=contributorcovenant)](CODE_OF_CONDUCT.md)
-[![Telegram Channel](https://img.shields.io/badge/Telegram-Join_Chat-blue?style=for-the-badge&logo=telegram)](https://t.me/mardousdev)
-
-<a href="https://play.google.com/store/apps/details?id=com.mardous.booming"><img src="assets/badge-playstore.png" height="60" alt="Play Store"></a>
-<a href="https://f-droid.org/packages/com.mardous.booming/"><img src="assets/badge-fdroid.png" height="60" alt="F-Droid"></a>
-<a href="https://apt.izzysoft.de/packages/com.mardous.booming/"><img src="assets/badge-izzyondroid.png" height="60" alt="IzzyOnDroid"></a>
-<a href="https://github.com/mardous/BoomingMusic/releases"><img src="assets/badge-github.png" height="60" alt="GitHub Release"></a>
-<a href="https://www.openapk.net/boomingmusic/com.mardous.booming/"><img src="assets/badge-openapk.png" height="60" alt="OpenAPK"></a>
-<a href="https://apps.obtainium.imranr.dev/redirect?r=obtainium://add/https://github.com/mardous/BoomingMusic/"><img src="assets/badge-obtainium.png" height="60" alt="Obtainium"></a>
+[![Latest Release](https://img.shields.io/github/v/release/TheHHR/BoomingFlow?style=for-the-badge&label=Release&logo=github)](https://github.com/TheHHR/BoomingFlow/releases/latest)
+[![Downloads](https://img.shields.io/github/downloads/TheHHR/BoomingFlow/total?style=for-the-badge&logo=github&label=Downloads)](https://github.com/TheHHR/BoomingFlow/releases)
+[![License: GPL v3](https://img.shields.io/github/license/TheHHR/BoomingFlow?style=for-the-badge&color=orange&label=License&logo=gnu)](LICENSE.txt)
 
 </div>
 
-## 🗂️ Table of Contents
+**BoomingFlow** is a local-first music player for Android with a **Spotify discovery front end** and a **YouTube Music streaming back end**. Browse your own library and your Spotify account side by side, stream anything you don't have, and download what you want to keep — all in one app.
 
-- [✨ Key Features](#-key-features)
-- [📸 Screenshots](#-screenshots)
-- [💻 Tech Stack](#-tech-stack)
-- [🧩 Roadmap](#-roadmap)
-- [🔗 Useful Links](#-useful-links)
-- [🤝 Contributing](#-contributing)
-- [💖 Support Development](#-support-development)
-- [🙌 Credits](#-credits)
-- [⚖️ License](#-license)
+## Features
 
-## ✨ Key Features
+**Local library**
+- Albums, artists, genres, folders and playlists with a fully customizable home
+- Tag editor, folder support, blacklists/whitelists, smart sorting
+- Gapless playback, ReplayGain, equalizer, sleep timer, Android widgets
 
-- 🎼 **Automatic Lyrics Download & Editing** – Automatically fetch, sync, and edit lyrics with ease.
-- 💬 **Word-by-Word Synced Lyrics** – Enjoy immersive real-time lyric playback with word-level timing.
-- 🌍 **Translated Lyrics Support** – Display dual-language lyrics via TTML or LRC with translations.
-- 🔊 **Built-in Equalizer** – Powerful EQ with up to 15 fully configurable bands and customizable profiles.
-- 🎧 **AutoEq Support** – Import professionally tuned headphone correction profiles for the most accurate sound possible.
-- 🔄 **Gapless Playback** – Smooth transitions between songs with zero interruption.
-- 🧠 **Smart Playlists** – Auto-generated lists like *Recently Played*, *Most Played*, and *History*.
-- 📈 **Native Scrobbling** – Seamlessly sync your listening history with **Last.fm** and **ListenBrainz**.
-- 🎧 **Bluetooth & Headset Controls** – Manage playback easily via connected devices.
-- 🚗 **Android Auto Integration** – Full hands-free experience on the road.
-- 🎨 **Material You Design** – Dynamic theming for a modern and personal interface.
-- 📂 **Folder Browsing** – Play songs directly from any folder.
-- ⏰ **Sleep Timer** – Automatically stop playback after a set time.
-- 🧩 **Widgets** – Lock screen and home screen controls for quick access.
-- 🔖 **Tag Editor** – Edit song metadata such as title, artist, and album info.
-- 🔉 **ReplayGain Support** – Maintain consistent volume across all tracks.
-- 🖼️ **Automatic Artist Images** – Download artist artwork for a polished library look.
-- 🚫 **Library Filtering** – Easily exclude or include folders with blacklist/whitelist options.
+**Spotify integration (Discover)**
+- Your personalized Spotify home feed, public playlists and Liked Songs
+- Spotify search (tracks + public playlists) with endless scrolling
+- Every remote track is matched on YouTube Music and streamed through Media3
+- Playlists are cached, so downloaded ones keep working offline
 
-## 📸 Screenshots
+**Streaming & downloads**
+- Stream quality setting: Opus (~160 kbps), AAC (~256 kbps) or data saver
+- Download entire playlists or Liked Songs (M4A/AAC or Opus), with a track picker and a download manager
+- Downloaded tracks are tagged (title, artist, album, genre, year, track number) with embedded album art and land in your library automatically
+- Playback prefers your local copy when a track is downloaded — full offline support
+- Like a remote song and it downloads itself into Favorites
 
-<div align="center">
-<table>
-<tr>
-<td align="center" width="25%"><img src="assets/screenshots/Home.jpg" alt="Home" width="180"/></td>
-<td align="center" width="25%"><img src="assets/screenshots/Player_Expressive.jpg" alt="Expressive Player" width="180"/></td>
-<td align="center" width="25%"><img src="assets/screenshots/Player_Gradient.jpg" alt="Gradient Player" width="180"/></td>
-<td align="center" width="25%"><img src="assets/screenshots/Favorites.jpg" alt="Favorites" width="180"/></td>
-</tr>
-<tr>
-<td align="center" width="25%"><img src="assets/screenshots/Lyrics_Full.jpg" alt="Immersive Lyrics" width="180"/></td>
-<td align="center" width="25%"><img src="assets/screenshots/Lyrics_Player.jpg" alt="Player Lyrics" width="180"/></td>
-<td align="center" width="25%"><img src="assets/screenshots/Lyrics_Editor.jpg" alt="Lyrics Editor" width="180"/></td>
-<td align="center" width="25%"><img src="assets/screenshots/Tag_Editor.jpg" alt="Tag Editor" width="180"/></td>
-</tr>
-<tr>
-<td align="center" width="25%"><img src="assets/screenshots/EQ.jpg" alt="EQ" width="180"/></td>
-<td align="center" width="25%"><img src="assets/screenshots/AutoEq.jpg" alt="AutoEq" width="180"/></td>
-<td align="center" width="25%"><img src="assets/screenshots/Sound_Settings.jpg" alt="Sound Settings" width="180"/></td>
-<td align="center" width="25%"><img src="assets/screenshots/Info.jpg" alt="Info Sheet" width="180"/></td>
-</tr>
-</table>
-</div>
+**Lyrics**
+- Synced lyrics from Spotify's catalog, with LRCLib / BetterLyrics / Lyrically fallbacks
+- Editable, saveable, embedded — plain or synced
 
-## 🧩 Roadmap
+**Look & feel**
+- 7 player styles (including full-cover and expressive), theming, dark/light, bottom navigation or sidebar
 
-- [ ] 📦 Independent library scanner (no MediaStore dependency)
-- [ ] 🎨 Multi-artist support (split & index properly)
-- [ ] 🎵 Improved genre handling
-- [ ] 🔁 Last.fm integration (import/export playback data)
-- [ ] 💿 Enhanced artist pages (separate albums and singles visually)
-- [ ] 🌐 Jellyfin & Navidrome integration
+## Install
 
-## 🤝 Contributing
+1. Grab the latest APK from [Releases](https://github.com/TheHHR/BoomingFlow/releases/latest) (`arm64-v8a`).
+2. Install it (Android 8.0+). It runs alongside the original Booming Music if you have it.
+3. Open **Settings → Streaming** to connect your Spotify account (web login or `sp_dc` cookie) and optionally YouTube.
 
-Booming Music is open-source — contributions are **always welcome!**
-Check the [Contributing Guide](CONTRIBUTING.md) for details.
+Streaming and Spotify features need a Spotify account and internet; everything local works fully offline.
 
-If you enjoy the app or want to support its development, give the repo a ⭐ — it really helps!
-You can also:
-- Open issues
-- Submit pull requests
-- Suggest new ideas
+## Building
 
-**Translations:** Managed on [Hosted Weblate](https://hosted.weblate.org/projects/booming-music/).
-
-[![Translation Status](https://hosted.weblate.org/widget/booming-music/horizontal-auto.svg)](https://hosted.weblate.org/projects/booming-music/)
-
-## 💖 Support Development
-
-Booming Music is an open-source project developed and maintained with passion in my spare time.
-If you enjoy the app and the free features it offers, please consider supporting me to help cover
-development costs and dedicate more time to new features.
-
-Your support is greatly appreciated and keeps me motivated to continue improving Booming Music!
-
-<div align="center">
-
-<a href="https://ko-fi.com/christiaam" target="_blank">
-<img src="https://storage.ko-fi.com/cdn/brandasset/v2/support_me_on_kofi_red.png" alt="Support me on Ko-fi" style="border: 0px; height: 40px;" />
-</a>
-
-### ❤️ Supporters
-
-<table>
-  <tr>
-    <td>
-      <b>mbeezy</b><br/>
-      <b><a href="https://github.com/Qoojoe">KKTweex</a></b><br/>
-      <b><a href="https://github.com/FabiRich">FabiRich</a></b><br/>
-      <b><a href="https://github.com/Bloodaxe95">Bloodaxe</a></b><br/>
-      <b>Bernhard</b><br/>
-      <b>Andreas Hirth</b>
-    </td>
-    <td>
-      <b>Revolver327</b><br/>
-      <b>Peter Smith</b><br/>
-      <b>Michele Simoncelli</b><br/>
-      <b>Kristof Lengyel</b><br/>
-      <b>Tarvos</b>
-    </td>
-  </tr>
-</table>
-
-</div>
-
-## 🔗 Useful Links
-
-- 🔐 **[Requested Permissions](https://github.com/mardous/BoomingMusic/wiki/Advanced-Info#-permissions)**  
-  What the app needs and why
-
-- 🚘 **[Android Auto Setup](https://github.com/mardous/BoomingMusic/wiki/Advanced-Info#-android-auto-setup)**  
-  How to enable and troubleshoot
-
-- 🎧 **[Supported Formats](https://github.com/mardous/BoomingMusic/wiki/Advanced-Info#-supported-formats)**  
-  Compatible audio formats
-
-- 💬 **[Community](https://github.com/mardous/BoomingMusic/wiki/Community)**  
-  Users and contributors
-
-- 🌐 **[Translations](https://hosted.weblate.org/projects/booming-music/)**  
-  Help us translate Booming Music into your language
-
-- ❓ **[FAQ](https://github.com/mardous/BoomingMusic/wiki/FAQ)**  
-  Common questions
-
-## 🙌 Credits
-
-Build upon the work of: [Retro Music Player](https://github.com/RetroMusicPlayer/RetroMusicPlayer). Also thanks to:
-
-- [Gramophone](https://github.com/FoedusProgramme/Gramophone)
-- [AutoEq](https://github.com/jaakkopasanen/AutoEq)
-- [AMLV](https://github.com/dokar3/amlv)
-- [LRCLib](https://lrclib.net/)
-- [Better Lyrics](https://better-lyrics.boidu.dev/)
-- [Lyrically API](https://lyrics.paxsenix.org/) (by [Alex](https://github.com/Paxsenix0))
-
-## ⚖️ License
-
-```
-GNU General Public License - Version 3
-
-Copyright (C) 2025 Christians Martínez Alvarado
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
+```bash
+git clone https://github.com/TheHHR/BoomingFlow.git
+cd BoomingMusic
+./gradlew assembleGithubRelease
 ```
 
----
+- Requires JDK 21 and Android SDK 36.
+- Flavors: `github` (default, built-in updater), `playstore`, `fdroid`.
+- Releases are built by GitHub Actions from version tags (`v1.x.y`).
 
-<p align="center"><a href="#readme">⬆️ Back to top</a></p>
+## Acknowledgements
+
+- [Booming Music](https://github.com/mardous/BoomingMusic) by Christians Martínez Alvarado — the upstream project this fork is built on (GPL-3.0)
+- [NewPipe Extractor](https://github.com/TeamNewPipe/NewPipeExtractor) — YouTube Music stream resolution
+- [Media3 / ExoPlayer](https://github.com/androidx/media), [Coil](https://github.com/coil-kt/coil), [TagLib](https://taglib.org/) via `io.github.kyant0:taglib`
+
+## License
+
+BoomingFlow is licensed under the [GNU GPL v3](LICENSE.txt), same as upstream Booming Music.
