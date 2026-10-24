@@ -25,7 +25,6 @@ import com.mardous.booming.data.remote.lyrics.api.LyricsProvider
 import com.mardous.booming.data.remote.lyrics.api.betterlyrics.BetterLyricsApi
 import com.mardous.booming.data.remote.lyrics.api.lrclib.LrcLibApi
 import com.mardous.booming.data.remote.lyrics.api.lyrically.LyricallyApi
-import com.mardous.booming.data.remote.lyrics.api.spotify.SpotifyLyricsApi
 import com.mardous.booming.extensions.media.albumArtistName
 import com.mardous.booming.extensions.media.extractMainArtistName
 import io.ktor.client.HttpClient
@@ -40,7 +39,6 @@ class LyricsProviderParams(
 class LyricsDownloadService(client: HttpClient) {
 
     private val apiByProvider = mapOf(
-        LyricsProvider.Spotify to SpotifyLyricsApi(client),
         LyricsProvider.Lyrically to LyricallyApi(client),
         LyricsProvider.BetterLyrics to BetterLyricsApi(client),
         LyricsProvider.LRCLib to LrcLibApi(client)

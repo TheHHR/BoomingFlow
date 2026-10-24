@@ -8,9 +8,12 @@ import com.mardous.booming.data.model.Song
 import com.mardous.booming.data.model.search.SearchQuery
 import com.mardous.booming.data.repository.Repository
 import com.mardous.booming.extensions.media.indexOfSong
+import com.mardous.booming.online.data.spotify.SpotifyClient
+import com.mardous.booming.online.data.spotify.SpotifySearchResults
 import com.mardous.booming.util.Preferences
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -33,8 +36,15 @@ class SearchViewModel(private val repository: Repository) : ViewModel() {
     private val _searchResult = MutableStateFlow<List<Any>>(emptyList())
     val searchResult = _searchResult.asStateFlow()
 
+    private val _spotifyResult = MutableStateFlow<SpotifySearchResults?>(null)
+    val spotifyResult = _spotifyResult.asStateFlow()
+
     private val _queueFlow = MutableSharedFlow<Triple<List<Song>, Int, SongClickBehavior>>()
     val queueFlow = _queueFlow.asSharedFlow()
+
+    private var spotifyJob: Job? = null
+    private var spotifyOffset = 0
+    private var loadingMoreSpotify = false
 
     init {
         @OptIn(FlowPreview::class)
@@ -44,9 +54,74 @@ class SearchViewModel(private val repository: Repository) : ViewModel() {
             .onEach { (query, filter) ->
                 val result = repository.search(query, filter)
                 _searchResult.value = result
+                executeSpotifySearch(query)
             }
             .flowOn(Dispatchers.IO)
             .launchIn(viewModelScope)
+    }
+
+    private fun executeSpotifySearch(query: SearchQuery) {
+        val text = query.searched.orEmpty()
+        if (text.isBlank()) {
+            _spotifyResult.value = null
+            return
+        }
+        spotifyJob?.cancel()
+        spotifyOffset = 0
+        spotifyJob = viewModelScope.launch(Dispatchers.IO) {
+            val mode = query.filterMode
+            val results = try {
+                val tracks = if (mode == null || mode == SearchQuery.FilterMode.Songs) {
+                    SpotifyClient.searchTracks(text, limit = SPOTIFY_PAGE)
+                } else emptyList()
+                val playlists = if (mode == null || mode == SearchQuery.FilterMode.Playlists) {
+                    SpotifyClient.searchPlaylists(text)
+                } else emptyList()
+                val artists = if (mode == SearchQuery.FilterMode.Artists) {
+                    SpotifyClient.searchArtists(text)
+                } else emptyList()
+                val albums = if (mode == SearchQuery.FilterMode.Albums) {
+                    SpotifyClient.searchAlbums(text)
+                } else emptyList()
+                SpotifySearchResults(
+                    tracks = tracks,
+                    playlists = playlists,
+                    artists = artists,
+                    albums = albums,
+                    canLoadMore = tracks.size >= SPOTIFY_PAGE
+                )
+            } catch (e: Exception) {
+                null
+            }
+            _spotifyResult.value = results
+        }
+    }
+
+    fun loadMoreSpotify() {
+        if (loadingMoreSpotify) return
+        val current = _spotifyResult.value ?: return
+        if (!current.canLoadMore) return
+        val query = searchQuery.value
+        val mode = query.filterMode
+        if (mode != null && mode != SearchQuery.FilterMode.Songs) return
+        val text = query.searched ?: return
+        if (text.isBlank()) return
+        loadingMoreSpotify = true
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val more = SpotifyClient.searchTracks(text, limit = SPOTIFY_PAGE, offset = spotifyOffset + SPOTIFY_PAGE)
+                spotifyOffset += SPOTIFY_PAGE
+                if (more.isNotEmpty()) {
+                    _spotifyResult.value = current.copy(tracks = current.tracks + more, canLoadMore = more.size >= SPOTIFY_PAGE)
+                } else {
+                    _spotifyResult.value = current.copy(canLoadMore = false)
+                }
+            } catch (_: Exception) {
+                // Keep current results; scrolling again retries.
+            } finally {
+                loadingMoreSpotify = false
+            }
+        }
     }
 
     fun updateFilter(filter: SearchFilter?) {
@@ -78,5 +153,9 @@ class SearchViewModel(private val repository: Repository) : ViewModel() {
 
     fun refresh() {
         searchQuery.value = searchQuery.value.copy(timestamp = System.currentTimeMillis())
+    }
+
+    companion object {
+        private const val SPOTIFY_PAGE = 20
     }
 }

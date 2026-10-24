@@ -19,12 +19,13 @@ import androidx.core.content.ContextCompat
 import com.kyant.taglib.Picture
 import com.kyant.taglib.TagLib
 import com.mardous.booming.R
+import com.mardous.booming.data.mapper.toSongEntity
 import com.mardous.booming.extensions.hasQ
 import com.mardous.booming.online.data.innertube.YouTubeMusic
-import com.mardous.booming.online.data.spotify.SpotifyClient
 import com.mardous.booming.online.data.spotify.SpotifyTrack
 import com.mardous.booming.online.data.spotify.thumbnailUrl
 import com.mardous.booming.online.spotify.resolveForPlayback
+import com.mardous.booming.online.ui.OnlineToast
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -64,11 +65,17 @@ sealed interface DownloadEvent {
  * local library. Downloaded tracks are registered by videoId so playback
  * can prefer the local copy.
  */
-class SongDownloader(private val context: Context) {
+class SongDownloader(
+    private val context: Context,
+    private val repository: com.mardous.booming.data.repository.Repository
+) {
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val queue = Channel<DownloadTask>(Channel.UNLIMITED)
     private val enqueuedTrackIds = java.util.concurrent.ConcurrentHashMap.newKeySet<String>()
+    private val pendingFavoriteVideoIds = java.util.concurrent.ConcurrentHashMap.newKeySet<String>()
+    private val pendingPlaylistAdditions =
+        java.util.concurrent.ConcurrentHashMap<String, java.util.concurrent.ConcurrentHashMap.KeySetView<Long, Boolean>>()
     private val worker by lazy {
         scope.launch { for (task in queue) processTask(task) }
     }
@@ -107,6 +114,97 @@ class SongDownloader(private val context: Context) {
     private fun registeredUri(videoId: String): String? =
         DownloadRegistry.get(context, videoId) ?: DownloadRegistry.get(context, "sp:$videoId")
 
+    enum class FavoriteResult { APPLIED, DEFERRED, CANCELED }
+
+    /**
+     * Favorites a remote song by its real local-library twin. If the track
+     * isn't downloaded yet the download is started and the favorite is
+     * applied when it completes. A second tap while pending cancels it.
+     */
+    suspend fun favoriteRemoteSong(song: com.mardous.booming.data.model.Song): FavoriteResult {
+        val videoId = song.data.removePrefix("yt:")
+        if (videoId.isBlank()) return FavoriteResult.APPLIED
+
+        if (pendingFavoriteVideoIds.remove(videoId)) {
+            return FavoriteResult.CANCELED
+        }
+
+        val uri = registeredUri(videoId)
+        if (uri != null) {
+            val realSong = repository.songsByUri(Uri.parse(uri)).firstOrNull()
+            if (realSong != null && realSong != com.mardous.booming.data.model.Song.emptySong) {
+                repository.toggleFavorite(realSong)
+                return FavoriteResult.APPLIED
+            }
+        }
+
+        pendingFavoriteVideoIds.add(videoId)
+        enqueueRemote(
+            videoId = videoId,
+            title = song.title,
+            artist = song.artistName,
+            album = song.albumName.takeIf { it.isNotBlank() },
+            thumbnailUrl = song.uri.takeIf { it.scheme == "https" || it.scheme == "http" }?.toString()
+        )
+        return FavoriteResult.DEFERRED
+    }
+
+    /**
+     * Adds remote songs to local playlists via their local-library twins,
+     * downloading them first when needed. Local songs pass through directly.
+     */
+    suspend fun addSongsToPlaylists(songs: List<com.mardous.booming.data.model.Song>, playlistIds: List<Long>) {
+        if (playlistIds.isEmpty()) return
+        val localSongs = mutableListOf<com.mardous.booming.data.model.Song>()
+        for (song in songs) {
+            val videoId = song.data.removePrefix("yt:")
+            if (videoId.isBlank()) {
+                localSongs.add(song)
+                continue
+            }
+            val uri = registeredUri(videoId)
+            val realSong = uri?.let { repository.songsByUri(Uri.parse(it)).firstOrNull() }
+            if (realSong != null && realSong != com.mardous.booming.data.model.Song.emptySong) {
+                localSongs.add(realSong)
+            } else {
+                val pending = pendingPlaylistAdditions.getOrPut(videoId) {
+                    java.util.concurrent.ConcurrentHashMap.newKeySet()
+                }
+                pending.addAll(playlistIds)
+                enqueueRemote(
+                    videoId = videoId,
+                    title = song.title,
+                    artist = song.artistName,
+                    album = song.albumName.takeIf { it.isNotBlank() },
+                    thumbnailUrl = song.uri.takeIf { it.scheme == "https" || it.scheme == "http" }?.toString()
+                )
+            }
+        }
+        if (localSongs.isNotEmpty()) {
+            for (playlistId in playlistIds) {
+                repository.insertSongsInPlaylist(localSongs.map { it.toSongEntity(playlistId) })
+            }
+        }
+    }
+
+    private suspend fun applyPendingActions(videoId: String) {
+        val uri = registeredUri(videoId) ?: return
+        val realSong = repository.songsByUri(Uri.parse(uri)).firstOrNull()
+            ?: return
+        if (realSong == com.mardous.booming.data.model.Song.emptySong) return
+
+        val playlistIds = pendingPlaylistAdditions.remove(videoId)
+        if (playlistIds != null && playlistIds.isNotEmpty()) {
+            for (playlistId in playlistIds) {
+                repository.insertSongsInPlaylist(listOf(realSong.toSongEntity(playlistId)))
+            }
+        }
+        if (pendingFavoriteVideoIds.remove(videoId)) {
+            repository.toggleFavorite(realSong)
+            OnlineToast.show(context.getString(R.string.favorite_added))
+        }
+    }
+
     fun enqueue(tracks: List<SpotifyTrack>, format: DownloadFormat = DownloadFormat.M4A) {
         if (tracks.isEmpty()) return
         worker
@@ -139,7 +237,6 @@ class SongDownloader(private val context: Context) {
                             format = format,
                             trackNumber = track.trackNumber,
                             year = releaseYear(track),
-                            genreArtistId = track.artists.firstOrNull()?.id,
                             refreshUri = existingUri
                         )
                     )
@@ -173,7 +270,6 @@ class SongDownloader(private val context: Context) {
                         format = format,
                         trackNumber = track.trackNumber,
                         year = releaseYear(track),
-                        genreArtistId = track.artists.firstOrNull()?.id
                     )
                 )
                 _activeCount.value = _activeCount.value + 1
@@ -329,6 +425,7 @@ class SongDownloader(private val context: Context) {
                     _progress.value = _progress.value - task.videoId
                     _events.tryEmit(DownloadEvent.Completed(task.videoId, task.spotifyTrackId))
                     notifyUpdate()
+                    applyPendingActions(task.videoId)
                     return@withContext
                 } catch (e: Exception) {
                     Log.w(TAG, "Attempt $attempt failed for ${task.videoId}", e)
@@ -336,6 +433,11 @@ class SongDownloader(private val context: Context) {
             }
             mark(task.videoId, task.title, DownloadProgress.State.FAILED, 0)
             _events.tryEmit(DownloadEvent.Failed(task.videoId, task.spotifyTrackId))
+            val hadPending = pendingFavoriteVideoIds.remove(task.videoId) ||
+                pendingPlaylistAdditions.remove(task.videoId) != null
+            if (hadPending) {
+                OnlineToast.show(context.getString(R.string.favorite_download_failed))
+            }
         } finally {
             _activeCount.value = (_activeCount.value - 1).coerceAtLeast(0)
             if (!task.spotifyTrackId.isNullOrBlank()) {
@@ -392,7 +494,7 @@ class SongDownloader(private val context: Context) {
                 }
             }
 
-            val genre = task.genreArtistId?.let { fetchGenre(it) }
+            val genre = fetchGenre(task.title, task.artist)
             writeTags(tempFile, task, genre)
 
             // Race guard: another download (or an import finishing while we
@@ -425,7 +527,7 @@ class SongDownloader(private val context: Context) {
      */
     private suspend fun performRefresh(task: DownloadTask) {
         val uri = Uri.parse(task.refreshUri.orEmpty())
-        val genre = task.genreArtistId?.let { fetchGenre(it) }
+        val genre = fetchGenre(task.title, task.artist)
 
         val opened = runCatching {
             context.contentResolver.openFileDescriptor(uri, "rw")
@@ -467,6 +569,7 @@ class SongDownloader(private val context: Context) {
                 MediaScannerConnection.scanFile(context, arrayOf(path), null, null)
             }
         }
+        OnlineToast.show(context.getString(R.string.download_refreshed, task.title))
     }
 
     private fun queryDataPath(uri: Uri): String? = runCatching {
@@ -481,8 +584,34 @@ class SongDownloader(private val context: Context) {
         }
     }.getOrNull()
 
-    private suspend fun fetchGenre(artistId: String): String? =
-        runCatching { SpotifyClient.artistGenres(artistId) }.getOrNull()
+    private suspend fun fetchGenre(title: String, artist: String): String? =
+        runCatching { queryItunesGenre(title, artist) }.getOrNull()
+
+    /**
+     * Genre lookup via the public iTunes Search API (tokenless) — the same
+     * source SpatialFlow uses for full song metadata.
+     */
+    private fun queryItunesGenre(title: String, artist: String): String? {
+        val query = "$title $artist"
+        val url = "https://itunes.apple.com/search?term=" +
+            java.net.URLEncoder.encode(query, Charsets.UTF_8.name()) +
+            "&entity=song&limit=1"
+        val request = Request.Builder()
+            .url(url)
+            .header("User-Agent", "BoomingFlow/${android.os.Build.VERSION.RELEASE} (Android)")
+            .get()
+            .build()
+        client.newCall(request).execute().use { response ->
+            if (!response.isSuccessful) return null
+            val body = response.body?.string() ?: return null
+            val json = org.json.JSONObject(body)
+            val results = json.optJSONArray("results") ?: return null
+            if (results.length() == 0) return null
+            return results.getJSONObject(0)
+                .optString("primaryGenreName")
+                .takeIf { it.isNotBlank() }
+        }
+    }
 
     private fun tagProperties(
         task: DownloadTask,
@@ -669,7 +798,6 @@ class SongDownloader(private val context: Context) {
         val format: DownloadFormat,
         val trackNumber: Int? = null,
         val year: Int? = null,
-        val genreArtistId: String? = null,
         val refreshUri: String? = null
     ) {
         val isRefresh get() = refreshUri != null

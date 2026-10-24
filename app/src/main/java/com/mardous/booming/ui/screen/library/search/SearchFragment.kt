@@ -42,6 +42,7 @@ import androidx.core.view.updatePadding
 import androidx.core.widget.doAfterTextChanged
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.AdapterDataObserver
 import androidx.transition.TransitionManager
 import com.google.android.material.button.MaterialButton
@@ -66,6 +67,14 @@ import com.mardous.booming.extensions.navigation.artistDetailArgs
 import com.mardous.booming.extensions.navigation.asFragmentExtras
 import com.mardous.booming.extensions.navigation.genreDetailArgs
 import com.mardous.booming.extensions.navigation.playlistDetailArgs
+import com.mardous.booming.extensions.navigation.spotifyPlaylistArgs
+import com.mardous.booming.online.data.spotify.SpotifyAlbum
+import com.mardous.booming.online.data.spotify.SpotifyArtist
+import com.mardous.booming.online.data.spotify.SpotifyPlaylist
+import com.mardous.booming.online.data.spotify.SpotifyTrack
+import com.mardous.booming.online.spotify.resolveBatchForPlayback
+import com.mardous.booming.online.spotify.resolveForPlayback
+import com.mardous.booming.ui.screen.discover.SpotifyAlbumFragment
 import com.mardous.booming.extensions.resources.focusAndShowKeyboard
 import com.mardous.booming.extensions.resources.onVerticalScroll
 import com.mardous.booming.extensions.resources.reactionToKey
@@ -81,7 +90,9 @@ import com.mardous.booming.ui.component.menu.onPlaylistMenu
 import com.mardous.booming.ui.component.menu.onSongMenu
 import com.mardous.booming.ui.component.menu.onSongsMenu
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
 import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent
+import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.util.Locale
 
@@ -89,12 +100,14 @@ import java.util.Locale
  * @author Christians M. A. (mardous)
  */
 class SearchFragment : AbsMainActivityFragment(R.layout.fragment_search),
-    View.OnClickListener, MaterialButtonToggleGroup.OnButtonCheckedListener, ISearchCallback {
+    View.OnClickListener, MaterialButtonToggleGroup.OnButtonCheckedListener, ISearchCallback,
+    com.mardous.booming.ui.ISpotifySearchCallback {
 
     private var _binding: FragmentSearchBinding? = null
     private val binding get() = _binding!!
 
     private val viewModel by viewModel<SearchViewModel>()
+    private val songDownloader: com.mardous.booming.online.download.SongDownloader by inject()
 
     private lateinit var searchAdapter: SearchAdapter
     private lateinit var voiceSearchLauncher: ActivityResultLauncher<Intent>
@@ -127,8 +140,22 @@ class SearchFragment : AbsMainActivityFragment(R.layout.fragment_search),
         }
 
         viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
-            viewModel.searchResult.collect { result ->
-                searchAdapter.dataSet = result
+            combine(viewModel.searchResult, viewModel.spotifyResult) { local, spotify ->
+                local to spotify
+            }.collectLatest { (local, spotify) ->
+                val spotifyItems = buildList {
+                    if (spotify != null &&
+                        (spotify.tracks.isNotEmpty() || spotify.playlists.isNotEmpty() ||
+                            spotify.artists.isNotEmpty() || spotify.albums.isNotEmpty())
+                    ) {
+                        add(getString(R.string.spotify_section_title))
+                        addAll(spotify.tracks)
+                        addAll(spotify.playlists)
+                        addAll(spotify.artists)
+                        addAll(spotify.albums)
+                    }
+                }
+                searchAdapter.dataSet = local + spotifyItems
             }
         }
 
@@ -219,7 +246,7 @@ class SearchFragment : AbsMainActivityFragment(R.layout.fragment_search),
 
     @SuppressLint("ClickableViewAccessibility")
     private fun setupRecyclerView() {
-        searchAdapter = SearchAdapter(requireActivity(), emptyList(), this).apply {
+        searchAdapter = SearchAdapter(requireActivity(), emptyList(), this, this).apply {
             registerAdapterDataObserver(adapterDataObserver)
         }
         binding.recyclerView.apply {
@@ -231,6 +258,16 @@ class SearchFragment : AbsMainActivityFragment(R.layout.fragment_search),
                 onScrollDown = { binding.keyboardPopup.shrink() },
                 onScrollUp = { binding.keyboardPopup.extend() }
             )
+            addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                    if (dy <= 0) return
+                    val lm = recyclerView.layoutManager as? LinearLayoutManager ?: return
+                    val itemCount = recyclerView.adapter?.itemCount ?: return
+                    if (lm.findLastVisibleItemPosition() >= itemCount - 6) {
+                        viewModel.loadMoreSpotify()
+                    }
+                }
+            })
         }
     }
 
@@ -320,6 +357,77 @@ class SearchFragment : AbsMainActivityFragment(R.layout.fragment_search),
 
     override fun genreClick(genre: Genre) {
         findNavController().navigate(R.id.nav_genre_detail, genreDetailArgs(genre))
+    }
+
+    // ── Spotify results ─────────────────────────────────────────────────────
+
+    override fun spotifyTrackClick(track: SpotifyTrack, tracks: List<SpotifyTrack>) {
+        viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
+            val item = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                track.resolveForPlayback()
+            }
+            if (item == null) {
+                showToast(getString(R.string.no_youtube_match_found, track.name))
+                return@launchAndRepeatWithViewLifecycle
+            }
+            playerViewModel.playOnlineQueue(listOf(item))
+            kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                val rest = tracks.dropWhile { it.id != track.id }.drop(1)
+                playerViewModel.addOnlineQueue(rest.resolveBatchForPlayback(20))
+            }
+        }
+    }
+
+    override fun spotifyTrackPlayNext(track: SpotifyTrack) {
+        viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
+            val item = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                track.resolveForPlayback()
+            }
+            if (item == null) {
+                showToast(getString(R.string.no_youtube_match_found, track.name))
+            } else {
+                playerViewModel.playOnlineQueueNext(listOf(item))
+                showToast(R.string.queue_added_next)
+            }
+        }
+    }
+
+    override fun spotifyTrackEnqueue(track: SpotifyTrack) {
+        viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
+            val item = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                track.resolveForPlayback()
+            }
+            if (item == null) {
+                showToast(getString(R.string.no_youtube_match_found, track.name))
+            } else {
+                playerViewModel.addOnlineQueue(listOf(item))
+                showToast(R.string.queue_added)
+            }
+        }
+    }
+
+    override fun spotifyTrackDownload(track: SpotifyTrack) {
+        songDownloader.enqueue(listOf(track))
+        showToast(getString(R.string.download_queued_toast, 1))
+    }
+
+    override fun spotifyPlaylistClick(playlist: SpotifyPlaylist) {
+        findNavController().navigate(R.id.nav_spotify_playlist, spotifyPlaylistArgs(playlist.id))
+    }
+
+    override fun spotifyArtistClick(artist: SpotifyArtist) {
+        findNavController().navigate(
+            R.id.nav_spotify_artist,
+            Bundle().apply {
+                putString("artistId", artist.id)
+                putString("artistName", artist.name)
+                putString("artistImageUrl", artist.imageUrl)
+            }
+        )
+    }
+
+    override fun spotifyAlbumClick(album: SpotifyAlbum) {
+        findNavController().navigate(R.id.nav_spotify_album, SpotifyAlbumFragment.args(album))
     }
 
     private fun search(query: String?) {

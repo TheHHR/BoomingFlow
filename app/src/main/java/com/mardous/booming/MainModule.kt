@@ -99,7 +99,7 @@ val networkModule = module {
     single { MusicBrainzService(client = get()) }
     single { LyricsDownloadService(client = get()) }
     single { QueueStateHolder() }
-    single { com.mardous.booming.online.download.SongDownloader(androidContext()) }
+    single { com.mardous.booming.online.download.SongDownloader(androidContext(), get()) }
 }
 
 private val mainModule = module {
@@ -289,7 +289,7 @@ private val dataModule = module {
 
 private val viewModule = module {
     viewModel {
-        LibraryViewModel(repository = get(), inclExclDao = get(), customPlaylistImageManager = get())
+        LibraryViewModel(repository = get(), inclExclDao = get(), customPlaylistImageManager = get(), songDownloader = get())
     }
 
     viewModel {
@@ -394,7 +394,11 @@ private val viewModule = module {
     }
 
     viewModel {
-        com.mardous.booming.ui.screen.discover.SpotifySearchViewModel(application = androidApplication())
+        com.mardous.booming.ui.screen.discover.SpotifyArtistViewModel(application = androidApplication())
+    }
+
+    viewModel {
+        com.mardous.booming.ui.screen.discover.SpotifyAlbumViewModel(application = androidApplication())
     }
 
     viewModel {
