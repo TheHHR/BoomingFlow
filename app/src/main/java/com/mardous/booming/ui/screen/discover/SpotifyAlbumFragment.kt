@@ -72,10 +72,14 @@ class SpotifyAlbumFragment : AbsMainActivityFragment(R.layout.fragment_detail_li
         }
 
         trackAdapter = SpotifyTrackAdapter(
+            requireActivity(),
             onTrackClick = { index -> playTrackAt(index) },
             onPlayNext = { index -> playNextAt(index) },
             onAddToQueue = { index -> enqueueAt(index) },
-            onDownload = { index -> downloadAt(index) }
+            onDownload = { index -> downloadAt(index) },
+            onMultipleItemsAction = { menuItem, songs ->
+                handleOnlineSongsMenu(menuItem, songs)
+            }
         )
         binding.recyclerView.adapter = trackAdapter
 
@@ -106,8 +110,39 @@ class SpotifyAlbumFragment : AbsMainActivityFragment(R.layout.fragment_detail_li
         }
     }
 
+    private fun handleOnlineSongsMenu(menuItem: android.view.MenuItem, songs: List<com.mardous.booming.data.model.Song>) {
+        val tracks = songs.mapNotNull { song ->
+            viewModel.tracks.value.firstOrNull { it.id == song.data.removePrefix("yt:") }
+        }
+        when (menuItem.itemId) {
+            com.mardous.booming.R.id.action_play_next,
+            com.mardous.booming.R.id.action_add_to_playing_queue -> {
+                viewLifecycleOwner.lifecycleScope.launch {
+                    val items = withContext(Dispatchers.IO) { tracks.mapNotNull { it.resolveForPlayback() } }
+                    if (items.isNotEmpty()) {
+                        if (menuItem.itemId == com.mardous.booming.R.id.action_play_next) {
+                            playerViewModel.playOnlineQueueNext(items)
+                            showToast(com.mardous.booming.R.string.queue_added_next)
+                        } else {
+                            playerViewModel.addOnlineQueue(items)
+                            showToast(com.mardous.booming.R.string.queue_added)
+                        }
+                    }
+                }
+            }
+
+            com.mardous.booming.R.id.action_add_to_playlist -> {
+                com.mardous.booming.ui.dialogs.playlists.AddToPlaylistDialog.create(songs)
+                    .show(childFragmentManager, "ADD_TO_PLAYLIST")
+            }
+
+            else -> showToast(com.mardous.booming.R.string.remote_action_unavailable)
+        }
+    }
+
     private fun playTrackAt(index: Int) {
-        val track = viewModel.tracks.value.getOrNull(index) ?: return
+        val tracks = viewModel.tracks.value
+        val track = tracks.getOrNull(index) ?: return
         viewLifecycleOwner.lifecycleScope.launch {
             val item = withContext(Dispatchers.IO) { track.resolveForPlayback() }
             if (item == null) {
@@ -116,8 +151,20 @@ class SpotifyAlbumFragment : AbsMainActivityFragment(R.layout.fragment_detail_li
             }
             playerViewModel.playOnlineQueue(listOf(item))
             viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
-                val rest = viewModel.tracks.value.drop(index + 1)
+                val rest = tracks.drop(index + 1)
                 playerViewModel.addOnlineQueue(rest.resolveBatchForPlayback(20))
+            }
+            if (index > 0) {
+                viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+                    var insertIndex = 0
+                    tracks.take(index).chunked(20).forEach { chunk ->
+                        val items = chunk.resolveBatchForPlayback(20)
+                        if (items.isNotEmpty()) {
+                            playerViewModel.addOnlineQueueAt(insertIndex, items)
+                            insertIndex += items.size
+                        }
+                    }
+                }
             }
         }
     }

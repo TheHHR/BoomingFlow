@@ -83,12 +83,18 @@ class SearchViewModel(private val repository: Repository) : ViewModel() {
                 val albums = if (mode == null || mode == SearchQuery.FilterMode.Albums) {
                     SpotifyClient.searchAlbums(text)
                 } else emptyList()
+                val canLoadMore = when (mode) {
+                    SearchQuery.FilterMode.Playlists -> playlists.size >= SPOTIFY_SMALL_PAGE
+                    SearchQuery.FilterMode.Artists -> artists.size >= SPOTIFY_SMALL_PAGE
+                    SearchQuery.FilterMode.Albums -> albums.size >= SPOTIFY_SMALL_PAGE
+                    else -> tracks.size >= SPOTIFY_PAGE
+                }
                 SpotifySearchResults(
                     tracks = tracks,
                     playlists = playlists,
                     artists = artists,
                     albums = albums,
-                    canLoadMore = tracks.size >= SPOTIFY_PAGE
+                    canLoadMore = canLoadMore
                 )
             } catch (e: Exception) {
                 null
@@ -103,24 +109,66 @@ class SearchViewModel(private val repository: Repository) : ViewModel() {
         if (!current.canLoadMore) return
         val query = searchQuery.value
         val mode = query.filterMode
-        if (mode != null && mode != SearchQuery.FilterMode.Songs) return
         val text = query.searched ?: return
         if (text.isBlank()) return
         loadingMoreSpotify = true
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val more = SpotifyClient.searchTracks(text, limit = SPOTIFY_PAGE, offset = spotifyOffset + SPOTIFY_PAGE)
-                spotifyOffset += SPOTIFY_PAGE
-                if (more.isNotEmpty()) {
-                    _spotifyResult.value = current.copy(tracks = current.tracks + more, canLoadMore = more.size >= SPOTIFY_PAGE)
-                } else {
-                    _spotifyResult.value = current.copy(canLoadMore = false)
+                val pageSize = when (mode) {
+                    SearchQuery.FilterMode.Playlists,
+                    SearchQuery.FilterMode.Artists,
+                    SearchQuery.FilterMode.Albums -> SPOTIFY_SMALL_PAGE
+                    else -> SPOTIFY_PAGE
+                }
+                val offset = spotifyOffset + pageSize
+                when (mode) {
+                    SearchQuery.FilterMode.Playlists -> {
+                        val more = SpotifyClient.searchPlaylists(text, limit = pageSize, offset = offset)
+                        spotifyOffset = offset
+                        updateOrFinish(current, more, pageSize) { c, items, canMore ->
+                            c.copy(playlists = c.playlists + items, canLoadMore = canMore)
+                        }
+                    }
+                    SearchQuery.FilterMode.Artists -> {
+                        val more = SpotifyClient.searchArtists(text, limit = pageSize, offset = offset)
+                        spotifyOffset = offset
+                        updateOrFinish(current, more, pageSize) { c, items, canMore ->
+                            c.copy(artists = c.artists + items, canLoadMore = canMore)
+                        }
+                    }
+                    SearchQuery.FilterMode.Albums -> {
+                        val more = SpotifyClient.searchAlbums(text, limit = pageSize, offset = offset)
+                        spotifyOffset = offset
+                        updateOrFinish(current, more, pageSize) { c, items, canMore ->
+                            c.copy(albums = c.albums + items, canLoadMore = canMore)
+                        }
+                    }
+                    else -> {
+                        val more = SpotifyClient.searchTracks(text, limit = pageSize, offset = offset)
+                        spotifyOffset = offset
+                        updateOrFinish(current, more, pageSize) { c, items, canMore ->
+                            c.copy(tracks = c.tracks + items, canLoadMore = canMore)
+                        }
+                    }
                 }
             } catch (_: Exception) {
                 // Keep current results; scrolling again retries.
             } finally {
                 loadingMoreSpotify = false
             }
+        }
+    }
+
+    private fun <T> updateOrFinish(
+        current: SpotifySearchResults,
+        more: List<T>,
+        pageSize: Int,
+        merge: (SpotifySearchResults, List<T>, Boolean) -> SpotifySearchResults
+    ) {
+        _spotifyResult.value = if (more.isNotEmpty()) {
+            merge(current, more, more.size >= pageSize)
+        } else {
+            current.copy(canLoadMore = false)
         }
     }
 
@@ -157,5 +205,6 @@ class SearchViewModel(private val repository: Repository) : ViewModel() {
 
     companion object {
         private const val SPOTIFY_PAGE = 20
+        private const val SPOTIFY_SMALL_PAGE = 10
     }
 }

@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -48,6 +49,19 @@ class PlaylistDownloadSheet : BottomSheetDialogFragment() {
         val downloadButton = view.findViewById<MaterialButton>(R.id.download_button)
 
         val downloadedIds = songDownloader.downloadedSpotifyTrackIds()
+        val playlistKey = playlistFragment?.playlistKey
+        val autoDownload = view.findViewById<MaterialCheckBox>(R.id.auto_download)
+        if (playlistKey != null) {
+            autoDownload.isChecked = DownloadRegistry.autoDownload(requireContext(), playlistKey)
+            autoDownload.setOnCheckedChangeListener { _, checked ->
+                DownloadRegistry.setAutoDownload(requireContext(), playlistKey, checked)
+                if (checked) {
+                    playlistFragment?.startAutoDownload()
+                }
+            }
+        } else {
+            autoDownload.isVisible = false
+        }
         hideDownloaded.isChecked = DownloadRegistry.hideDownloaded(requireContext())
         hideDownloaded.setOnCheckedChangeListener { _, checked ->
             rebuildList(recycler, selectAll, downloadButton, downloadedIds, checked)

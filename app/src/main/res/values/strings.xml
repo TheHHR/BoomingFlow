@@ -1135,6 +1135,7 @@
     <string name="downloads_manager_title">Downloads</string>
     <string name="favorite_download_started">Downloading — the song will keep playing from your library once finished</string>
     <string name="downloads_hide_downloaded">Hide downloaded</string>
+    <string name="downloads_auto_download">Auto download</string>
     <string name="downloads_empty">No downloads yet</string>
     <string name="download_state_queued">Queued</string>
     <string name="download_state_done">Done</string>

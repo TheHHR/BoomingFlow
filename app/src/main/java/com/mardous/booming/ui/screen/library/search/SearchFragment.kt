@@ -110,7 +110,6 @@ class SearchFragment : AbsMainActivityFragment(R.layout.fragment_search),
     private val songDownloader: com.mardous.booming.online.download.SongDownloader by inject()
 
     private lateinit var searchAdapter: SearchAdapter
-    private lateinit var voiceSearchLauncher: ActivityResultLauncher<Intent>
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -177,7 +176,6 @@ class SearchFragment : AbsMainActivityFragment(R.layout.fragment_search),
         binding.toolbar.setNavigationOnClickListener {
             findNavController().navigateUp()
         }
-        binding.voiceSearch.setOnClickListener(this)
         binding.clearText.setOnClickListener(this)
         binding.modeButtonGroup.addOnButtonCheckedListener(this)
         binding.searchView.apply {
@@ -210,14 +208,6 @@ class SearchFragment : AbsMainActivityFragment(R.layout.fragment_search),
                 binding.keyboardPopup.hide()
             } else {
                 binding.keyboardPopup.show()
-            }
-        }
-
-        voiceSearchLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-            if (it.resultCode == Activity.RESULT_OK && it.data != null) {
-                val result = it.data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
-                val newQuery = result?.get(0)
-                binding.searchView.setText(newQuery, TextView.BufferType.EDITABLE)
             }
         }
 
@@ -274,7 +264,6 @@ class SearchFragment : AbsMainActivityFragment(R.layout.fragment_search),
 
     override fun onClick(view: View) {
         when (view) {
-            binding.voiceSearch -> startVoiceSearch()
             binding.clearText -> binding.searchView.text?.clear()
         }
     }
@@ -521,26 +510,8 @@ class SearchFragment : AbsMainActivityFragment(R.layout.fragment_search),
     private fun search(query: String?) {
         if (query == null) return
         TransitionManager.beginDelayedTransition(binding.appBar)
-        binding.voiceSearch.isGone = query.isNotEmpty()
         binding.clearText.isVisible = query.isNotEmpty()
         viewModel.updateQuery(query = query)
-    }
-
-    private fun startVoiceSearch() {
-        val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
-            putExtra(
-                RecognizerIntent.EXTRA_LANGUAGE_MODEL,
-                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
-            )
-            putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault())
-            putExtra(RecognizerIntent.EXTRA_PROMPT, getString(R.string.search_hint))
-        }
-        try {
-            voiceSearchLauncher.launch(intent)
-        } catch (e: ActivityNotFoundException) {
-            e.printStackTrace()
-            showToast(R.string.speech_not_supported)
-        }
     }
 
     private fun hideSoftKeyboard() {

@@ -19,6 +19,11 @@ import java.util.concurrent.ConcurrentHashMap
 
 private val spotifyResolutionCache = ConcurrentHashMap<String, OnlineQueueItem>()
 
+/** YouTube video id -> Spotify track id, recorded while resolving for playback. */
+private val videoIdToTrackId = ConcurrentHashMap<String, String>()
+
+fun spotifyTrackIdFor(videoId: String): String? = videoIdToTrackId[videoId]
+
 suspend fun SpotifyTrack.resolveForPlayback(): OnlineQueueItem? {
     val key = id.ifEmpty { buildSearchQuery() }
 
@@ -57,6 +62,10 @@ suspend fun SpotifyTrack.resolveForPlayback(): OnlineQueueItem? {
     val match = searchResult.items.filterIsInstance<SearchItem.Song>().firstOrNull()?.song
         ?: searchResult.items.filterIsInstance<SearchItem.TopResult>().firstOrNull()?.song
         ?: return null
+
+    if (id.isNotBlank()) {
+        videoIdToTrackId[match.videoId] = id
+    }
 
     val item = buildOnlineQueueItem(
         videoId = match.videoId,

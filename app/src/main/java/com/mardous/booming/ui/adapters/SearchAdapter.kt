@@ -174,6 +174,10 @@ class SearchAdapter(
 
             SPOTIFY_TRACK -> {
                 val track = dataSet[position] as com.mardous.booming.online.data.spotify.SpotifyTrack
+                val identifier = getIdentifier(position)
+                val isChecked = identifier?.let { isChecked(it) } == true
+                holder.isActivated = isChecked
+                holder.menu?.isGone = isChecked
                 holder.title?.text = track.name
                 val parts = buildList {
                     if (track.explicit) add("E")
@@ -273,8 +277,12 @@ class SearchAdapter(
                 PLAYLIST -> callback?.playlistClick(item as PlaylistWithSongs)
                 SPOTIFY_TRACK -> {
                     val track = item as com.mardous.booming.online.data.spotify.SpotifyTrack
-                    val tracks = dataSet.filterIsInstance<com.mardous.booming.online.data.spotify.SpotifyTrack>()
-                    spotifyCallback?.spotifyTrackClick(track, tracks)
+                    if (isInQuickSelectMode) {
+                        toggleChecked(bindingAdapterPosition)
+                    } else {
+                        val tracks = dataSet.filterIsInstance<com.mardous.booming.online.data.spotify.SpotifyTrack>()
+                        spotifyCallback?.spotifyTrackClick(track, tracks)
+                    }
                 }
                 SPOTIFY_PLAYLIST -> spotifyCallback?.spotifyPlaylistClick(
                     item as com.mardous.booming.online.data.spotify.SpotifyPlaylist
@@ -290,7 +298,7 @@ class SearchAdapter(
 
         override fun onLongClick(view: View): Boolean {
             return when (itemViewType) {
-                SONG -> toggleChecked(bindingAdapterPosition)
+                SONG, SPOTIFY_TRACK -> toggleChecked(bindingAdapterPosition)
                 else -> menu?.let {
                     it.callOnClick()
                     true
@@ -318,7 +326,14 @@ class SearchAdapter(
                         popup.menu.add(0, 2, 1, anchor.context.getString(R.string.action_queue_next))
                         popup.menu.add(0, 3, 2, anchor.context.getString(R.string.action_add_to_playing_queue))
                         popup.menu.add(0, 4, 3, anchor.context.getString(R.string.action_add_to_playlist))
-                        popup.menu.add(0, 5, 4, anchor.context.getString(R.string.download_started_label))
+                        val isDownloaded = com.mardous.booming.online.download.DownloadRegistry
+                            .spotifyTrackUri(track.id) != null
+                        popup.menu.add(
+                            0, 5, 4,
+                            anchor.context.getString(
+                                if (isDownloaded) R.string.download_refresh else R.string.download_started_label
+                            )
+                        )
                         track.album?.takeIf { it.id.isNotBlank() }?.let {
                             popup.menu.add(0, 6, 5, anchor.context.getString(R.string.album))
                         }

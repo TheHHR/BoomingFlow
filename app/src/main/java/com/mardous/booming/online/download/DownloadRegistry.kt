@@ -65,6 +65,13 @@ object DownloadRegistry {
         context?.let { prefs(it).edit().putBoolean("hide_downloaded", value).apply() }
     }
 
+    fun autoDownload(context: Context, playlistKey: String): Boolean =
+        prefs(context).getBoolean("auto_download_$playlistKey", false)
+
+    fun setAutoDownload(context: Context, playlistKey: String, value: Boolean) {
+        prefs(context).edit().putBoolean("auto_download_$playlistKey", value).apply()
+    }
+
     // ── Context-free helpers (app-wide registry initialized at startup) ───────
 
     fun get(videoId: String): String? = appContext?.let { get(it, videoId) }

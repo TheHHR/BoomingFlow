@@ -348,9 +348,12 @@ class SongDownloader(
         title: String,
         artist: String,
         album: String?,
-        thumbnailUrl: String?
+        thumbnailUrl: String?,
+        spotifyTrackId: String? = null
     ) {
         if (videoId.isBlank()) return
+        val trackId = spotifyTrackId
+            ?: com.mardous.booming.online.spotify.spotifyTrackIdFor(videoId)
         worker
         notifyStart()
         scope.launch {
@@ -361,15 +364,18 @@ class SongDownloader(
             val existing = withContext(Dispatchers.IO) { findExistingLocalFile(title, artist, 0) }
             if (existing != null) {
                 DownloadRegistry.put(context, videoId, existing.toString(), title)
+                if (!trackId.isNullOrBlank()) {
+                    DownloadRegistry.put(context, "sp:$trackId", existing.toString(), title)
+                }
                 mark(videoId, title, DownloadProgress.State.DONE, 100)
-                _events.tryEmit(DownloadEvent.Completed(videoId, null))
+                _events.tryEmit(DownloadEvent.Completed(videoId, trackId))
                 enqueuedTrackIds.remove(key)
                 return@launch
             }
             queue.trySend(
                 DownloadTask(
                     videoId = videoId,
-                    spotifyTrackId = null,
+                    spotifyTrackId = trackId,
                     title = title,
                     artist = artist,
                     album = album,
@@ -379,6 +385,44 @@ class SongDownloader(
             )
             _activeCount.value = _activeCount.value + 1
         }
+    }
+
+    /**
+     * Drops registry entries whose file no longer exists (e.g. deleted from
+     * a file manager). Called once at app startup so badges, the downloads
+     * manager and offline playback reflect reality.
+     */
+    fun purgeStaleEntries() {
+        scope.launch {
+            val entries = DownloadRegistry.all(context)
+            var removed = 0
+            for ((key, uri) in entries) {
+                if (key.startsWith("sp:")) continue
+                val alive = runCatching {
+                    context.contentResolver.openInputStream(Uri.parse(uri))?.use { true } ?: false
+                }.getOrDefault(false)
+                if (!alive) {
+                    DownloadRegistry.removeByUri(context, uri)
+                    removed++
+                }
+            }
+            if (removed > 0) {
+                Log.i(TAG, "Purged $removed stale download entries")
+                _events.tryEmit(DownloadEvent.Completed("purge", null))
+            }
+        }
+    }
+
+    /**
+     * Enqueues downloads only for tracks that aren't downloaded yet — used
+     * by the per-playlist "Auto download" option. Never refreshes existing
+     * files, so re-running it on every playlist load is cheap.
+     */
+    fun enqueueMissing(tracks: List<SpotifyTrack>, format: DownloadFormat = DownloadFormat.M4A) {
+        if (tracks.isEmpty()) return
+        val missing = tracks.filterNot { it.id.isNotBlank() && isSpotifyTrackDownloaded(it.id) }
+        if (missing.isEmpty()) return
+        enqueue(missing, format)
     }
 
     fun deleteDownloaded(videoId: String) {

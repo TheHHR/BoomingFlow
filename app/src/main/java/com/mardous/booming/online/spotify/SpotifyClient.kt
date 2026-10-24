@@ -872,9 +872,9 @@ object SpotifyClient {
             }
         }.getOrDefault(emptyList())
 
-    suspend fun searchPlaylists(query: String, limit: Int = 10): List<SpotifyPlaylist> =
+    suspend fun searchPlaylists(query: String, limit: Int = 10, offset: Int = 0): List<SpotifyPlaylist> =
         runCatching {
-            val vars = searchVars(query, limit, 0)
+            val vars = searchVars(query, limit, offset)
             val response = graphqlPost(operationName = "searchDesktop", variables = vars)
             val items = searchEntityItems(response, "playlists", "playlistsV2")
                 ?: return@runCatching emptyList()
@@ -883,9 +883,9 @@ object SpotifyClient {
             }
         }.getOrDefault(emptyList())
 
-    suspend fun searchArtists(query: String, limit: Int = 10): List<SpotifyArtist> =
+    suspend fun searchArtists(query: String, limit: Int = 10, offset: Int = 0): List<SpotifyArtist> =
         runCatching {
-            val vars = searchVars(query, limit, 0)
+            val vars = searchVars(query, limit, offset)
             val response = graphqlPost(operationName = "searchDesktop", variables = vars)
             val items = searchEntityItems(response, "artists")
                 ?: return@runCatching emptyList()
@@ -894,9 +894,9 @@ object SpotifyClient {
             }
         }.getOrDefault(emptyList())
 
-    suspend fun searchAlbums(query: String, limit: Int = 10): List<SpotifyAlbum> =
+    suspend fun searchAlbums(query: String, limit: Int = 10, offset: Int = 0): List<SpotifyAlbum> =
         runCatching {
-            val vars = searchVars(query, limit, 0)
+            val vars = searchVars(query, limit, offset)
             val response = graphqlPost(operationName = "searchDesktop", variables = vars)
             val items = searchEntityItems(response, "albumsV2", "albums")
                 ?: return@runCatching emptyList()

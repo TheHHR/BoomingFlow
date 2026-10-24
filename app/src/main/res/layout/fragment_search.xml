@@ -46,14 +46,6 @@
                     android:layout_weight="0">
 
                     <com.google.android.material.button.MaterialButton
-                        android:id="@+id/voiceSearch"
-                        style="?materialIconButtonStyle"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        app:icon="@drawable/ic_mic_24dp"
-                        app:iconTint="?attr/colorOnSurface" />
-
-                    <com.google.android.material.button.MaterialButton
                         android:id="@+id/clearText"
                         style="?materialIconButtonStyle"
                         android:layout_width="wrap_content"

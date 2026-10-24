@@ -301,6 +301,23 @@ class PlayerViewModel(
         }
     }
 
+    /**
+     * Inserts online items at [index] in the queue — used to place the
+     * tracks preceding a tapped song so remote playlists behave like local
+     * ones (whole playlist queued, tapped song playing).
+     */
+    fun addOnlineQueueAt(index: Int, items: List<OnlineQueueItem>) = viewModelScope.launch {
+        mediaController?.let { controller ->
+            if (items.isNotEmpty()) {
+                withContext(IO) {
+                    items.forEach { repository.registerOnlineSong(it.song.data, it.song) }
+                }
+                val safeIndex = index.coerceIn(0, controller.mediaItemCount)
+                controller.addMediaItems(safeIndex, items.map { it.mediaItem })
+            }
+        }
+    }
+
     fun playOnlineQueueNext(items: List<OnlineQueueItem>) = viewModelScope.launch {
         mediaController?.let { controller ->
             if (items.isNotEmpty()) {
