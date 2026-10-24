@@ -119,6 +119,16 @@ class SearchFragment : AbsMainActivityFragment(R.layout.fragment_search),
         materialSharedAxis(view)
         view.applyHorizontalWindowInsets()
 
+        arguments?.getString(SCOPE_PLAYLIST_KEY)?.let { scopeKey ->
+            val scopeName = arguments?.getString(SCOPE_PLAYLIST_NAME)
+            viewModel.setScope(scopeKey, scopeName)
+        }
+        if (viewModel.isScoped) {
+            binding.filterScrollView.isVisible = false
+            binding.searchView.hint = viewModel.scopePlaylistName
+                ?: getString(R.string.search_hint)
+        }
+
         setupRecyclerView()
 
         viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
@@ -299,6 +309,38 @@ class SearchFragment : AbsMainActivityFragment(R.layout.fragment_search),
         return song.onSongMenu(this, menuItem)
     }
 
+    private fun handleOnlineSongsMenu(menuItem: MenuItem, songs: List<com.mardous.booming.data.model.Song>) {
+        val tracks = songs.mapNotNull { song ->
+            viewModel.searchResult.value.filterIsInstance<SpotifyTrack>()
+                .firstOrNull { it.id == song.data.removePrefix("yt:") }
+        }
+        when (menuItem.itemId) {
+            R.id.action_play_next, R.id.action_add_to_playing_queue -> {
+                viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
+                    val items = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                        tracks.mapNotNull { it.resolveForPlayback() }
+                    }
+                    if (items.isNotEmpty()) {
+                        if (menuItem.itemId == R.id.action_play_next) {
+                            playerViewModel.playOnlineQueueNext(items)
+                            showToast(R.string.queue_added_next)
+                        } else {
+                            playerViewModel.addOnlineQueue(items)
+                            showToast(R.string.queue_added)
+                        }
+                    }
+                }
+            }
+
+            R.id.action_add_to_playlist -> {
+                com.mardous.booming.ui.dialogs.playlists.AddToPlaylistDialog.create(songs)
+                    .show(childFragmentManager, "ADD_TO_PLAYLIST")
+            }
+
+            else -> showToast(R.string.remote_action_unavailable)
+        }
+    }
+
     override fun albumClick(album: Album, sharedElements: Array<Pair<View, String>>) {
         findNavController().navigate(
             R.id.nav_album_detail,
@@ -349,38 +391,6 @@ class SearchFragment : AbsMainActivityFragment(R.layout.fragment_search),
         }
         if (localSongs.isNotEmpty()) {
             localSongs.onSongsMenu(this, menuItem)
-        }
-    }
-
-    private fun handleOnlineSongsMenu(menuItem: MenuItem, songs: List<Song>) {
-        val tracks = songs.mapNotNull { song ->
-            searchAdapter.dataSet.filterIsInstance<SpotifyTrack>()
-                .firstOrNull { it.id == song.data.removePrefix("yt:") }
-        }
-        when (menuItem.itemId) {
-            R.id.action_play_next, R.id.action_add_to_playing_queue -> {
-                viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
-                    val items = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
-                        tracks.mapNotNull { it.resolveForPlayback() }
-                    }
-                    if (items.isNotEmpty()) {
-                        if (menuItem.itemId == R.id.action_play_next) {
-                            playerViewModel.playOnlineQueueNext(items)
-                            showToast(R.string.queue_added_next)
-                        } else {
-                            playerViewModel.addOnlineQueue(items)
-                            showToast(R.string.queue_added)
-                        }
-                    }
-                }
-            }
-
-            R.id.action_add_to_playlist -> {
-                com.mardous.booming.ui.dialogs.playlists.AddToPlaylistDialog.create(songs)
-                    .show(childFragmentManager, "ADD_TO_PLAYLIST")
-            }
-
-            else -> showToast(R.string.remote_action_unavailable)
         }
     }
 
@@ -541,6 +551,8 @@ class SearchFragment : AbsMainActivityFragment(R.layout.fragment_search),
     companion object {
         const val MODE = "mode"
         const val QUERY = "query"
+        const val SCOPE_PLAYLIST_KEY = "scopePlaylistKey"
+        const val SCOPE_PLAYLIST_NAME = "scopePlaylistName"
         private const val FILTER = "filter"
     }
 }

@@ -1,18 +1,16 @@
 package com.mardous.booming.ui.screen.discover
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.mardous.booming.online.data.spotify.SpotifyClient
 import com.mardous.booming.online.data.spotify.SpotifyPlaylist
 import com.mardous.booming.online.data.spotify.SpotifyTrack
+import com.mardous.booming.online.spotify.SpotifyPlaylistCache
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
-import java.io.File
 
 class SpotifyPlaylistViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -30,37 +28,6 @@ class SpotifyPlaylistViewModel(application: Application) : AndroidViewModel(appl
 
     private var loaded = false
 
-    private val json = Json {
-        encodeDefaults = true
-        ignoreUnknownKeys = true
-    }
-
-    @Serializable
-    private data class PlaylistCache(
-        val playlist: SpotifyPlaylist? = null,
-        val tracks: List<SpotifyTrack> = emptyList()
-    )
-
-    private fun cacheDir(): File =
-        File(getApplication<Application>().filesDir, "playlist_cache").apply { mkdirs() }
-
-    private fun cacheFile(key: String): File =
-        File(cacheDir(), "${key.replace(Regex("[^\\w-]"), "_")}.json")
-
-    private fun saveCache(key: String, playlist: SpotifyPlaylist?, tracks: List<SpotifyTrack>) {
-        if (tracks.isEmpty()) return
-        runCatching {
-            cacheFile(key).writeText(json.encodeToString(PlaylistCache(playlist, tracks)))
-        }
-    }
-
-    private fun readCache(key: String): PlaylistCache? = runCatching {
-        val file = cacheFile(key)
-        if (file.exists()) {
-            json.decodeFromString<PlaylistCache>(file.readText())
-        } else null
-    }.getOrNull()
-
     fun load(playlistId: String?) {
         if (loaded) return
         loaded = true
@@ -74,7 +41,7 @@ class SpotifyPlaylistViewModel(application: Application) : AndroidViewModel(appl
         SpotifyClient.playlist(playlistId)
             .onSuccess { playlist = it; _playlist.value = it }
             .onFailure {
-                val cache = readCache(playlistId)
+                val cache = SpotifyPlaylistCache.read(getApplication(), playlistId)
                 if (cache != null && cache.tracks.isNotEmpty()) {
                     cache.playlist?.let { _playlist.value = it }
                     _tracks.value = cache.tracks
@@ -87,6 +54,7 @@ class SpotifyPlaylistViewModel(application: Application) : AndroidViewModel(appl
 
         var offset = 0
         var hasMore = true
+        var anyPageFailed = false
         val allTracks = mutableListOf<SpotifyTrack>()
         while (hasMore) {
             SpotifyClient.playlistTracks(playlistId, limit = 100, offset = offset)
@@ -94,17 +62,24 @@ class SpotifyPlaylistViewModel(application: Application) : AndroidViewModel(appl
                     val pageTracks = page.items.mapNotNull { item ->
                         item.track?.takeUnless { track -> track.isLocal }
                     }
-                    allTracks += pageTracks
+                    for (track in pageTracks) {
+                        if (allTracks.none { it.id == track.id }) {
+                            allTracks.add(track)
+                        }
+                    }
                     _tracks.value = allTracks.toList()
                     offset += page.items.size
-                    hasMore = page.items.size == 100 && offset < page.total
+                    hasMore = page.items.isNotEmpty() && offset < page.total
                 }
-                .onFailure { hasMore = false }
+                .onFailure {
+                    hasMore = false
+                    anyPageFailed = true
+                }
         }
-        if (allTracks.isNotEmpty()) {
-            saveCache(playlistId, playlist, allTracks)
-        } else {
-            readCache(playlistId)?.let { cache ->
+        if (allTracks.isNotEmpty() && !anyPageFailed) {
+            SpotifyPlaylistCache.save(getApplication(), playlistId, playlist, allTracks)
+        } else if (allTracks.isEmpty()) {
+            SpotifyPlaylistCache.read(getApplication(), playlistId)?.let { cache ->
                 if (cache.tracks.isNotEmpty()) {
                     cache.playlist?.let { _playlist.value = it }
                     _tracks.value = cache.tracks
@@ -116,34 +91,42 @@ class SpotifyPlaylistViewModel(application: Application) : AndroidViewModel(appl
 
     private suspend fun loadLikedSongs() {
         _isLiked.value = true
+        val cacheKey = SpotifyPlaylistCache.LIKED_KEY
         var offset = 0
         var hasMore = true
-        var anyPageSucceeded = false
+        var anyPageFailed = false
         val allTracks = mutableListOf<SpotifyTrack>()
         while (hasMore) {
             SpotifyClient.likedSongs(limit = 50, offset = offset)
                 .onSuccess { page ->
-                    anyPageSucceeded = true
-                    allTracks += page.items.mapNotNull { it.track }
+                    val pageTracks = page.items.mapNotNull { it.track }
+                    for (track in pageTracks) {
+                        if (allTracks.none { it.id == track.id }) {
+                            allTracks.add(track)
+                        }
+                    }
                     _tracks.value = allTracks.toList()
                     offset += page.items.size
-                    hasMore = page.items.size == 50 && offset < page.total
+                    // Keep paging while the library total hasn't been reached
+                    // and the API keeps returning items. A short page is NOT
+                    // the end of the list — only total/empty-page is.
+                    hasMore = page.items.isNotEmpty() && offset < page.total
                 }
-                .onFailure { hasMore = false }
+                .onFailure { error ->
+                    Log.w("SpotifyPlaylistVM", "Liked songs page $offset failed", error)
+                    hasMore = false
+                    anyPageFailed = true
+                }
         }
-        if (allTracks.isNotEmpty()) {
-            saveCache(LIKED_CACHE_KEY, null, allTracks)
-        } else if (!anyPageSucceeded) {
-            readCache(LIKED_CACHE_KEY)?.let { cache ->
+        if (allTracks.isNotEmpty() && !anyPageFailed) {
+            SpotifyPlaylistCache.save(getApplication(), cacheKey, null, allTracks)
+        } else if (allTracks.isEmpty()) {
+            SpotifyPlaylistCache.read(getApplication(), cacheKey)?.let { cache ->
                 if (cache.tracks.isNotEmpty()) {
                     _tracks.value = cache.tracks
                 }
             }
         }
         _loading.value = false
-    }
-
-    companion object {
-        private const val LIKED_CACHE_KEY = "liked"
     }
 }

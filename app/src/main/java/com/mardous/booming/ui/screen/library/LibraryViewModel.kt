@@ -448,7 +448,17 @@ class LibraryViewModel(
             )
             val playlistId: Long = createPlaylist(playlistEntity)
             if (songs.isNotEmpty()) {
-                insertSongs(songs.map { it.toSongEntity(playlistId) })
+                // Online songs must be added as their local-library twins
+                // (downloaded first when needed) — inserting the remote
+                // objects directly produces unplayable fake-id rows.
+                val onlineSongs = songs.filter { it.data.startsWith("yt:") }
+                val localSongs = songs.filterNot { it.data.startsWith("yt:") }
+                if (localSongs.isNotEmpty()) {
+                    insertSongs(localSongs.map { it.toSongEntity(playlistId) })
+                }
+                if (onlineSongs.isNotEmpty() && playlistId != -1L) {
+                    songDownloader.addSongsToPlaylists(onlineSongs, listOf(playlistId))
+                }
             }
             val playlistCreated = (playlistId != -1L)
             val isFavoritePlaylist = repository.checkFavoritePlaylist()?.playListId == playlistId

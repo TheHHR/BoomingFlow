@@ -277,24 +277,13 @@ class SpotifyPlaylistFragment : AbsMainActivityFragment(R.layout.fragment_detail
         )
     }
 
-    private var activeQuery: String = ""
-
     private fun applyTracks() {
         val tracks = viewModel.tracks.value
-        val query = activeQuery
-        val filtered = if (query.isBlank()) {
-            tracks
-        } else {
-            tracks.filter { track ->
-                track.name.contains(query, true) ||
-                    track.artists.any { it.name.contains(query, true) }
-            }
-        }
-        trackAdapter.dataSet = filtered
+        trackAdapter.dataSet = tracks
         val loading = viewModel.loading.value
         binding.progressIndicator.isVisible = loading
-        binding.recyclerView.isVisible = !loading && filtered.isNotEmpty()
-        binding.empty.isVisible = !loading && filtered.isEmpty()
+        binding.recyclerView.isVisible = !loading && tracks.isNotEmpty()
+        binding.empty.isVisible = !loading && tracks.isEmpty()
     }
 
     private fun eventTitle(videoId: String): String =
@@ -339,26 +328,6 @@ class SpotifyPlaylistFragment : AbsMainActivityFragment(R.layout.fragment_detail
             updateDownloadMenu(true)
         }
         refreshDownloadedBadges()
-
-        val searchItem = menu.findItem(R.id.action_search)
-        val searchView = searchItem.actionView as? androidx.appcompat.widget.SearchView
-        searchView?.queryHint = getString(R.string.search_hint)
-        searchView?.setOnQueryTextListener(object : androidx.appcompat.widget.SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(query: String?): Boolean = true
-            override fun onQueryTextChange(newText: String?): Boolean {
-                activeQuery = newText.orEmpty().trim()
-                applyTracks()
-                return true
-            }
-        })
-        searchItem.setOnActionExpandListener(object : MenuItem.OnActionExpandListener {
-            override fun onMenuItemActionExpand(item: MenuItem): Boolean = true
-            override fun onMenuItemActionCollapse(item: MenuItem): Boolean {
-                activeQuery = ""
-                applyTracks()
-                return true
-            }
-        })
     }
 
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
@@ -370,7 +339,29 @@ class SpotifyPlaylistFragment : AbsMainActivityFragment(R.layout.fragment_detail
             }
             return true
         }
+        if (menuItem.itemId == R.id.action_search) {
+            openScopedSearch()
+            return true
+        }
         return false
+    }
+
+    private fun openScopedSearch() {
+        val name = viewModel.playlist.value?.name
+            ?: if (viewModel.isLiked.value) getString(R.string.liked_songs_label) else null
+        findNavController().navigate(
+            R.id.nav_search,
+            Bundle().apply {
+                putString(
+                    com.mardous.booming.ui.screen.library.search.SearchFragment.SCOPE_PLAYLIST_KEY,
+                    playlistKey
+                )
+                putString(
+                    com.mardous.booming.ui.screen.library.search.SearchFragment.SCOPE_PLAYLIST_NAME,
+                    name
+                )
+            }
+        )
     }
 
     override fun scrollToTop() {

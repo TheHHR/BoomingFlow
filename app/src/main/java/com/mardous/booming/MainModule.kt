@@ -349,7 +349,7 @@ private val viewModule = module {
     }
 
     viewModel {
-        SearchViewModel(repository = get())
+        SearchViewModel(application = androidApplication(), repository = get())
     }
 
     viewModel { (target: EditTarget) ->

@@ -1,6 +1,7 @@
 package com.mardous.booming.ui.screen.library.search
 
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.AndroidViewModel
+import android.app.Application
 import androidx.lifecycle.viewModelScope
 import com.mardous.booming.core.model.action.SongClickBehavior
 import com.mardous.booming.data.SearchFilter
@@ -10,6 +11,7 @@ import com.mardous.booming.data.repository.Repository
 import com.mardous.booming.extensions.media.indexOfSong
 import com.mardous.booming.online.data.spotify.SpotifyClient
 import com.mardous.booming.online.data.spotify.SpotifySearchResults
+import com.mardous.booming.online.spotify.SpotifyPlaylistCache
 import com.mardous.booming.util.Preferences
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
@@ -26,7 +28,24 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
-class SearchViewModel(private val repository: Repository) : ViewModel() {
+class SearchViewModel(
+    application: Application,
+    private val repository: Repository
+) : AndroidViewModel(application) {
+
+    /** Cache key of a remote playlist to search within (scoped mode). */
+    var scopePlaylistKey: String? = null
+        private set
+
+    val isScoped: Boolean get() = scopePlaylistKey != null
+
+    fun setScope(playlistKey: String?, playlistName: String?) {
+        scopePlaylistKey = playlistKey
+        scopePlaylistName = playlistName
+    }
+
+    var scopePlaylistName: String? = null
+        private set
 
     private val searchQuery = MutableStateFlow(SearchQuery())
 
@@ -52,9 +71,32 @@ class SearchViewModel(private val repository: Repository) : ViewModel() {
             .debounce(300)
             .distinctUntilChanged()
             .onEach { (query, filter) ->
+                if (isScoped) {
+                    // Scoped mode: filter the remote playlist's cached track
+                    // list client-side; no library or web search involved.
+                    val text = query.searched.orEmpty()
+                    val scope = scopePlaylistKey
+                    _searchResult.value = if (text.isBlank() || scope == null) {
+                        emptyList()
+                    } else {
+                        SpotifyPlaylistCache.loadTracks(getApplication(), scope)
+                            .filter { track ->
+                                track.name.contains(text, true) ||
+                                    track.artists.any { it.name.contains(text, true) }
+                            }
+                    }
+                    _spotifyResult.value = null
+                    return@onEach
+                }
                 val result = repository.search(query, filter)
                 _searchResult.value = result
-                executeSpotifySearch(query)
+                // Category-restricted searches (opened from a detail screen)
+                // are library-only: no Spotify web results.
+                if (filter != null) {
+                    _spotifyResult.value = null
+                } else {
+                    executeSpotifySearch(query)
+                }
             }
             .flowOn(Dispatchers.IO)
             .launchIn(viewModelScope)
@@ -75,18 +117,20 @@ class SearchViewModel(private val repository: Repository) : ViewModel() {
                     SpotifyClient.searchTracks(text, limit = SPOTIFY_PAGE)
                 } else emptyList()
                 val playlists = if (mode == null || mode == SearchQuery.FilterMode.Playlists) {
-                    SpotifyClient.searchPlaylists(text)
+                    SpotifyClient.searchPlaylists(text, limit = SPOTIFY_PAGE)
                 } else emptyList()
                 val artists = if (mode == null || mode == SearchQuery.FilterMode.Artists) {
-                    SpotifyClient.searchArtists(text)
+                    SpotifyClient.searchArtists(text, limit = SPOTIFY_PAGE)
                 } else emptyList()
                 val albums = if (mode == null || mode == SearchQuery.FilterMode.Albums) {
-                    SpotifyClient.searchAlbums(text)
+                    SpotifyClient.searchAlbums(text, limit = SPOTIFY_PAGE)
                 } else emptyList()
                 val canLoadMore = when (mode) {
-                    SearchQuery.FilterMode.Playlists -> playlists.size >= SPOTIFY_SMALL_PAGE
-                    SearchQuery.FilterMode.Artists -> artists.size >= SPOTIFY_SMALL_PAGE
-                    SearchQuery.FilterMode.Albums -> albums.size >= SPOTIFY_SMALL_PAGE
+                    // The API caps album pages at ~10 regardless of the limit,
+                    // so any returned albums mean more are available.
+                    SearchQuery.FilterMode.Albums -> albums.isNotEmpty()
+                    SearchQuery.FilterMode.Playlists -> playlists.size >= SPOTIFY_PAGE
+                    SearchQuery.FilterMode.Artists -> artists.size >= SPOTIFY_PAGE
                     else -> tracks.size >= SPOTIFY_PAGE
                 }
                 SpotifySearchResults(
@@ -104,6 +148,7 @@ class SearchViewModel(private val repository: Repository) : ViewModel() {
     }
 
     fun loadMoreSpotify() {
+        if (isScoped) return
         if (loadingMoreSpotify) return
         val current = _spotifyResult.value ?: return
         if (!current.canLoadMore) return
@@ -114,12 +159,7 @@ class SearchViewModel(private val repository: Repository) : ViewModel() {
         loadingMoreSpotify = true
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val pageSize = when (mode) {
-                    SearchQuery.FilterMode.Playlists,
-                    SearchQuery.FilterMode.Artists,
-                    SearchQuery.FilterMode.Albums -> SPOTIFY_SMALL_PAGE
-                    else -> SPOTIFY_PAGE
-                }
+                val pageSize = SPOTIFY_PAGE
                 val offset = spotifyOffset + pageSize
                 when (mode) {
                     SearchQuery.FilterMode.Playlists -> {
@@ -139,8 +179,10 @@ class SearchViewModel(private val repository: Repository) : ViewModel() {
                     SearchQuery.FilterMode.Albums -> {
                         val more = SpotifyClient.searchAlbums(text, limit = pageSize, offset = offset)
                         spotifyOffset = offset
-                        updateOrFinish(current, more, pageSize) { c, items, canMore ->
-                            c.copy(albums = c.albums + items, canLoadMore = canMore)
+                        _spotifyResult.value = if (more.isNotEmpty()) {
+                            current.copy(albums = current.albums + more, canLoadMore = true)
+                        } else {
+                            current.copy(canLoadMore = false)
                         }
                     }
                     else -> {
@@ -205,6 +247,5 @@ class SearchViewModel(private val repository: Repository) : ViewModel() {
 
     companion object {
         private const val SPOTIFY_PAGE = 20
-        private const val SPOTIFY_SMALL_PAGE = 10
     }
 }

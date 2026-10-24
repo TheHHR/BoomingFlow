@@ -5,8 +5,7 @@
         android:id="@+id/action_search"
         android:icon="@drawable/ic_search_24dp"
         android:title="@string/search_label"
-        app:actionViewClass="androidx.appcompat.widget.SearchView"
-        app:showAsAction="always|collapseActionView"/>
+        app:showAsAction="ifRoom"/>
     <item
         android:id="@+id/action_download"
         android:icon="@drawable/ic_download_24dp"

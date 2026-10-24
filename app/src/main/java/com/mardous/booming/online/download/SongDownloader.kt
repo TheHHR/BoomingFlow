@@ -159,28 +159,54 @@ class SongDownloader(
         if (playlistIds.isEmpty()) return
         val localSongs = mutableListOf<com.mardous.booming.data.model.Song>()
         for (song in songs) {
-            val videoId = song.data.removePrefix("yt:")
-            if (videoId.isBlank()) {
+            val key = song.data.removePrefix("yt:")
+            if (key.isBlank()) {
                 localSongs.add(song)
                 continue
             }
-            val uri = registeredUri(videoId)
+            val uri = registeredUri(key)
             val realSong = uri?.let { repository.songsByUri(Uri.parse(it)).firstOrNull() }
             if (realSong != null && realSong != com.mardous.booming.data.model.Song.emptySong) {
                 localSongs.add(realSong)
-            } else {
-                val pending = pendingPlaylistAdditions.getOrPut(videoId) {
-                    java.util.concurrent.ConcurrentHashMap.newKeySet()
-                }
-                pending.addAll(playlistIds)
-                enqueueRemote(
-                    videoId = videoId,
-                    title = song.title,
-                    artist = song.artistName,
-                    album = song.albumName.takeIf { it.isNotBlank() },
-                    thumbnailUrl = song.uri.takeIf { it.scheme == "https" || it.scheme == "http" }?.toString()
-                )
+                continue
             }
+            // Not downloaded. The key may be a Spotify track id (from search
+            // surrogates) or a YouTube video id (from the player queue) —
+            // resolve an actual YouTube video id before enqueueing.
+            val ytVideoId = if (key.length == 11 && key.all { it.isLetterOrDigit() || it == '-' || it == '_' }) {
+                key
+            } else {
+                runCatching {
+                    com.mardous.booming.online.data.innertube.YouTubeMusic
+                        .search("${song.title} ${song.artistName}", com.mardous.booming.online.data.innertube.SearchFilter.SONGS)
+                        .getOrNull()
+                        ?.items
+                        ?.filterIsInstance<com.mardous.booming.online.data.innertube.SearchItem.Song>()
+                        ?.firstOrNull()?.song?.videoId
+                }.getOrNull()
+            }
+            if (ytVideoId == null) {
+                OnlineToast.show(context.getString(R.string.no_youtube_match_found, song.title))
+                continue
+            }
+            if (key != ytVideoId) {
+                com.mardous.booming.online.spotify.rememberVideoIdMapping(ytVideoId, key)
+            }
+            val pending = pendingPlaylistAdditions.getOrPut(ytVideoId) {
+                java.util.concurrent.ConcurrentHashMap.newKeySet()
+            }
+            pending.addAll(playlistIds)
+            enqueueRemote(
+                videoId = ytVideoId,
+                title = song.title,
+                artist = song.artistName,
+                album = song.albumName.takeIf { it.isNotBlank() },
+                thumbnailUrl = song.uri.takeIf {
+                    it.scheme == "https" &&
+                        (it.host?.contains("scdn.co") == true || it.host?.contains("ytimg.com") == true)
+                }?.toString(),
+                spotifyTrackId = key.takeIf { it != ytVideoId }
+            )
         }
         if (localSongs.isNotEmpty()) {
             for (playlistId in playlistIds) {

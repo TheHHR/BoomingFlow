@@ -24,6 +24,13 @@ private val videoIdToTrackId = ConcurrentHashMap<String, String>()
 
 fun spotifyTrackIdFor(videoId: String): String? = videoIdToTrackId[videoId]
 
+/** Records that [spotifyTrackId] backs [videoId] so later downloads register both keys. */
+fun rememberVideoIdMapping(videoId: String, spotifyTrackId: String) {
+    if (spotifyTrackId.isNotBlank()) {
+        videoIdToTrackId[videoId] = spotifyTrackId
+    }
+}
+
 suspend fun SpotifyTrack.resolveForPlayback(): OnlineQueueItem? {
     val key = id.ifEmpty { buildSearchQuery() }
 
@@ -64,7 +71,7 @@ suspend fun SpotifyTrack.resolveForPlayback(): OnlineQueueItem? {
         ?: return null
 
     if (id.isNotBlank()) {
-        videoIdToTrackId[match.videoId] = id
+        rememberVideoIdMapping(match.videoId, id)
     }
 
     val item = buildOnlineQueueItem(
