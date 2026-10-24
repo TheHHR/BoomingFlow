@@ -92,6 +92,14 @@ class SpotifyPlaylistViewModel(application: Application) : AndroidViewModel(appl
     private suspend fun loadLikedSongs() {
         _isLiked.value = true
         val cacheKey = SpotifyPlaylistCache.LIKED_KEY
+
+        // Show the cached list instantly while the network refresh runs.
+        val cached = SpotifyPlaylistCache.read(getApplication(), cacheKey)?.tracks.orEmpty()
+        if (cached.isNotEmpty()) {
+            _tracks.value = cached
+            _loading.value = false
+        }
+
         var offset = 0
         var hasMore = true
         var anyPageFailed = false
@@ -105,7 +113,6 @@ class SpotifyPlaylistViewModel(application: Application) : AndroidViewModel(appl
                             allTracks.add(track)
                         }
                     }
-                    _tracks.value = allTracks.toList()
                     offset += page.items.size
                     // Keep paging while the library total hasn't been reached
                     // and the API keeps returning items. A short page is NOT
@@ -118,9 +125,13 @@ class SpotifyPlaylistViewModel(application: Application) : AndroidViewModel(appl
                     anyPageFailed = true
                 }
         }
-        if (allTracks.isNotEmpty() && !anyPageFailed) {
-            SpotifyPlaylistCache.save(getApplication(), cacheKey, null, allTracks)
-        } else if (allTracks.isEmpty()) {
+        if (allTracks.isNotEmpty()) {
+            // Single final emission — no intermediate partial states.
+            _tracks.value = allTracks
+            if (!anyPageFailed) {
+                SpotifyPlaylistCache.save(getApplication(), cacheKey, null, allTracks)
+            }
+        } else if (cached.isEmpty()) {
             SpotifyPlaylistCache.read(getApplication(), cacheKey)?.let { cache ->
                 if (cache.tracks.isNotEmpty()) {
                     _tracks.value = cache.tracks
