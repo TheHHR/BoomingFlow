@@ -48,25 +48,3 @@
 3. Open **Settings → Streaming** to connect your Spotify account (web login or `sp_dc` cookie) and optionally YouTube.
 
 Streaming and Spotify features need a Spotify account and internet; everything local works fully offline.
-
-## Building
-
-```bash
-git clone https://github.com/TheHHR/BoomingFlow.git
-cd BoomingMusic
-./gradlew assembleGithubRelease
-```
-
-- Requires JDK 21 and Android SDK 36.
-- Flavors: `github` (default, built-in updater), `playstore`, `fdroid`.
-- Releases are built by GitHub Actions from version tags (`v1.x.y`).
-
-## Acknowledgements
-
-- [Booming Music](https://github.com/mardous/BoomingMusic) by Christians Martínez Alvarado — the upstream project this fork is built on (GPL-3.0)
-- [NewPipe Extractor](https://github.com/TeamNewPipe/NewPipeExtractor) — YouTube Music stream resolution
-- [Media3 / ExoPlayer](https://github.com/androidx/media), [Coil](https://github.com/coil-kt/coil), [TagLib](https://taglib.org/) via `io.github.kyant0:taglib`
-
-## License
-
-BoomingFlow is licensed under the [GNU GPL v3](LICENSE.txt), same as upstream Booming Music.
