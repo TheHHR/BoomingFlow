@@ -942,8 +942,6 @@
     <string name="listenbrainz_scrobbling_summary">Automatically submit played tracks to your ListenBrainz listening history.</string>
     <string name="listenbrainz_now_playing_title">Update now playing on ListenBrainz</string>
     <string name="listenbrainz_now_playing_summary">Show the currently playing track on your ListenBrainz profile in real time.</string>
-    <string name="use_spotify_provider_title">Use Spotify provider</string>
-    <string name="use_spotify_provider_summary">Synced lyrics from Spotify\'s catalog (recommended).</string>
     <string name="use_lrclib_provider_title">Use LRCLib provider</string>
     <string name="use_lrclib_provider_summary">Community-driven lyrics database.</string>
     <string name="use_betterlyrics_provider_title">Use BetterLyrics provider</string>
@@ -1128,6 +1126,11 @@
     <string name="download_action_count">Download %1$d tracks</string>
     <string name="download_already_downloaded">Already downloaded</string>
     <string name="download_refresh">Refresh download</string>
+    <string name="download_refreshed">Refreshed: %1$s</string>
+    <string name="favorite_added">Added to Favorites</string>
+    <string name="favorite_download_canceled">Download canceled — song not added</string>
+    <string name="favorite_download_failed">Couldn\'t download — song not added</string>
+    <string name="spotify_section_title">Spotify</string>
     <string name="downloads_manager_title">Downloads</string>
     <string name="favorite_download_started">Downloading — the song will keep playing from your library once finished</string>
     <string name="downloads_hide_downloaded">Hide downloaded</string>
@@ -1137,5 +1140,7 @@
     <string name="download_state_failed">Failed</string>
     <string name="download_failed_track">Couldn\'t download "%1$s"</string>
     <string name="spotify_search_hint">Search Spotify</string>
+    <string name="spotify_artist_subtitle">Top tracks • Spotify</string>
+    <string name="spotify_album_subtitle">Spotify Album</string>
     <string name="download_started_label">Download</string>
 </resources>

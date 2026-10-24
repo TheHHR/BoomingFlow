@@ -1010,66 +1010,34 @@ class PlaybackService :
     }
 
     /**
-     * Online songs are favorited by their downloaded local-library twin when
-     * one exists. Otherwise the online row is favorited immediately (instant
-     * feedback) and a download is kicked off in the background; once it
-     * finishes the row is replaced with the real library song, so the
-     * favorite plays like any local track.
+     * Online songs are favorited via their real local-library twin: if
+     * downloaded, instantly; otherwise the download is triggered and the
+     * favorite applied when it completes (the downloader owns that flow).
      */
     private suspend fun toggleOnlineFavorite(song: Song) {
-        val videoId = song.data.removePrefix("yt:")
-
-        val registeredUri = DownloadRegistry.get(videoId) ?: DownloadRegistry.get("sp:$videoId")
-        if (registeredUri != null) {
-            val realSong = repository.songsByUri(Uri.parse(registeredUri)).firstOrNull()
-            if (realSong != null && realSong != Song.emptySong) {
-                android.util.Log.d(
-                    "BoomingFavorite",
-                    "Toggling favorite via real library song id=${realSong.id}"
-                )
-                repository.toggleFavorite(realSong)
-                return
-            }
-        }
-
-        android.util.Log.d(
-            "BoomingFavorite",
-            "Not downloaded — toggling online row (videoId=$videoId) and enqueueing download"
-        )
-        val added = repository.toggleFavorite(song)
-        if (added) {
-            OnlineToast.show(applicationContext.getString(R.string.favorite_download_started))
-            songDownloader.enqueueRemote(
-                videoId = videoId,
-                title = song.title,
-                artist = song.artistName,
-                album = song.albumName.takeIf { it.isNotBlank() },
-                thumbnailUrl = song.uri.takeIf { it.scheme == "https" || it.scheme == "http" }?.toString()
-            )
+        when (songDownloader.favoriteRemoteSong(song)) {
+            com.mardous.booming.online.download.SongDownloader.FavoriteResult.APPLIED -> Unit
+            com.mardous.booming.online.download.SongDownloader.FavoriteResult.DEFERRED ->
+                OnlineToast.show(applicationContext.getString(R.string.favorite_download_started))
+            com.mardous.booming.online.download.SongDownloader.FavoriteResult.CANCELED ->
+                OnlineToast.show(applicationContext.getString(R.string.favorite_download_canceled))
         }
     }
 
     private fun collectDownloadEvents() {
         serviceScope.launch {
             songDownloader.events.collect { event ->
-                when (event) {
-                    is DownloadEvent.Completed -> {
-                        val replaced = withContext(IO) {
-                            repository.replaceOnlinePlaylistEntry(event.videoId)
-                        }
-                        if (replaced) {
-                            android.util.Log.d(
-                                "BoomingFavorite",
-                                "Replaced online favorite row with real song (videoId=${event.videoId})"
-                            )
-                            widgets.refresh()
-                            mediaSession?.broadcastCustomCommand(
-                                SessionCommand(Playback.EVENT_FAVORITE_CONTENT_CHANGED, Bundle.EMPTY),
-                                Bundle.EMPTY
-                            )
-                        }
+                if (event is DownloadEvent.Completed) {
+                    val replaced = withContext(IO) {
+                        repository.replaceOnlinePlaylistEntry(event.videoId)
                     }
-                    is DownloadEvent.Failed -> Unit
+                    if (replaced) {
+                        widgets.refresh()
+                        mediaSession?.broadcastCustomCommand(
+                            SessionCommand(Playback.EVENT_FAVORITE_CONTENT_CHANGED, Bundle.EMPTY),
+                            Bundle.EMPTY
+                        )
+                    }
                 }
             }
         }

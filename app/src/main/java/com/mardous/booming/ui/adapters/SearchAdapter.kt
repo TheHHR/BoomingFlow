@@ -25,6 +25,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.view.isGone
+import androidx.core.view.isVisible
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
 import coil3.load
@@ -40,6 +41,7 @@ import com.mardous.booming.data.model.Album
 import com.mardous.booming.data.model.Artist
 import com.mardous.booming.data.model.Genre
 import com.mardous.booming.data.model.Song
+import com.mardous.booming.online.data.spotify.thumbnailUrl
 import com.mardous.booming.extensions.media.albumInfo
 import com.mardous.booming.extensions.media.artistInfo
 import com.mardous.booming.extensions.media.asNumberOfSongs
@@ -55,7 +57,8 @@ import kotlin.reflect.KProperty
 class SearchAdapter(
     activity: FragmentActivity,
     dataSet: List<Any>,
-    private val callback: ISearchCallback? = null
+    private val callback: ISearchCallback? = null,
+    private val spotifyCallback: com.mardous.booming.ui.ISpotifySearchCallback? = null
 ) : AbsMultiSelectAdapter<SearchAdapter.ViewHolder, Song>(activity, R.menu.menu_media_selection) {
 
     var dataSet by Delegates.observable(dataSet) { _: KProperty<*>, _: List<Any>, _: List<Any> ->
@@ -76,11 +79,17 @@ class SearchAdapter(
     }
 
     override fun getItemViewType(position: Int): Int {
-        if (dataSet[position] is Album) return ALBUM
-        if (dataSet[position] is Artist) return ARTIST
-        if (dataSet[position] is Song) return SONG
-        if (dataSet[position] is PlaylistWithSongs) return PLAYLIST
-        return if (dataSet[position] is Genre) GENRE else HEADER
+        val item = dataSet[position]
+        if (item is Album) return ALBUM
+        if (item is Artist) return ARTIST
+        if (item is Song) return SONG
+        if (item is PlaylistWithSongs) return PLAYLIST
+        if (item is Genre) return GENRE
+        if (item is com.mardous.booming.online.data.spotify.SpotifyTrack) return SPOTIFY_TRACK
+        if (item is com.mardous.booming.online.data.spotify.SpotifyPlaylist) return SPOTIFY_PLAYLIST
+        if (item is com.mardous.booming.online.data.spotify.SpotifyArtist) return SPOTIFY_ARTIST
+        if (item is com.mardous.booming.online.data.spotify.SpotifyAlbum) return SPOTIFY_ALBUM
+        return HEADER
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -89,7 +98,14 @@ class SearchAdapter(
                 LayoutInflater.from(parent.context).inflate(R.layout.sub_header, parent, false), viewType
             )
         }
-        return ViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_list, parent, false), viewType)
+        val layoutRes = when (viewType) {
+            SPOTIFY_TRACK -> R.layout.item_spotify_track
+            SPOTIFY_PLAYLIST -> R.layout.item_spotify_search_playlist
+            SPOTIFY_ARTIST -> R.layout.item_spotify_artist
+            SPOTIFY_ALBUM -> R.layout.item_spotify_album
+            else -> R.layout.item_list
+        }
+        return ViewHolder(LayoutInflater.from(parent.context).inflate(layoutRes, parent, false), viewType)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
@@ -140,6 +156,56 @@ class SearchAdapter(
                 }
             }
 
+            SPOTIFY_TRACK -> {
+                val track = dataSet[position] as com.mardous.booming.online.data.spotify.SpotifyTrack
+                holder.title?.text = track.name
+                val parts = buildList {
+                    if (track.explicit) add("E")
+                    val artists = track.artists.joinToString { it.name }
+                    if (artists.isNotEmpty()) add(artists)
+                }
+                holder.text?.text = parts.joinToString(" • ")
+                holder.image?.load(track.thumbnailUrl()) {
+                    placeholderDrawableRes(holder.image.context, com.mardous.booming.coil.DEFAULT_SONG_IMAGE)
+                }
+                holder.badge?.isVisible =
+                    com.mardous.booming.online.download.DownloadRegistry.spotifyTrackUri(track.id) != null
+            }
+
+            SPOTIFY_PLAYLIST -> {
+                val playlist = dataSet[position] as com.mardous.booming.online.data.spotify.SpotifyPlaylist
+                holder.title?.text = playlist.name
+                holder.text?.text = holder.itemView.context.getString(
+                    R.string.discover_playlist_subtitle,
+                    playlist.owner?.displayName.orEmpty(),
+                    playlist.tracks?.total ?: 0
+                )
+                holder.image?.load(playlist.thumbnailUrl()) {
+                    placeholderDrawableRes(holder.image.context, com.mardous.booming.coil.DEFAULT_PLAYLIST_IMAGE)
+                }
+            }
+
+            SPOTIFY_ARTIST -> {
+                val artist = dataSet[position] as com.mardous.booming.online.data.spotify.SpotifyArtist
+                holder.title?.text = artist.name
+                holder.image?.load(artist.imageUrl) {
+                    placeholderDrawableRes(holder.image.context, com.mardous.booming.coil.DEFAULT_SONG_IMAGE)
+                }
+            }
+
+            SPOTIFY_ALBUM -> {
+                val album = dataSet[position] as com.mardous.booming.online.data.spotify.SpotifyAlbum
+                holder.title?.text = album.name
+                val subtitle = buildString {
+                    append(album.artistName)
+                    album.year?.let { append(" • $it") }
+                }
+                holder.text?.text = subtitle
+                holder.image?.load(album.imageUrl) {
+                    placeholderDrawableRes(holder.image.context, com.mardous.booming.coil.DEFAULT_ALBUM_IMAGE)
+                }
+            }
+
             else -> holder.title?.text = dataSet[position].toString()
         }
     }
@@ -150,11 +216,13 @@ class SearchAdapter(
 
     inner class ViewHolder(itemView: View, private val itemViewType: Int) :
         RecyclerView.ViewHolder(itemView), View.OnClickListener, View.OnLongClickListener {
-        
+
         val image: ImageView? = itemView.findViewById(R.id.image)
         val title: TextView? = itemView.findViewById(R.id.title)
         val text: TextView? = itemView.findViewById(R.id.text)
         val menu: View? = itemView.findViewById(R.id.menu)
+        val badge: View? = itemView.findViewById(R.id.badge)
+        val index: TextView? = itemView.findViewById(R.id.index)
 
         init {
             itemView.setOnClickListener(this)
@@ -187,6 +255,20 @@ class SearchAdapter(
                 }
                 GENRE -> callback?.genreClick(item as Genre)
                 PLAYLIST -> callback?.playlistClick(item as PlaylistWithSongs)
+                SPOTIFY_TRACK -> {
+                    val track = item as com.mardous.booming.online.data.spotify.SpotifyTrack
+                    val tracks = dataSet.filterIsInstance<com.mardous.booming.online.data.spotify.SpotifyTrack>()
+                    spotifyCallback?.spotifyTrackClick(track, tracks)
+                }
+                SPOTIFY_PLAYLIST -> spotifyCallback?.spotifyPlaylistClick(
+                    item as com.mardous.booming.online.data.spotify.SpotifyPlaylist
+                )
+                SPOTIFY_ARTIST -> spotifyCallback?.spotifyArtistClick(
+                    item as com.mardous.booming.online.data.spotify.SpotifyArtist
+                )
+                SPOTIFY_ALBUM -> spotifyCallback?.spotifyAlbumClick(
+                    item as com.mardous.booming.online.data.spotify.SpotifyAlbum
+                )
             }
         }
 
@@ -210,7 +292,26 @@ class SearchAdapter(
 
         init {
             menu?.apply {
-                visibility = if (menuRes != 0) {
+                if (itemViewType == SPOTIFY_TRACK) {
+                    setOnClickListener { anchor ->
+                        val track = dataSet[bindingAdapterPosition]
+                            as com.mardous.booming.online.data.spotify.SpotifyTrack
+                        val popup = android.widget.PopupMenu(anchor.context, anchor)
+                        popup.menu.add(0, 1, 0, anchor.context.getString(R.string.play_next_label))
+                        popup.menu.add(0, 2, 1, anchor.context.getString(R.string.add_to_queue_label))
+                        popup.menu.add(0, 3, 2, anchor.context.getString(R.string.download_started_label))
+                        popup.setOnMenuItemClickListener { menuItem ->
+                            when (menuItem.itemId) {
+                                1 -> spotifyCallback?.spotifyTrackPlayNext(track)
+                                2 -> spotifyCallback?.spotifyTrackEnqueue(track)
+                                3 -> spotifyCallback?.spotifyTrackDownload(track)
+                            }
+                            true
+                        }
+                        popup.show()
+                    }
+                    visibility = View.VISIBLE
+                } else if (menuRes != 0) {
                     setOnClickListener(object : OnClickMenu() {
                         override val popupMenuRes: Int
                             get() = menuRes
@@ -229,9 +330,9 @@ class SearchAdapter(
                             return false
                         }
                     })
-                    View.VISIBLE
+                    visibility = View.VISIBLE
                 } else {
-                    View.GONE
+                    visibility = View.GONE
                 }
             }
         }
@@ -244,5 +345,9 @@ class SearchAdapter(
         private const val SONG = 3
         private const val PLAYLIST = 4
         private const val GENRE = 5
+        private const val SPOTIFY_TRACK = 6
+        private const val SPOTIFY_PLAYLIST = 7
+        private const val SPOTIFY_ARTIST = 8
+        private const val SPOTIFY_ALBUM = 9
     }
 }

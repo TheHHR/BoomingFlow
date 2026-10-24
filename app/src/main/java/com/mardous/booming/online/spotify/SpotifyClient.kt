@@ -872,36 +872,105 @@ object SpotifyClient {
             }
         }.getOrDefault(emptyList())
 
-    suspend fun artistGenres(artistId: String): String? =
-        runCatching {
-            val token = getEffectiveToken() ?: return@runCatching null
-            val response = restClient.get("https://api.spotify.com/v1/artists/$artistId") {
-                header("Authorization", "Bearer $token")
-            }
-            if (response.status != HttpStatusCode.OK) return@runCatching null
-            val parsed = json.parseToJsonElement(response.bodyAsText()).jsonObject
-            parsed.arr("genres")
-                ?.mapNotNull { it.jsonPrimitive.contentOrNull }
-                ?.firstOrNull { it.isNotBlank() }
-        }.getOrNull()
-
     suspend fun searchPlaylists(query: String, limit: Int = 10): List<SpotifyPlaylist> =
         runCatching {
-            val vars = buildJsonObject {
-                put("searchTerm", query)
-                put("offset", 0)
-                put("limit", limit)
-                put("numberOfTopResults", 0)
-                put("includeAudiobooks", false)
-                put("includeArtistHasConcertsField", false)
-                put("includePreReleases", false)
-                put("includeLocalConcertsField", false)
-            }
+            val vars = searchVars(query, limit, 0)
             val response = graphqlPost(operationName = "searchDesktop", variables = vars)
             val items = searchEntityItems(response, "playlists", "playlistsV2")
                 ?: return@runCatching emptyList()
             items.mapNotNull { elem ->
                 parseSearchPlaylist(elem.jsonObject)
+            }
+        }.getOrDefault(emptyList())
+
+    suspend fun searchArtists(query: String, limit: Int = 10): List<SpotifyArtist> =
+        runCatching {
+            val vars = searchVars(query, limit, 0)
+            val response = graphqlPost(operationName = "searchDesktop", variables = vars)
+            val items = searchEntityItems(response, "artists")
+                ?: return@runCatching emptyList()
+            items.mapNotNull { elem ->
+                parseSearchArtist(elem.jsonObject)
+            }
+        }.getOrDefault(emptyList())
+
+    suspend fun searchAlbums(query: String, limit: Int = 10): List<SpotifyAlbum> =
+        runCatching {
+            val vars = searchVars(query, limit, 0)
+            val response = graphqlPost(operationName = "searchDesktop", variables = vars)
+            val items = searchEntityItems(response, "albums")
+                ?: return@runCatching emptyList()
+            items.mapNotNull { elem ->
+                parseSearchAlbum(elem.jsonObject)
+            }
+        }.getOrDefault(emptyList())
+
+    private fun searchVars(query: String, limit: Int, offset: Int): JsonObject =
+        buildJsonObject {
+            put("searchTerm", query)
+            put("offset", offset)
+            put("limit", limit)
+            put("numberOfTopResults", 0)
+            put("includeAudiobooks", false)
+            put("includeArtistHasConcertsField", false)
+            put("includePreReleases", false)
+            put("includeLocalConcertsField", false)
+        }
+
+    /**
+     * An artist's top tracks via the queryArtistOverview GQL operation,
+     * with a REST fallback.
+     */
+    suspend fun artistTopTracks(artistId: String, limit: Int = 10): List<SpotifyTrack> {
+        val gql = runCatching {
+            val vars = buildJsonObject {
+                put("artistUri", "spotify:artist:$artistId")
+                put("locale", "en")
+                put("includePrerelease", false)
+            }
+            val response = graphqlPost(operationName = "queryArtistOverview", variables = vars)
+            val items = response.obj("data")?.obj("artistOverview")
+                ?.obj("discography")?.obj("topTracks")?.arr("items")
+                ?: return@runCatching emptyList()
+            items.mapNotNull { elem ->
+                val trackData = elem.jsonObject.obj("track")?.obj("data")
+                    ?: elem.jsonObject.obj("data")
+                    ?: return@mapNotNull null
+                parseGqlTrack(trackData)
+            }.take(limit)
+        }.getOrDefault(emptyList())
+        if (gql.isNotEmpty()) return gql
+
+        return runCatching {
+            val token = getEffectiveToken() ?: return@runCatching emptyList()
+            val response = restClient.get("https://api.spotify.com/v1/artists/$artistId/top-tracks") {
+                header("Authorization", "Bearer $token")
+                parameter("market", "from_token")
+            }
+            if (response.status != HttpStatusCode.OK) return@runCatching emptyList()
+            val parsed = json.parseToJsonElement(response.bodyAsText()).jsonObject
+            val items = parsed.arr("tracks") ?: return@runCatching emptyList()
+            items.mapNotNull { parseRestTrack(it.jsonObject) }.take(limit)
+        }.getOrDefault(emptyList())
+    }
+
+    /** An album's tracks via the getAlbum GQL operation. */
+    suspend fun albumTracks(albumId: String, limit: Int = 50): List<SpotifyTrack> =
+        runCatching {
+            val vars = buildJsonObject {
+                put("uri", "spotify:album:$albumId")
+                put("offset", 0)
+                put("limit", limit)
+            }
+            val response = graphqlPost(operationName = "getAlbum", variables = vars)
+            val items = response.obj("data")?.obj("album")?.obj("tracks")?.arr("items")
+                ?: return@runCatching emptyList()
+            items.mapNotNull { elem ->
+                val obj = elem.jsonObject
+                val trackData = obj.obj("track")?.obj("data")
+                    ?: obj.obj("data")
+                    ?: obj
+                parseGqlTrack(trackData)
             }
         }.getOrDefault(emptyList())
 
@@ -930,6 +999,89 @@ object SpotifyClient {
                     ?: data.obj("images")?.arr("sources")
             ),
             owner = owner,
+        )
+    }
+
+    private fun parseSearchArtist(source: JsonObject): SpotifyArtist? {
+        val data = source.obj("data") ?: source
+        val uri = data.str("uri") ?: return null
+        if (!uri.startsWith("spotify:artist:")) return null
+        val id = uri.removePrefix("spotify:artist:")
+        val name = data.obj("profile")?.str("name")
+            ?: data.str("name") ?: return null
+        val image = data.obj("visuals")?.obj("avatarImage")?.arr("sources")?.firstOrNull()
+            ?.jsonObject?.str("url")
+            ?: data.obj("images")?.arr("items")?.firstOrNull()?.jsonObject
+                ?.arr("sources")?.firstOrNull()?.jsonObject?.str("url")
+            ?: data.obj("images")?.arr("sources")?.firstOrNull()?.jsonObject?.str("url")
+        return SpotifyArtist(
+            id = id,
+            name = name,
+            imageUrl = image
+        )
+    }
+
+    private fun parseSearchAlbum(source: JsonObject): SpotifyAlbum? {
+        val data = source.obj("data") ?: source
+        val uri = data.str("uri") ?: return null
+        if (!uri.startsWith("spotify:album:")) return null
+        val id = uri.removePrefix("spotify:album:")
+        val name = data.str("name") ?: return null
+        val artistName = data.obj("artists")?.arr("items")?.firstOrNull()
+            ?.jsonObject?.obj("profile")?.str("name")
+            ?: data.obj("artists")?.arr("items")?.firstOrNull()
+                ?.jsonObject?.str("name")
+            ?: ""
+        val year = data.str("date")?.take(4)?.toIntOrNull()
+            ?: data.obj("releaseDate")?.str("year")?.toIntOrNull()
+        val image = data.obj("coverArt")?.arr("sources")?.firstOrNull()
+            ?.jsonObject?.str("url")
+            ?: data.obj("images")?.arr("items")?.firstOrNull()?.jsonObject
+                ?.arr("sources")?.firstOrNull()?.jsonObject?.str("url")
+            ?: data.obj("images")?.arr("sources")?.firstOrNull()?.jsonObject?.str("url")
+        return SpotifyAlbum(
+            id = id,
+            name = name,
+            artistName = artistName,
+            year = year,
+            imageUrl = image
+        )
+    }
+
+    private fun parseRestTrack(trackObj: JsonObject): SpotifyTrack? {
+        val id = trackObj.str("id") ?: return null
+        val artists = trackObj.arr("artists")?.mapNotNull { elem ->
+            val artistObj = elem.jsonObject
+            val artistId = artistObj.str("id") ?: return@mapNotNull null
+            SpotifySimpleArtist(
+                id = artistId,
+                name = artistObj.str("name") ?: "",
+                uri = artistObj.str("uri"),
+            )
+        }.orEmpty()
+        val albumObj = trackObj.obj("album")
+        val images = albumObj?.arr("images")?.mapNotNull { elem ->
+            val imageObj = elem.jsonObject
+            val url = imageObj.str("url") ?: return@mapNotNull null
+            SpotifyImage(
+                url = url,
+                height = imageObj.int("height"),
+                width = imageObj.int("width"),
+            )
+        }.orEmpty()
+        return SpotifyTrack(
+            id = id,
+            name = trackObj.str("name") ?: return null,
+            artists = artists,
+            album = albumObj?.let {
+                SpotifySimpleAlbum(
+                    id = it.str("id") ?: "",
+                    name = it.str("name") ?: "",
+                    images = images,
+                )
+            },
+            durationMs = trackObj.long("duration_ms")?.coerceAtMost(Int.MAX_VALUE.toLong())?.toInt() ?: 0,
+            explicit = trackObj.str("explicit") == "true",
         )
     }
 }

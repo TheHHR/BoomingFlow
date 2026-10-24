@@ -73,7 +73,8 @@ import kotlin.coroutines.resume
 class LibraryViewModel(
     private val repository: Repository,
     private val inclExclDao: InclExclDao,
-    private val customPlaylistImageManager: CustomPlaylistImageManager
+    private val customPlaylistImageManager: CustomPlaylistImageManager,
+    private val songDownloader: com.mardous.booming.online.download.SongDownloader
 ) : ViewModel() {
 
     init {
@@ -352,10 +353,25 @@ class LibraryViewModel(
         if (state is AddToPlaylistUiState.Ready && state.playlists.isNotEmpty()) {
             _addToPlaylistUiState.value = state.copy(isLoading = true)
 
+            // Online songs are downloaded first and added to the playlists
+            // as their real local-library twins (the downloader defers the
+            // addition until the file exists).
+            val onlineSongs = songs.filter { it.data.startsWith("yt:") }
+            if (onlineSongs.isNotEmpty()) {
+                songDownloader.addSongsToPlaylists(onlineSongs, playlistsIds)
+            }
+
+            val localSongs = songs.filterNot { it.data.startsWith("yt:") }
+            if (localSongs.isEmpty()) {
+                _addToPlaylistUiState.value = AddToPlaylistUiState.Completed(true)
+                forceReload(ReloadType.Playlists)
+                return@launch
+            }
+
             var success = true
             val playlists = state.playlists.filter { playlistsIds.contains(it.playlistEntity.playListId) }
             for (playlist in playlists) {
-                val checkedSongs = songs.filterNot {
+                val checkedSongs = localSongs.filterNot {
                     repository.checkSongExistInPlaylist(playlist.playlistEntity, it)
                 }
                 val result = runCatching {
