@@ -148,8 +148,8 @@ class MiniPlayerFragment : Fragment(R.layout.fragment_mini_player),
     private fun applyPlayerAccent() {
         if (!Preferences.followPlayerColor) return
         val accent = PlayerAccentState.accentColor.value
-        if (!com.mardous.booming.core.model.theme.AccentSchemes.isColorful(accent)) {
-            // Missing artwork or a grayscale cover: restore themed defaults.
+        if (accent == 0) {
+            // Nothing playing: restore themed defaults.
             val tint = defaultPlayPauseTint
             val progressColors = defaultProgressColors
             if (tint != null && progressColors != null) {

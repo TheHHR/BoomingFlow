@@ -40,6 +40,9 @@ import androidx.core.widget.TextViewCompat
 import androidx.fragment.app.Fragment
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import android.widget.ImageView
+import android.view.View
+import com.mardous.booming.core.model.theme.AccentSchemes
 import com.google.android.material.slider.Slider
 import com.mardous.booming.R
 import com.mardous.booming.extensions.isNightMode
@@ -220,15 +223,17 @@ private class AccentOriginals(
     val iconTint: ColorStateList? = null,
     val strokeColor: ColorStateList? = null,
     val switchTrack: ColorStateList? = null,
-    val switchThumb: ColorStateList? = null
+    val switchThumb: ColorStateList? = null,
+    val iconColor: Int? = null
 )
 
 /**
  * Applies the player accent to this [MaterialButton]. An accent of 0
- * ("no usable accent") restores the themed defaults captured before the
- * first application.
+ * restores the themed defaults captured before the first application.
+ * With [tonal] the button uses the accent scheme's secondary container
+ * roles instead of a filled primary look (for secondary actions).
  */
-fun MaterialButton.applyPlayerAccent(@ColorInt accent: Int) {
+fun MaterialButton.applyPlayerAccent(@ColorInt accent: Int, tonal: Boolean = false) {
     if (accent == 0) {
         (getTag(R.id.tag_accent_originals) as? AccentOriginals)?.let { original ->
             backgroundTintList = original.backgroundTint
@@ -244,7 +249,15 @@ fun MaterialButton.applyPlayerAccent(@ColorInt accent: Int) {
             AccentOriginals(backgroundTintList, textColors, iconTint, strokeColor)
         )
     }
-    applyColor(accent)
+    if (tonal) {
+        val scheme = AccentSchemes.viewScheme(accent, context.isNightMode)
+        val content = ColorStateList.valueOf(scheme.onSecondaryContainer)
+        backgroundTintList = ColorStateList.valueOf(scheme.secondaryContainer)
+        setTextColor(content)
+        iconTint = content
+    } else {
+        applyColor(accent)
+    }
 }
 
 /**
@@ -313,6 +326,74 @@ fun ViewGroup.applyPreferenceSwitchAccent(@ColorInt accent: Int, @ColorInt check
             child.applyPreferenceSwitchAccent(accent, checkedTrack, checkedThumb)
         }
     }
+}
+
+/**
+ * Applies the player accent to a toggle-group [MaterialButton]: the checked
+ * state uses the accent scheme container roles, the unchecked state keeps
+ * the themed defaults. An accent of 0 restores the themed defaults.
+ */
+fun MaterialButton.applyTogglePlayerAccent(@ColorInt accent: Int, @ColorInt checkedBg: Int, @ColorInt checkedText: Int) {
+    if (accent == 0) {
+        (getTag(R.id.tag_accent_originals) as? AccentOriginals)?.let { original ->
+            original.backgroundTint?.let { backgroundTintList = it }
+            original.textColors?.let { setTextColor(it) }
+        }
+        return
+    }
+    if (getTag(R.id.tag_accent_originals) == null) {
+        setTag(
+            R.id.tag_accent_originals,
+            AccentOriginals(backgroundTint = backgroundTintList, textColors = textColors)
+        )
+    }
+    val original = getTag(R.id.tag_accent_originals) as? AccentOriginals
+    val states = arrayOf(
+        intArrayOf(android.R.attr.state_checked),
+        intArrayOf(-android.R.attr.state_checked)
+    )
+    val uncheckedBg = original?.backgroundTint?.defaultColor ?: Color.TRANSPARENT
+    val uncheckedText = original?.textColors?.defaultColor ?: currentTextColor
+    backgroundTintList = ColorStateList(states, intArrayOf(checkedBg, uncheckedBg))
+    setTextColor(ColorStateList(states, intArrayOf(checkedText, uncheckedText)))
+}
+
+/**
+ * Tints a download badge with the accent scheme (background = primary,
+ * check icon = onPrimary). An accent of 0 restores the drawable defaults.
+ */
+fun View.applyBadgePlayerAccent(@ColorInt accent: Int, @ColorInt bgColor: Int, @ColorInt iconColor: Int) {
+    if (accent == 0) {
+        backgroundTintList = null
+        (this as? ImageView)?.imageTintList = null
+    } else {
+        backgroundTintList = ColorStateList.valueOf(bgColor)
+        (this as? ImageView)?.imageTintList = ColorStateList.valueOf(iconColor)
+    }
+}
+
+/**
+ * Applies the player accent to a [MorphicIconButton] using the accent
+ * scheme's primary container roles. An accent of 0 restores the captured
+ * defaults.
+ */
+fun MorphicIconButton.applyPlayerAccent(@ColorInt accent: Int) {
+    if (accent == 0) {
+        (getTag(R.id.tag_accent_originals) as? AccentOriginals)?.let { original ->
+            backgroundTintList = original.backgroundTint
+            original.iconColor?.let { setIconTintColor(it) }
+        }
+        return
+    }
+    if (getTag(R.id.tag_accent_originals) == null) {
+        setTag(
+            R.id.tag_accent_originals,
+            AccentOriginals(backgroundTint = backgroundTintList, iconColor = getIconTintColor())
+        )
+    }
+    val scheme = AccentSchemes.viewScheme(accent, context.isNightMode)
+    backgroundTintList = ColorStateList.valueOf(scheme.primaryContainer)
+    setIconTintColor(scheme.onPrimaryContainer)
 }
 
 @SuppressLint("RestrictedApi")

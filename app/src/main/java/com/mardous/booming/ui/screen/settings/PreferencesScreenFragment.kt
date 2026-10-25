@@ -234,7 +234,7 @@ open class PreferenceScreenFragment : PreferenceFragmentCompat(),
 
     private fun applyAccentToPreferenceRow(row: View) {
         val rowGroup = row as? ViewGroup ?: return
-        if (!Preferences.followPlayerColor || !AccentSchemes.isColorful(preferenceAccent)) {
+        if (!Preferences.followPlayerColor || preferenceAccent == 0) {
             rowGroup.applyPreferenceSwitchAccent(0, 0, 0)
             return
         }

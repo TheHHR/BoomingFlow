@@ -111,8 +111,15 @@ fun BoomingMusicTheme(
         // colorful accent, the entire scheme (every role, not just the accent
         // ones) is generated from the song's color family with the bundled
         // M3 color engine. Otherwise the base scheme stays Material You.
-        Preferences.followPlayerColor && AccentSchemes.isColorful(accent) ->
-            dynamicColorScheme(Hct.fromInt(accent), darkTheme, PaletteStyle.TonalSpot)
+        Preferences.followPlayerColor && accent != 0 ->
+            dynamicColorScheme(
+                Hct.fromInt(accent),
+                darkTheme,
+                // Colorful songs shift the app to the song's color family;
+                // grayscale/coverless playback uses the neutral scheme for a
+                // clean gray look instead of reverting to Material You.
+                if (AccentSchemes.isColorful(accent)) PaletteStyle.TonalSpot else PaletteStyle.Neutral
+            )
 
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
             val context = LocalContext.current

@@ -30,6 +30,9 @@ import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
 import coil3.load
 import com.mardous.booming.R
+import com.mardous.booming.core.model.theme.AccentSchemes
+import com.mardous.booming.extensions.isNightMode
+import com.mardous.booming.extensions.resources.applyBadgePlayerAccent
 import com.mardous.booming.coil.DEFAULT_GENRE_IMAGE
 import com.mardous.booming.coil.albumImage
 import com.mardous.booming.coil.artistImage
@@ -190,6 +193,17 @@ class SearchAdapter(
                 }
                 holder.badge?.isVisible =
                     com.mardous.booming.online.download.DownloadRegistry.spotifyTrackUri(track.id) != null
+                val accent = if (com.mardous.booming.util.Preferences.followPlayerColor) {
+                    com.mardous.booming.core.PlayerAccentState.accentColor.value
+                } else {
+                    0
+                }
+                if (accent != 0) {
+                    val scheme = AccentSchemes.viewScheme(accent, holder.itemView.context.isNightMode)
+                    holder.badge?.applyBadgePlayerAccent(accent, scheme.primary, scheme.onPrimary)
+                } else {
+                    holder.badge?.applyBadgePlayerAccent(0, 0, 0)
+                }
             }
 
             SPOTIFY_PLAYLIST -> {

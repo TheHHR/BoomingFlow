@@ -314,7 +314,7 @@ abstract class AbsSlidingMusicPanelActivity : AbsBaseActivity(),
                 Configuration.UI_MODE_NIGHT_YES
 
     private fun applyPlayerAccent(accent: Int) {
-        if (Preferences.followPlayerColor && AccentSchemes.isColorful(accent)) {
+        if (Preferences.followPlayerColor && accent != 0) {
             val scheme = AccentSchemes.viewScheme(accent, isDarkTheme)
             val states = arrayOf(
                 intArrayOf(android.R.attr.state_checked),
@@ -362,7 +362,8 @@ abstract class AbsSlidingMusicPanelActivity : AbsBaseActivity(),
         if (AccentSchemes.isColorful(accent)) {
             PlayerAccentState.update(accent)
         } else {
-            PlayerAccentState.clear()
+            // Missing artwork or a grayscale cover: fall back to a clean gray accent.
+            PlayerAccentState.update(AccentSchemes.NEUTRAL_ACCENT)
         }
     }
 

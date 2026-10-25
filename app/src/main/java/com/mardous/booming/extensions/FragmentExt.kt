@@ -141,15 +141,10 @@ fun Fragment.collectPlayerAccent(action: (Int) -> Unit) {
     viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
         PlayerAccentState.accentColor.collect { accent ->
             if (Preferences.followPlayerColor) {
-                // 0 means "no usable accent" (missing artwork or a grayscale
-                // cover): consumers restore their themed defaults.
-                action(
-                    if (com.mardous.booming.core.model.theme.AccentSchemes.isColorful(accent)) {
-                        accent
-                    } else {
-                        0
-                    }
-                )
+                // 0 only means "nothing playing": consumers restore their
+                // themed defaults. Monochrome/coverless playback delivers a
+                // neutral gray accent instead.
+                action(accent)
             }
         }
     }

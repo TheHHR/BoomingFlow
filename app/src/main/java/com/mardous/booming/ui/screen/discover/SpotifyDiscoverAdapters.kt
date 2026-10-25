@@ -10,6 +10,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.textview.MaterialTextView
 import com.mardous.booming.R
+import com.mardous.booming.core.model.theme.AccentSchemes
+import com.mardous.booming.extensions.isNightMode
+import com.mardous.booming.extensions.resources.applyBadgePlayerAccent
 import com.mardous.booming.coil.DEFAULT_PLAYLIST_IMAGE
 import com.mardous.booming.coil.DEFAULT_SONG_IMAGE
 import com.mardous.booming.coil.placeholderDrawableRes
@@ -176,6 +179,17 @@ class SpotifyTrackAdapter(
             true
         }
         holder.badge.isVisible = isDownloaded
+        val accent = if (com.mardous.booming.util.Preferences.followPlayerColor) {
+            com.mardous.booming.core.PlayerAccentState.accentColor.value
+        } else {
+            0
+        }
+        if (accent != 0) {
+            val scheme = AccentSchemes.viewScheme(accent, context.isNightMode)
+            holder.badge.applyBadgePlayerAccent(accent, scheme.primary, scheme.onPrimary)
+        } else {
+            holder.badge.applyBadgePlayerAccent(0, 0, 0)
+        }
         holder.menu.isInvisible = isChecked
         holder.menu.setOnClickListener { view ->
             val popup = android.widget.PopupMenu(context, view)

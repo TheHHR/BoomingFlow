@@ -19,6 +19,7 @@ package com.mardous.booming.core.model.theme
 
 import androidx.annotation.ColorInt
 import com.kyant.m3color.hct.Hct
+import com.kyant.m3color.scheme.SchemeNeutral
 import com.kyant.m3color.scheme.SchemeTonalSpot
 
 /**
@@ -34,6 +35,13 @@ object AccentSchemes {
      * reverts to the base Material You scheme for them.
      */
     private const val MIN_USABLE_CHROMA = 15.0
+
+    /**
+     * The neutral gray accent used while playing grayscale or coverless
+     * tracks. Fed through the neutral scheme, it recolors the app in a
+     * clean gray instead of reverting to Material You.
+     */
+    val NEUTRAL_ACCENT: Int = 0xFF9E9E9E.toInt()
 
     /**
      * @return true when [accent] is a real, colorful accent (not 0, and not
@@ -61,7 +69,14 @@ object AccentSchemes {
     )
 
     fun viewScheme(@ColorInt accent: Int, isDark: Boolean): Scheme {
-        val scheme = SchemeTonalSpot(Hct.fromInt(accent), isDark, 0.0)
+        val hct = Hct.fromInt(accent)
+        // Colorful accents use the tonal-spot scheme; near-neutral accents
+        // (the gray fallback) use the neutral scheme for a truly gray result.
+        val scheme = if (hct.chroma >= MIN_USABLE_CHROMA) {
+            SchemeTonalSpot(hct, isDark, 0.0)
+        } else {
+            SchemeNeutral(hct, isDark, 0.0)
+        }
         return Scheme(
             primary = scheme.primary,
             onPrimary = scheme.onPrimary,

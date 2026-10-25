@@ -47,6 +47,11 @@ import androidx.recyclerview.widget.RecyclerView.AdapterDataObserver
 import androidx.transition.TransitionManager
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.button.MaterialButtonToggleGroup
+import com.mardous.booming.core.model.theme.AccentSchemes
+import com.mardous.booming.extensions.collectPlayerAccent
+import com.mardous.booming.extensions.isNightMode
+import com.mardous.booming.extensions.resources.applyPlayerAccent
+import com.mardous.booming.extensions.resources.applyTogglePlayerAccent
 import com.mardous.booming.R
 import com.mardous.booming.data.SearchFilter
 import com.mardous.booming.data.local.room.PlaylistWithSongs
@@ -188,6 +193,21 @@ class SearchFragment : AbsMainActivityFragment(R.layout.fragment_search),
         }
         binding.clearText.setOnClickListener(this)
         binding.modeButtonGroup.addOnButtonCheckedListener(this)
+        collectPlayerAccent { accent ->
+            val scheme = if (accent != 0) {
+                AccentSchemes.viewScheme(accent, requireContext().isNightMode)
+            } else {
+                null
+            }
+            for (child in binding.modeButtonGroup.children) {
+                (child as? MaterialButton)?.applyTogglePlayerAccent(
+                    accent,
+                    scheme?.secondaryContainer ?: 0,
+                    scheme?.onSecondaryContainer ?: 0
+                )
+            }
+            binding.keyboardPopup.applyPlayerAccent(accent)
+        }
         binding.searchView.apply {
             reactionToKey(KeyEvent.KEYCODE_ENTER) {
                 hideSoftKeyboard()

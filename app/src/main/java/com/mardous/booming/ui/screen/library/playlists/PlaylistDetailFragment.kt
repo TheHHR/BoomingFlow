@@ -45,6 +45,8 @@ import com.mardous.booming.data.mapper.toSongsEntity
 import com.mardous.booming.data.model.Song
 import com.mardous.booming.databinding.FragmentPlaylistDetailBinding
 import com.mardous.booming.extensions.applyHorizontalWindowInsets
+import com.mardous.booming.extensions.collectPlayerAccent
+import com.mardous.booming.extensions.resources.applyPlayerAccent
 import com.mardous.booming.extensions.isLandscape
 import com.mardous.booming.extensions.isNullOrEmpty
 import com.mardous.booming.extensions.materialSharedAxis
@@ -104,6 +106,11 @@ class PlaylistDetailFragment : AbsMainActivityFragment(R.layout.fragment_playlis
 
         setupButtons()
         setupRecyclerView()
+        collectPlayerAccent { accent ->
+            binding.header.playAction.applyPlayerAccent(accent)
+            binding.header.shuffleAction.applyPlayerAccent(accent, tonal = true)
+            binding.header.searchAction?.applyPlayerAccent(accent)
+        }
 
         materialSharedAxis(view)
         view.applyHorizontalWindowInsets()

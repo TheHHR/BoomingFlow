@@ -183,6 +183,9 @@ class MorphicIconButton @JvmOverloads constructor(
         imageView?.drawable?.setTint(color)
     }
 
+    @ColorInt
+    fun getIconTintColor(): Int = iconTintColor
+
     fun morphToShape(shapeIndex: Int) {
         if (shapeIndex < 0 || shapeIndex >= SHAPES.size || shapeIndex == targetShapeIndex) return
 

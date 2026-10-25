@@ -89,6 +89,7 @@ class SpotifyAlbumFragment : AbsMainActivityFragment(R.layout.fragment_detail_li
         binding.shuffleAction.setOnClickListener { playAll(shuffle = true) }
         collectPlayerAccent { accent ->
             binding.playAction.applyPlayerAccent(accent)
+            binding.shuffleAction.applyPlayerAccent(accent, tonal = true)
         }
 
         album?.let { viewModel.load(it.id) }

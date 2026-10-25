@@ -109,6 +109,7 @@ class DetailListFragment : AbsMainActivityFragment(R.layout.fragment_detail_list
         }
         collectPlayerAccent { accent ->
             binding.playAction.applyPlayerAccent(accent)
+            binding.shuffleAction.applyPlayerAccent(accent, tonal = true)
         }
     }
 

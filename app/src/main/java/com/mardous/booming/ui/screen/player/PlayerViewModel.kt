@@ -615,7 +615,10 @@ class PlayerViewModel(
         if (com.mardous.booming.core.model.theme.AccentSchemes.isColorful(color.primaryColor)) {
             com.mardous.booming.core.PlayerAccentState.update(color.primaryColor)
         } else {
-            com.mardous.booming.core.PlayerAccentState.clear()
+            // Grayscale/monochrome cover: fall back to a clean gray accent.
+            com.mardous.booming.core.PlayerAccentState.update(
+                com.mardous.booming.core.model.theme.AccentSchemes.NEUTRAL_ACCENT
+            )
         }
 
         val currentScheme = colorScheme.mode.takeIf { it == PlayerColorSchemeMode.AppTheme }
