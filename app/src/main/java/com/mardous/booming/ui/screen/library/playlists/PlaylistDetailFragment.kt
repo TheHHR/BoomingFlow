@@ -47,6 +47,8 @@ import com.mardous.booming.databinding.FragmentPlaylistDetailBinding
 import com.mardous.booming.extensions.applyHorizontalWindowInsets
 import com.mardous.booming.extensions.collectPlayerAccent
 import com.mardous.booming.extensions.resources.applyPlayerAccent
+import com.google.android.material.button.MaterialButton
+import com.mardous.booming.ui.component.views.MorphicIconButton
 import com.mardous.booming.extensions.isLandscape
 import com.mardous.booming.extensions.isNullOrEmpty
 import com.mardous.booming.extensions.materialSharedAxis
@@ -107,7 +109,13 @@ class PlaylistDetailFragment : AbsMainActivityFragment(R.layout.fragment_playlis
         setupButtons()
         setupRecyclerView()
         collectPlayerAccent { accent ->
-            binding.header.playAction.applyPlayerAccent(accent)
+            // playAction is a MorphicIconButton in portrait but a plain
+            // MaterialButton in the landscape header variant, so the binding
+            // types it as their common ancestor - branch on the runtime type.
+            when (val playButton = binding.header.playAction) {
+                is MorphicIconButton -> playButton.applyPlayerAccent(accent)
+                is MaterialButton -> playButton.applyPlayerAccent(accent)
+            }
             binding.header.shuffleAction.applyPlayerAccent(accent, tonal = true)
             binding.header.searchAction?.applyPlayerAccent(accent)
         }
