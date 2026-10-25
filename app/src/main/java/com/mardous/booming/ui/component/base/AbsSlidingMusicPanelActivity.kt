@@ -23,6 +23,7 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
+import android.content.res.ColorStateList
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
@@ -57,8 +58,10 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior.from
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.navigation.NavigationBarView
 import com.google.android.material.navigationrail.NavigationRailView
+import com.google.android.material.R as M3R
 import com.mardous.booming.MediaControllerOwner
 import com.mardous.booming.R
+import com.mardous.booming.core.PlayerAccentState
 import com.mardous.booming.core.model.CategoryInfo
 import com.mardous.booming.core.model.LibraryMargin
 import com.mardous.booming.core.model.action.QueueClearingBehavior
@@ -74,6 +77,7 @@ import com.mardous.booming.extensions.hideSoftKeyboard
 import com.mardous.booming.extensions.hasT
 import com.mardous.booming.extensions.isLandscape
 import com.mardous.booming.extensions.launchAndRepeatWithViewLifecycle
+import com.mardous.booming.extensions.resolveColor
 import com.mardous.booming.extensions.resources.darkenColor
 import com.mardous.booming.extensions.resources.hide
 import com.mardous.booming.extensions.resources.isColorLight
@@ -205,6 +209,12 @@ abstract class AbsSlidingMusicPanelActivity : AbsBaseActivity(),
         }
 
         launchAndRepeatWithViewLifecycle {
+            PlayerAccentState.accentColor.collect { accent ->
+                applyPlayerAccent(accent)
+            }
+        }
+
+        launchAndRepeatWithViewLifecycle {
             playerViewModel.queueFlow.collect { queue ->
                 if (!isHiddenByDestination) {
                     hideBottomSheet(queue.isEmpty())
@@ -277,6 +287,22 @@ abstract class AbsSlidingMusicPanelActivity : AbsBaseActivity(),
         navigationView.labelVisibilityMode = Preferences.bottomTitlesMode
         if (navigationView is NavigationRailView) {
             navigationView.applyWindowInsets(left = true, top = true)
+        }
+    }
+
+    private fun applyPlayerAccent(accent: Int) {
+        if (Preferences.followPlayerColor && accent != 0) {
+            val states = arrayOf(
+                intArrayOf(android.R.attr.state_checked),
+                intArrayOf(-android.R.attr.state_checked)
+            )
+            val colors = intArrayOf(accent, resolveColor(M3R.attr.colorOnSurfaceVariant))
+            val tint = ColorStateList(states, colors)
+            navigationView.itemIconTintList = tint
+            navigationView.itemTextColor = tint
+        } else {
+            navigationView.itemIconTintList = null
+            navigationView.itemTextColor = null
         }
     }
 

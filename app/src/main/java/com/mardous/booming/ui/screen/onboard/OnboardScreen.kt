@@ -129,7 +129,6 @@ import com.mardous.booming.extensions.getImagesPermission
 import com.mardous.booming.extensions.getNearbyDevicesPermissions
 import com.mardous.booming.extensions.getNotificationsPermission
 import com.mardous.booming.extensions.getStoragePermissions
-import com.mardous.booming.extensions.hasS
 import com.mardous.booming.extensions.isLandscape
 import com.mardous.booming.extensions.observeKeyAsState
 import com.mardous.booming.extensions.openAppDetailsSettings
@@ -143,7 +142,6 @@ import com.mardous.booming.util.AUTO_LANGUAGE
 import com.mardous.booming.util.GENERAL_THEME
 import com.mardous.booming.util.GeneralTheme
 import com.mardous.booming.util.LANGUAGE_NAME
-import com.mardous.booming.util.MATERIAL_YOU
 import com.mardous.booming.util.Preferences
 import org.koin.androidx.compose.koinViewModel
 import kotlin.math.roundToInt
@@ -551,7 +549,6 @@ private fun ConfigurationStepContent(
     val preferences = remember { PreferenceManager.getDefaultSharedPreferences(context) }
 
     val selectedTheme by preferences.observeKeyAsState(GENERAL_THEME, GeneralTheme.AUTO)
-    val materialYou by preferences.observeKeyAsState(MATERIAL_YOU, hasS())
 
     val networkEnabledByDefault = booleanResource(R.bool.network_features_enabled_by_default)
     val networkEnabled by preferences.observeKeyAsState(NetworkFeature.NETWORK_FEATURES_KEY, networkEnabledByDefault)
@@ -620,16 +617,7 @@ private fun ConfigurationStepContent(
                             .padding(bottom = 8.dp)
                     )
                 },
-                shapes = ListItemDefaults.segmentedShapes(0, 2)
-            )
-        }
-
-        item {
-            OnboardPreference(
-                title = stringResource(R.string.material_you_title),
-                checked = materialYou,
-                onCheckedChange = { preferences.edit { putBoolean(MATERIAL_YOU, it) } },
-                shapes = ListItemDefaults.segmentedShapes(1, 2)
+                shapes = ListItemDefaults.segmentedShapes(0, 1)
             )
         }
 

@@ -544,7 +544,6 @@
     <!-- Interface preferences -->
     <string name="general_theme_title">ערכת נושא כללית</string>
     <string name="pure_black_theme_title">שחור טהור</string>
-    <string name="material_you_title">Material You</string>
     <string name="use_custom_font_title">השתמש בגופן מותאם אישית</string>
     <string name="appbar_mode_title">סגנון כותרת</string>
     <string name="library_categories_title">קטגוריות בספרייה</string>

@@ -703,7 +703,6 @@
     <!-- Interface preferences -->
     <string name="general_theme_title">General theme</string>
     <string name="pure_black_theme_title">Pure Black</string>
-    <string name="material_you_title">Material You</string>
     <string name="follow_player_color_title">Follow player color</string>
     <string name="follow_player_color_summary">Use the current song\'s artwork as the app accent color</string>
     <string name="use_custom_font_title">Use custom font</string>

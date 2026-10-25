@@ -551,7 +551,6 @@
     <!-- Interface preferences -->
     <string name="general_theme_title">Общая тема</string>
     <string name="pure_black_theme_title">Чистый черный</string>
-    <string name="material_you_title">Material You</string>
     <string name="use_custom_font_title">Использовать свой шрифт</string>
     <string name="appbar_mode_title">Стиль заголовка</string>
     <string name="library_categories_title">Категории библиотеки</string>

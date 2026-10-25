@@ -99,12 +99,11 @@ private val darkScheme = darkColorScheme(
 fun BoomingMusicTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     blackTheme: Boolean = Preferences.blackTheme,
-    dynamicColor: Boolean = Preferences.isMaterialYouTheme,
     customFont: Boolean = Preferences.isCustomFont,
     content: @Composable () -> Unit
 ) {
     var colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
             val context = LocalContext.current
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
@@ -123,8 +122,9 @@ fun BoomingMusicTheme(
         )
     }
 
-    // "Follow player color": override the primary/accent with the current
-    // song's artwork accent when Material You is off and the pref is on.
+    // "Follow player color": override the accent roles with the current
+    // song's artwork accent; the base scheme stays Material You when the
+    // pref is off, so it is never a static fallback on capable devices.
     if (Preferences.followPlayerColor) {
         val accent by com.mardous.booming.core.PlayerAccentState.accentColor.collectAsState()
         if (accent != 0) {
@@ -135,7 +135,9 @@ fun BoomingMusicTheme(
                 Color.White
             colorScheme = colorScheme.copy(
                 primary = accentColor,
-                onPrimary = onAccent
+                onPrimary = onAccent,
+                primaryContainer = accentColor,
+                onPrimaryContainer = onAccent
             )
         }
     }

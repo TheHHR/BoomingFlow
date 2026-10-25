@@ -18,6 +18,7 @@
 package com.mardous.booming.ui.screen.other
 
 import android.annotation.SuppressLint
+import android.content.res.ColorStateList
 import android.os.Bundle
 import android.text.style.ForegroundColorSpan
 import android.view.GestureDetector
@@ -28,6 +29,7 @@ import androidx.fragment.app.Fragment
 import coil3.request.Disposable
 import com.mardous.booming.R
 import com.mardous.booming.coil.songImage
+import com.mardous.booming.core.PlayerAccentState
 import com.mardous.booming.core.model.player.ProgressState
 import com.mardous.booming.core.model.theme.NowPlayingButtonStyle
 import com.mardous.booming.databinding.FragmentMiniPlayerBinding
@@ -81,7 +83,7 @@ class MiniPlayerFragment : Fragment(R.layout.fragment_mini_player),
             }
         }
         viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
-            com.mardous.booming.core.PlayerAccentState.accentColor.collect { accent ->
+            PlayerAccentState.accentColor.collect { accent ->
                 if (accent != 0) {
                     applyPlayerAccent()
                 }
@@ -141,12 +143,12 @@ class MiniPlayerFragment : Fragment(R.layout.fragment_mini_player),
     }
 
     private fun applyPlayerAccent() {
-        if (!com.mardous.booming.util.Preferences.followPlayerColor) return
-        val accent = com.mardous.booming.core.PlayerAccentState.accentColor.value
+        if (!Preferences.followPlayerColor) return
+        val accent = PlayerAccentState.accentColor.value
         if (accent != 0) {
             binding.actionPlayPause.setIconTintResource(android.R.color.transparent)
-            binding.actionPlayPause.iconTint =
-                android.content.res.ColorStateList.valueOf(accent)
+            binding.actionPlayPause.iconTint = ColorStateList.valueOf(accent)
+            binding.progressBar.setIndicatorColor(accent)
         }
     }
 

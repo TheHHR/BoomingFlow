@@ -21,6 +21,7 @@ import android.content.Context
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
+import androidx.annotation.ColorInt
 import androidx.annotation.IdRes
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -37,7 +38,9 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.transition.Fade
 import com.google.android.material.transition.MaterialSharedAxis
 import com.mardous.booming.R
+import com.mardous.booming.core.PlayerAccentState
 import com.mardous.booming.extensions.resources.createBoomingMusicBalloon
+import com.mardous.booming.util.Preferences
 import com.skydoves.balloon.Balloon
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -132,6 +135,16 @@ fun <T : Fragment> Fragment.whichFragment(tag: String): T? {
 fun LifecycleOwner.launchAndRepeatWithViewLifecycle(state: Lifecycle.State = Lifecycle.State.STARTED, block: suspend CoroutineScope.() -> Unit) {
     lifecycleScope.launch {
         lifecycle.repeatOnLifecycle(state, block)
+    }
+}
+
+fun Fragment.collectPlayerAccent(action: (@ColorInt Int) -> Unit) {
+    viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
+        PlayerAccentState.accentColor.collect { accent ->
+            if (accent != 0 && Preferences.followPlayerColor) {
+                action(accent)
+            }
+        }
     }
 }
 

@@ -12,7 +12,9 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.mardous.booming.R
 import com.mardous.booming.databinding.FragmentDetailListBinding
+import com.mardous.booming.extensions.collectPlayerAccent
 import com.mardous.booming.extensions.launchAndRepeatWithViewLifecycle
+import com.mardous.booming.extensions.resources.applyColor
 import com.mardous.booming.extensions.setSupportActionBar
 import com.mardous.booming.extensions.showToast
 import com.mardous.booming.online.data.spotify.SpotifyAlbum
@@ -85,6 +87,9 @@ class SpotifyAlbumFragment : AbsMainActivityFragment(R.layout.fragment_detail_li
 
         binding.playAction.setOnClickListener { playAll(shuffle = false) }
         binding.shuffleAction.setOnClickListener { playAll(shuffle = true) }
+        collectPlayerAccent { accent ->
+            binding.playAction.applyColor(accent)
+        }
 
         album?.let { viewModel.load(it.id) }
 

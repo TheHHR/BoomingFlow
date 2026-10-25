@@ -13,14 +13,6 @@
 
     <SwitchPreferenceCompat
         app:iconSpaceReserved="true"
-        app:title="@string/material_you_title"
-        app:defaultValue="@bool/md3_supported"
-        app:layout="@layout/list_item_view"
-        app:widgetLayout="@layout/preference_switch"
-        app:key="material_you"/>
-
-    <SwitchPreferenceCompat
-        app:iconSpaceReserved="true"
         app:title="@string/follow_player_color_title"
         app:summary="@string/follow_player_color_summary"
         app:defaultValue="false"

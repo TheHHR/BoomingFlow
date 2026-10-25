@@ -43,6 +43,7 @@ import com.mardous.booming.extensions.navigation.albumDetailArgs
 import com.mardous.booming.extensions.navigation.artistDetailArgs
 import com.mardous.booming.extensions.navigation.asFragmentExtras
 import com.mardous.booming.extensions.navigation.searchArgs
+import com.mardous.booming.extensions.resources.applyColor
 import com.mardous.booming.extensions.resources.createFastScroller
 import com.mardous.booming.extensions.resources.hide
 import com.mardous.booming.extensions.utilities.buildInfoString
@@ -105,6 +106,9 @@ class DetailListFragment : AbsMainActivityFragment(R.layout.fragment_detail_list
         }
         binding.playAction.setOnClickListener {
             playerViewModel.openQueue(songList, shuffleMode = OpenShuffleMode.Off)
+        }
+        collectPlayerAccent { accent ->
+            binding.playAction.applyColor(accent)
         }
     }
 

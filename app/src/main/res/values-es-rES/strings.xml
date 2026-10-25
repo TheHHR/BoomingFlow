@@ -536,7 +536,6 @@
     <!-- Interface preferences -->
     <string name="general_theme_title">Tema general</string>
     <string name="pure_black_theme_title">Negro puro</string>
-    <string name="material_you_title">Material You</string>
     <string name="use_custom_font_title">Usar tipo de letra personalizado</string>
     <string name="appbar_mode_title">Estilo de cabecera</string>
     <string name="library_categories_title">Categorías de la fonoteca</string>

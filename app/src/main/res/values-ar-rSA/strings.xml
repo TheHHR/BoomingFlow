@@ -568,7 +568,6 @@
     <!-- Interface preferences -->
     <string name="general_theme_title">السمة العامة</string>
     <string name="pure_black_theme_title">أسود خالص</string>
-    <string name="material_you_title">Material You</string>
     <string name="use_custom_font_title">استخدام خط مخصص</string>
     <string name="appbar_mode_title">نمط شريط العنوان</string>
     <string name="library_categories_title">فئات المكتبة</string>

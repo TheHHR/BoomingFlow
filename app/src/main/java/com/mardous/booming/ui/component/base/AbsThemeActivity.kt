@@ -30,7 +30,7 @@ import androidx.core.view.WindowInsetsControllerCompat
 import com.google.android.material.color.DynamicColors
 import com.google.android.material.color.DynamicColorsOptions
 import com.mardous.booming.R
-import com.mardous.booming.extensions.createAppTheme
+import com.mardous.booming.core.model.theme.AppTheme
 import com.mardous.booming.extensions.hasQ
 import com.mardous.booming.extensions.resources.isColorLight
 import com.mardous.booming.extensions.resources.surfaceColor
@@ -60,16 +60,13 @@ abstract class AbsThemeActivity : AppCompatActivity() {
     }
 
     private fun updateTheme() {
-        val appTheme = createAppTheme()
+        val appTheme = AppTheme.createAppTheme()
         setTheme(appTheme.themeRes)
         if (appTheme.applyDynamicColors) {
             val dynamicColorsOptions = DynamicColorsOptions.Builder()
                 .setOnAppliedCallback {
                     appTheme.dynamicColorOverlay?.let { setTheme(it) }
                 }
-            if (appTheme.seedColor != null) {
-                dynamicColorsOptions.setContentBasedSource(appTheme.seedColor)
-            }
             DynamicColors.applyToActivityIfAvailable(this, dynamicColorsOptions.build())
         }
         if (Preferences.isCustomFont) {

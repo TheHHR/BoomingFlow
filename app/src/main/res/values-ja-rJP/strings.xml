@@ -528,7 +528,6 @@
     <!-- Interface preferences -->
     <string name="general_theme_title">一般的なテーマ</string>
     <string name="pure_black_theme_title">ピュアブラック</string>
-    <string name="material_you_title">Material You</string>
     <string name="use_custom_font_title">カスタムフォントを使用</string>
     <string name="appbar_mode_title">ヘッダーのスタイル</string>
     <string name="library_categories_title">ライブラリのカテゴリ</string>

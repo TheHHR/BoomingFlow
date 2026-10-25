@@ -535,7 +535,6 @@
     <!-- Interface preferences -->
     <string name="general_theme_title">Tema generale</string>
     <string name="pure_black_theme_title">Nero Puro</string>
-    <string name="material_you_title">Material You</string>
     <string name="use_custom_font_title">Usa un font personalizzato</string>
     <string name="appbar_mode_title">Stile intestazione</string>
     <string name="library_categories_title">Categorie della libreria</string>

@@ -534,7 +534,6 @@
     <!-- Interface preferences -->
     <string name="general_theme_title">Yleinen teema</string>
     <string name="pure_black_theme_title">Puhdas Musta</string>
-    <string name="material_you_title">Materiaali Sinä</string>
     <string name="use_custom_font_title">Käytä mukautettua kirjasinta</string>
     <string name="appbar_mode_title">Otsikon tyyli</string>
     <string name="library_categories_title">Kirjaston kategoriat</string>

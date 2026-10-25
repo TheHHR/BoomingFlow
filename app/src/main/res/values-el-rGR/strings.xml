@@ -536,7 +536,6 @@
     <!-- Interface preferences -->
     <string name="general_theme_title">Γενικό θέμα</string>
     <string name="pure_black_theme_title">Καθαρό Μαύρο</string>
-    <string name="material_you_title">Υλικό Εσείς</string>
     <string name="use_custom_font_title">Use custom font</string>
     <string name="appbar_mode_title">Στυλ κεφαλίδας</string>
     <string name="library_categories_title">Κατηγορίες βιβλιοθηκών</string>

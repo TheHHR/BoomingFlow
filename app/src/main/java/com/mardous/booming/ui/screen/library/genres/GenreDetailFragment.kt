@@ -35,10 +35,12 @@ import com.mardous.booming.data.model.Genre
 import com.mardous.booming.data.model.Song
 import com.mardous.booming.databinding.FragmentDetailListBinding
 import com.mardous.booming.extensions.applyHorizontalWindowInsets
+import com.mardous.booming.extensions.collectPlayerAccent
 import com.mardous.booming.extensions.isNullOrEmpty
 import com.mardous.booming.extensions.materialSharedAxis
 import com.mardous.booming.extensions.media.songCountStr
 import com.mardous.booming.extensions.media.songsDurationStr
+import com.mardous.booming.extensions.resources.applyColor
 import com.mardous.booming.extensions.navigation.searchArgs
 import com.mardous.booming.extensions.setSupportActionBar
 import com.mardous.booming.extensions.utilities.buildInfoString
@@ -91,6 +93,9 @@ class GenreDetailFragment : AbsMainActivityFragment(R.layout.fragment_detail_lis
         }
         binding.shuffleAction.setOnClickListener {
             playerViewModel.openAndShuffleQueue(songAdapter.dataSet)
+        }
+        collectPlayerAccent { accent ->
+            binding.playAction.applyColor(accent)
         }
     }
 

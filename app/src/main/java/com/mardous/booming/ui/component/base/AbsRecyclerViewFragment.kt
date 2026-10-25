@@ -39,8 +39,10 @@ import com.mardous.booming.R
 import com.mardous.booming.core.model.MediaEvent
 import com.mardous.booming.databinding.FragmentMainRecyclerBinding
 import com.mardous.booming.extensions.createBoomingMusicBalloon
+import com.mardous.booming.extensions.collectPlayerAccent
 import com.mardous.booming.extensions.dp
 import com.mardous.booming.extensions.launchAndRepeatWithViewLifecycle
+import com.mardous.booming.extensions.resources.applyColor
 import com.mardous.booming.extensions.resources.createFastScroller
 import com.mardous.booming.extensions.resources.onVerticalScroll
 import com.mardous.booming.extensions.setSupportActionBar
@@ -100,6 +102,9 @@ abstract class AbsRecyclerViewFragment<A : RecyclerView.Adapter<*>, LM : Recycle
                 setOnLongClickListener {
                     onShuffleLongClick()
                 }
+            }
+            collectPlayerAccent { accent ->
+                binding.shuffleButton.applyColor(accent)
             }
         } else {
             binding.shuffleButton.isVisible = false

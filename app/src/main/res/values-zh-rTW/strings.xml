@@ -527,7 +527,6 @@
     <!-- Interface preferences -->
     <string name="general_theme_title">應用程式主題</string>
     <string name="pure_black_theme_title">純黑色</string>
-    <string name="material_you_title">Material You 動態色彩</string>
     <string name="use_custom_font_title">使用自訂字型</string>
     <string name="appbar_mode_title">頂欄樣式</string>
     <string name="library_categories_title">底部導覽列分頁</string>

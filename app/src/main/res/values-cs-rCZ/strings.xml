@@ -552,7 +552,6 @@
     <!-- Interface preferences -->
     <string name="general_theme_title">Obecný motiv</string>
     <string name="pure_black_theme_title">Čistě černá</string>
-    <string name="material_you_title">Váš materiál</string>
     <string name="use_custom_font_title">Použít vlastní písmo</string>
     <string name="appbar_mode_title">Styl záhlaví</string>
     <string name="library_categories_title">Kategorie knihovny</string>

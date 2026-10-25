@@ -24,6 +24,7 @@ import androidx.annotation.StringRes
 import androidx.compose.runtime.Immutable
 import androidx.core.graphics.ColorUtils
 import androidx.preference.PreferenceManager
+import com.google.android.material.color.DynamicColors
 import com.kyant.m3color.hct.Hct
 import com.kyant.m3color.scheme.SchemeContent
 import com.mardous.booming.R
@@ -41,7 +42,6 @@ import com.mardous.booming.extensions.resources.withAlpha
 import com.mardous.booming.extensions.systemContrast
 import com.mardous.booming.ui.component.compose.color.onThis
 import com.mardous.booming.util.PLAYER_BLUR_RADIUS
-import com.mardous.booming.util.Preferences
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import com.google.android.material.R as M3R
@@ -117,13 +117,13 @@ data class PlayerColorScheme(
         }
     }
 
-    class AppThemeToken(private val isDark: Boolean, private val isMaterialYou: Boolean) {
+    class AppThemeToken(private val isDark: Boolean, private val isDynamic: Boolean) {
         fun isValid(context: Context): Boolean {
-            return context.isNightMode == isDark && Preferences.isMaterialYouTheme == isMaterialYou
+            return context.isNightMode == isDark && DynamicColors.isDynamicColorAvailable() == isDynamic
         }
 
         companion object {
-            val None = AppThemeToken(isDark = false, isMaterialYou = false)
+            val None = AppThemeToken(isDark = false, isDynamic = false)
         }
     }
 
@@ -156,7 +156,7 @@ data class PlayerColorScheme(
                 mode = Mode.AppTheme,
                 appThemeToken = AppThemeToken(
                     isDark = context.isNightMode,
-                    isMaterialYou = Preferences.isMaterialYouTheme
+                    isDynamic = DynamicColors.isDynamicColorAvailable()
                 ),
                 blurToken = BlurToken.None,
                 surfaceColor = context.surfaceColor(),

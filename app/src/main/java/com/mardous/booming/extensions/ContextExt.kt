@@ -45,7 +45,6 @@ import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import com.google.android.material.color.MaterialColors
 import com.google.android.material.shape.ShapeAppearanceModel
-import com.mardous.booming.core.model.theme.AppTheme
 import com.mardous.booming.extensions.files.readString
 import com.mardous.booming.extensions.resources.getDrawableCompat
 import com.mardous.booming.extensions.resources.getTinted
@@ -181,5 +180,3 @@ fun Context.plurals(@PluralsRes resId: Int, quantity: Int): String {
 @ColorInt
 fun Context.resolveColor(@AttrRes colorAttr: Int, @ColorInt fallback: Int = Color.TRANSPARENT) =
     MaterialColors.getColor(this, colorAttr, fallback)
-
-fun Context.createAppTheme() = AppTheme.createAppTheme(this)

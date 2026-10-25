@@ -39,7 +39,6 @@ import com.mardous.booming.core.model.theme.AppTheme
 import com.mardous.booming.core.model.theme.NowPlayingScreen
 import com.mardous.booming.extensions.files.getCanonicalPathSafe
 import com.mardous.booming.extensions.hasQ
-import com.mardous.booming.extensions.hasS
 import com.mardous.booming.extensions.intRes
 import com.mardous.booming.extensions.utilities.calendarSingleton
 import com.mardous.booming.extensions.utilities.deserialize
@@ -107,11 +106,8 @@ object Preferences : KoinComponent {
     val blackTheme: Boolean
         get() = preferences.getBoolean(BLACK_THEME, false)
 
-    val isMaterialYouTheme: Boolean
-        get() = preferences.getBoolean(MATERIAL_YOU, hasS())
-
     val followPlayerColor: Boolean
-        get() = !isMaterialYouTheme && preferences.getBoolean(FOLLOW_PLAYER_COLOR, false)
+        get() = preferences.getBoolean(FOLLOW_PLAYER_COLOR, false)
 
     val isCustomFont: Boolean
         get() = preferences.getBoolean(USE_CUSTOM_FONT, true)
@@ -548,7 +544,6 @@ interface UpdateSearchMode {
 }
 
 const val BLACK_THEME = "black_theme"
-const val MATERIAL_YOU = "material_you"
 const val FOLLOW_PLAYER_COLOR = "follow_player_color"
 const val USE_CUSTOM_FONT = "use_custom_font"
 const val APPBAR_MODE = "appbar_mode"

@@ -544,7 +544,6 @@
     <!-- Interface preferences -->
     <string name="general_theme_title">Temă generală</string>
     <string name="pure_black_theme_title">Negru pur</string>
-    <string name="material_you_title">Materiale cu tine</string>
     <string name="use_custom_font_title">Use custom font</string>
     <string name="appbar_mode_title">Stil antet</string>
     <string name="library_categories_title">Categorii bibliotecă</string>

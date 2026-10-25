@@ -17,10 +17,7 @@
 
 package com.mardous.booming.core.model.theme
 
-import android.content.Context
 import androidx.annotation.StyleRes
-import androidx.appcompat.view.ContextThemeWrapper
-import androidx.core.content.ContextCompat
 import com.google.android.material.color.DynamicColors
 import com.mardous.booming.R
 import com.mardous.booming.util.GeneralTheme
@@ -30,8 +27,7 @@ class AppTheme private constructor(
     val id: String,
     @StyleRes
     val themeRes: Int,
-    val applyDynamicColors: Boolean,
-    val seedColor: Int? = null
+    val applyDynamicColors: Boolean
 ) {
 
     val isBlackTheme: Boolean
@@ -50,30 +46,18 @@ class AppTheme private constructor(
     }
 
     companion object {
-        fun createAppTheme(context: Context): AppTheme {
+        /**
+         * The app theme is always Material You (wallpaper-based dynamic colors)
+         * when the platform supports it; the classic palette is only used on
+         * devices below Android 12, where dynamic colors are unavailable.
+         */
+        fun createAppTheme(): AppTheme {
             val generalTheme = Preferences.generalTheme
             val themeMode = Preferences.getThemeMode(generalTheme)
-            if (DynamicColors.isDynamicColorAvailable()) {
-                if (Preferences.isMaterialYouTheme) {
-                    return AppTheme(
-                        id = generalTheme,
-                        themeRes = themeMode.themeRes,
-                        applyDynamicColors = true
-                    )
-                }
-                if (context is ContextThemeWrapper) {
-                    return AppTheme(
-                        id = generalTheme,
-                        themeRes = themeMode.themeRes,
-                        applyDynamicColors = true,
-                        seedColor = ContextCompat.getColor(context, R.color.md_theme_primary)
-                    )
-                }
-            }
             return AppTheme(
                 id = generalTheme,
                 themeRes = themeMode.themeRes,
-                applyDynamicColors = false
+                applyDynamicColors = DynamicColors.isDynamicColorAvailable()
             )
         }
     }
