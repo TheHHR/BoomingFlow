@@ -253,7 +253,7 @@ open class PreferenceScreenFragment : PreferenceFragmentCompat(),
     }
 
     private fun applyCategoryTitleAccentToRow(row: ViewGroup, accent: Int, accentPrimary: Int) {
-        val themedPrimary = requireContext().resolveColor(com.google.android.material.R.attr.colorPrimary)
+        val themedPrimary = requireContext().resolveColor(androidx.appcompat.R.attr.colorPrimary)
         walkForCategoryTitle(row, accent, themedPrimary, accentPrimary)
     }
 
