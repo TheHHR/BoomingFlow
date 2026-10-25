@@ -8,8 +8,11 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import com.mardous.booming.R
@@ -118,6 +121,23 @@ fun BoomingMusicTheme(
             surfaceContainerLow = colorResource(R.color.surfaceContainerLowBlack),
             surfaceContainerLowest = colorResource(R.color.surfaceContainerLowestBlack)
         )
+    }
+
+    // "Follow player color": override the primary/accent with the current
+    // song's artwork accent when Material You is off and the pref is on.
+    if (Preferences.followPlayerColor) {
+        val accent by com.mardous.booming.core.PlayerAccentState.accentColor.collectAsState()
+        if (accent != 0) {
+            val accentColor = Color(accent)
+            val onAccent = if (accentColor.luminance() > 0.5f)
+                Color(0xFF101014)
+            else
+                Color.White
+            colorScheme = colorScheme.copy(
+                primary = accentColor,
+                onPrimary = onAccent
+            )
+        }
     }
 
     MaterialTheme(

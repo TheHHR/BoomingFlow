@@ -110,6 +110,9 @@ object Preferences : KoinComponent {
     val isMaterialYouTheme: Boolean
         get() = preferences.getBoolean(MATERIAL_YOU, hasS())
 
+    val followPlayerColor: Boolean
+        get() = !isMaterialYouTheme && preferences.getBoolean(FOLLOW_PLAYER_COLOR, false)
+
     val isCustomFont: Boolean
         get() = preferences.getBoolean(USE_CUSTOM_FONT, true)
 
@@ -546,6 +549,7 @@ interface UpdateSearchMode {
 
 const val BLACK_THEME = "black_theme"
 const val MATERIAL_YOU = "material_you"
+const val FOLLOW_PLAYER_COLOR = "follow_player_color"
 const val USE_CUSTOM_FONT = "use_custom_font"
 const val APPBAR_MODE = "appbar_mode"
 const val GENERAL_THEME = "general_theme"

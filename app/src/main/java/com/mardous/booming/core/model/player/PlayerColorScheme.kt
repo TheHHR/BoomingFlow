@@ -31,6 +31,7 @@ import com.mardous.booming.core.model.PaletteColor
 import com.mardous.booming.extensions.isNightMode
 import com.mardous.booming.extensions.resolveColor
 import com.mardous.booming.extensions.resources.adjustSaturationIfTooHigh
+import com.mardous.booming.extensions.resources.boostSaturation
 import com.mardous.booming.extensions.resources.desaturateIfTooDarkComparedTo
 import com.mardous.booming.extensions.resources.ensureContrastAgainst
 import com.mardous.booming.extensions.resources.onSurfaceColor
@@ -176,10 +177,11 @@ data class PlayerColorScheme(
         private fun simpleColorScheme(context: Context, color: PaletteColor): PlayerColorScheme {
             val themeColorScheme = themeColorScheme(context)
             val backgroundColor = themeColorScheme.surfaceColor
-            val emphasisColor = color.primaryTextColor
-                .ensureContrastAgainst(backgroundColor, 4.8)
-                .adjustSaturationIfTooHigh(backgroundColor, context.isNightMode)
-                .desaturateIfTooDarkComparedTo(backgroundColor)
+            // Use the boosted accent (not the text swatch) and ensure it has
+            // enough saturation to read as an accent on the theme background.
+            val emphasisColor = color.primaryColor
+                .ensureContrastAgainst(backgroundColor, 3.0)
+                .boostSaturation(0.50f)
             return themeColorScheme.copy(mode = Mode.SimpleColor, primaryColor = emphasisColor)
         }
 
@@ -196,7 +198,7 @@ data class PlayerColorScheme(
                 blurToken = BlurToken.None,
                 surfaceColor = color.backgroundColor,
                 surfaceContainerColor = ColorUtils.blendARGB(color.backgroundColor, color.primaryTextColor, 0.7f),
-                primaryColor = color.backgroundColor,
+                primaryColor = color.primaryColor,
                 secondaryContainerColor = ColorUtils.blendARGB(color.backgroundColor, color.secondaryTextColor, 0.4f),
                 onSurfaceColor = color.primaryTextColor,
                 onSurfaceVariantColor = color.secondaryTextColor.withAlpha(0.6f)

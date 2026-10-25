@@ -93,6 +93,20 @@ fun Int.adjustSaturationIfTooHigh(surfaceColor: Int, isNightMode: Boolean): Int 
     return ColorUtils.HSLToColor(hsl)
 }
 
+/**
+ * Boosts the color's saturation to at least [minSaturation], keeping hue and lightness.
+ */
+@ColorInt
+fun Int.boostSaturation(minSaturation: Float): Int {
+    val hsl = FloatArray(3)
+    ColorUtils.colorToHSL(this, hsl)
+    if (hsl[1] < minSaturation) {
+        hsl[1] = minSaturation
+        return ColorUtils.HSLToColor(hsl)
+    }
+    return this
+}
+
 fun Int.shiftColor(by: Float): Int {
     if (by == 1f) return this
     val alpha = Color.alpha(this)

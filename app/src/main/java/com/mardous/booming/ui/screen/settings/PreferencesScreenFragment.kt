@@ -97,6 +97,7 @@ import com.mardous.booming.util.LANGUAGE_NAME
 import com.mardous.booming.util.LASTFM_LOGIN
 import com.mardous.booming.util.LIBRARY_CATEGORIES
 import com.mardous.booming.util.LISTENBRAINZ_LOGIN
+import com.mardous.booming.util.FOLLOW_PLAYER_COLOR
 import com.mardous.booming.util.MATERIAL_YOU
 import com.mardous.booming.util.NOW_PLAYING_EXTRA_INFO
 import com.mardous.booming.util.NOW_PLAYING_SCREEN
@@ -253,6 +254,11 @@ open class PreferenceScreenFragment : PreferenceFragmentCompat(),
                 activity.recreate()
                 true
             }
+        }
+
+        findPreference<Preference>(FOLLOW_PLAYER_COLOR)?.setOnPreferenceChangeListener { _, _ ->
+            requireActivity().recreate()
+            true
         }
 
         findPreference<Preference>(USE_CUSTOM_FONT)?.setOnPreferenceChangeListener { _, _ ->

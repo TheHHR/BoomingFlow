@@ -612,6 +612,10 @@ class PlayerViewModel(
         if (currentScheme == mode && colorScheme.appThemeToken.isValid(context))
             return@launch
 
+        // Update the app-wide accent state so "Follow player color" can
+        // react to song changes even when the player scheme is AppTheme.
+        com.mardous.booming.core.PlayerAccentState.update(color.primaryColor)
+
         val result = runCatching {
             PlayerColorScheme.autoColorScheme(context, color, mode)
         }

@@ -81,6 +81,13 @@ class MiniPlayerFragment : Fragment(R.layout.fragment_mini_player),
             }
         }
         viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
+            com.mardous.booming.core.PlayerAccentState.accentColor.collect { accent ->
+                if (accent != 0) {
+                    applyPlayerAccent()
+                }
+            }
+        }
+        viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
             combine(
                 playerViewModel.progressFlow,
                 playerViewModel.durationFlow
@@ -130,6 +137,17 @@ class MiniPlayerFragment : Fragment(R.layout.fragment_mini_player),
         binding.actionNext.setIconResource(buttonStyle.skipNext)
         binding.actionPrevious.setIconResource(buttonStyle.skipPrevious)
         updatePlayPause(playerViewModel.isPlaying, buttonStyle)
+        applyPlayerAccent()
+    }
+
+    private fun applyPlayerAccent() {
+        if (!com.mardous.booming.util.Preferences.followPlayerColor) return
+        val accent = com.mardous.booming.core.PlayerAccentState.accentColor.value
+        if (accent != 0) {
+            binding.actionPlayPause.setIconTintResource(android.R.color.transparent)
+            binding.actionPlayPause.iconTint =
+                android.content.res.ColorStateList.valueOf(accent)
+        }
     }
 
     fun setupExtraControls() {

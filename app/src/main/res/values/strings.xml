@@ -704,6 +704,8 @@
     <string name="general_theme_title">General theme</string>
     <string name="pure_black_theme_title">Pure Black</string>
     <string name="material_you_title">Material You</string>
+    <string name="follow_player_color_title">Follow player color</string>
+    <string name="follow_player_color_summary">Use the current song\'s artwork as the app accent color</string>
     <string name="use_custom_font_title">Use custom font</string>
     <string name="appbar_mode_title">Header style</string>
     <string name="library_categories_title">Library categories</string>
@@ -1006,7 +1008,6 @@
     <string name="full_cover_style">Full Cover</string>
     <string name="gradient_style">Gradient</string>
     <string name="peek_style">Peek</string>
-    <string name="spatial_style">Spatial</string>
     <string name="plain_style">Plain</string>
     <string name="m3_style">M3</string>
     <string name="expressive_style">Expressive</string>
