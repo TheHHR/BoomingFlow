@@ -14,6 +14,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.mardous.booming.R
 import com.mardous.booming.databinding.FragmentDiscoverBinding
 import com.mardous.booming.extensions.launchAndRepeatWithViewLifecycle
+import com.mardous.booming.extensions.collectPlayerAccent
+import com.mardous.booming.extensions.resources.applyPlayerAccent
 import com.mardous.booming.extensions.navigation.spotifyPlaylistArgs
 import com.mardous.booming.online.data.spotify.SpotifyHomeItem
 import com.mardous.booming.online.viewmodel.SpotifyAuthState
@@ -56,6 +58,9 @@ class DiscoverFragment : AbsMainActivityFragment(R.layout.fragment_discover), IS
                 .show(childFragmentManager, "spotify_connect")
         }
         binding.retryButton.setOnClickListener { discoverViewModel.load() }
+        collectPlayerAccent { accent ->
+            binding.retryButton.applyPlayerAccent(accent)
+        }
 
         viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
             launch {

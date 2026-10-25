@@ -329,6 +329,44 @@ fun ViewGroup.applyPreferenceSwitchAccent(@ColorInt accent: Int, @ColorInt check
 }
 
 /**
+ * Recursively applies the player accent to toggle-group [MaterialButton]s
+ * inside preference rows (checked state = scheme container roles). An
+ * accent of 0 restores the themed defaults.
+ */
+fun ViewGroup.applyPreferenceToggleAccent(@ColorInt accent: Int, @ColorInt checkedBg: Int, @ColorInt checkedText: Int) {
+    for (i in 0 until childCount) {
+        val child = getChildAt(i)
+        if (child is MaterialButton) {
+            child.applyTogglePlayerAccent(accent, checkedBg, checkedText)
+        } else if (child is ViewGroup) {
+            child.applyPreferenceToggleAccent(accent, checkedBg, checkedText)
+        }
+    }
+}
+
+/**
+ * Recolors preference category header titles - the ones the theme draws
+ * with the primary color - with the accent scheme's primary. An accent of
+ * 0 restores the captured themed color.
+ */
+fun TextView.applyCategoryTitleAccent(@ColorInt accent: Int, @ColorInt themedPrimary: Int, @ColorInt accentPrimary: Int) {
+    if (accent == 0) {
+        (getTag(R.id.tag_accent_originals) as? AccentOriginals)?.let { original ->
+            original.textColors?.let { setTextColor(it) }
+        }
+        return
+    }
+    if (getTag(R.id.tag_accent_originals) == null) {
+        setTag(R.id.tag_accent_originals, AccentOriginals(textColors = textColors))
+    }
+    val original = getTag(R.id.tag_accent_originals) as? AccentOriginals
+    val themedText = original?.textColors?.defaultColor ?: currentTextColor
+    if (themedText == themedPrimary) {
+        setTextColor(accentPrimary)
+    }
+}
+
+/**
  * Applies the player accent to a toggle-group [MaterialButton]: the checked
  * state uses the accent scheme container roles, the unchecked state keeps
  * the themed defaults. An accent of 0 restores the themed defaults.

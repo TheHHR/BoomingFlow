@@ -271,7 +271,14 @@ class RealLyricsRepository(
                 return cacheLyrics(song.id, stored)
             }
             if (allowDownload) {
-                val storableLyrics = lyricsDownloadService.remoteLyrics(song).prepareToStore()
+                // The upgrade attempt is failure-isolated: a network error
+                // must never discard the stored lyrics.
+                val storableLyrics = runCatching {
+                    lyricsDownloadService.remoteLyrics(
+                        song,
+                        providerParams = LyricsProviderParams(preferWordSynced = preferWordSynced)
+                    ).prepareToStore()
+                }.getOrNull()
                 if (storableLyrics != null) {
                     if (storableLyrics.instrumental) {
                         lyricsDao.insertLyrics(

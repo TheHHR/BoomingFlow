@@ -117,6 +117,10 @@ import android.view.ViewGroup
 import com.mardous.booming.core.model.theme.AccentSchemes
 import com.mardous.booming.extensions.collectPlayerAccent
 import com.mardous.booming.extensions.resources.applyPreferenceSwitchAccent
+import android.widget.TextView
+import com.mardous.booming.extensions.resolveColor
+import com.mardous.booming.extensions.resources.applyPreferenceToggleAccent
+import com.mardous.booming.extensions.resources.applyCategoryTitleAccent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -236,12 +240,32 @@ open class PreferenceScreenFragment : PreferenceFragmentCompat(),
         val rowGroup = row as? ViewGroup ?: return
         if (!Preferences.followPlayerColor || preferenceAccent == 0) {
             rowGroup.applyPreferenceSwitchAccent(0, 0, 0)
+            rowGroup.applyPreferenceToggleAccent(0, 0, 0)
+            applyCategoryTitleAccentToRow(rowGroup, 0, 0)
             return
         }
         val dark = (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) ==
                 Configuration.UI_MODE_NIGHT_YES
         val scheme = AccentSchemes.viewScheme(preferenceAccent, dark)
         rowGroup.applyPreferenceSwitchAccent(preferenceAccent, scheme.primary, scheme.onPrimary)
+        rowGroup.applyPreferenceToggleAccent(preferenceAccent, scheme.secondaryContainer, scheme.onSecondaryContainer)
+        applyCategoryTitleAccentToRow(rowGroup, preferenceAccent, scheme.primary)
+    }
+
+    private fun applyCategoryTitleAccentToRow(row: ViewGroup, accent: Int, accentPrimary: Int) {
+        val themedPrimary = requireContext().resolveColor(com.google.android.material.R.attr.colorPrimary)
+        walkForCategoryTitle(row, accent, themedPrimary, accentPrimary)
+    }
+
+    private fun walkForCategoryTitle(group: ViewGroup, accent: Int, themedPrimary: Int, accentPrimary: Int) {
+        for (i in 0 until group.childCount) {
+            val child = group.getChildAt(i)
+            if (child is TextView && child.id == android.R.id.title) {
+                child.applyCategoryTitleAccent(accent, themedPrimary, accentPrimary)
+            } else if (child is ViewGroup) {
+                walkForCategoryTitle(child, accent, themedPrimary, accentPrimary)
+            }
+        }
     }
 
     fun preparePreferences() {

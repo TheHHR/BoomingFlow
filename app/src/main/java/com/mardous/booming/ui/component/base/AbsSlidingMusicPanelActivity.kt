@@ -24,6 +24,8 @@ import android.content.SharedPreferences
 import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
@@ -325,10 +327,22 @@ abstract class AbsSlidingMusicPanelActivity : AbsBaseActivity(),
             navigationView.itemIconTintList = tint
             navigationView.itemTextColor = tint
             navigationView.setItemActiveIndicatorColor(ColorStateList.valueOf(scheme.secondaryContainer))
+            // The window background drives every screen that doesn't paint
+            // its own; keep it pure black when the black theme is on.
+            window.setBackgroundDrawable(
+                ColorDrawable(
+                    if (isDarkTheme && Preferences.blackTheme) {
+                        Color.BLACK
+                    } else {
+                        scheme.background
+                    }
+                )
+            )
         } else {
             navigationView.itemIconTintList = null
             navigationView.itemTextColor = null
             navigationView.setItemActiveIndicatorColor(null)
+            window.setBackgroundDrawable(null)
         }
     }
 

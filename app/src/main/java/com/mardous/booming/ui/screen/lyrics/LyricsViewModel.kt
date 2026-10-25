@@ -223,7 +223,10 @@ class LyricsViewModel(
         }
     }
 
+    private var currentLyricsSong: Song? = null
+
     fun updateSong(song: Song) {
+        currentLyricsSong = song
         lyricsJob?.cancel()
         lyricsJob = viewModelScope.launch {
             if (song == Song.emptySong) {
@@ -400,6 +403,11 @@ class LyricsViewModel(
             Key.SHADOW_EFFECT,
             Key.SYNCED_BOLD_FONT,
             Key.UNSYNCED_BOLD_FONT -> {
+                if (key == Key.ENABLE_SYLLABLE_LYRICS) {
+                    // Re-run lyrics selection so the word-by-word provider
+                    // priority applies to the playing song immediately.
+                    currentLyricsSong?.let { updateSong(it) }
+                }
                 _playerLyricsViewSettings.value = createViewSettings(LyricsViewMode.Player)
                 _fullLyricsViewSettings.value = createViewSettings(LyricsViewMode.Full)
             }
