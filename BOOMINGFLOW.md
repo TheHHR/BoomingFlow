@@ -62,11 +62,10 @@ Key mechanics (all in `app/src/main/java/com/mardous/booming/`):
 
 ## Build & release
 
-- **CI builds only** (no local APKs). Two workflows in `.github/workflows/`:
-  - **Android CI** (`workflow_dispatch` on `master`) — debug APK artifact for smoke tests. Pushes do **not** auto-trigger; dispatch manually.
-  - **Build & Release BoomingFlow APK** — dispatched with `--ref v1.0.x` after tagging. Publishes `BoomingFlow-<version>-github-arm64-v8a.apk` to the GitHub release.
-- **Release procedure:** bump `versionMajor/Minor/Patch` + matching `versionCode` → push → tag `v1.0.x` → `gh workflow run "Build & Release BoomingFlow APK" --ref v1.0.x` → verify (`aapt2 dump badging` = expected id/version, `apksigner verify` = `CN=BoomingFlow`).
-- Before pushing, run locally: `gradlew compileGithubDebugKotlin processGithubDebugResources` — Kotlin compilation does **not** catch invalid theme attributes; the resource link does (CI failed once on `?shapeAppearanceCornerRound`).
+- **CI builds only** (no local APKs, no local compiles — CI is the gate). Two workflows in `.github/workflows/`:
+  - **Android CI** — triggers on every push (branch ≠ `stable`, non-doc paths) + `workflow_dispatch`. Debug APK artifact for smoke tests.
+  - **Build & Release BoomingFlow APK** — triggers automatically on pushing a `v*` tag (and `workflow_dispatch`). Signs (`CN=BoomingFlow`) and publishes `BoomingFlow-<version>-github-arm64-v8a.apk` to the GitHub release with auto-generated notes.
+- **Release procedure:** bump `versionMajor/Minor/Patch` + matching `versionCode` → push → tag `v1.x.y` → push the tag → the release workflow builds and publishes the APK automatically → verify (`aapt2 dump badging` = expected id/version, `apksigner verify` = `CN=BoomingFlow`).
 
 ## Known limitations (v1)
 
