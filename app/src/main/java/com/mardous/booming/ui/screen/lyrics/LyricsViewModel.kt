@@ -35,7 +35,9 @@ import com.mardous.booming.util.FileTypeVerifier
 import com.mardous.booming.util.FileUtil
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -225,30 +227,6 @@ class LyricsViewModel(
 
     private var currentLyricsSong: Song? = null
 
-    fun updateSong(song: Song) {
-        currentLyricsSong = song
-        lyricsJob?.cancel()
-        lyricsJob = viewModelScope.launch {
-            if (song == Song.emptySong) {
-                _lyricsUiState.value = LyricsUiState.Empty(song.id)
-            } else {
-                _lyricsUiState.value = LyricsUiState.Loading(song.id)
-
-                val lyricsState = getBestLyricsFromSources(
-                    song = song,
-                    sources = listOf(
-                        LyricsSource.File,
-                        LyricsSource.Embedded,
-                        LyricsSource.Downloaded
-                    )
-                )
-                if (isActive) {
-                    _lyricsUiState.value = lyricsState
-                }
-            }
-        }
-    }
-
     private suspend fun getEditorLyricsBySources(
         song: Song,
         sources: List<LyricsSource>
@@ -260,27 +238,125 @@ class LyricsViewModel(
         }
     }
 
-    private suspend fun getBestLyricsFromSources(
+    fun updateSong(song: Song) {
+        currentLyricsSong = song
+        lyricsJob?.cancel()
+        lyricsJob = viewModelScope.launch {
+            if (song == Song.emptySong) {
+                _lyricsUiState.value = LyricsUiState.Empty(song.id)
+            } else {
+                _lyricsUiState.value = LyricsUiState.Loading(song.id)
+
+                val preferWordSynced = preferences.getBoolean(Key.ENABLE_SYLLABLE_LYRICS, false)
+                val sources = listOf(
+                    LyricsSource.File,
+                    LyricsSource.Embedded,
+                    LyricsSource.Downloaded
+                )
+
+                // Stage 1: local sources (sidecar files, embedded tags and
+                // stored rows) are cheap disk reads - fetch them in parallel
+                // and show the best result immediately.
+                val localState = getBestLocalLyrics(song, sources, preferWordSynced)
+
+                // Stage 2: only hit the network when the local result can
+                // still be improved. The upgrade replaces the lyrics in
+                // place, so stored line-synced lyrics never wait on it.
+                if (isActive && canUpgrade(localState, preferWordSynced)) {
+                    if (localState is LyricsUiState.Empty) {
+                        // Don't flash "no lyrics found" while the fetch is
+                        // still in flight - keep the loading state instead.
+                        _lyricsUiState.value = LyricsUiState.Loading(song.id)
+                    } else if (isActive) {
+                        _lyricsUiState.value = localState
+                    }
+                    val upgradedState = fetchUpgradedLyrics(song, preferWordSynced)
+                    if (isActive) {
+                        if (upgradedState != null && isUpgrade(localState, upgradedState)) {
+                            _lyricsUiState.value = upgradedState
+                        } else if (localState is LyricsUiState.Empty) {
+                            _lyricsUiState.value = LyricsUiState.Empty(song.id)
+                        }
+                    }
+                } else if (isActive) {
+                    _lyricsUiState.value = localState
+                }
+            }
+        }
+    }
+
+    private fun canUpgrade(localState: LyricsUiState, preferWordSynced: Boolean): Boolean = when {
+        localState is LyricsUiState.Instrumental -> false
+        localState is LyricsUiState.Synced && localState.syncedLyrics.isWordSynced -> false
+        localState is LyricsUiState.Synced -> preferWordSynced
+        else -> true
+    }
+
+    private suspend fun fetchUpgradedLyrics(song: Song, preferWordSynced: Boolean): LyricsUiState? =
+        withContext(IO) {
+            val stored = repository.storedLyrics(
+                song,
+                allowDownload = true,
+                preferWordSynced = preferWordSynced
+            ) ?: return@withContext null
+            when (val parsed = repository.parseRawLyrics(song, stored)) {
+                is ParsedLyrics.Instrumental -> LyricsUiState.Instrumental(song.id)
+                is ParsedLyrics.Synced -> LyricsUiState.Synced(song.id, parsed.lyrics)
+                is ParsedLyrics.Plain -> LyricsUiState.Plain(song.id, parsed.lyrics)
+                is ParsedLyrics.Empty -> null
+            }
+        }
+
+    private fun isUpgrade(localState: LyricsUiState, upgraded: LyricsUiState): Boolean = when {
+        upgraded is LyricsUiState.Instrumental -> true
+        upgraded is LyricsUiState.Synced -> when {
+            // Word-synced lyrics beat any local content.
+            upgraded.syncedLyrics.isWordSynced ->
+                localState !is LyricsUiState.Synced || !localState.syncedLyrics.isWordSynced
+            // Line-synced only beats plain/empty lyrics.
+            else -> localState is LyricsUiState.Plain || localState is LyricsUiState.Empty
+        }
+        upgraded is LyricsUiState.Plain -> localState is LyricsUiState.Empty
+        else -> false
+    }
+
+    private suspend fun getBestLocalLyrics(
         song: Song,
-        sources: List<LyricsSource>
+        sources: List<LyricsSource>,
+        preferWordSynced: Boolean
+    ): LyricsUiState = withContext(IO) {
+        val rawBySource: Map<LyricsSource, RawLyrics?> = coroutineScope {
+            sources.associateWith { source ->
+                async {
+                    when (source) {
+                        LyricsSource.File -> repository.fileLyrics(song)
+                        LyricsSource.Embedded -> repository.embeddedLyrics(song)
+                        LyricsSource.Downloaded -> repository.storedLyrics(
+                            song,
+                            allowDownload = false,
+                            preferWordSynced = preferWordSynced
+                        )
+                    }
+                }
+            }.mapValues { it.value.await() }
+        }
+        selectBestLyrics(song, sources, rawBySource, preferWordSynced)
+    }
+
+    private suspend fun selectBestLyrics(
+        song: Song,
+        sources: List<LyricsSource>,
+        rawBySource: Map<LyricsSource, RawLyrics?>,
+        preferWordSynced: Boolean
     ): LyricsUiState = withContext(IO) {
         // With "Word-by-word lyrics" enabled, lyrics from a provider that
         // carries word-level timestamps win over any local synced lyrics,
         // with line-synced and then plain lyrics as fallbacks.
-        val preferWordSynced = preferences.getBoolean(Key.ENABLE_SYLLABLE_LYRICS, false)
         var plainLyrics: String? = null
         var lineSyncedLyrics: SyncedLyrics? = null
         var wordSyncedLyrics: SyncedLyrics? = null
         for (source in sources) {
-            val rawLyrics = when (source) {
-                LyricsSource.File -> repository.fileLyrics(song)
-                LyricsSource.Embedded -> repository.embeddedLyrics(song)
-                LyricsSource.Downloaded -> repository.storedLyrics(
-                    song,
-                    allowDownload = true,
-                    preferWordSynced = preferWordSynced
-                )
-            } ?: continue
+            val rawLyrics = rawBySource[source] ?: continue
             when (val parsed = repository.parseRawLyrics(song, rawLyrics)) {
                 is ParsedLyrics.Instrumental -> return@withContext LyricsUiState.Instrumental(song.id)
                 is ParsedLyrics.Synced -> {

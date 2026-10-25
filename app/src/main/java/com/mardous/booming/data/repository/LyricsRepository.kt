@@ -20,12 +20,14 @@ import com.mardous.booming.data.model.lyrics.LyricsSource
 import com.mardous.booming.data.model.lyrics.ParsedLyrics
 import com.mardous.booming.data.model.lyrics.RawLyrics
 import com.mardous.booming.data.model.lyrics.SyncedLyrics
+import com.mardous.booming.data.model.network.NetworkFeature
 import com.mardous.booming.data.remote.lyrics.LyricsDownloadService
 import com.mardous.booming.data.remote.lyrics.LyricsProviderParams
 import com.mardous.booming.extensions.hasR
 import com.mardous.booming.extensions.media.isArtistNameUnknown
 import com.mardous.booming.util.MARK_INSTRUMENTAL_TRACKS_BY_TITLE
 import com.mardous.booming.util.Preferences.requireString
+import kotlinx.coroutines.CancellationException
 import org.mozilla.universalchardet.UniversalDetector
 import java.io.BufferedInputStream
 import java.io.File
@@ -63,6 +65,14 @@ class RealLyricsRepository(
 ) : LyricsRepository {
 
     private val memoryCache = LruCache<Long, Map<LyricsSource, RawLyrics>>(20)
+
+    /**
+     * Songs whose provider sweep recently found nothing. A miss suppresses
+     * further network sweeps for [NEGATIVE_CACHE_TTL_MS] so replaying a song
+     * without lyrics doesn't repeat the full race on every play. The
+     * editor's manual download bypasses this via [downloadLyrics].
+     */
+    private val negativeCache = HashMap<Long, Long>()
 
     private val charsetDetector = UniversalDetector()
 
@@ -270,15 +280,19 @@ class RealLyricsRepository(
             ) {
                 return cacheLyrics(song.id, stored)
             }
-            if (allowDownload) {
+            if (allowDownload && !isRecentlyMissed(song.id)) {
                 // The upgrade attempt is failure-isolated: a network error
                 // must never discard the stored lyrics.
-                val storableLyrics = runCatching {
+                val storableLyrics = try {
                     lyricsDownloadService.remoteLyrics(
                         song,
                         providerParams = LyricsProviderParams(preferWordSynced = preferWordSynced)
                     ).prepareToStore()
-                }.getOrNull()
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (_: Exception) {
+                    null
+                }
                 if (storableLyrics != null) {
                     if (storableLyrics.instrumental) {
                         lyricsDao.insertLyrics(
@@ -302,9 +316,16 @@ class RealLyricsRepository(
                         )
                         return cacheLyrics(song.id, candidate)
                     }
+                } else if (NetworkFeature.isOnline()) {
+                    // A sweep that found nothing while actually online is a
+                    // real miss; an offline or wifi-policy-blocked sweep is
+                    // not worth remembering.
+                    recordMiss(song.id)
                 }
             }
             return stored?.let { cacheLyrics(song.id, it) } ?: cached
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             Log.e(TAG, "Couldn't fetch/download lyrics for song ${song.data}", e)
         }
@@ -322,6 +343,8 @@ class RealLyricsRepository(
         }
         return try {
             lyricsDownloadService.remoteLyrics(song, searchTitle, searchArtist, providerParams)
+        } catch (e: CancellationException) {
+            throw e
         } catch (_: Exception) {
             null
         }
@@ -376,7 +399,10 @@ class RealLyricsRepository(
                             )
                             true
                         }.getOrDefault(false).also { success ->
-                            if (success) removeCachedLyrics(LyricsSource.Downloaded, song.id)
+                            if (success) {
+                                removeCachedLyrics(LyricsSource.Downloaded, song.id)
+                                clearNegativeCache(song.id)
+                            }
                         }
                     }
 
@@ -399,6 +425,24 @@ class RealLyricsRepository(
     override suspend fun deleteAllLyrics() {
         lyricsDao.removeLyrics()
         memoryCache.evictAll()
+        synchronized(negativeCache) { negativeCache.clear() }
+    }
+
+    private fun isRecentlyMissed(songId: Long): Boolean {
+        val missedAt = synchronized(negativeCache) { negativeCache[songId] } ?: return false
+        return System.currentTimeMillis() - missedAt < NEGATIVE_CACHE_TTL_MS
+    }
+
+    private fun recordMiss(songId: Long) {
+        synchronized(negativeCache) {
+            val now = System.currentTimeMillis()
+            negativeCache.entries.removeIf { now - it.value >= NEGATIVE_CACHE_TTL_MS }
+            negativeCache[songId] = now
+        }
+    }
+
+    private fun clearNegativeCache(songId: Long) {
+        synchronized(negativeCache) { negativeCache.remove(songId) }
     }
 
     private inline fun <reified T : RawLyrics> getCachedLyrics(
@@ -493,5 +537,6 @@ class RealLyricsRepository(
         private const val BUFFER_SIZE = 4096
         private const val FORCE_UTF_8_ENCODING = "force_utf8_encoding_for_lyrics"
         private const val IGNORE_BLANK_LINES = "ignore_blank_lines_in_lyrics"
+        private const val NEGATIVE_CACHE_TTL_MS = 30L * 60 * 1000
     }
 }

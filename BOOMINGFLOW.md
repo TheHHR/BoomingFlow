@@ -19,6 +19,7 @@ A fork of [Booming Music](https://github.com/ChristiansM/BoomingMusic) reworked 
 | 5 | Device smoke test + this document | ✅ v1.0.2 |
 | 6 | **Fixes (1.0.5)**: online-song covers in player/mini-player/queue (`AudioCoverFetcher` http(s) branch), playlist detail big title + back-arrow listener, Discover anonymous-feed race (authState wiring + eager `StreamingAuthViewModel` bootstrap in `MainActivity` + `isAuthenticated()` gate), Discover toolbar search button, official Material explore icon | ✅ |
 | 7 | **Downloads (1.1.0)**: batch download playlists / Liked Songs (M4A default / Opus picker, track-pick sheet), per-track Download popup action, TagLib tags + embedded art, MediaStore publish to `Music/BoomingFlow`, playback prefers downloaded local copy via registry lookup in `ResolvingDataSource` | ✅ |
+| 8 | **Lyrics speed (1.1.24)**: parallel provider race (all providers queried concurrently, early-exit on complete merge, 15s global cap, partial merge kept on timeout), two-stage lyrics display (local file/embedded/Room sources fetched in parallel and shown instantly; network upgrade replaces them in place — stored line-synced lyrics never wait on a word-synced fetch), negative cache (30-min TTL) for songs whose sweep found nothing, CancellationException rethrow so song skips cancel in-flight fetches | ✅ v1.1.24 |
 
 ## How playback works
 
@@ -78,6 +79,24 @@ Key mechanics (all in `app/src/main/java/com/mardous/booming/`):
 - Downloads (1.1.0): Opus format saves the raw WebM/Opus byte stream with `.opus` extension (no remux — no FFmpeg in deps); tags are best-effort on non-MP4 containers. Sequential worker, no pause/resume UI, no WorkManager (long batches may be killed by the OS if the app is backgrounded). Downloaded-state badges / "downloaded songs" manager are v2.
 
 ## Hotfix log
+
+- **1.1.24 (lyrics latency overhaul)**: lyrics took seconds to appear because the
+  pipeline was fully sequential and single-shot — `fileLyrics` → `embeddedLyrics` →
+  `storedLyrics(network)` in order, one provider after another (Lyrically alone chains
+  up to 6 requests), one final UI emission after everything, and with
+  "Word-by-word lyrics" enabled even stored line-synced lyrics were held back until
+  the network upgrade attempt finished. Now: all providers race in parallel
+  (`LyricsDownloadService.raceProviders`, `select`-based early-exit + straggler
+  cancel + 15s global cap, partial merge kept on timeout); the three local sources
+  are fetched in parallel and shown immediately; the network stage runs in the
+  background and replaces lyrics in place only when it yields something better
+  (word-synced > line-synced > plain); a completed sweep that found nothing is
+  negative-cached for 30 min (`RealLyricsRepository`, bypassed by the editor's
+  manual download); `CancellationException` is rethrown through the repository so
+  skipping songs cancels the in-flight race instead of swallowing it.
+  Behavior notes: local word-synced lyrics (file/embedded/Room) now skip the
+  network stage entirely; classic (non-word-synced) mode still never downloads
+  when a local synced result exists.
 
 - **1.0.2** (device smoke test, SM-G990E / Android 16): v1.0.1 crashed with
   `UnknownFormatConversionException` in `refreshSectionVisibility` — three format strings

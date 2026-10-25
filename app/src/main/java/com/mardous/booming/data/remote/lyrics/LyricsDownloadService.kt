@@ -31,6 +31,13 @@ import com.mardous.booming.data.remote.lyrics.api.lyrically.LyricallyApi
 import com.mardous.booming.extensions.media.albumArtistName
 import com.mardous.booming.extensions.media.extractMainArtistName
 import io.ktor.client.HttpClient
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.selects.select
+import kotlinx.coroutines.withTimeoutOrNull
 import java.io.IOException
 
 class LyricsProviderParams(
@@ -68,28 +75,23 @@ class LyricsDownloadService(client: HttpClient) {
         try {
             val cleanedTitle = cleanTitle(title)
             val cleanedArtist = artist.extractMainArtistName()
-            for (provider in providerParams.providers) {
-                if (!provider.isAvailableForCurrentPolicy ||
-                    (!provider.isEnabled && !providerParams.ignoreProviderSetting)) continue
-
-                val api = apiByProvider.getValue(provider)
-                val apiResult = runCatching { api.downloadLyrics(song, cleanedTitle, cleanedArtist) }
-                if (apiResult.isFailure) {
-                    Log.e(TAG, "Error during lyrics request", apiResult.exceptionOrNull())
-                }
-
-                val response = apiResult.getOrNull() ?: continue
-
-                if (providerParams.preferWordSynced && wordSyncedCandidate == null) {
-                    if (isWordSynced(song, response.synced?.lyrics)) {
-                        wordSyncedCandidate = response.synced
-                    }
-                }
-
-                result = result.accept(response)
-                if (result.hasBoth &&
-                    (!providerParams.preferWordSynced || wordSyncedCandidate != null)) break
+            val providers = providerParams.providers.filter { provider ->
+                provider.isAvailableForCurrentPolicy &&
+                        (provider.isEnabled || providerParams.ignoreProviderSetting) &&
+                        apiByProvider.containsKey(provider)
             }
+            if (providers.isNotEmpty()) {
+                // Every provider is queried in parallel; the race result is
+                // merged and can still be improved below by the final
+                // word-synced swap.
+                val outcome = raceProviders(
+                    song, cleanedTitle, cleanedArtist, providers, providerParams.preferWordSynced
+                )
+                result = outcome.result
+                wordSyncedCandidate = outcome.wordSyncedCandidate
+            }
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             Log.e(TAG, "Lyrics download failed with error:", e)
         }
@@ -104,6 +106,75 @@ class LyricsDownloadService(client: HttpClient) {
         }
 
         return result
+    }
+
+    /**
+     * Queries every provider in parallel and merges results as they arrive,
+     * so the pipeline latency is the fastest provider rather than the sum
+     * of all of them. The race ends early once the merged result is complete
+     * (plain + synced, plus a word-synced candidate when word-by-word lyrics
+     * are preferred) and stragglers are cancelled. The whole race is capped
+     * at [RACE_TIMEOUT_MILLIS]; on timeout the partial merge still wins.
+     */
+    private suspend fun raceProviders(
+        song: Song,
+        title: String,
+        artist: String,
+        providers: List<LyricsProvider>,
+        preferWordSynced: Boolean
+    ): RaceOutcome {
+        val outcome = RaceOutcome()
+        try {
+            withTimeoutOrNull(RACE_TIMEOUT_MILLIS) {
+                coroutineScope {
+                    val pending = providers.map { provider ->
+                        async(Dispatchers.IO) {
+                            try {
+                                apiByProvider.getValue(provider).downloadLyrics(song, title, artist)
+                            } catch (e: CancellationException) {
+                                throw e
+                            } catch (e: Exception) {
+                                Log.e(TAG, "Error during lyrics request (${provider.displayName})", e)
+                                null
+                            }
+                        }
+                    }.toMutableSet()
+
+                    try {
+                        while (pending.isNotEmpty()) {
+                            val (deferred, response) = select<Pair<Deferred<RawLyrics.Remote?>, RawLyrics.Remote?>> {
+                                for (candidate in pending) {
+                                    candidate.onAwait { result -> candidate to result }
+                                }
+                            }
+                            pending.remove(deferred)
+
+                            if (response != null) {
+                                if (preferWordSynced && outcome.wordSyncedCandidate == null &&
+                                    isWordSynced(song, response.synced?.lyrics)
+                                ) {
+                                    outcome.wordSyncedCandidate = response.synced
+                                }
+                                outcome.result = outcome.result.accept(response)
+                                if (outcome.result.hasBoth &&
+                                    (!preferWordSynced || outcome.wordSyncedCandidate != null)
+                                ) break
+                            }
+                        }
+                    } finally {
+                        pending.forEach { it.cancel() }
+                    }
+                }
+            }
+        } catch (e: CancellationException) {
+            throw e
+        }
+        return outcome
+    }
+
+    private class RaceOutcome {
+        var result: RawLyrics.Remote = RawLyrics.Remote()
+        var wordSyncedCandidate: RawLyrics.Remote.Content? = null
     }
 
     private fun isWordSynced(song: Song, lyrics: String?): Boolean {
@@ -131,6 +202,13 @@ class LyricsDownloadService(client: HttpClient) {
 
     companion object {
         private const val TAG = "LyricsDownloadService"
+
+        /**
+         * Upper bound for the whole provider race. Per-provider request
+         * timeouts are 5-15s, but providers like Lyrically chain several
+         * sequential requests, so a global cap keeps the worst case sane.
+         */
+        private const val RACE_TIMEOUT_MILLIS = 15_000L
 
         private const val KEYWORDS = "official|video|audio|lyrics|lyric|visualizer|hd|hq|4k|remaster|remix|live|acoustic|version|edit|extended|radio|clean|explicit"
 
