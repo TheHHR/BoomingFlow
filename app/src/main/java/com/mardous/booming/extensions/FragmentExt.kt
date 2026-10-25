@@ -21,7 +21,6 @@ import android.content.Context
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
-import androidx.annotation.ColorInt
 import androidx.annotation.IdRes
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -138,7 +137,7 @@ fun LifecycleOwner.launchAndRepeatWithViewLifecycle(state: Lifecycle.State = Lif
     }
 }
 
-fun Fragment.collectPlayerAccent(action: (@ColorInt Int) -> Unit) {
+fun Fragment.collectPlayerAccent(action: (Int) -> Unit) {
     viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
         PlayerAccentState.accentColor.collect { accent ->
             if (accent != 0 && Preferences.followPlayerColor) {
