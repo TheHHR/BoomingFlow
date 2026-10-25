@@ -350,6 +350,7 @@ abstract class AbsSlidingMusicPanelActivity : AbsBaseActivity(),
                         .data(song)
                         .scale(Scale.FILL)
                         .size(128)
+                        .build()
                 ).image?.toBitmap(128, 128)
             }.getOrNull()
         }
