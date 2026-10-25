@@ -334,28 +334,44 @@ fun ViewGroup.applyPreferenceSwitchAccent(@ColorInt accent: Int, @ColorInt check
  * the themed defaults. An accent of 0 restores the themed defaults.
  */
 fun MaterialButton.applyTogglePlayerAccent(@ColorInt accent: Int, @ColorInt checkedBg: Int, @ColorInt checkedText: Int) {
-    if (accent == 0) {
-        (getTag(R.id.tag_accent_originals) as? AccentOriginals)?.let { original ->
-            original.backgroundTint?.let { backgroundTintList = it }
-            original.textColors?.let { setTextColor(it) }
-        }
-        return
-    }
     if (getTag(R.id.tag_accent_originals) == null) {
         setTag(
             R.id.tag_accent_originals,
-            AccentOriginals(backgroundTint = backgroundTintList, textColors = textColors)
+            AccentOriginals(
+                backgroundTint = backgroundTintList,
+                textColors = textColors,
+                strokeColor = strokeColor
+            )
         )
     }
     val original = getTag(R.id.tag_accent_originals) as? AccentOriginals
+    if (accent == 0) {
+        original?.let {
+            it.backgroundTint?.let { backgroundTintList = it }
+            it.textColors?.let { setTextColor(it) }
+            it.strokeColor?.let { strokeColor = it }
+        }
+        return
+    }
+    // Derive the unchecked colors per-state from the ORIGINAL lists - their
+    // defaultColor can be the checked-state color, which would give inactive
+    // buttons a filled look instead of the themed transparent/outline style.
+    val uncheckedState = intArrayOf(-android.R.attr.state_checked)
+    val uncheckedBg = original?.backgroundTint
+        ?.getColorForState(uncheckedState, Color.TRANSPARENT) ?: Color.TRANSPARENT
+    val uncheckedText = original?.textColors
+        ?.getColorForState(uncheckedState, currentTextColor) ?: currentTextColor
     val states = arrayOf(
         intArrayOf(android.R.attr.state_checked),
-        intArrayOf(-android.R.attr.state_checked)
+        uncheckedState
     )
-    val uncheckedBg = original?.backgroundTint?.defaultColor ?: Color.TRANSPARENT
-    val uncheckedText = original?.textColors?.defaultColor ?: currentTextColor
     backgroundTintList = ColorStateList(states, intArrayOf(checkedBg, uncheckedBg))
     setTextColor(ColorStateList(states, intArrayOf(checkedText, uncheckedText)))
+    val originalStroke = original?.strokeColor
+    if (originalStroke != null) {
+        val uncheckedStroke = originalStroke.getColorForState(uncheckedState, originalStroke.defaultColor)
+        strokeColor = ColorStateList(states, intArrayOf(checkedBg, uncheckedStroke))
+    }
 }
 
 /**
