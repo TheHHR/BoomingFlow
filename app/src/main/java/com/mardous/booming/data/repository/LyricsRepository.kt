@@ -37,7 +37,11 @@ interface LyricsRepository {
 
     suspend fun fileLyrics(song: Song): RawLyrics.File?
     suspend fun embeddedLyrics(song: Song): RawLyrics.Embedded?
-    suspend fun storedLyrics(song: Song, allowDownload: Boolean): RawLyrics.Stored?
+    suspend fun storedLyrics(
+        song: Song,
+        allowDownload: Boolean,
+        preferWordSynced: Boolean = false
+    ): RawLyrics.Stored?
     suspend fun downloadLyrics(song: Song, searchTitle: String, searchArtist: String, providerParams: LyricsProviderParams): RawLyrics.Remote?
 
     suspend fun saveLyrics(
@@ -224,18 +228,46 @@ class RealLyricsRepository(
         return null
     }
 
-    override suspend fun storedLyrics(song: Song, allowDownload: Boolean): RawLyrics.Stored? {
-        if (song.id != Song.emptySong.id) try {
-            getCachedLyrics<RawLyrics.Stored>(LyricsSource.Downloaded, song.id)?.let { return it }
-            val storedLyrics = lyricsDao.getLyrics(song.id)
-            if (storedLyrics == null && allowDownload) {
+    override suspend fun storedLyrics(
+        song: Song,
+        allowDownload: Boolean,
+        preferWordSynced: Boolean
+    ): RawLyrics.Stored? {
+        if (song.id == Song.emptySong.id) return null
+        try {
+            val cached = getCachedLyrics<RawLyrics.Stored>(LyricsSource.Downloaded, song.id)
+            if (cached != null && (!preferWordSynced || isWordSyncedText(song, cached.lyrics))) {
+                return cached
+            }
+            val storedRow = lyricsDao.getLyrics(song.id)
+            val stored = storedRow?.let {
+                RawLyrics.Stored(
+                    lyrics = it.lyrics,
+                    provider = it.provider,
+                    instrumental = it.instrumental
+                )
+            }
+            if (stored != null &&
+                (!preferWordSynced || stored.instrumental || isWordSyncedText(song, stored.lyrics))
+            ) {
+                return cacheLyrics(song.id, stored)
+            }
+            if (allowDownload) {
                 val storableLyrics = lyricsDownloadService.remoteLyrics(song).prepareToStore()
                 if (storableLyrics != null) {
                     if (storableLyrics.instrumental) {
                         lyricsDao.insertLyrics(
                             LyricsEntity(song.id, instrumental = true)
                         )
-                    } else {
+                        return cacheLyrics(song.id, storableLyrics)
+                    }
+                    val candidate = RawLyrics.Stored(
+                        lyrics = storableLyrics.lyrics,
+                        provider = storableLyrics.provider
+                    )
+                    // With word-by-word preferred, a word-synced fetch
+                    // replaces a stored row that lacks word timestamps.
+                    if (stored == null || isWordSyncedText(song, candidate.lyrics)) {
                         lyricsDao.insertLyrics(
                             LyricsEntity(
                                 id = song.id,
@@ -243,16 +275,11 @@ class RealLyricsRepository(
                                 provider = storableLyrics.provider
                             )
                         )
+                        return cacheLyrics(song.id, candidate)
                     }
-                    return cacheLyrics(song.id, storableLyrics)
                 }
-            } else if (storedLyrics != null) {
-                return cacheLyrics(song.id, RawLyrics.Stored(
-                    lyrics = storedLyrics.lyrics,
-                    provider = storedLyrics.provider,
-                    instrumental = storedLyrics.instrumental
-                ))
             }
+            return stored?.let { cacheLyrics(song.id, it) } ?: cached
         } catch (e: Exception) {
             Log.e(TAG, "Couldn't fetch/download lyrics for song ${song.data}", e)
         }

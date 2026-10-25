@@ -21,6 +21,9 @@ import android.util.Log
 import com.mardous.booming.data.model.Song
 import com.mardous.booming.data.model.lyrics.RawLyrics
 import com.mardous.booming.data.model.network.NetworkFeature
+import com.mardous.booming.data.local.lyrics.LyricsInfo
+import com.mardous.booming.data.local.lyrics.lrc.LrcLyricsParser
+import com.mardous.booming.data.local.lyrics.ttml.TtmlLyricsParser
 import com.mardous.booming.data.remote.lyrics.api.LyricsProvider
 import com.mardous.booming.data.remote.lyrics.api.betterlyrics.BetterLyricsApi
 import com.mardous.booming.data.remote.lyrics.api.lrclib.LrcLibApi
@@ -33,7 +36,8 @@ import java.io.IOException
 class LyricsProviderParams(
     val providers: List<LyricsProvider> = LyricsProvider.AvailableProviders,
     val ignoreWifiSetting: Boolean = false,
-    val ignoreProviderSetting: Boolean = false
+    val ignoreProviderSetting: Boolean = false,
+    val preferWordSynced: Boolean = false
 )
 
 class LyricsDownloadService(client: HttpClient) {
@@ -43,6 +47,9 @@ class LyricsDownloadService(client: HttpClient) {
         LyricsProvider.BetterLyrics to BetterLyricsApi(client),
         LyricsProvider.LRCLib to LrcLibApi(client)
     )
+
+    private val lrcLyricsParser = LrcLyricsParser()
+    private val ttmlLyricsParser = TtmlLyricsParser()
 
     @Throws(IOException::class)
     suspend fun remoteLyrics(
@@ -54,6 +61,7 @@ class LyricsDownloadService(client: HttpClient) {
         check(providerParams.providers.isNotEmpty()) { "No providers configured" }
 
         var result = RawLyrics.Remote()
+        var wordSyncedCandidate: RawLyrics.Remote.Content? = null
         if (song == Song.emptySong || !NetworkFeature.isOnline(ignoreWifiSetting = providerParams.ignoreWifiSetting))
             return result
 
@@ -72,14 +80,42 @@ class LyricsDownloadService(client: HttpClient) {
 
                 val response = apiResult.getOrNull() ?: continue
 
+                if (providerParams.preferWordSynced && wordSyncedCandidate == null) {
+                    if (isWordSynced(song, response.synced?.lyrics)) {
+                        wordSyncedCandidate = response.synced
+                    }
+                }
+
                 result = result.accept(response)
-                if (result.hasBoth) break
+                if (result.hasBoth &&
+                    (!providerParams.preferWordSynced || wordSyncedCandidate != null)) break
             }
         } catch (e: Exception) {
             Log.e(TAG, "Lyrics download failed with error:", e)
         }
 
+        if (providerParams.preferWordSynced) {
+            // A word-synced response wins over whichever synced content was
+            // merged first from an earlier provider.
+            val synced = wordSyncedCandidate ?: result.synced?.takeIf { isWordSynced(song, it.lyrics) }
+            if (synced != null && synced != result.synced) {
+                result = result.copy(synced = synced)
+            }
+        }
+
         return result
+    }
+
+    private fun isWordSynced(song: Song, lyrics: String?): Boolean {
+        if (lyrics.isNullOrBlank()) return false
+        for (parser in listOf(lrcLyricsParser, ttmlLyricsParser)) {
+            val info = parser.getInfo(lyrics)
+            if (info is LyricsInfo.Valid && info.actuallySynced) {
+                val parsed = parser.parse(lyrics, song.duration, false) ?: continue
+                return parsed.lines.any { it.isWordSynced }
+            }
+        }
+        return false
     }
 
     /**

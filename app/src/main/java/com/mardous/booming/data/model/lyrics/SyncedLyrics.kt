@@ -10,6 +10,10 @@ data class SyncedLyrics(
 ) {
     val hasContent = lines.isNotEmpty()
 
+    /** True when at least one line carries word-level timestamps. */
+    val isWordSynced: Boolean
+        get() = lines.any { it.isWordSynced }
+
     init {
         for (line in lines) {
             require(line.start >= 0) { "startAt in the LyricsLine must >= 0" }

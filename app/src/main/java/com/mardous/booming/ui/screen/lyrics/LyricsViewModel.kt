@@ -24,6 +24,7 @@ import com.mardous.booming.data.model.Song
 import com.mardous.booming.data.model.lyrics.LyricsSource
 import com.mardous.booming.data.model.lyrics.ParsedLyrics
 import com.mardous.booming.data.model.lyrics.RawLyrics
+import com.mardous.booming.data.model.lyrics.SyncedLyrics
 import com.mardous.booming.data.remote.lyrics.LyricsProviderParams
 import com.mardous.booming.data.remote.lyrics.api.LyricsProvider
 import com.mardous.booming.data.repository.LyricsRepository
@@ -260,21 +261,45 @@ class LyricsViewModel(
         song: Song,
         sources: List<LyricsSource>
     ): LyricsUiState = withContext(IO) {
+        // With "Word-by-word lyrics" enabled, lyrics from a provider that
+        // carries word-level timestamps win over any local synced lyrics,
+        // with line-synced and then plain lyrics as fallbacks.
+        val preferWordSynced = preferences.getBoolean(Key.ENABLE_SYLLABLE_LYRICS, false)
         var plainLyrics: String? = null
+        var lineSyncedLyrics: SyncedLyrics? = null
+        var wordSyncedLyrics: SyncedLyrics? = null
         for (source in sources) {
             val rawLyrics = when (source) {
                 LyricsSource.File -> repository.fileLyrics(song)
                 LyricsSource.Embedded -> repository.embeddedLyrics(song)
-                LyricsSource.Downloaded -> repository.storedLyrics(song, true)
+                LyricsSource.Downloaded -> repository.storedLyrics(
+                    song,
+                    allowDownload = true,
+                    preferWordSynced = preferWordSynced
+                )
             } ?: continue
             when (val parsed = repository.parseRawLyrics(song, rawLyrics)) {
                 is ParsedLyrics.Instrumental -> return@withContext LyricsUiState.Instrumental(song.id)
-                is ParsedLyrics.Synced -> return@withContext LyricsUiState.Synced(song.id, parsed.lyrics)
+                is ParsedLyrics.Synced -> {
+                    if (parsed.lyrics.isWordSynced) {
+                        wordSyncedLyrics = wordSyncedLyrics ?: parsed.lyrics
+                    } else {
+                        lineSyncedLyrics = lineSyncedLyrics ?: parsed.lyrics
+                    }
+                    if (!preferWordSynced) {
+                        // Classic behavior: the first synced result wins.
+                        return@withContext LyricsUiState.Synced(song.id, parsed.lyrics)
+                    }
+                }
                 is ParsedLyrics.Plain -> if (plainLyrics.isNullOrEmpty()) plainLyrics = parsed.lyrics
                 is ParsedLyrics.Empty -> {
                     Log.d("LyricsViewModel", "No lyrics found for song ${song.data} in source $source")
                 }
             }
+        }
+        val bestSynced = wordSyncedLyrics ?: lineSyncedLyrics
+        if (bestSynced != null) {
+            return@withContext LyricsUiState.Synced(song.id, bestSynced)
         }
         if (!plainLyrics.isNullOrEmpty()) {
             return@withContext LyricsUiState.Plain(song.id, plainLyrics)
