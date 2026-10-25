@@ -19,6 +19,7 @@ import com.mardous.booming.data.model.lyrics.LyricsFile
 import com.mardous.booming.data.model.lyrics.LyricsSource
 import com.mardous.booming.data.model.lyrics.ParsedLyrics
 import com.mardous.booming.data.model.lyrics.RawLyrics
+import com.mardous.booming.data.model.lyrics.SyncedLyrics
 import com.mardous.booming.data.remote.lyrics.LyricsDownloadService
 import com.mardous.booming.data.remote.lyrics.LyricsProviderParams
 import com.mardous.booming.extensions.hasR
@@ -174,6 +175,23 @@ class RealLyricsRepository(
             ParsedLyrics.Plain(lyrics)
         }
     }
+
+    private fun parseSyncedLyrics(song: Song, lyrics: String): SyncedLyrics? {
+        for (parser in lyricsParsers) {
+            val info = parser.getInfo(lyrics)
+            if (info is LyricsInfo.Valid && info.actuallySynced) {
+                return parser.parse(
+                    lyrics,
+                    song.duration,
+                    preferences.getBoolean(IGNORE_BLANK_LINES, false)
+                )
+            }
+        }
+        return null
+    }
+
+    private fun isWordSyncedText(song: Song, lyrics: String?): Boolean =
+        lyrics != null && parseSyncedLyrics(song, lyrics)?.isWordSynced == true
 
     override suspend fun fileLyrics(song: Song): RawLyrics.File? {
         getCachedLyrics<RawLyrics.File>(LyricsSource.File, song.id)?.let { return it }
