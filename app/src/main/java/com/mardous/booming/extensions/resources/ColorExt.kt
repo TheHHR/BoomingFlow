@@ -380,7 +380,7 @@ fun View.applyBadgePlayerAccent(@ColorInt accent: Int, @ColorInt bgColor: Int, @
 fun MorphicIconButton.applyPlayerAccent(@ColorInt accent: Int) {
     if (accent == 0) {
         (getTag(R.id.tag_accent_originals) as? AccentOriginals)?.let { original ->
-            backgroundTintList = original.backgroundTint
+            original.backgroundTint?.let { backgroundTintList = it }
             original.iconColor?.let { setIconTintColor(it) }
         }
         return
