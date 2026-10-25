@@ -111,6 +111,12 @@ import com.mardous.booming.util.USE_FOLDER_ART
 import com.mardous.booming.util.WHITELIST_ENABLED
 import com.mardous.booming.util.YOUTUBE_LOGIN
 import com.mardous.booming.util.YOUTUBE_TOKEN_LOGIN
+import android.content.res.Configuration
+import androidx.recyclerview.widget.RecyclerView
+import android.view.ViewGroup
+import com.mardous.booming.core.model.theme.AccentSchemes
+import com.mardous.booming.extensions.collectPlayerAccent
+import com.mardous.booming.extensions.resources.applyPreferenceSwitchAccent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -209,6 +215,33 @@ open class PreferenceScreenFragment : PreferenceFragmentCompat(),
         setDivider(Color.TRANSPARENT.toDrawable())
         materialSharedAxis(view)
         preparePreferences()
+        listView.addOnChildAttachStateChangeListener(object : RecyclerView.OnChildAttachStateChangeListener {
+            override fun onChildViewAttachedToWindow(child: View) {
+                applyAccentToPreferenceRow(child)
+            }
+
+            override fun onChildViewDetachedFromWindow(child: View) {}
+        })
+        collectPlayerAccent { accent ->
+            preferenceAccent = accent
+            for (index in 0 until listView.childCount) {
+                applyAccentToPreferenceRow(listView.getChildAt(index))
+            }
+        }
+    }
+
+    private var preferenceAccent: Int = 0
+
+    private fun applyAccentToPreferenceRow(row: View) {
+        val rowGroup = row as? ViewGroup ?: return
+        if (!Preferences.followPlayerColor || !AccentSchemes.isColorful(preferenceAccent)) {
+            rowGroup.applyPreferenceSwitchAccent(0, 0, 0)
+            return
+        }
+        val dark = (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) ==
+                Configuration.UI_MODE_NIGHT_YES
+        val scheme = AccentSchemes.viewScheme(preferenceAccent, dark)
+        rowGroup.applyPreferenceSwitchAccent(preferenceAccent, scheme.primary, scheme.onPrimary)
     }
 
     fun preparePreferences() {

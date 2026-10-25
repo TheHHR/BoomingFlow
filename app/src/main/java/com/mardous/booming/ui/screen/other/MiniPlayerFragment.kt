@@ -30,6 +30,7 @@ import coil3.request.Disposable
 import com.mardous.booming.R
 import com.mardous.booming.coil.songImage
 import com.mardous.booming.core.PlayerAccentState
+import com.mardous.booming.extensions.resources.withAlpha
 import com.mardous.booming.core.model.player.ProgressState
 import com.mardous.booming.core.model.theme.NowPlayingButtonStyle
 import com.mardous.booming.databinding.FragmentMiniPlayerBinding
@@ -142,6 +143,7 @@ class MiniPlayerFragment : Fragment(R.layout.fragment_mini_player),
 
     private var defaultPlayPauseTint: ColorStateList? = null
     private var defaultProgressColors: IntArray? = null
+    private var defaultProgressTrack = Int.MIN_VALUE
 
     private fun applyPlayerAccent() {
         if (!Preferences.followPlayerColor) return
@@ -153,16 +155,21 @@ class MiniPlayerFragment : Fragment(R.layout.fragment_mini_player),
             if (tint != null && progressColors != null) {
                 binding.actionPlayPause.iconTint = tint
                 binding.progressBar.setIndicatorColor(progressColors.first())
+                if (defaultProgressTrack != Int.MIN_VALUE) {
+                    binding.progressBar.setTrackColor(defaultProgressTrack)
+                }
             }
             return
         }
         if (defaultPlayPauseTint == null) {
             defaultPlayPauseTint = binding.actionPlayPause.iconTint
             defaultProgressColors = binding.progressBar.indicatorColor
+            defaultProgressTrack = binding.progressBar.trackColor
         }
         binding.actionPlayPause.setIconTintResource(android.R.color.transparent)
         binding.actionPlayPause.iconTint = ColorStateList.valueOf(accent)
         binding.progressBar.setIndicatorColor(accent)
+        binding.progressBar.setTrackColor(accent.withAlpha(0.25f))
     }
 
     fun setupExtraControls() {

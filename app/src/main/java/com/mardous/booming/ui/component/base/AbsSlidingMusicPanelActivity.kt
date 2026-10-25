@@ -324,9 +324,11 @@ abstract class AbsSlidingMusicPanelActivity : AbsBaseActivity(),
             val tint = ColorStateList(states, colors)
             navigationView.itemIconTintList = tint
             navigationView.itemTextColor = tint
+            navigationView.setItemActiveIndicatorColor(ColorStateList.valueOf(scheme.secondaryContainer))
         } else {
             navigationView.itemIconTintList = null
             navigationView.itemTextColor = null
+            navigationView.setItemActiveIndicatorColor(null)
         }
     }
 

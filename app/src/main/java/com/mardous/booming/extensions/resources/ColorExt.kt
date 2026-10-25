@@ -31,6 +31,8 @@ import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
 import androidx.appcompat.view.menu.ActionMenuItemView
 import androidx.appcompat.widget.ActionMenuView
+import androidx.appcompat.widget.SwitchCompat
+import android.view.ViewGroup
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.ColorUtils
@@ -213,10 +215,12 @@ fun MorphicIconButton.applyColor(color: Int) {
 
 /** Themed defaults of a button, captured the first time an accent is applied. */
 private class AccentOriginals(
-    val backgroundTint: ColorStateList?,
-    val textColors: ColorStateList?,
-    val iconTint: ColorStateList?,
-    val strokeColor: ColorStateList?
+    val backgroundTint: ColorStateList? = null,
+    val textColors: ColorStateList? = null,
+    val iconTint: ColorStateList? = null,
+    val strokeColor: ColorStateList? = null,
+    val switchTrack: ColorStateList? = null,
+    val switchThumb: ColorStateList? = null
 )
 
 /**
@@ -263,6 +267,52 @@ fun FloatingActionButton.applyPlayerAccent(@ColorInt accent: Int) {
         )
     }
     applyColor(accent)
+}
+
+/**
+ * Applies the player accent to a preference-screen switch. An accent of 0
+ * restores the themed defaults. Checked roles use the accent scheme
+ * (primary/onPrimary); unchecked roles keep the themed defaults.
+ */
+fun SwitchCompat.applyPlayerAccent(@ColorInt accent: Int, @ColorInt checkedTrack: Int, @ColorInt checkedThumb: Int) {
+    if (accent == 0) {
+        (getTag(R.id.tag_accent_originals) as? AccentOriginals)?.let { original ->
+            original.switchTrack?.let { trackTintList = it }
+            original.switchThumb?.let { thumbTintList = it }
+        }
+        return
+    }
+    if (getTag(R.id.tag_accent_originals) == null) {
+        setTag(
+            R.id.tag_accent_originals,
+            AccentOriginals(switchTrack = trackTintList, switchThumb = thumbTintList)
+        )
+    }
+    val original = getTag(R.id.tag_accent_originals) as? AccentOriginals
+    val states = arrayOf(
+        intArrayOf(android.R.attr.state_checked),
+        intArrayOf(-android.R.attr.state_checked)
+    )
+    trackTintList = ColorStateList(
+        states,
+        intArrayOf(checkedTrack, original?.switchTrack?.defaultColor ?: Color.GRAY)
+    )
+    thumbTintList = ColorStateList(
+        states,
+        intArrayOf(checkedThumb, original?.switchThumb?.defaultColor ?: Color.LTGRAY)
+    )
+}
+
+/** Recursively applies [SwitchCompat.applyPlayerAccent] to every switch inside this hierarchy. */
+fun ViewGroup.applyPreferenceSwitchAccent(@ColorInt accent: Int, @ColorInt checkedTrack: Int, @ColorInt checkedThumb: Int) {
+    for (i in 0 until childCount) {
+        val child = getChildAt(i)
+        if (child is SwitchCompat) {
+            child.applyPlayerAccent(accent, checkedTrack, checkedThumb)
+        } else if (child is ViewGroup) {
+            child.applyPreferenceSwitchAccent(accent, checkedTrack, checkedThumb)
+        }
+    }
 }
 
 @SuppressLint("RestrictedApi")
