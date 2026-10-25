@@ -76,6 +76,19 @@ import com.mardous.booming.extensions.getBottomInsets
 import com.mardous.booming.extensions.hideSoftKeyboard
 import com.mardous.booming.extensions.hasT
 import com.mardous.booming.extensions.isLandscape
+import android.content.res.Configuration
+import androidx.lifecycle.lifecycleScope
+import coil3.SingletonImageLoader
+import coil3.request.ImageRequest
+import coil3.size.Scale
+import coil3.toBitmap
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import com.mardous.booming.core.model.theme.AccentSchemes
+import com.mardous.booming.core.palette.PaletteProcessor
+import com.mardous.booming.data.model.Song
 import com.mardous.booming.extensions.launchAndRepeatWithViewLifecycle
 import com.mardous.booming.extensions.resolveColor
 import com.mardous.booming.extensions.resources.darkenColor
@@ -215,6 +228,12 @@ abstract class AbsSlidingMusicPanelActivity : AbsBaseActivity(),
         }
 
         launchAndRepeatWithViewLifecycle {
+            playerViewModel.currentSongFlow.collectLatest { song ->
+                refreshFollowPlayerAccent(song)
+            }
+        }
+
+        launchAndRepeatWithViewLifecycle {
             playerViewModel.queueFlow.collect { queue ->
                 if (!isHiddenByDestination) {
                     hideBottomSheet(queue.isEmpty())
@@ -290,19 +309,57 @@ abstract class AbsSlidingMusicPanelActivity : AbsBaseActivity(),
         }
     }
 
+    private val isDarkTheme: Boolean
+        get() = (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) ==
+                Configuration.UI_MODE_NIGHT_YES
+
     private fun applyPlayerAccent(accent: Int) {
-        if (Preferences.followPlayerColor && accent != 0) {
+        if (Preferences.followPlayerColor && AccentSchemes.isColorful(accent)) {
+            val scheme = AccentSchemes.viewScheme(accent, isDarkTheme)
             val states = arrayOf(
                 intArrayOf(android.R.attr.state_checked),
                 intArrayOf(-android.R.attr.state_checked)
             )
-            val colors = intArrayOf(accent, resolveColor(M3R.attr.colorOnSurfaceVariant))
+            val colors = intArrayOf(scheme.primary, resolveColor(M3R.attr.colorOnSurfaceVariant))
             val tint = ColorStateList(states, colors)
             navigationView.itemIconTintList = tint
             navigationView.itemTextColor = tint
         } else {
             navigationView.itemIconTintList = null
             navigationView.itemTextColor = null
+        }
+    }
+
+    /**
+     * App-level accent pipeline: extracts the artwork palette of the current
+     * song even when the now-playing screen is closed and feeds
+     * [PlayerAccentState]. Monochrome covers and missing artwork clear the
+     * accent so the app reverts to Material You.
+     */
+    private suspend fun refreshFollowPlayerAccent(song: Song) {
+        if (!Preferences.followPlayerColor) return
+        if (song.id == -1L) {
+            PlayerAccentState.clear()
+            return
+        }
+        val context = applicationContext
+        val bitmap = withContext(Dispatchers.IO) {
+            runCatching {
+                SingletonImageLoader.get(context).execute(
+                    ImageRequest.Builder(context)
+                        .data(song)
+                        .scale(Scale.FILL)
+                        .size(128)
+                ).image?.toBitmap(128, 128)
+            }.getOrNull()
+        }
+        val accent = bitmap
+            ?.let { PaletteProcessor.getPaletteColor(context, it, colorAccuracy = false).primaryColor }
+            ?: 0
+        if (AccentSchemes.isColorful(accent)) {
+            PlayerAccentState.update(accent)
+        } else {
+            PlayerAccentState.clear()
         }
     }
 

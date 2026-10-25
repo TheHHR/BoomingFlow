@@ -83,10 +83,8 @@ class MiniPlayerFragment : Fragment(R.layout.fragment_mini_player),
             }
         }
         viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
-            PlayerAccentState.accentColor.collect { accent ->
-                if (accent != 0) {
-                    applyPlayerAccent()
-                }
+            PlayerAccentState.accentColor.collect {
+                applyPlayerAccent()
             }
         }
         viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
@@ -142,14 +140,29 @@ class MiniPlayerFragment : Fragment(R.layout.fragment_mini_player),
         applyPlayerAccent()
     }
 
+    private var defaultPlayPauseTint: ColorStateList? = null
+    private var defaultProgressColors: IntArray? = null
+
     private fun applyPlayerAccent() {
         if (!Preferences.followPlayerColor) return
         val accent = PlayerAccentState.accentColor.value
-        if (accent != 0) {
-            binding.actionPlayPause.setIconTintResource(android.R.color.transparent)
-            binding.actionPlayPause.iconTint = ColorStateList.valueOf(accent)
-            binding.progressBar.setIndicatorColor(accent)
+        if (!com.mardous.booming.core.model.theme.AccentSchemes.isColorful(accent)) {
+            // Missing artwork or a grayscale cover: restore themed defaults.
+            val tint = defaultPlayPauseTint
+            val progressColors = defaultProgressColors
+            if (tint != null && progressColors != null) {
+                binding.actionPlayPause.iconTint = tint
+                binding.progressBar.setIndicatorColor(progressColors.first())
+            }
+            return
         }
+        if (defaultPlayPauseTint == null) {
+            defaultPlayPauseTint = binding.actionPlayPause.iconTint
+            defaultProgressColors = binding.progressBar.indicatorColor
+        }
+        binding.actionPlayPause.setIconTintResource(android.R.color.transparent)
+        binding.actionPlayPause.iconTint = ColorStateList.valueOf(accent)
+        binding.progressBar.setIndicatorColor(accent)
     }
 
     fun setupExtraControls() {

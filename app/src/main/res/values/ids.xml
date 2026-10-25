@@ -21,4 +21,6 @@
 
     <item name="id_inset_consumed" type="id"/>
     <item name="id_wave_amplitude_animator" type="id" />
+
+    <item name="tag_accent_originals" type="id"/>
 </resources>

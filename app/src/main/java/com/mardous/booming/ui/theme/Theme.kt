@@ -12,11 +12,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
+import com.kyant.m3color.hct.Hct
 import com.mardous.booming.R
+import com.mardous.booming.core.PlayerAccentState
 import com.mardous.booming.core.model.player.PlayerColorScheme
+import com.mardous.booming.core.model.theme.AccentSchemes
 import com.mardous.booming.util.Preferences
 
 private val lightScheme = lightColorScheme(
@@ -102,7 +104,16 @@ fun BoomingMusicTheme(
     customFont: Boolean = Preferences.isCustomFont,
     content: @Composable () -> Unit
 ) {
+    val accent by PlayerAccentState.accentColor.collectAsState()
+
     var colorScheme = when {
+        // "Follow player color": when enabled and the current song yielded a
+        // colorful accent, the entire scheme (every role, not just the accent
+        // ones) is generated from the song's color family with the bundled
+        // M3 color engine. Otherwise the base scheme stays Material You.
+        Preferences.followPlayerColor && AccentSchemes.isColorful(accent) ->
+            dynamicColorScheme(Hct.fromInt(accent), darkTheme, PaletteStyle.TonalSpot)
+
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
             val context = LocalContext.current
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
@@ -120,26 +131,6 @@ fun BoomingMusicTheme(
             surfaceContainerLow = colorResource(R.color.surfaceContainerLowBlack),
             surfaceContainerLowest = colorResource(R.color.surfaceContainerLowestBlack)
         )
-    }
-
-    // "Follow player color": override the accent roles with the current
-    // song's artwork accent; the base scheme stays Material You when the
-    // pref is off, so it is never a static fallback on capable devices.
-    if (Preferences.followPlayerColor) {
-        val accent by com.mardous.booming.core.PlayerAccentState.accentColor.collectAsState()
-        if (accent != 0) {
-            val accentColor = Color(accent)
-            val onAccent = if (accentColor.luminance() > 0.5f)
-                Color(0xFF101014)
-            else
-                Color.White
-            colorScheme = colorScheme.copy(
-                primary = accentColor,
-                onPrimary = onAccent,
-                primaryContainer = accentColor,
-                onPrimaryContainer = onAccent
-            )
-        }
     }
 
     MaterialTheme(

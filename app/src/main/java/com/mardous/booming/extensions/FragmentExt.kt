@@ -140,8 +140,16 @@ fun LifecycleOwner.launchAndRepeatWithViewLifecycle(state: Lifecycle.State = Lif
 fun Fragment.collectPlayerAccent(action: (Int) -> Unit) {
     viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
         PlayerAccentState.accentColor.collect { accent ->
-            if (accent != 0 && Preferences.followPlayerColor) {
-                action(accent)
+            if (Preferences.followPlayerColor) {
+                // 0 means "no usable accent" (missing artwork or a grayscale
+                // cover): consumers restore their themed defaults.
+                action(
+                    if (com.mardous.booming.core.model.theme.AccentSchemes.isColorful(accent)) {
+                        accent
+                    } else {
+                        0
+                    }
+                )
             }
         }
     }

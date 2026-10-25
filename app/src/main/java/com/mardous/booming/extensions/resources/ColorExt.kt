@@ -211,6 +211,60 @@ fun MorphicIconButton.applyColor(color: Int) {
     setIconTintColor(getPrimaryTextColor(context, color.isColorLight))
 }
 
+/** Themed defaults of a button, captured the first time an accent is applied. */
+private class AccentOriginals(
+    val backgroundTint: ColorStateList?,
+    val textColors: ColorStateList?,
+    val iconTint: ColorStateList?,
+    val strokeColor: ColorStateList?
+)
+
+/**
+ * Applies the player accent to this [MaterialButton]. An accent of 0
+ * ("no usable accent") restores the themed defaults captured before the
+ * first application.
+ */
+fun MaterialButton.applyPlayerAccent(@ColorInt accent: Int) {
+    if (accent == 0) {
+        (getTag(R.id.tag_accent_originals) as? AccentOriginals)?.let { original ->
+            backgroundTintList = original.backgroundTint
+            setTextColor(original.textColors)
+            iconTint = original.iconTint
+            strokeColor = original.strokeColor
+        }
+        return
+    }
+    if (getTag(R.id.tag_accent_originals) == null) {
+        setTag(
+            R.id.tag_accent_originals,
+            AccentOriginals(backgroundTintList, textColors, iconTint, strokeColor)
+        )
+    }
+    applyColor(accent)
+}
+
+/**
+ * Applies the player accent to this [FloatingActionButton]. An accent of 0
+ * ("no usable accent") restores the themed defaults captured before the
+ * first application.
+ */
+fun FloatingActionButton.applyPlayerAccent(@ColorInt accent: Int) {
+    if (accent == 0) {
+        (getTag(R.id.tag_accent_originals) as? AccentOriginals)?.let { original ->
+            backgroundTintList = original.backgroundTint
+            imageTintList = original.iconTint
+        }
+        return
+    }
+    if (getTag(R.id.tag_accent_originals) == null) {
+        setTag(
+            R.id.tag_accent_originals,
+            AccentOriginals(backgroundTintList, null, imageTintList, null)
+        )
+    }
+    applyColor(accent)
+}
+
 @SuppressLint("RestrictedApi")
 fun Toolbar.colorizeToolbar(toolbarIconsColor: Int) {
     val colorFilter = PorterDuffColorFilter(toolbarIconsColor, PorterDuff.Mode.SRC_IN)

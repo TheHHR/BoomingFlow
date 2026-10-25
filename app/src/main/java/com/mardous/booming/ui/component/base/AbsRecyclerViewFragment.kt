@@ -42,7 +42,7 @@ import com.mardous.booming.extensions.createBoomingMusicBalloon
 import com.mardous.booming.extensions.collectPlayerAccent
 import com.mardous.booming.extensions.dp
 import com.mardous.booming.extensions.launchAndRepeatWithViewLifecycle
-import com.mardous.booming.extensions.resources.applyColor
+import com.mardous.booming.extensions.resources.applyPlayerAccent
 import com.mardous.booming.extensions.resources.createFastScroller
 import com.mardous.booming.extensions.resources.onVerticalScroll
 import com.mardous.booming.extensions.setSupportActionBar
@@ -104,7 +104,7 @@ abstract class AbsRecyclerViewFragment<A : RecyclerView.Adapter<*>, LM : Recycle
                 }
             }
             collectPlayerAccent { accent ->
-                binding.shuffleButton.applyColor(accent)
+                binding.shuffleButton.applyPlayerAccent(accent)
             }
         } else {
             binding.shuffleButton.isVisible = false

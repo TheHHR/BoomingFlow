@@ -14,7 +14,7 @@ import com.mardous.booming.R
 import com.mardous.booming.databinding.FragmentDetailListBinding
 import com.mardous.booming.extensions.collectPlayerAccent
 import com.mardous.booming.extensions.launchAndRepeatWithViewLifecycle
-import com.mardous.booming.extensions.resources.applyColor
+import com.mardous.booming.extensions.resources.applyPlayerAccent
 import com.mardous.booming.extensions.setSupportActionBar
 import com.mardous.booming.extensions.showToast
 import com.mardous.booming.online.data.spotify.SpotifyArtist
@@ -80,7 +80,7 @@ class SpotifyArtistFragment : AbsMainActivityFragment(R.layout.fragment_detail_l
         binding.playAction.setOnClickListener { playAll(shuffle = false) }
         binding.shuffleAction.setOnClickListener { playAll(shuffle = true) }
         collectPlayerAccent { accent ->
-            binding.playAction.applyColor(accent)
+            binding.playAction.applyPlayerAccent(accent)
         }
 
         artist?.let { viewModel.load(it.id) }
