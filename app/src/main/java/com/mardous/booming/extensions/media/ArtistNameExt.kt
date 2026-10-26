@@ -4,6 +4,7 @@ import android.content.Context
 import com.mardous.booming.R
 import com.mardous.booming.data.model.Artist
 import com.mardous.booming.util.Preferences
+import com.mardous.booming.extensions.utilities.deserialize
 import org.koin.core.context.GlobalContext
 import java.util.regex.Pattern
 
@@ -22,9 +23,12 @@ import java.util.regex.Pattern
  * `(.*)([(?\s](feat(uring)?|ft|with)\.?\s?|\s?[/;,]\s?|\s+x\s+)(.*)`
  */
 private var cachedPattern: Pair<String, Pattern>? = null
+private var cachedExceptions: Pair<String, List<String>>? = null
 
 private fun currentArtistNamePattern(): Pattern {
-    val tokenKey = Preferences.artistSeparators.joinToString("\u0000")
+    val tokenKey = Preferences.artistSeparatorsRaw
+        .deserialize(Preferences.defaultArtistSeparators)
+        .joinToString("\u0000")
     cachedPattern?.let { (key, pattern) ->
         if (key == tokenKey) return pattern
     }
@@ -47,19 +51,74 @@ private fun currentArtistNamePattern(): Pattern {
         // Empty separator set: nothing can ever split a name.
         Pattern.compile("(?!x)x")
     } else {
-        Pattern.compile("(.*)(${alternatives.joinToString("|")})(.*)")
+        Pattern.compile(
+            "(.*)(${alternatives.joinToString("|")})(.*)",
+            Pattern.CASE_INSENSITIVE or Pattern.UNICODE_CASE
+        )
     }
     cachedPattern = tokenKey to pattern
     return pattern
 }
 
-fun String.extractMainArtistName(): String {
-    val matcher = currentArtistNamePattern().matcher(lowercase())
-    if (matcher.matches()) {
-        val goIndex = matcher.start(2)
-        return this.substring(0, goIndex).trim()
+private fun currentExceptions(): List<String> {
+    val raw = Preferences.artistSeparatorExceptionsRaw
+    cachedExceptions?.let { (key, list) ->
+        if (key == raw) return list
     }
-    return this
+    val list = raw.deserialize(emptyList()).map { it.trim() }.filter { it.isNotEmpty() }
+    cachedExceptions = (raw ?: "") to list
+    return list
+}
+
+/**
+ * Splits a multi-artist name into its individual artists using the
+ * user-configured separators. Exception entries (Library settings →
+ * Artist separators) are masked before splitting and restored afterward,
+ * so e.g. "JAY-Z" stays whole when "-" is a separator.
+ */
+fun String.splitArtistName(): List<String> {
+    val exceptions = currentExceptions()
+    var masked = this
+    val placeholders = mutableListOf<Pair<String, String>>()
+    exceptions.forEachIndexed { index, exception ->
+        if (masked.contains(exception, ignoreCase = true)) {
+            val placeholder = "\u0001$index\u0001"
+            masked = masked.replace(exception, placeholder, ignoreCase = true)
+            placeholders.add(placeholder to exception)
+        }
+    }
+
+    val parts = mutableListOf<String>()
+    var rest = masked.trim()
+    while (rest.isNotEmpty()) {
+        val matcher = currentArtistNamePattern().matcher(rest)
+        if (matcher.matches()) {
+            parts.add(matcher.group(1) ?: break)
+            rest = matcher.group(3).orEmpty()
+        } else {
+            parts.add(rest)
+            break
+        }
+    }
+
+    val result = parts.map { part ->
+        var restored = part
+        placeholders.forEach { (placeholder, original) ->
+            restored = restored.replace(placeholder, original, ignoreCase = true)
+        }
+        restored.trim()
+    }.filter { it.isNotEmpty() }
+    return result.ifEmpty { listOf(trim()) }
+}
+
+/**
+ * The main artist of a multi-artist name: every part except the last,
+ * comma-joined. "A feat. B" -> "A"; "A & B & C" -> "A, B".
+ */
+fun String.extractMainArtistName(): String {
+    val parts = splitArtistName()
+    if (parts.size <= 1) return trim()
+    return parts.dropLast(1).joinToString(", ").trim()
 }
 
 fun String.displayArtistName(): String {

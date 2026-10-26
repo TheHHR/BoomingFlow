@@ -102,10 +102,22 @@ class ArtistListFragment : AbsRecyclerViewCustomGridSizeFragment<ArtistAdapter, 
         menuItem: MenuItem,
         sharedElements: Array<Pair<View, String>>?
     ): Boolean {
+        if (menuItem.itemId == R.id.action_not_artist) {
+            Preferences.addIgnoredArtists(listOf(artist.name))
+            libraryViewModel.forceReload(ReloadType.Artists)
+            showToast(getString(R.string.ignored_artist_toast, artist.name))
+            return true
+        }
         return artist.onArtistMenu(this, menuItem)
     }
 
     override fun artistsMenuItemClick(artists: List<Artist>, menuItem: MenuItem) {
+        if (menuItem.itemId == R.id.action_not_artist) {
+            Preferences.addIgnoredArtists(artists.map { it.name })
+            libraryViewModel.forceReload(ReloadType.Artists)
+            showToast(getString(R.string.ignored_artists_toast, artists.size))
+            return
+        }
         artists.onArtistsMenu(this, menuItem)
     }
 

@@ -48,6 +48,7 @@ import com.mardous.booming.ui.screen.player.PlayerViewModel
 import com.mardous.booming.ui.screen.tageditor.AlbumTagEditorActivity
 import com.mardous.booming.ui.screen.tageditor.ArtistTagEditorActivity
 import com.mardous.booming.ui.screen.tageditor.SongTagEditorActivity
+import com.mardous.booming.util.Preferences
 import com.mardous.booming.util.m3u.M3UWriter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -230,6 +231,14 @@ fun List<Album>.onAlbumsMenu(fragment: Fragment, menuItem: MenuItem): Boolean {
 
 fun Artist.onArtistMenu(fragment: Fragment, menuItem: MenuItem): Boolean {
     return when (menuItem.itemId) {
+        R.id.action_not_artist -> {
+            // Handled with an immediate list reload where the fragment
+            // supports it (ArtistListFragment); elsewhere the entry simply
+            // disappears the next time the artists list is built.
+            Preferences.addIgnoredArtists(listOf(name))
+            true
+        }
+
         R.id.action_tag_editor -> {
             val tagEditorIntent = Intent(fragment.requireContext(), ArtistTagEditorActivity::class.java)
             tagEditorIntent.putExtra(AbsTagEditorActivity.EXTRA_TARGET, EditTarget.artist(this))
@@ -242,6 +251,10 @@ fun Artist.onArtistMenu(fragment: Fragment, menuItem: MenuItem): Boolean {
 }
 
 fun List<Artist>.onArtistsMenu(fragment: Fragment, menuItem: MenuItem): Boolean {
+    if (menuItem.itemId == R.id.action_not_artist) {
+        Preferences.addIgnoredArtists(map { it.name })
+        return true
+    }
     fragment.lifecycleScope.launch(Dispatchers.IO) {
         val songs = flatMap { it.sortedSongs }
         withContext(Dispatchers.Main) {

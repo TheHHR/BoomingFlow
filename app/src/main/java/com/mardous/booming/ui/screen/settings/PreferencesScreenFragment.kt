@@ -60,6 +60,7 @@ import com.mardous.booming.ui.component.preferences.ThemePreference
 import com.mardous.booming.ui.component.preferences.dialog.ActionOnCoverPreferenceDialog
 import com.mardous.booming.ui.component.preferences.dialog.ArtistSeparatorsPreferenceDialog
 import com.mardous.booming.ui.component.preferences.dialog.CategoriesPreferenceDialog
+import com.mardous.booming.ui.component.preferences.dialog.IgnoredArtistsPreferenceDialog
 import com.mardous.booming.ui.component.preferences.dialog.ClearQueueActionPreferenceDialog
 import com.mardous.booming.ui.component.preferences.dialog.ExtraInfoPreferenceDialog
 import com.mardous.booming.ui.component.preferences.dialog.LanguageSelectionDialog
@@ -95,6 +96,7 @@ import com.mardous.booming.util.IGNORE_MEDIA_STORE
 import com.mardous.booming.util.LANGUAGE_NAME
 import com.mardous.booming.util.LASTFM_LOGIN
 import com.mardous.booming.util.ARTIST_SEPARATORS
+import com.mardous.booming.util.IGNORED_ARTISTS
 import com.mardous.booming.util.LIBRARY_CATEGORIES
 import com.mardous.booming.util.LISTENBRAINZ_LOGIN
 import com.mardous.booming.util.FOLLOW_PLAYER_COLOR
@@ -161,14 +163,27 @@ class LibraryPreferencesFragment : PreferenceScreenFragment() {
                 Preferences.artistSeparators.joinToString(separator = "  ")
             }
         }
+        findPreference<Preference>(IGNORED_ARTISTS)?.apply {
+            summaryProvider = Preference.SummaryProvider<Preference> {
+                val ignored = Preferences.ignoredArtists
+                if (ignored.isEmpty()) {
+                    context?.getString(R.string.ignored_artists_summary)
+                } else {
+                    ignored.joinToString(separator = ", ")
+                }
+            }
+        }
     }
 
     override fun onDisplayPreferenceDialog(preference: Preference) {
-        if (preference.key == ARTIST_SEPARATORS) {
-            ArtistSeparatorsPreferenceDialog()
-                .show(childFragmentManager, "androidx.preference.PreferenceFragment.DIALOG")
-        } else {
-            super.onDisplayPreferenceDialog(preference)
+        when (preference.key) {
+            ARTIST_SEPARATORS ->
+                ArtistSeparatorsPreferenceDialog()
+                    .show(childFragmentManager, "androidx.preference.PreferenceFragment.DIALOG")
+            IGNORED_ARTISTS ->
+                IgnoredArtistsPreferenceDialog()
+                    .show(childFragmentManager, "androidx.preference.PreferenceFragment.DIALOG")
+            else -> super.onDisplayPreferenceDialog(preference)
         }
     }
 }

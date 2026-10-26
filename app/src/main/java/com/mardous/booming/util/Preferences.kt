@@ -130,6 +130,45 @@ object Preferences : KoinComponent {
             putString(ARTIST_SEPARATORS, value.serialize())
         }
 
+    val artistSeparatorsRaw: String?
+        get() = preferences.nullString(ARTIST_SEPARATORS)
+
+    /**
+     * Artist-name fragments that must never be split, even when they
+     * contain an active separator ("JAY-Z" with "-" enabled).
+     */
+    var artistSeparatorExceptions: List<String>
+        get() = preferences.nullString(ARTIST_SEPARATOR_EXCEPTIONS).deserialize(emptyList())
+        set(value) = preferences.edit {
+            putString(ARTIST_SEPARATOR_EXCEPTIONS, value.serialize())
+        }
+
+    val artistSeparatorExceptionsRaw: String?
+        get() = preferences.nullString(ARTIST_SEPARATOR_EXCEPTIONS)
+
+    /**
+     * Artist entries hidden from the artists page ("Not artist" action).
+     * Matching is case-insensitive on the trimmed name.
+     */
+    var ignoredArtists: List<String>
+        get() = preferences.nullString(IGNORED_ARTISTS).deserialize(emptyList())
+        set(value) = preferences.edit {
+            putString(IGNORED_ARTISTS, value.serialize())
+        }
+
+    fun addIgnoredArtists(names: Collection<String>) {
+        if (names.isEmpty()) return
+        val updated = ignoredArtists + names.map { it.trim() }
+        ignoredArtists = updated.distinctBy { it.lowercase() }
+    }
+
+    fun removeIgnoredArtist(name: String) {
+        ignoredArtists = ignoredArtists.filterNot { it.equals(name.trim(), ignoreCase = true) }
+    }
+
+    fun isIgnoredArtist(name: String): Boolean =
+        ignoredArtists.any { it.equals(name.trim(), ignoreCase = true) }
+
     var libraryCategories: List<CategoryInfo>
         get() {
             val stored: List<CategoryInfo> = preferences.nullString(LIBRARY_CATEGORIES)
@@ -549,6 +588,8 @@ interface UpdateSearchMode {
 
 const val BLACK_THEME = "black_theme"
 const val ARTIST_SEPARATORS = "artist_separators"
+const val ARTIST_SEPARATOR_EXCEPTIONS = "artist_separator_exceptions"
+const val IGNORED_ARTISTS = "ignored_artists"
 const val FOLLOW_PLAYER_COLOR = "follow_player_color"
 const val USE_CUSTOM_FONT = "use_custom_font"
 const val GENERAL_THEME = "general_theme"

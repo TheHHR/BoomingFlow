@@ -28,14 +28,20 @@ data class Artist(
     val id: Long,
     val albums: List<Album>,
     val filterSingles: Boolean,
-    val isAlbumArtist: Boolean = false
+    val isAlbumArtist: Boolean = false,
+    /**
+     * Display name for entries whose albums carry a different raw tag -
+     * e.g. split artists ("Eminem & King" albums assigned to "Eminem").
+     */
+    val nameOverride: String? = null
 ) : SongProvider {
 
     constructor(artistName: String, albums: List<Album>, filterSingles: Boolean, isAlbumArtist: Boolean = true) :
-            this(albums.firstOrNull()?.artistId ?: -1, albums, filterSingles, true)
+            this(albums.firstOrNull()?.artistId ?: -1, albums, filterSingles, true, artistName)
 
     val name: String
-        get() = if (isAlbumArtist) getAlbumArtistName() ?: "-" else getArtistName()
+        get() = nameOverride
+            ?: if (isAlbumArtist) getAlbumArtistName() ?: "-" else getArtistName()
 
     val albumCount: Int
         get() = if (filterSingles) albums.count { !it.isSingle } else albums.size

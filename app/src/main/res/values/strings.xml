@@ -905,6 +905,15 @@
     <string name="artist_separators_summary">Tokens that split multi-artist names, e.g. “A feat. B” or “A &amp; B”. Used when searching lyrics and artist info.</string>
     <string name="artist_separators_hint">Add separator</string>
     <string name="artist_separators_add">Add</string>
+    <string name="artist_separators_section">Separators</string>
+    <string name="artist_separators_exceptions_section">Exceptions</string>
+    <string name="artist_separators_exception_hint">Add exception</string>
+    <string name="ignored_artists_title">Ignored artists</string>
+    <string name="ignored_artists_summary">Artist entries hidden from the artists page. Uncheck to restore.</string>
+    <string name="ignored_artists_hint">Add artist name</string>
+    <string name="action_not_artist">Not artist</string>
+    <string name="ignored_artist_toast">“%s” is no longer treated as an artist</string>
+    <string name="ignored_artists_toast">%d entries are no longer treated as artists</string>
     <string name="trash_music_title">Send to trash</string>
     <string name="trash_music_summary">Send deleted files to trash.</string>
     <string name="recursive_folder_actions_title">Actions affecting subfolders</string>

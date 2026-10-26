@@ -26,6 +26,7 @@ import com.mardous.booming.core.sort.ArtistSortMode
 import com.mardous.booming.data.local.MediaQueryDispatcher
 import com.mardous.booming.data.model.Album
 import com.mardous.booming.data.model.Artist
+import com.mardous.booming.extensions.media.splitArtistName
 import com.mardous.booming.extensions.utilities.collapseSpaces
 import com.mardous.booming.util.Preferences
 
@@ -122,19 +123,26 @@ class RealArtistRepository(
             return Artist(Artist.VARIOUS_ARTISTS_ID, albums, filterSingles, isAlbumArtist = true)
         }
 
+        // Album-artist tags may contain separators ("Eminem & King"), so a
+        // split name ("Eminem") can never be resolved with an exact SQL
+        // match. Build the artist from all songs, keeping the albums whose
+        // album-artist tag splits to this name - the same construction the
+        // artists list uses, so list and detail always agree.
         val songs = songRepository.songs(
-            songRepository.makeSongCursor(
-                "lower(${AudioColumns.ALBUM_ARTIST})=?",
-                arrayOf(artistName.lowercase()),
-                DEFAULT_SORT_ORDER
-            )
+            songRepository.makeSongCursor(null, null, DEFAULT_SORT_ORDER)
         )
+        val albums = with(AlbumSortMode.ArtistAlbums) {
+            albumRepository.splitIntoAlbums(songs)
+                .filter { album ->
+                    val rawName = album.albumArtistName?.collapseSpaces() ?: return@filter false
+                    rawName.equals(artistName, ignoreCase = true) ||
+                            rawName.splitArtistName().any { it.equals(artistName, ignoreCase = true) }
+                }
+                .sorted()
+        }
         return Artist(
             artistName = artistName,
-            albums = albumRepository.splitIntoAlbums(
-                songs = songs,
-                sortMode = AlbumSortMode.ArtistAlbums
-            ),
+            albums = albums,
             filterSingles = filterSingles
         )
     }
@@ -189,24 +197,36 @@ class RealArtistRepository(
 
     fun splitIntoAlbumArtists(albums: List<Album>): List<Artist> {
         val filterSingles = this.filterSingles
-        return albums.groupBy { it.albumArtistName?.collapseSpaces()?.lowercase() }
-            .filterNot {
-                it.key.isNullOrEmpty()
+        // Multi-artist album-artist tags ("Eminem & King") are split using
+        // the configured separators; the album is assigned to every resulting
+        // artist, and names on the ignore list ("Not artist") are dropped.
+        val albumsByArtistName = LinkedHashMap<String, MutableList<Album>>()
+        val displayNames = HashMap<String, String>()
+        for (album in albums) {
+            val rawName = album.albumArtistName?.collapseSpaces() ?: continue
+            if (rawName.isEmpty()) continue
+            for (part in rawName.splitArtistName()) {
+                if (Preferences.isIgnoredArtist(part)) continue
+                val key = part.lowercase()
+                albumsByArtistName.getOrPut(key) { mutableListOf() }.add(album)
+                displayNames.putIfAbsent(key, part)
             }
-            .map { entry ->
-                val currentAlbums = entry.value
-                if (currentAlbums.isNotEmpty()) {
-                    val artistName = currentAlbums[0].albumArtistName?.collapseSpaces()
-                    val sortedAlbums = with(AlbumSortMode.ArtistAlbums) { currentAlbums.sorted() }
-                    if (Artist.VARIOUS_ARTISTS_DISPLAY_NAME.equals(artistName, ignoreCase = true)) {
-                        Artist(Artist.VARIOUS_ARTISTS_ID, sortedAlbums, filterSingles, isAlbumArtist = true)
-                    } else {
-                        Artist(currentAlbums[0].artistId, sortedAlbums, filterSingles, isAlbumArtist = true)
-                    }
-                } else {
-                    Artist.empty
-                }
+        }
+        return albumsByArtistName.map { (key, currentAlbums) ->
+            val artistName = displayNames.getValue(key)
+            val sortedAlbums = with(AlbumSortMode.ArtistAlbums) { currentAlbums.sorted() }
+            if (Artist.VARIOUS_ARTISTS_DISPLAY_NAME.equals(artistName, ignoreCase = true)) {
+                Artist(Artist.VARIOUS_ARTISTS_ID, sortedAlbums, filterSingles, isAlbumArtist = true)
+            } else {
+                Artist(
+                    id = currentAlbums[0].artistId,
+                    albums = sortedAlbums,
+                    filterSingles = filterSingles,
+                    isAlbumArtist = true,
+                    nameOverride = artistName
+                )
             }
+        }
     }
 
     private fun sortArtists(artists: List<Artist>): List<Artist> {

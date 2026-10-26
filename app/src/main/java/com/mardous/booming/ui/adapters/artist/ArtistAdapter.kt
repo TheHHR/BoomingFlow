@@ -49,7 +49,7 @@ class ArtistAdapter constructor(
     private val itemLayoutRes: Int,
     private val sortMode: ArtistSortMode? = null,
     private val callback: IArtistCallback? = null,
-) : AbsMultiSelectAdapter<ArtistAdapter.ViewHolder, Artist>(activity, R.menu.menu_media_selection),
+) : AbsMultiSelectAdapter<ArtistAdapter.ViewHolder, Artist>(activity, R.menu.menu_artists_selection),
     PopupTextProvider {
 
     private var albumArtistsOnly = false
