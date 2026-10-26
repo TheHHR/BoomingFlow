@@ -227,6 +227,52 @@ class LyricsViewModel(
 
     private var currentLyricsSong: Song? = null
 
+    /**
+     * Row status for the fullscreen provider switch dialog: which provider
+     * is currently being fetched, and which provider last returned nothing.
+     */
+    data class ProviderSwitchState(
+        val loadingProvider: LyricsProvider? = null,
+        val failureProvider: LyricsProvider? = null
+    )
+
+    private val _providerSwitchState = MutableStateFlow(ProviderSwitchState())
+    val providerSwitchState = _providerSwitchState.asStateFlow()
+
+    /**
+     * Small cache of provider-switch results per song, so re-tapping a
+     * provider in the dialog doesn't refetch.
+     */
+    private val providerSwitchResults = mutableMapOf<Pair<Long, LyricsProvider>, ParsedLyrics>()
+
+    fun switchToProvider(song: Song, provider: LyricsProvider) {
+        if (_providerSwitchState.value.loadingProvider != null) return
+        // Cancel any in-flight fetch so it can't overwrite the user's pick.
+        lyricsJob?.cancel()
+        viewModelScope.launch {
+            _providerSwitchState.value = ProviderSwitchState(loadingProvider = provider)
+            val cacheKey = song.id to provider
+            val parsed = providerSwitchResults[cacheKey]
+                ?: repository.applyProviderLyrics(song, provider)
+
+            if (parsed is ParsedLyrics.Empty) {
+                _providerSwitchState.value = ProviderSwitchState(failureProvider = provider)
+            } else {
+                providerSwitchResults.clear()
+                providerSwitchResults[cacheKey] = parsed
+                if (song.id == _lyricsUiState.value.id) {
+                    when (parsed) {
+                        is ParsedLyrics.Instrumental -> _lyricsUiState.value = LyricsUiState.Instrumental(song.id)
+                        is ParsedLyrics.Synced -> _lyricsUiState.value = LyricsUiState.Synced(song.id, parsed.lyrics)
+                        is ParsedLyrics.Plain -> _lyricsUiState.value = LyricsUiState.Plain(song.id, parsed.lyrics, parsed.provider)
+                        is ParsedLyrics.Empty -> Unit
+                    }
+                }
+                _providerSwitchState.value = ProviderSwitchState()
+            }
+        }
+    }
+
     private suspend fun getEditorLyricsBySources(
         song: Song,
         sources: List<LyricsSource>
@@ -247,39 +293,45 @@ class LyricsViewModel(
             } else {
                 _lyricsUiState.value = LyricsUiState.Loading(song.id)
 
-                val sources = listOf(
-                    LyricsSource.File,
-                    LyricsSource.Embedded,
-                    LyricsSource.Downloaded
-                )
+                // Stored lyrics are the top priority and final: whatever the
+                // user downloaded, edited or picked is THE lyrics for this
+                // song - no network stage, no sidecar or embedded override.
+                val stored = repository.storedLyrics(song, allowDownload = false, preferWordSynced = false)
+                if (stored != null) {
+                    if (isActive) {
+                        _lyricsUiState.value = when (val parsed = repository.parseRawLyrics(song, stored)) {
+                            is ParsedLyrics.Instrumental -> LyricsUiState.Instrumental(song.id)
+                            is ParsedLyrics.Synced -> LyricsUiState.Synced(song.id, parsed.lyrics)
+                            is ParsedLyrics.Plain -> LyricsUiState.Plain(song.id, parsed.lyrics, parsed.provider)
+                            is ParsedLyrics.Empty -> LyricsUiState.Empty(song.id)
+                        }
+                    }
+                } else {
+                    // Nothing stored: sidecar files and embedded tags show
+                    // instantly, then the provider race replaces them when
+                    // it finds something better.
+                    val sources = listOf(LyricsSource.File, LyricsSource.Embedded)
+                    val localState = getBestLocalLyrics(song, sources)
 
-                // Stage 1: local sources (sidecar files, embedded tags and
-                // stored rows) are cheap disk reads - fetch them in parallel
-                // and show the best result immediately.
-                val localState = getBestLocalLyrics(song, sources)
-
-                // Stage 2: only hit the network when the local result can
-                // still be improved (anything below word-by-word). The
-                // upgrade replaces the lyrics in place, so stored line-synced
-                // lyrics never wait on it.
-                if (isActive && canUpgrade(localState)) {
-                    if (localState is LyricsUiState.Empty) {
-                        // Don't flash "no lyrics found" while the fetch is
-                        // still in flight - keep the loading state instead.
-                        _lyricsUiState.value = LyricsUiState.Loading(song.id)
+                    if (isActive && canUpgrade(localState)) {
+                        if (localState is LyricsUiState.Empty) {
+                            // Don't flash "no lyrics found" while the fetch is
+                            // still in flight - keep the loading state instead.
+                            _lyricsUiState.value = LyricsUiState.Loading(song.id)
+                        } else if (isActive) {
+                            _lyricsUiState.value = localState
+                        }
+                        val upgradedState = fetchUpgradedLyrics(song)
+                        if (isActive) {
+                            if (upgradedState != null && isUpgrade(localState, upgradedState)) {
+                                _lyricsUiState.value = upgradedState
+                            } else if (localState is LyricsUiState.Empty) {
+                                _lyricsUiState.value = LyricsUiState.Empty(song.id)
+                            }
+                        }
                     } else if (isActive) {
                         _lyricsUiState.value = localState
                     }
-                    val upgradedState = fetchUpgradedLyrics(song)
-                    if (isActive) {
-                        if (upgradedState != null && isUpgrade(localState, upgradedState)) {
-                            _lyricsUiState.value = upgradedState
-                        } else if (localState is LyricsUiState.Empty) {
-                            _lyricsUiState.value = LyricsUiState.Empty(song.id)
-                        }
-                    }
-                } else if (isActive) {
-                    _lyricsUiState.value = localState
                 }
             }
         }
@@ -336,11 +388,9 @@ class LyricsViewModel(
                     when (source) {
                         LyricsSource.File -> repository.fileLyrics(song)
                         LyricsSource.Embedded -> repository.embeddedLyrics(song)
-                        LyricsSource.Downloaded -> repository.storedLyrics(
-                            song,
-                            allowDownload = false,
-                            preferWordSynced = true
-                        )
+                        // Stored rows are handled before this point and are
+                        // top priority; they never participate in the ladder.
+                        LyricsSource.Downloaded -> null
                     }
                 }
             }.mapValues { it.value.await() }

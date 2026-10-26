@@ -23,6 +23,7 @@ import com.mardous.booming.data.model.lyrics.SyncedLyrics
 import com.mardous.booming.data.model.network.NetworkFeature
 import com.mardous.booming.data.remote.lyrics.LyricsDownloadService
 import com.mardous.booming.data.remote.lyrics.LyricsProviderParams
+import com.mardous.booming.data.remote.lyrics.api.LyricsProvider
 import com.mardous.booming.extensions.hasR
 import com.mardous.booming.extensions.media.isArtistNameUnknown
 import com.mardous.booming.util.MARK_INSTRUMENTAL_TRACKS_BY_TITLE
@@ -46,6 +47,14 @@ interface LyricsRepository {
         preferWordSynced: Boolean = false
     ): RawLyrics.Stored?
     suspend fun downloadLyrics(song: Song, searchTitle: String, searchArtist: String, providerParams: LyricsProviderParams): RawLyrics.Remote?
+
+    /**
+     * Fetches lyrics from a single provider (ignoring the enable/wifi
+     * settings, like the editor does), saves them as the song's stored
+     * lyrics and returns the parsed result. Used by the fullscreen lyrics
+     * provider switch.
+     */
+    suspend fun applyProviderLyrics(song: Song, provider: LyricsProvider): ParsedLyrics
 
     suspend fun saveLyrics(
         song: Song,
@@ -351,6 +360,40 @@ class RealLyricsRepository(
         } catch (_: Exception) {
             null
         }
+    }
+
+    override suspend fun applyProviderLyrics(song: Song, provider: LyricsProvider): ParsedLyrics {
+        if (song.id == Song.emptySong.id) return ParsedLyrics.Empty
+
+        val params = LyricsProviderParams(
+            providers = listOf(provider),
+            ignoreWifiSetting = true,
+            ignoreProviderSetting = true
+        )
+        val remote = try {
+            lyricsDownloadService.remoteLyrics(song, song.title, song.artistName, params)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (_: Exception) {
+            null
+        } ?: return ParsedLyrics.Empty
+
+        val stored = remote.prepareToStore() ?: return ParsedLyrics.Empty
+        lyricsDao.insertLyrics(
+            if (stored.instrumental) {
+                LyricsEntity(song.id, instrumental = true)
+            } else {
+                LyricsEntity(
+                    id = song.id,
+                    lyrics = stored.lyrics,
+                    provider = stored.provider
+                )
+            }
+        )
+        // The user picked these lyrics on purpose; a previous miss must not
+        // suppress anything anymore.
+        clearNegativeCache(song.id)
+        return parseRawLyrics(song, cacheLyrics(song.id, stored))
     }
 
     override suspend fun saveLyrics(

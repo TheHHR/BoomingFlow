@@ -6,6 +6,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -18,8 +19,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularWavyProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledIconButton
@@ -29,6 +34,7 @@ import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -42,6 +48,7 @@ import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -68,9 +75,11 @@ import com.mardous.booming.core.model.lyrics.LyricsViewState
 import com.mardous.booming.core.model.player.PlayerColorScheme
 import com.mardous.booming.data.model.Song
 import com.mardous.booming.data.model.lyrics.SyncedLyrics
+import com.mardous.booming.data.remote.lyrics.api.LyricsProvider
 import com.mardous.booming.extensions.isPowerSaveMode
 import com.mardous.booming.extensions.resolveColor
 import com.mardous.booming.ui.component.compose.AnimatedEqBars
+import com.mardous.booming.ui.component.compose.DialogListItemWithRadio
 import com.mardous.booming.ui.component.compose.color.extractGradientColors
 import com.mardous.booming.ui.component.compose.decoration.FadingEdges
 import com.mardous.booming.ui.component.compose.decoration.animatedGradient
@@ -166,6 +175,7 @@ fun LyricsScreen(
     }
 
     var hasBackgroundEffects by remember { mutableStateOf(false) }
+    var showProviderDialog by remember { mutableStateOf(false) }
 
     Scaffold(
         contentWindowInsets = WindowInsets
@@ -173,14 +183,26 @@ fun LyricsScreen(
             .add(WindowInsets(bottom = miniPlayerMargin.totalMargin)),
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { onEditClick(song) },
+                onClick = {},
                 containerColor = MaterialTheme.colorScheme.surface,
                 contentColor = MaterialTheme.colorScheme.onSurface
             ) {
-                Icon(
-                    painter = painterResource(R.drawable.ic_edit_note_24dp),
-                    contentDescription = stringResource(R.string.action_lyrics_editor)
-                )
+                // Tap opens the provider switch dialog; tap and hold opens
+                // the full lyrics editor.
+                Box(
+                    modifier = Modifier
+                        .combinedClickable(
+                            onClick = { showProviderDialog = true },
+                            onLongClick = { onEditClick(song) }
+                        )
+                        .padding(16.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_edit_note_24dp),
+                        contentDescription = stringResource(R.string.switch_lyrics_provider_title)
+                    )
+                }
             }
         },
         modifier = Modifier.keepScreenOn()
@@ -445,4 +467,60 @@ private fun LyricsSurface(
             }
         }
     }
+
+    if (showProviderDialog) {
+        val switchState by lyricsViewModel.providerSwitchState.collectAsState()
+        val activeProvider = when (val state = uiState) {
+            is LyricsUiState.Synced -> state.syncedLyrics.provider
+            is LyricsUiState.Plain -> state.provider
+            else -> null
+        }
+        ProviderSwitchDialog(
+            activeProvider = activeProvider,
+            switchState = switchState,
+            onSwitch = { provider -> lyricsViewModel.switchToProvider(song, provider) },
+            onDismiss = { showProviderDialog = false }
+        )
+    }
+}
+
+@Composable
+private fun ProviderSwitchDialog(
+    activeProvider: String?,
+    switchState: LyricsViewModel.ProviderSwitchState,
+    onSwitch: (LyricsProvider) -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.switch_lyrics_provider_title)) },
+        text = {
+            LazyColumn(modifier = Modifier.fillMaxWidth()) {
+                items(LyricsProvider.entries, key = { it.name }) { provider ->
+                    val subtitle = when {
+                        switchState.loadingProvider == provider ->
+                            stringResource(R.string.searching_lyrics_provider)
+                        switchState.failureProvider == provider ->
+                            stringResource(R.string.no_lyrics_found)
+                        else -> null
+                    }
+                    DialogListItemWithRadio(
+                        title = provider.displayName,
+                        isSelected = provider.displayName == activeProvider,
+                        subtitle = subtitle,
+                        onClick = { onSwitch(provider) },
+                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 12.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(8.dp))
+                    )
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(android.R.string.cancel))
+            }
+        }
+    )
 }
