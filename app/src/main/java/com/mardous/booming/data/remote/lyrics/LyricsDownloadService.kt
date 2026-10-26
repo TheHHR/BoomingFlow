@@ -203,7 +203,7 @@ class LyricsDownloadService(client: HttpClient) {
                                     }
                                 } ?: break
                             }
-                            val (deferred, response) = completed
+                            val (deferred, response) = completed ?: break
                             pending.remove(deferred)
 
                             if (response != null) {
