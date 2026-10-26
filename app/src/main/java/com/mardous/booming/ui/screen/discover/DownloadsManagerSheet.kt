@@ -13,6 +13,7 @@ import com.google.android.material.progressindicator.LinearProgressIndicator
 import com.google.android.material.textview.MaterialTextView
 import com.mardous.booming.R
 import com.mardous.booming.online.download.DownloadProgress
+import com.mardous.booming.online.download.DownloadRegistry
 import com.mardous.booming.online.download.SongDownloader
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.sample
@@ -52,6 +53,9 @@ class DownloadsManagerSheet : BottomSheetDialogFragment() {
             songDownloader.progress
                 .sample(200)
                 .collect { refresh() }
+        }
+        viewLifecycleOwner.lifecycleScope.launch {
+            DownloadRegistry.downloadedVideoIds.collect { refresh() }
         }
         refresh()
     }

@@ -371,7 +371,11 @@ abstract class AbsSlidingMusicPanelActivity : AbsBaseActivity(),
             }.getOrNull()
         }
         val accent = bitmap
-            ?.let { PaletteProcessor.getPaletteColor(context, it, colorAccuracy = false).primaryColor }
+                // Must use the same color accuracy as the now-playing cover
+                // extraction (ImageFragment) so both pipelines select the
+                // same swatch - a mismatch here is visible as the accent
+                // changing color right after a song starts.
+            ?.let { PaletteProcessor.getPaletteColor(context, it, colorAccuracy = true).primaryColor }
             ?: 0
         if (AccentSchemes.isColorful(accent)) {
             PlayerAccentState.update(accent)

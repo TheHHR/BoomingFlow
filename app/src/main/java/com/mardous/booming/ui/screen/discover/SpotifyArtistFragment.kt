@@ -18,6 +18,7 @@ import com.mardous.booming.extensions.resources.applyPlayerAccent
 import com.mardous.booming.extensions.setSupportActionBar
 import com.mardous.booming.extensions.showToast
 import com.mardous.booming.online.data.spotify.SpotifyArtist
+import com.mardous.booming.online.download.DownloadRegistry
 import com.mardous.booming.online.download.SongDownloader
 import com.mardous.booming.online.spotify.resolveBatchForPlayback
 import com.mardous.booming.online.spotify.resolveForPlayback
@@ -82,6 +83,8 @@ class SpotifyArtistFragment : AbsMainActivityFragment(R.layout.fragment_detail_l
         collectPlayerAccent { accent ->
             binding.playAction.applyPlayerAccent(accent)
             binding.shuffleAction.applyPlayerAccent(accent, tonal = true)
+            // Badge tints are applied at bind time - rebind so they follow.
+            trackAdapter.notifyDataSetChanged()
         }
 
         artist?.let { viewModel.load(it.id) }
@@ -103,6 +106,11 @@ class SpotifyArtistFragment : AbsMainActivityFragment(R.layout.fragment_detail_l
             launch {
                 songDownloader.events.collect {
                     trackAdapter.downloadedTrackIds = songDownloader.downloadedSpotifyTrackIds()
+                }
+            }
+            launch {
+                DownloadRegistry.downloadedSpotifyIds.collect { ids ->
+                    trackAdapter.downloadedTrackIds = ids
                 }
             }
         }

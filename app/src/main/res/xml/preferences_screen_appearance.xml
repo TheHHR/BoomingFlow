@@ -21,30 +21,12 @@
         app:key="follow_player_color"/>
 
     <SwitchPreferenceCompat
-        app:iconSpaceReserved="true"
-        app:title="@string/pure_black_theme_title"
-        app:defaultValue="false"
-        app:layout="@layout/list_item_view"
-        app:widgetLayout="@layout/preference_switch"
-        app:key="black_theme"/>
-
-    <SwitchPreferenceCompat
         app:icon="@drawable/ic_text_fields_24dp"
         app:title="@string/use_custom_font_title"
         app:defaultValue="true"
         app:layout="@layout/list_item_view"
         app:widgetLayout="@layout/preference_switch"
         app:key="use_custom_font"/>
-
-    <ListPreference
-        app:iconSpaceReserved="true"
-        app:title="@string/appbar_mode_title"
-        app:entries="@array/pref_appbar_mode_entries"
-        app:entryValues="@array/pref_appbar_mode_values"
-        app:useSimpleSummaryProvider="true"
-        app:defaultValue="compact"
-        app:layout="@layout/list_item_view"
-        app:key="appbar_mode"/>
 
     <PreferenceCategory
         app:title="@string/library_header"

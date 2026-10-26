@@ -87,6 +87,8 @@ class SpotifyPlaylistFragment : AbsMainActivityFragment(R.layout.fragment_detail
         collectPlayerAccent { accent ->
             binding.playAction.applyPlayerAccent(accent)
             binding.shuffleAction.applyPlayerAccent(accent, tonal = true)
+            // Badge tints are applied at bind time - rebind so they follow.
+            trackAdapter.notifyDataSetChanged()
         }
 
         val id = playlistId
@@ -145,6 +147,11 @@ class SpotifyPlaylistFragment : AbsMainActivityFragment(R.layout.fragment_detail
                         )
                         else -> Unit
                     }
+                }
+            }
+            launch {
+                DownloadRegistry.downloadedSpotifyIds.collect { ids ->
+                    trackAdapter.downloadedTrackIds = ids
                 }
             }
             launch {

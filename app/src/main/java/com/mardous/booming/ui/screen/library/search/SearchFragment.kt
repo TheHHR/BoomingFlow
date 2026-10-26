@@ -76,6 +76,7 @@ import com.mardous.booming.extensions.navigation.spotifyPlaylistArgs
 import com.mardous.booming.online.data.spotify.SpotifyAlbum
 import com.mardous.booming.online.data.spotify.SpotifyArtist
 import com.mardous.booming.online.data.spotify.SpotifyPlaylist
+import com.mardous.booming.online.download.DownloadRegistry
 import com.mardous.booming.online.data.spotify.SpotifyTrack
 import com.mardous.booming.online.spotify.resolveBatchForPlayback
 import com.mardous.booming.online.spotify.resolveForPlayback
@@ -207,6 +208,13 @@ class SearchFragment : AbsMainActivityFragment(R.layout.fragment_search),
                 )
             }
             binding.keyboardPopup.applyPlayerAccent(accent)
+        }
+        viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
+            launch {
+                DownloadRegistry.downloadedSpotifyIds.collect { ids ->
+                    searchAdapter.downloadedSpotifyIds = ids
+                }
+            }
         }
         binding.searchView.apply {
             reactionToKey(KeyEvent.KEYCODE_ENTER) {

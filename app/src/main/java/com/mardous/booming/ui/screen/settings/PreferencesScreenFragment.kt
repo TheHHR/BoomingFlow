@@ -83,7 +83,6 @@ import com.mardous.booming.ui.screen.update.UpdateViewModel
 import com.mardous.booming.util.ADD_EXTRA_CONTROLS
 import com.mardous.booming.util.AUTO_LANGUAGE
 import com.mardous.booming.util.BLACKLIST_ENABLED
-import com.mardous.booming.util.BLACK_THEME
 import com.mardous.booming.util.COVER_DOUBLE_TAP_ACTION
 import com.mardous.booming.util.COVER_LEFT_DOUBLE_TAP_ACTION
 import com.mardous.booming.util.COVER_LONG_PRESS_ACTION
@@ -287,15 +286,6 @@ open class PreferenceScreenFragment : PreferenceFragmentCompat(),
                     setDefaultNightMode(Preferences.getDayNightMode(themeName))
                     restartActivity()
                 }
-            }
-        }
-
-        findPreference<Preference>(BLACK_THEME)?.apply {
-            setOnPreferenceChangeListener { _, newValue ->
-                val themeName = Preferences.getGeneralTheme((newValue as Boolean))
-                setDefaultNightMode(Preferences.getDayNightMode(themeName))
-                requireActivity().recreate()
-                true
             }
         }
 

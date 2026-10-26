@@ -1,16 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string-array name="pref_appbar_mode_entries">
-        <item>@string/compact</item>
-        <item>@string/expanded</item>
-    </string-array>
-
-    <string-array name="pref_appbar_mode_values">
-        <item>compact</item>
-        <item>expanded</item>
-    </string-array>
-
     <string-array name="pref_tab_titles_mode_entries">
         <item>@string/selected</item>
         <item>@string/labeled</item>

@@ -704,11 +704,9 @@
 
     <!-- Interface preferences -->
     <string name="general_theme_title">General theme</string>
-    <string name="pure_black_theme_title">Pure Black</string>
     <string name="follow_player_color_title">Follow player color</string>
     <string name="follow_player_color_summary">Use the current song\'s artwork as the app accent color</string>
     <string name="use_custom_font_title">Use custom font</string>
-    <string name="appbar_mode_title">Header style</string>
     <string name="library_categories_title">Library categories</string>
     <string name="library_categories_summary">Configure visibility and order of library categories.</string>
     <string name="remember_last_page_title">Remember last page</string>

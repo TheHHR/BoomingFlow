@@ -2,6 +2,9 @@ package com.mardous.booming.online.download
 
 import android.content.Context
 import android.content.SharedPreferences
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 /**
  * Keeps track of the files this app downloaded for online (YouTube Music) tracks.
@@ -12,12 +15,44 @@ object DownloadRegistry {
 
     private const val PREFS_NAME = "booming_download_registry"
     private const val KEY_PREFIX = "uri_"
+    private const val SPOTIFY_PREFIX = "sp:"
 
     @Volatile
     private var appContext: Context? = null
 
+    private val _downloadedSpotifyIds = MutableStateFlow<Set<String>>(emptySet())
+
+    /**
+     * Live set of Spotify track ids that have a downloaded copy. Backed by a
+     * preferences listener, so badges update as soon as a download completes
+     * even while the affected screen is not collecting download events.
+     */
+    val downloadedSpotifyIds: StateFlow<Set<String>> = _downloadedSpotifyIds.asStateFlow()
+
+    private val _downloadedVideoIds = MutableStateFlow<Set<String>>(emptySet())
+
+    /** Live set of every downloaded videoId (Spotify included). */
+    val downloadedVideoIds: StateFlow<Set<String>> = _downloadedVideoIds.asStateFlow()
+
+    private val registryListener =
+        SharedPreferences.OnSharedPreferenceChangeListener { _, _ ->
+            refreshDownloadedIds()
+        }
+
     fun init(context: Context) {
-        appContext = context.applicationContext
+        val app = context.applicationContext
+        appContext = app
+        prefs(app).registerOnSharedPreferenceChangeListener(registryListener)
+        refreshDownloadedIds()
+    }
+
+    private fun refreshDownloadedIds() {
+        val context = appContext ?: return
+        val ids = all(context).keys
+        _downloadedVideoIds.value = ids
+        _downloadedSpotifyIds.value = ids
+            .filter { it.startsWith(SPOTIFY_PREFIX) }
+            .mapTo(mutableSetOf()) { it.removePrefix(SPOTIFY_PREFIX) }
     }
 
     private fun prefs(context: Context): SharedPreferences =

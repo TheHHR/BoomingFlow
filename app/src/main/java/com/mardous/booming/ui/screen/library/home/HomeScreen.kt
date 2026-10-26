@@ -67,8 +67,6 @@ import com.mardous.booming.ui.component.compose.menu.TopAppBarMenu
 import com.mardous.booming.ui.component.compose.rememberTopAppBarScrollBehavior
 import com.mardous.booming.ui.component.views.TopAppBarLayout
 import com.mardous.booming.ui.screen.library.LibraryViewModel
-import com.mardous.booming.util.APPBAR_MODE
-import com.mardous.booming.util.AppBarMode
 import org.koin.compose.viewmodel.koinActivityViewModel
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -106,11 +104,7 @@ fun HomeScreen(
     }
 
     val preferences = remember { PreferenceManager.getDefaultSharedPreferences(context) }
-    val headerMode by preferences.observeKeyAsState(APPBAR_MODE, TopAppBarLayout.AppBarMode.SIMPLE) {
-        if (preferences.getString(it, null) == AppBarMode.COMPACT) {
-            TopAppBarLayout.AppBarMode.SIMPLE
-        } else TopAppBarLayout.AppBarMode.COLLAPSING
-    }
+    val headerMode = TopAppBarLayout.AppBarMode.SIMPLE
 
     val scrollingBehavior = rememberTopAppBarScrollBehavior(headerMode)
 

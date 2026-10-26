@@ -6,6 +6,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.isVisible
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -18,6 +21,7 @@ import com.mardous.booming.online.data.spotify.SpotifyTrack
 import com.mardous.booming.online.download.DownloadFormat
 import com.mardous.booming.online.download.DownloadRegistry
 import com.mardous.booming.online.download.SongDownloader
+import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 
 class PlaylistDownloadSheet : BottomSheetDialogFragment() {
@@ -65,6 +69,19 @@ class PlaylistDownloadSheet : BottomSheetDialogFragment() {
         hideDownloaded.isChecked = DownloadRegistry.hideDownloaded(requireContext())
         hideDownloaded.setOnCheckedChangeListener { _, checked ->
             rebuildList(recycler, selectAll, downloadButton, downloadedIds, checked)
+        }
+
+        // Keep the downloaded set live so rows that finish downloading while
+        // the sheet is open update immediately.
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                DownloadRegistry.downloadedSpotifyIds.collect { ids ->
+                    rebuildList(
+                        recycler, selectAll, downloadButton, ids,
+                        DownloadRegistry.hideDownloaded(requireContext())
+                    )
+                }
+            }
         }
 
         recycler.layoutManager = LinearLayoutManager(requireContext())

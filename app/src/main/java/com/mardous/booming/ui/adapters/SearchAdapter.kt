@@ -68,6 +68,16 @@ class SearchAdapter(
         notifyDataSetChanged()
     }
 
+    /**
+     * Live downloaded set from [com.mardous.booming.online.download.DownloadRegistry];
+     * setting it rebinds rows so badges follow downloads and accent changes.
+     */
+    var downloadedSpotifyIds: Set<String> = emptySet()
+        set(value) {
+            field = value
+            notifyDataSetChanged()
+        }
+
     override fun getIdentifier(position: Int): Song? {
         val item = dataSet[position]
         return when (item) {
@@ -191,8 +201,7 @@ class SearchAdapter(
                 holder.image?.load(track.thumbnailUrl()) {
                     placeholderDrawableRes(holder.image.context, com.mardous.booming.coil.DEFAULT_SONG_IMAGE)
                 }
-                holder.badge?.isVisible =
-                    com.mardous.booming.online.download.DownloadRegistry.spotifyTrackUri(track.id) != null
+                holder.badge?.isVisible = downloadedSpotifyIds.contains(track.id)
                 val accent = if (com.mardous.booming.util.Preferences.followPlayerColor) {
                     com.mardous.booming.core.PlayerAccentState.accentColor.value
                 } else {

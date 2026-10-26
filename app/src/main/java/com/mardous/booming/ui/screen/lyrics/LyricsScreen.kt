@@ -89,6 +89,7 @@ import com.mardous.booming.ui.component.views.PlaceholderDrawable
 import com.mardous.booming.ui.screen.library.LibraryViewModel
 import com.mardous.booming.ui.screen.player.PlayerViewModel
 import com.mardous.booming.ui.theme.PlayerTheme
+import com.mardous.booming.util.Preferences
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withContext
@@ -152,23 +153,33 @@ fun LyricsScreen(
     val isPlaying by playerViewModel.isPlayingFlow.collectAsStateWithLifecycle()
 
     var gradientColors by remember { mutableStateOf<List<Color>>(emptyList()) }
-    LaunchedEffect(song) {
+    val playerColorScheme by playerViewModel.colorSchemeFlow.collectAsStateWithLifecycle()
+    LaunchedEffect(song, playerColorScheme) {
         if (isPowerSaveMode)
             return@LaunchedEffect
 
         if (lyricsViewSettings.backgroundEffect == BackgroundEffect.Gradient) {
-            withContext(Dispatchers.Default) {
-                val result = SingletonImageLoader.get(context).execute(
-                    ImageRequest.Builder(context)
-                        .data(song)
-                        .build()
-                )
-                gradientColors = if (result is SuccessResult) {
-                    result.image.toBitmap().extractGradientColors(
-                        context.resolveColor(PlaceholderDrawable.BACKGROUND_COLOR)
+            // Prefer the player's extracted scheme so the lyrics background
+            // uses the exact same colors as the rest of the app; the cover
+            // extraction below is only a fallback while no scheme exists.
+            val schemeColors = listOf(playerColorScheme.surfaceColor, playerColorScheme.primaryColor)
+                .takeIf { colors -> colors.none { it == Color.Transparent } }
+            if (schemeColors != null) {
+                gradientColors = schemeColors
+            } else {
+                withContext(Dispatchers.Default) {
+                    val result = SingletonImageLoader.get(context).execute(
+                        ImageRequest.Builder(context)
+                            .data(song)
+                            .build()
                     )
-                } else {
-                    emptyList()
+                    gradientColors = if (result is SuccessResult) {
+                        result.image.toBitmap().extractGradientColors(
+                            context.resolveColor(PlaceholderDrawable.BACKGROUND_COLOR)
+                        )
+                    } else {
+                        emptyList()
+                    }
                 }
             }
         }
@@ -177,6 +188,22 @@ fun LyricsScreen(
     var hasBackgroundEffects by remember { mutableStateOf(false) }
     var showProviderDialog by remember { mutableStateOf(false) }
 
+    // Small adaptive-color touchpoints: when "follow player color" is on,
+    // the FAB picks up the extracted scheme like the rest of the app.
+    val followPlayerColor = Preferences.followPlayerColor
+    val fabContainer =
+        if (followPlayerColor && playerColorScheme.surfaceColor != Color.Transparent) {
+            playerColorScheme.surfaceColor
+        } else {
+            MaterialTheme.colorScheme.surface
+        }
+    val fabContent =
+        if (followPlayerColor && playerColorScheme.onSurfaceColor != Color.Transparent) {
+            playerColorScheme.onSurfaceColor
+        } else {
+            MaterialTheme.colorScheme.onSurface
+        }
+
     Scaffold(
         contentWindowInsets = WindowInsets
             .navigationBars
@@ -184,8 +211,8 @@ fun LyricsScreen(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {},
-                containerColor = MaterialTheme.colorScheme.surface,
-                contentColor = MaterialTheme.colorScheme.onSurface
+                containerColor = fabContainer,
+                contentColor = fabContent
             ) {
                 // Tap opens the provider switch dialog; tap and hold opens
                 // the full lyrics editor.

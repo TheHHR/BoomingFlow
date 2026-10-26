@@ -53,7 +53,6 @@ class ThemePreference @JvmOverloads constructor(
         val generalTheme = Preferences.generalTheme
         widgetView = holder.findViewById(android.R.id.widget_frame)
         widgetView?.findViewById<MaterialButtonToggleGroup>(R.id.buttonGroup)?.apply {
-            isEnabled = (generalTheme != GeneralTheme.BLACK)
             check(generalTheme.let { selectorIds[it] ?: R.id.systemDefault })
             addOnButtonCheckedListener(this@ThemePreference)
         }
