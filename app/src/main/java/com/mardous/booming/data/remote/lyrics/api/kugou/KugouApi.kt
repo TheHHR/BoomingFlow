@@ -12,8 +12,8 @@ import io.ktor.client.call.body
 import io.ktor.client.plugins.timeout
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
-import io.ktor.client.request.userAgent
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.userAgent
 import kotlinx.coroutines.CancellationException
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
