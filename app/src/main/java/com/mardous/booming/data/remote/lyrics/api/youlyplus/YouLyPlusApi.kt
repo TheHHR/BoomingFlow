@@ -33,7 +33,7 @@ class YouLyPlusApi(private val client: HttpClient) : LyricsApi {
         title: String,
         artist: String
     ): RawLyrics.Remote? {
-        val durationSec = song.duration / 1000
+        val durationSec = (song.duration / 1000).toInt()
         val album = song.albumName.takeIf { it.isNotBlank() }
 
         val ttml = fetchFromMirrors("v1/ttml/get", title, artist, album, durationSec) { body ->
