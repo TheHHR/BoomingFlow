@@ -65,7 +65,7 @@ private fun currentExceptions(): List<String> {
     cachedExceptions?.let { (key, list) ->
         if (key == raw) return list
     }
-    val list = raw.deserialize(emptyList()).map { it.trim() }.filter { it.isNotEmpty() }
+    val list = raw.deserialize(emptyList<String>()).map { it.trim() }.filter { it.isNotEmpty() }
     cachedExceptions = (raw ?: "") to list
     return list
 }

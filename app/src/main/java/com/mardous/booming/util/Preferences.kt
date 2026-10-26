@@ -138,7 +138,7 @@ object Preferences : KoinComponent {
      * contain an active separator ("JAY-Z" with "-" enabled).
      */
     var artistSeparatorExceptions: List<String>
-        get() = preferences.nullString(ARTIST_SEPARATOR_EXCEPTIONS).deserialize(emptyList())
+        get() = preferences.nullString(ARTIST_SEPARATOR_EXCEPTIONS).deserialize(emptyList<String>())
         set(value) = preferences.edit {
             putString(ARTIST_SEPARATOR_EXCEPTIONS, value.serialize())
         }
@@ -151,7 +151,7 @@ object Preferences : KoinComponent {
      * Matching is case-insensitive on the trimmed name.
      */
     var ignoredArtists: List<String>
-        get() = preferences.nullString(IGNORED_ARTISTS).deserialize(emptyList())
+        get() = preferences.nullString(IGNORED_ARTISTS).deserialize(emptyList<String>())
         set(value) = preferences.edit {
             putString(IGNORED_ARTISTS, value.serialize())
         }
