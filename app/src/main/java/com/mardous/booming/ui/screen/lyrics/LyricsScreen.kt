@@ -282,6 +282,21 @@ fun LyricsScreen(
             )
         }
     }
+
+    if (showProviderDialog) {
+        val switchState by lyricsViewModel.providerSwitchState.collectAsState()
+        val activeProvider = when (val state = uiState) {
+            is LyricsUiState.Synced -> state.syncedLyrics.provider
+            is LyricsUiState.Plain -> state.provider
+            else -> null
+        }
+        ProviderSwitchDialog(
+            activeProvider = activeProvider,
+            switchState = switchState,
+            onSwitch = { provider -> lyricsViewModel.switchToProvider(song, provider) },
+            onDismiss = { showProviderDialog = false }
+        )
+    }
 }
 
 @Composable
@@ -466,21 +481,6 @@ private fun LyricsSurface(
                 )
             }
         }
-    }
-
-    if (showProviderDialog) {
-        val switchState by lyricsViewModel.providerSwitchState.collectAsState()
-        val activeProvider = when (val state = uiState) {
-            is LyricsUiState.Synced -> state.syncedLyrics.provider
-            is LyricsUiState.Plain -> state.provider
-            else -> null
-        }
-        ProviderSwitchDialog(
-            activeProvider = activeProvider,
-            switchState = switchState,
-            onSwitch = { provider -> lyricsViewModel.switchToProvider(song, provider) },
-            onDismiss = { showProviderDialog = false }
-        )
     }
 }
 
