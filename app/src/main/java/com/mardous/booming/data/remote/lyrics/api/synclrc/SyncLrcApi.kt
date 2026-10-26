@@ -6,6 +6,7 @@ import com.mardous.booming.data.remote.RateLimiter
 import com.mardous.booming.data.remote.lyrics.api.LyricsApi
 import com.mardous.booming.data.remote.lyrics.api.LyricsProvider
 import com.mardous.booming.util.Constants.SIMPLE_USER_AGENT
+import com.mardous.booming.util.Preferences
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.timeout
 import io.ktor.client.request.get
@@ -42,7 +43,7 @@ class SyncLrcApi(private val client: HttpClient) : LyricsApi {
         val durationSec = (song.duration / 1000).toString()
         val album = song.albumName.takeIf { it.isNotBlank() }
         val strippedTitle = title.replace(STRIPPED_PARTS_PATTERN, "").trim()
-        val strippedArtist = artist.split(",", "&", "feat.", "Feat.", "ft.").first().trim()
+        val strippedArtist = artist.split(*Preferences.artistSeparators.toTypedArray()).first().trim()
 
         val queries = buildList {
             add(listOf("track" to title, "artist" to artist, "type" to "karaoke", "album" to album, "duration" to durationSec))

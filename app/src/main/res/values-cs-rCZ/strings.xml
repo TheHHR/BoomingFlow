@@ -551,6 +551,7 @@
     <string name="visuals_header">Vizuály</string>
     <!-- Interface preferences -->
     <string name="general_theme_title">Obecný motiv</string>
+    <string name="pure_black_theme_title">─îist─¢ ─ìern├í</string>
     <string name="use_custom_font_title">Použít vlastní písmo</string>
     <string name="library_categories_title">Kategorie knihovny</string>
     <string name="library_categories_summary">Nastavení viditelnosti a pořadí kategorií knihovny.</string>

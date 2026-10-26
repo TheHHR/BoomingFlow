@@ -535,6 +535,7 @@
     <string name="visuals_header">Visuals</string>
     <!-- Interface preferences -->
     <string name="general_theme_title">जनरल थीम</string>
+    <string name="pure_black_theme_title">αñ¬αÑìαñ»αÑïαñ░ αñ¼αÑìαñ▓αÑêαñò</string>
     <string name="use_custom_font_title">Use custom font</string>
     <string name="library_categories_title">लाइब्रेरी की कैटेगरीज</string>
     <string name="library_categories_summary">लाइब्रेरी श्रेणियों की दृश्यता और क्रम को कॉन्फ़िगर करें।</string>

@@ -532,6 +532,7 @@
     <string name="visuals_header">Visualer</string>
     <!-- Interface preferences -->
     <string name="general_theme_title">Allmänt tema</string>
+    <string name="pure_black_theme_title">Ren svart</string>
     <string name="use_custom_font_title">Använd anpassat typsnitt</string>
     <string name="library_categories_title">Bibliotekets kategorier</string>
     <string name="library_categories_summary">Konfigurera synlighet och ordning på bibliotekskategorier.</string>

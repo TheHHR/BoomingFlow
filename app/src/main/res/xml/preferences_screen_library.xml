@@ -21,6 +21,13 @@
         app:widgetLayout="@layout/preference_switch"
         app:key="ignore_articles_when_sorting"/>
 
+    <com.mardous.booming.ui.component.preferences.CustomDialogPreference
+        app:iconSpaceReserved="true"
+        app:title="@string/artist_separators_title"
+        app:summary="@string/artist_separators_summary"
+        app:layout="@layout/list_item_view"
+        app:key="artist_separators"/>
+
     <PreferenceCategory
         app:title="@string/playlists_label"
         app:layout="@layout/preference_category_title">

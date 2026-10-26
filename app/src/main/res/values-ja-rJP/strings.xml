@@ -527,6 +527,7 @@
     <string name="visuals_header">外観</string>
     <!-- Interface preferences -->
     <string name="general_theme_title">一般的なテーマ</string>
+    <string name="pure_black_theme_title">πâöπâÑπéóπâûπâ⌐πââπé»</string>
     <string name="use_custom_font_title">カスタムフォントを使用</string>
     <string name="library_categories_title">ライブラリのカテゴリ</string>
     <string name="library_categories_summary">ライブラリに表示するカテゴリとその順番を設定します。</string>

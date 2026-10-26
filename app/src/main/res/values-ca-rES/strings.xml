@@ -543,6 +543,7 @@
     <string name="visuals_header">Visuals</string>
     <!-- Interface preferences -->
     <string name="general_theme_title">Tema general</string>
+    <string name="pure_black_theme_title">Negre pur</string>
     <string name="use_custom_font_title">Fes servir una font personalitzada</string>
     <string name="library_categories_title">Categories de la biblioteca</string>
     <string name="library_categories_summary">Configureu la visibilitat i l\'ordre de les categories de la biblioteca.</string>

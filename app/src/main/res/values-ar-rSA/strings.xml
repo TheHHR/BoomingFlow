@@ -567,6 +567,7 @@
     <string name="visuals_header">التأثيرات المرئية</string>
     <!-- Interface preferences -->
     <string name="general_theme_title">السمة العامة</string>
+    <string name="pure_black_theme_title">╪ú╪│┘ê╪» ╪«╪º┘ä╪╡</string>
     <string name="use_custom_font_title">استخدام خط مخصص</string>
     <string name="library_categories_title">فئات المكتبة</string>
     <string name="library_categories_summary">اضبط ظهور فئات المكتبة وترتيبها.</string>

@@ -535,6 +535,7 @@
     <string name="visuals_header">Visuals</string>
     <!-- Interface preferences -->
     <string name="general_theme_title">Γενικό θέμα</string>
+    <string name="pure_black_theme_title">╬Ü╬▒╬╕╬▒╧ü╧î ╬£╬▒╧ì╧ü╬┐</string>
     <string name="use_custom_font_title">Use custom font</string>
     <string name="library_categories_title">Κατηγορίες βιβλιοθηκών</string>
     <string name="library_categories_summary">Ρυθμίστε την ορατότητα και τη σειρά των κατηγοριών βιβλιοθήκης.</string>

@@ -295,15 +295,31 @@ class LyricsViewModel(
 
                 // Stored lyrics are the top priority and final: whatever the
                 // user downloaded, edited or picked is THE lyrics for this
-                // song - no network stage, no sidecar or embedded override.
+                // song - no sidecar or embedded override. The one exception:
+                // if the stored lyrics are not word-by-word, a single
+                // background sweep hunts for a word-by-word upgrade.
                 val stored = repository.storedLyrics(song, allowDownload = false, preferWordSynced = false)
                 if (stored != null) {
+                    val parsed = repository.parseRawLyrics(song, stored)
                     if (isActive) {
-                        _lyricsUiState.value = when (val parsed = repository.parseRawLyrics(song, stored)) {
+                        _lyricsUiState.value = when (parsed) {
                             is ParsedLyrics.Instrumental -> LyricsUiState.Instrumental(song.id)
                             is ParsedLyrics.Synced -> LyricsUiState.Synced(song.id, parsed.lyrics)
                             is ParsedLyrics.Plain -> LyricsUiState.Plain(song.id, parsed.lyrics, parsed.provider)
                             is ParsedLyrics.Empty -> LyricsUiState.Empty(song.id)
+                        }
+                    }
+                    val upgradeEligible = when (parsed) {
+                        is ParsedLyrics.Synced -> !parsed.lyrics.isWordSynced
+                        is ParsedLyrics.Plain -> true
+                        else -> false
+                    }
+                    if (isActive && upgradeEligible && repository.canAttemptWordSyncedUpgrade(song)) {
+                        val upgraded = fetchUpgradedLyrics(song)
+                        if (isActive && upgraded is LyricsUiState.Synced &&
+                            upgraded.syncedLyrics.isWordSynced
+                        ) {
+                            _lyricsUiState.value = upgraded
                         }
                     }
                 } else {

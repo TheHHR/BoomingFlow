@@ -534,6 +534,7 @@
     <string name="visuals_header">Visivi</string>
     <!-- Interface preferences -->
     <string name="general_theme_title">Tema generale</string>
+    <string name="pure_black_theme_title">Nero Puro</string>
     <string name="use_custom_font_title">Usa un font personalizzato</string>
     <string name="library_categories_title">Categorie della libreria</string>
     <string name="library_categories_summary">Configura la visibilità e l\'ordine delle categorie della libreria.</string>

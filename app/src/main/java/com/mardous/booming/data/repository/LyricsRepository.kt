@@ -56,6 +56,12 @@ interface LyricsRepository {
      */
     suspend fun applyProviderLyrics(song: Song, provider: LyricsProvider): ParsedLyrics
 
+    /**
+     * False once a word-by-word upgrade sweep already completed without
+     * finding a word-by-word version for this song's stored lyrics.
+     */
+    fun canAttemptWordSyncedUpgrade(song: Song): Boolean
+
     suspend fun saveLyrics(
         song: Song,
         originalLyricsBySource: Map<LyricsSource, RawLyrics?>,
@@ -82,6 +88,13 @@ class RealLyricsRepository(
      * editor's manual download bypasses this via [downloadLyrics].
      */
     private val negativeCache = HashMap<Long, Long>()
+
+    /**
+     * Songs whose stored lyrics already went through a background
+     * word-by-word upgrade sweep without finding a word-by-word version.
+     * Cleared when the user saves or switches lyrics.
+     */
+    private val upgradeAttempted = HashSet<Long>()
 
     private val charsetDetector = UniversalDetector()
 
@@ -325,7 +338,13 @@ class RealLyricsRepository(
                                 provider = storableLyrics.provider
                             )
                         )
+                        clearUpgradeAttempted(song.id)
                         return cacheLyrics(song.id, candidate)
+                    }
+                    if (stored != null && sweep?.sweptAll == true) {
+                        // Every provider answered and none of them had a
+                        // word-by-word version - stop sweeping on replays.
+                        markUpgradeAttempted(song.id)
                     }
                 } else if (sweep != null && sweep.sweptAll && NetworkFeature.isOnline()) {
                     // Only a sweep where every provider genuinely finished and
@@ -333,6 +352,7 @@ class RealLyricsRepository(
                     // failed sweeps are retried on the next play instead of
                     // showing "no lyrics" for the next half hour.
                     recordMiss(song.id)
+                    if (stored != null) markUpgradeAttempted(song.id)
                 }
             }
             return stored?.let { cacheLyrics(song.id, it) } ?: cached
@@ -393,8 +413,12 @@ class RealLyricsRepository(
         // The user picked these lyrics on purpose; a previous miss must not
         // suppress anything anymore.
         clearNegativeCache(song.id)
+        clearUpgradeAttempted(song.id)
         return parseRawLyrics(song, cacheLyrics(song.id, stored))
     }
+
+    override fun canAttemptWordSyncedUpgrade(song: Song): Boolean =
+        !isUpgradeAttempted(song.id)
 
     override suspend fun saveLyrics(
         song: Song,
@@ -448,6 +472,7 @@ class RealLyricsRepository(
                             if (success) {
                                 removeCachedLyrics(LyricsSource.Downloaded, song.id)
                                 clearNegativeCache(song.id)
+                                clearUpgradeAttempted(song.id)
                             }
                         }
                     }
@@ -472,6 +497,18 @@ class RealLyricsRepository(
         lyricsDao.removeLyrics()
         memoryCache.evictAll()
         synchronized(negativeCache) { negativeCache.clear() }
+        synchronized(upgradeAttempted) { upgradeAttempted.clear() }
+    }
+
+    private fun isUpgradeAttempted(songId: Long): Boolean =
+        synchronized(upgradeAttempted) { songId in upgradeAttempted }
+
+    private fun markUpgradeAttempted(songId: Long) {
+        synchronized(upgradeAttempted) { upgradeAttempted.add(songId) }
+    }
+
+    private fun clearUpgradeAttempted(songId: Long) {
+        synchronized(upgradeAttempted) { upgradeAttempted.remove(songId) }
     }
 
     private fun isRecentlyMissed(songId: Long): Boolean {

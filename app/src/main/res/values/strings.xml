@@ -704,6 +704,7 @@
 
     <!-- Interface preferences -->
     <string name="general_theme_title">General theme</string>
+    <string name="pure_black_theme_title">Pure Black</string>
     <string name="follow_player_color_title">Follow player color</string>
     <string name="follow_player_color_summary">Use the current song\'s artwork as the app accent color</string>
     <string name="use_custom_font_title">Use custom font</string>
@@ -900,6 +901,10 @@
     <!-- Library preferences -->
     <string name="ignore_articles_when_sorting_title">Ignore articles when sorting</string>
     <string name="ignore_articles_when_sorting_summary">Skip leading articles (“the”, “a”, “an”) when ordering items.</string>
+    <string name="artist_separators_title">Artist separators</string>
+    <string name="artist_separators_summary">Tokens that split multi-artist names, e.g. “A feat. B” or “A &amp; B”. Used when searching lyrics and artist info.</string>
+    <string name="artist_separators_hint">Add separator</string>
+    <string name="artist_separators_add">Add</string>
     <string name="trash_music_title">Send to trash</string>
     <string name="trash_music_summary">Send deleted files to trash.</string>
     <string name="recursive_folder_actions_title">Actions affecting subfolders</string>

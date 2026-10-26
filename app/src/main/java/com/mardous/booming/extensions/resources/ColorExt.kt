@@ -391,10 +391,17 @@ fun MaterialButton.applyTogglePlayerAccent(@ColorInt accent: Int, @ColorInt chec
         }
         return
     }
-    // Derive the unchecked colors per-state from the ORIGINAL lists - their
-    // defaultColor can be the checked-state color, which would give inactive
-    // buttons a filled look instead of the themed transparent/outline style.
-    val uncheckedState = intArrayOf(-android.R.attr.state_checked)
+    // Derive the unchecked colors per-state from the ORIGINAL lists. The
+    // query must include state_enabled + state_checkable: M3 expressive
+    // button selectors list their DISABLED variant first, and a bare
+    // [-state_checked] query would match that entry and give inactive
+    // buttons the washed-out disabled colors instead of the real
+    // unchecked look (container/onSurfaceVariant).
+    val uncheckedState = intArrayOf(
+        android.R.attr.state_enabled,
+        android.R.attr.state_checkable,
+        -android.R.attr.state_checked
+    )
     val uncheckedBg = original?.backgroundTint
         ?.getColorForState(uncheckedState, Color.TRANSPARENT) ?: Color.TRANSPARENT
     val uncheckedText = original?.textColors

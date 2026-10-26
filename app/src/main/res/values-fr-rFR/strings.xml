@@ -542,6 +542,7 @@
     <string name="visuals_header">Visuels</string>
     <!-- Interface preferences -->
     <string name="general_theme_title">Thème général</string>
+    <string name="pure_black_theme_title">Noir pur</string>
     <string name="use_custom_font_title">Utiliser une police personnalisée</string>
     <string name="library_categories_title">Catégories de bibliothèques</string>
     <string name="library_categories_summary">Configurer la visibilité et l’ordre des catégories de la bibliothèque.</string>

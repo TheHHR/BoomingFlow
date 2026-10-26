@@ -534,6 +534,7 @@
     <string name="visuals_header">Visuelen</string>
     <!-- Interface preferences -->
     <string name="general_theme_title">Algemeen thema</string>
+    <string name="pure_black_theme_title">Puur Zwart</string>
     <string name="use_custom_font_title">Gebruik aangepast lettertype</string>
     <string name="library_categories_title">Bibliotheek categorieën</string>
     <string name="library_categories_summary">Configureer zichtbaarheid en volgorde van bibliotheek categorieën.</string>

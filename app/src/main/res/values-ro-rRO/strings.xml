@@ -543,6 +543,7 @@
     <string name="visuals_header">Visuals</string>
     <!-- Interface preferences -->
     <string name="general_theme_title">Temă generală</string>
+    <string name="pure_black_theme_title">Negru pur</string>
     <string name="use_custom_font_title">Use custom font</string>
     <string name="library_categories_title">Categorii bibliotecă</string>
     <string name="library_categories_summary">Configurați vizibilitatea și ordinea categoriilor bibliotecii.</string>

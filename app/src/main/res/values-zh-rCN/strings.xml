@@ -526,6 +526,7 @@
     <string name="visuals_header">视觉效果</string>
     <!-- Interface preferences -->
     <string name="general_theme_title">应用主题</string>
+    <string name="pure_black_theme_title">τ║»Θ╗æΦë▓</string>
     <string name="use_custom_font_title">使用自定义字体</string>
     <string name="library_categories_title">底部导航栏选项卡</string>
     <string name="library_categories_summary">配置曲库分类的可见性和顺序。</string>

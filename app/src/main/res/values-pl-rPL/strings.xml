@@ -550,6 +550,7 @@
     <string name="visuals_header">Wizualne</string>
     <!-- Interface preferences -->
     <string name="general_theme_title">Motyw ogólny</string>
+    <string name="pure_black_theme_title">G┼é─Öboka czer┼ä</string>
     <string name="use_custom_font_title">Niestandardowa czcionka</string>
     <string name="library_categories_title">Zarządzaj kartami</string>
     <string name="library_categories_summary">Konfiguruj widoczność i kolejność kategorii biblioteki.</string>

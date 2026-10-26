@@ -73,17 +73,21 @@ object Preferences : KoinComponent {
         get() = preferences.getStringSet("requested_permissions", emptySet()).orEmpty()
         set(value) = preferences.edit { putStringSet("requested_permissions", value) }
 
-    /**
-     * The general theme preference: light, dark or system default.
-     * Dark mode is always rendered with pure black surfaces.
-     */
+    fun getGeneralTheme(isBlackMode: Boolean): String {
+        return if (isBlackMode) {
+            GeneralTheme.BLACK
+        } else {
+            preferences.requireString(GENERAL_THEME, GeneralTheme.AUTO)
+        }
+    }
+
     var generalTheme: String
-        get() = preferences.requireString(GENERAL_THEME, GeneralTheme.AUTO)
+        get() = getGeneralTheme(blackTheme)
         set(value) = preferences.edit { putString(GENERAL_THEME, value) }
 
     fun getThemeMode(themeName: String) = when (themeName) {
         GeneralTheme.LIGHT -> AppTheme.Mode.Light
-        GeneralTheme.DARK -> AppTheme.Mode.Black
+        GeneralTheme.DARK -> AppTheme.Mode.Dark
         GeneralTheme.BLACK -> AppTheme.Mode.Black
         else -> AppTheme.Mode.FollowSystem
     }
@@ -99,12 +103,8 @@ object Preferences : KoinComponent {
         }
     }
 
-    /**
-     * Dark mode always uses pure black surfaces; the old "Pure Black"
-     * option was removed and this is now unconditional.
-     */
     val blackTheme: Boolean
-        get() = true
+        get() = preferences.getBoolean(BLACK_THEME, false)
 
     val followPlayerColor: Boolean
         get() = preferences.getBoolean(FOLLOW_PLAYER_COLOR, false)
@@ -114,6 +114,21 @@ object Preferences : KoinComponent {
 
     val appBarMode: TopAppBarLayout.AppBarMode
         get() = TopAppBarLayout.AppBarMode.SIMPLE
+
+    /**
+     * Tokens that split multi-artist names ("A feat. B", "A & B") into a
+     * main artist and collaborators. Letter tokens match with word-ish
+     * boundaries ("feat" also matches "featuring"); everything else is a
+     * literal separator. Default mirrors the historic built-in behavior.
+     */
+    val defaultArtistSeparators: List<String>
+        get() = listOf(",", "/", ";", "feat", "ft", "with", "x")
+
+    var artistSeparators: List<String>
+        get() = preferences.nullString(ARTIST_SEPARATORS).deserialize(defaultArtistSeparators)
+        set(value) = preferences.edit {
+            putString(ARTIST_SEPARATORS, value.serialize())
+        }
 
     var libraryCategories: List<CategoryInfo>
         get() {
@@ -532,6 +547,8 @@ interface UpdateSearchMode {
     }
 }
 
+const val BLACK_THEME = "black_theme"
+const val ARTIST_SEPARATORS = "artist_separators"
 const val FOLLOW_PLAYER_COLOR = "follow_player_color"
 const val USE_CUSTOM_FONT = "use_custom_font"
 const val GENERAL_THEME = "general_theme"

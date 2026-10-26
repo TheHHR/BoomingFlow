@@ -543,6 +543,7 @@
     <string name="visuals_header">ויזואליים</string>
     <!-- Interface preferences -->
     <string name="general_theme_title">ערכת נושא כללית</string>
+    <string name="pure_black_theme_title">╫⌐╫ù╫ò╫¿ ╫ÿ╫ö╫ò╫¿</string>
     <string name="use_custom_font_title">השתמש בגופן מותאם אישית</string>
     <string name="library_categories_title">קטגוריות בספרייה</string>
     <string name="library_categories_summary">הגדר את הנראות והסדר של קטגוריות הספרייה.</string>

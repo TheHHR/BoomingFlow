@@ -535,6 +535,7 @@
     <string name="visuals_header">Visuals</string>
     <!-- Interface preferences -->
     <string name="general_theme_title">Generelt tema</string>
+    <string name="pure_black_theme_title">Ren svart</string>
     <string name="use_custom_font_title">Use custom font</string>
     <string name="library_categories_title">Bibliotek kategorier</string>
     <string name="library_categories_summary">Konfigurer kategorier for synlighet og rekkefølge.</string>
