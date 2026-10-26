@@ -45,22 +45,16 @@ sealed class NetworkFeature(
 
     sealed class Lyrics(preferenceKey: String, isOnByDefault: Boolean) :
         NetworkFeature(preferenceKey, isOnByDefault) {
-        object Unison : Lyrics(UNISON_ENABLED_KEY, false)
         object BiniLyrics : Lyrics(BINILYRICS_ENABLED_KEY, false)
         object YouLyPlus : Lyrics(YOULYPLUS_ENABLED_KEY, false)
-        object Kouzu : Lyrics(KOUZU_ENABLED_KEY, false)
-        object SyncLRC : Lyrics(SYNCLRC_ENABLED_KEY, false)
         object LRCLib : Lyrics(LRCLIB_ENABLED_KEY, true)
         object BetterLyrics : Lyrics(BETTERLYRICS_ENABLED_KEY, false)
         object Lyrically : Lyrics(LYRICALLY_ENABLED_KEY, false) {
             override val isAvailableForCurrentPolicy: Boolean
                 get() = boolResource(R.bool.enable_lyrically_provider)
         }
-        object PaxsenixSpotify : Lyrics(PAXSENIX_SPOTIFY_ENABLED_KEY, false)
-        object PaxsenixYouTube : Lyrics(PAXSENIX_YOUTUBE_ENABLED_KEY, false)
+        object SyncLRC : Lyrics(SYNCLRC_ENABLED_KEY, false)
         object PaxsenixNetease : Lyrics(PAXSENIX_NETEASE_ENABLED_KEY, false)
-        object KuGou : Lyrics(KUGOU_ENABLED_KEY, false)
-        object SimpMusic : Lyrics(SIMPMUSIC_ENABLED_KEY, false)
     }
 
     sealed class Lastfm(preferenceKey: String, isOnByDefault: Boolean) :
@@ -109,16 +103,10 @@ sealed class NetworkFeature(
         const val BETTERLYRICS_ENABLED_KEY = "betterlyrics_enabled"
         const val LYRICALLY_ENABLED_KEY = "lyrically_enabled"
         const val LRCLIB_ENABLED_KEY = "lrclib_enabled"
-        const val UNISON_ENABLED_KEY = "unison_enabled"
         const val BINILYRICS_ENABLED_KEY = "binilyrics_enabled"
         const val YOULYPLUS_ENABLED_KEY = "youlyplus_enabled"
-        const val KOUZU_ENABLED_KEY = "kouzu_enabled"
         const val SYNCLRC_ENABLED_KEY = "synclrc_enabled"
-        const val PAXSENIX_SPOTIFY_ENABLED_KEY = "paxsenix_spotify_enabled"
-        const val PAXSENIX_YOUTUBE_ENABLED_KEY = "paxsenix_youtube_enabled"
         const val PAXSENIX_NETEASE_ENABLED_KEY = "paxsenix_netease_enabled"
-        const val KUGOU_ENABLED_KEY = "kugou_enabled"
-        const val SIMPMUSIC_ENABLED_KEY = "simpmusic_enabled"
         const val LASTFM_SCROBBLING_ENABLED_KEY = "lastfm_scrobbling_enabled"
         const val LASTFM_NOW_PLAYING_ENABLED_KEY = "lastfm_now_playing_enabled"
         const val LASTFM_INFO_ENABLED_KEY = "lastfm_info_enabled"

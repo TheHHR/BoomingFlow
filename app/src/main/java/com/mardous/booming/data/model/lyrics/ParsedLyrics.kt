@@ -18,7 +18,7 @@
 package com.mardous.booming.data.model.lyrics
 
 sealed class ParsedLyrics {
-    data class Plain(val lyrics: String) : ParsedLyrics()
+    data class Plain(val lyrics: String, val provider: String? = null) : ParsedLyrics()
     data class Synced(val lyrics: SyncedLyrics) : ParsedLyrics()
     data object Instrumental : ParsedLyrics()
     data object Empty : ParsedLyrics()

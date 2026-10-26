@@ -143,7 +143,8 @@ class RealLyricsRepository(
                         song = song,
                         lyrics = rawLyrics.lyrics,
                         ignoreBlankLines = ignoreBlankLines,
-                        markInstrumentalByTitle = markInstrumentalByTitle
+                        markInstrumentalByTitle = markInstrumentalByTitle,
+                        provider = rawLyrics.synced?.source ?: rawLyrics.plain?.source
                     )
                 }
             }
@@ -173,7 +174,7 @@ class RealLyricsRepository(
                         if (synced != null) ParsedLyrics.Synced(synced) else ParsedLyrics.Empty
                     } else {
                         val plain = parser.parseAsPlain(lyrics)
-                        if (plain != null) ParsedLyrics.Plain(plain) else ParsedLyrics.Empty
+                        if (plain != null) ParsedLyrics.Plain(plain, provider) else ParsedLyrics.Empty
                     }
                 }
                 is LyricsInfo.Invalid -> continue
@@ -182,7 +183,7 @@ class RealLyricsRepository(
         return if (markInstrumentalByTitle && INSTRUMENTAL_REGEX.matches(song.title)) {
             ParsedLyrics.Instrumental
         } else {
-            ParsedLyrics.Plain(lyrics)
+            ParsedLyrics.Plain(lyrics, provider)
         }
     }
 
@@ -283,16 +284,17 @@ class RealLyricsRepository(
             if (allowDownload && !isRecentlyMissed(song.id)) {
                 // The upgrade attempt is failure-isolated: a network error
                 // must never discard the stored lyrics.
-                val storableLyrics = try {
-                    lyricsDownloadService.remoteLyrics(
+                val sweep = try {
+                    lyricsDownloadService.remoteLyricsDetailed(
                         song,
                         providerParams = LyricsProviderParams(preferWordSynced = preferWordSynced)
-                    ).prepareToStore()
+                    )
                 } catch (e: CancellationException) {
                     throw e
                 } catch (_: Exception) {
                     null
                 }
+                val storableLyrics = sweep?.remote?.prepareToStore()
                 if (storableLyrics != null) {
                     if (storableLyrics.instrumental) {
                         lyricsDao.insertLyrics(
@@ -304,8 +306,8 @@ class RealLyricsRepository(
                         lyrics = storableLyrics.lyrics,
                         provider = storableLyrics.provider
                     )
-                    // With word-by-word preferred, a word-synced fetch
-                    // replaces a stored row that lacks word timestamps.
+                    // A word-synced fetch replaces a stored row that lacks
+                    // word timestamps.
                     if (stored == null || isWordSyncedText(song, candidate.lyrics)) {
                         lyricsDao.insertLyrics(
                             LyricsEntity(
@@ -316,10 +318,11 @@ class RealLyricsRepository(
                         )
                         return cacheLyrics(song.id, candidate)
                     }
-                } else if (NetworkFeature.isOnline()) {
-                    // A sweep that found nothing while actually online is a
-                    // real miss; an offline or wifi-policy-blocked sweep is
-                    // not worth remembering.
+                } else if (sweep != null && sweep.sweptAll && NetworkFeature.isOnline()) {
+                    // Only a sweep where every provider genuinely finished and
+                    // reported nothing counts as a miss. Timeout-truncated or
+                    // failed sweeps are retried on the next play instead of
+                    // showing "no lyrics" for the next half hour.
                     recordMiss(song.id)
                 }
             }

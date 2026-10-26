@@ -27,20 +27,13 @@ import com.mardous.booming.data.local.lyrics.ttml.TtmlLyricsParser
 import com.mardous.booming.data.remote.lyrics.api.LyricsProvider
 import com.mardous.booming.data.remote.lyrics.api.betterlyrics.BetterLyricsApi
 import com.mardous.booming.data.remote.lyrics.api.binilyrics.BiniLyricsApi
-import com.mardous.booming.data.remote.lyrics.api.kouzu.KouzuApi
-import com.mardous.booming.data.remote.lyrics.api.kugou.KugouApi
 import com.mardous.booming.data.remote.lyrics.api.lrclib.LrcLibApi
 import com.mardous.booming.data.remote.lyrics.api.lyrically.LyricallyApi
 import com.mardous.booming.data.remote.lyrics.api.paxsenix.PaxsenixNeteaseApi
-import com.mardous.booming.data.remote.lyrics.api.paxsenix.PaxsenixSpotifyApi
-import com.mardous.booming.data.remote.lyrics.api.paxsenix.PaxsenixYouTubeApi
-import com.mardous.booming.data.remote.lyrics.api.simpmusic.SimpMusicApi
 import com.mardous.booming.data.remote.lyrics.api.synclrc.SyncLrcApi
-import com.mardous.booming.data.remote.lyrics.api.unison.UnisonApi
 import com.mardous.booming.data.remote.lyrics.api.youlyplus.YouLyPlusApi
 import com.mardous.booming.extensions.media.albumArtistName
 import com.mardous.booming.extensions.media.extractMainArtistName
-import android.content.SharedPreferences
 import io.ktor.client.HttpClient
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Deferred
@@ -58,22 +51,26 @@ class LyricsProviderParams(
     val preferWordSynced: Boolean = false
 )
 
-class LyricsDownloadService(client: HttpClient, preferences: SharedPreferences) {
+/**
+ * A completed provider sweep. [sweptAll] is true only when every enabled
+ * provider finished and genuinely had no lyrics - a timeout-truncated or
+ * failed sweep must never be treated as a definitive miss.
+ */
+class SweepResult(
+    val remote: RawLyrics.Remote,
+    val sweptAll: Boolean
+)
+
+class LyricsDownloadService(client: HttpClient) {
 
     private val apiByProvider = mapOf(
-        LyricsProvider.Unison to UnisonApi(client, preferences),
         LyricsProvider.BiniLyrics to BiniLyricsApi(client),
         LyricsProvider.YouLyPlus to YouLyPlusApi(client),
-        LyricsProvider.Kouzu to KouzuApi(client),
-        LyricsProvider.SyncLRC to SyncLrcApi(client),
         LyricsProvider.LRCLib to LrcLibApi(client),
         LyricsProvider.BetterLyrics to BetterLyricsApi(client),
         LyricsProvider.Lyrically to LyricallyApi(client),
-        LyricsProvider.Spotify to PaxsenixSpotifyApi(client),
-        LyricsProvider.YouTubeCaptions to PaxsenixYouTubeApi(client),
-        LyricsProvider.Netease to PaxsenixNeteaseApi(client),
-        LyricsProvider.KuGou to KugouApi(client),
-        LyricsProvider.SimpMusic to SimpMusicApi(client)
+        LyricsProvider.SyncLRC to SyncLrcApi(client),
+        LyricsProvider.Netease to PaxsenixNeteaseApi(client)
     )
 
     private val lrcLyricsParser = LrcLyricsParser()
@@ -85,67 +82,86 @@ class LyricsDownloadService(client: HttpClient, preferences: SharedPreferences) 
         title: String = song.title,
         artist: String = song.albumArtistName(),
         providerParams: LyricsProviderParams = LyricsProviderParams()
-    ): RawLyrics.Remote {
+    ): RawLyrics.Remote = remoteLyricsDetailed(song, title, artist, providerParams).remote
+
+    /**
+     * Runs the provider race and, when the album-artist query finds nothing,
+     * retries once with the raw track artist - the same query the lyrics
+     * editor uses. Album and track artists often differ (feat. tracks,
+     * differing tags, online songs), which made the automatic search miss
+     * lyrics the editor could find.
+     */
+    suspend fun remoteLyricsDetailed(
+        song: Song,
+        title: String = song.title,
+        artist: String = song.albumArtistName(),
+        providerParams: LyricsProviderParams = LyricsProviderParams()
+    ): SweepResult {
         check(providerParams.providers.isNotEmpty()) { "No providers configured" }
 
-        var result = RawLyrics.Remote()
-        var wordSyncedCandidate: RawLyrics.Remote.Content? = null
+        val offline = SweepResult(RawLyrics.Remote(), sweptAll = false)
         if (song == Song.emptySong || !NetworkFeature.isOnline(ignoreWifiSetting = providerParams.ignoreWifiSetting))
-            return result
+            return offline
 
-        try {
-            val cleanedTitle = cleanTitle(title)
-            val cleanedArtist = artist.extractMainArtistName()
-            val providers = providerParams.providers.filter { provider ->
-                provider.isAvailableForCurrentPolicy &&
-                        (provider.isEnabled || providerParams.ignoreProviderSetting) &&
-                        apiByProvider.containsKey(provider)
-            }
-            if (providers.isNotEmpty()) {
-                // Every provider is queried in parallel; the race result is
-                // merged and can still be improved below by the final
-                // word-synced swap.
-                val outcome = raceProviders(
-                    song, cleanedTitle, cleanedArtist, providers, providerParams.preferWordSynced
-                )
-                result = outcome.result
-                wordSyncedCandidate = outcome.wordSyncedCandidate
-            }
+        val cleanedTitle = cleanTitle(title)
+        val cleanedArtist = artist.extractMainArtistName()
+        val providers = providerParams.providers.filter { provider ->
+            provider.isAvailableForCurrentPolicy &&
+                    (provider.isEnabled || providerParams.ignoreProviderSetting) &&
+                    apiByProvider.containsKey(provider)
+        }
+        if (providers.isEmpty()) return offline
+
+        val outcome = try {
+            raceProviders(song, cleanedTitle, cleanedArtist, providers)
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
             Log.e(TAG, "Lyrics download failed with error:", e)
+            return offline
         }
 
-        if (providerParams.preferWordSynced) {
-            // A word-synced response wins over whichever synced content was
-            // merged first from an earlier provider.
-            val synced = wordSyncedCandidate ?: result.synced?.takeIf { isWordSynced(song, it.lyrics) }
-            if (synced != null && synced != result.synced) {
-                result = result.copy(synced = synced)
+        if (!outcome.remote.hasSynced && !outcome.remote.hasPlain) {
+            val fallbackArtist = song.artistName.extractMainArtistName()
+            if (fallbackArtist.isNotBlank() && !fallbackArtist.equals(cleanedArtist, ignoreCase = true)) {
+                val fallbackOutcome = try {
+                    raceProviders(song, cleanedTitle, fallbackArtist, providers)
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    Log.e(TAG, "Fallback lyrics request failed with error:", e)
+                    null
+                }
+                return if (fallbackOutcome != null) {
+                    SweepResult(
+                        remote = outcome.remote.accept(fallbackOutcome.remote),
+                        sweptAll = outcome.sweptAll && fallbackOutcome.sweptAll
+                    )
+                } else {
+                    SweepResult(outcome.remote, sweptAll = false)
+                }
             }
         }
-
-        return result
+        return SweepResult(outcome.remote, outcome.sweptAll)
     }
 
     /**
      * Queries every provider in parallel and merges results as they arrive,
      * so the pipeline latency is the fastest provider rather than the sum
-     * of all of them. The race ends early once the merged result is complete
-     * (plain + synced, plus a word-synced candidate when word-by-word lyrics
-     * are preferred) and stragglers are cancelled. The whole race is capped
-     * at [RACE_TIMEOUT_MILLIS]; on timeout the partial merge still wins.
+     * of all of them. The quality ladder is strict: a word-by-word result
+     * ends the race immediately; a line-synced result opens a short grace
+     * window for a word-by-word provider to beat it before settling. The
+     * whole race is capped at [RACE_TIMEOUT_MILLIS]; on timeout the partial
+     * merge still wins.
      */
     private suspend fun raceProviders(
         song: Song,
         title: String,
         artist: String,
-        providers: List<LyricsProvider>,
-        preferWordSynced: Boolean
+        providers: List<LyricsProvider>
     ): RaceOutcome {
         val outcome = RaceOutcome()
-        try {
+        val timedOut: Boolean = try {
             withTimeoutOrNull(RACE_TIMEOUT_MILLIS) {
                 coroutineScope {
                     val pending = providers.map { provider ->
@@ -162,40 +178,68 @@ class LyricsDownloadService(client: HttpClient, preferences: SharedPreferences) 
                     }.toMutableSet()
 
                     try {
+                        var lineSyncedAt = 0L
                         while (pending.isNotEmpty()) {
-                            val (deferred, response) = select<Pair<Deferred<RawLyrics.Remote?>, RawLyrics.Remote?>> {
-                                for (candidate in pending) {
-                                    candidate.onAwait { result -> candidate to result }
+                            val completed: Pair<Deferred<RawLyrics.Remote?>, RawLyrics.Remote?>?
+                            if (lineSyncedAt == 0L) {
+                                // No synced result yet - keep waiting for
+                                // anything (word-by-word, line or plain).
+                                completed = select {
+                                    for (candidate in pending) {
+                                        candidate.onAwait { response -> candidate to response }
+                                    }
                                 }
+                            } else {
+                                // A line-synced result is on the table; give
+                                // word-by-word providers a short grace window.
+                                val graceLeft = lineSyncedAt + LINE_SYNCED_GRACE_MILLIS -
+                                        System.currentTimeMillis()
+                                if (graceLeft <= 0) break
+                                completed = withTimeoutOrNull(graceLeft) {
+                                    select<Pair<Deferred<RawLyrics.Remote?>, RawLyrics.Remote?>> {
+                                        for (candidate in pending) {
+                                            candidate.onAwait { response -> candidate to response }
+                                        }
+                                    }
+                                } ?: break
                             }
+                            val (deferred, response) = completed
                             pending.remove(deferred)
 
                             if (response != null) {
-                                if (preferWordSynced && outcome.wordSyncedCandidate == null &&
-                                    isWordSynced(song, response.synced?.lyrics)
-                                ) {
+                                val wordSynced = response.synced != null &&
+                                        isWordSynced(song, response.synced.lyrics)
+                                if (wordSynced && outcome.wordSyncedCandidate == null) {
                                     outcome.wordSyncedCandidate = response.synced
+                                } else if (!wordSynced && lineSyncedAt == 0L && response.synced != null) {
+                                    lineSyncedAt = System.currentTimeMillis()
                                 }
-                                outcome.result = outcome.result.accept(response)
-                                if (outcome.result.hasBoth &&
-                                    (!preferWordSynced || outcome.wordSyncedCandidate != null)
-                                ) break
+                                outcome.remote = outcome.remote.accept(response)
+                                if (wordSynced) break
                             }
                         }
                     } finally {
                         pending.forEach { it.cancel() }
                     }
                 }
-            }
+            } == null
         } catch (e: CancellationException) {
             throw e
         }
+
+        // Word-by-word always wins over whichever synced content merged first.
+        val wordSynced = outcome.wordSyncedCandidate
+        if (wordSynced != null && wordSynced != outcome.remote.synced) {
+            outcome.remote = outcome.remote.copy(synced = wordSynced)
+        }
+        outcome.sweptAll = !timedOut && !outcome.remote.hasSynced && !outcome.remote.hasPlain
         return outcome
     }
 
     private class RaceOutcome {
-        var result: RawLyrics.Remote = RawLyrics.Remote()
+        var remote: RawLyrics.Remote = RawLyrics.Remote()
         var wordSyncedCandidate: RawLyrics.Remote.Content? = null
+        var sweptAll: Boolean = false
     }
 
     private fun isWordSynced(song: Song, lyrics: String?): Boolean {
@@ -228,8 +272,17 @@ class LyricsDownloadService(client: HttpClient, preferences: SharedPreferences) 
          * Upper bound for the whole provider race. Per-provider request
          * timeouts are 5-15s, but providers like Lyrically chain several
          * sequential requests, so a global cap keeps the worst case sane.
+         * With the word-by-word early exit this cap only binds when nothing
+         * was found, where letting slow providers finish reduces false
+         * "no lyrics" results.
          */
-        private const val RACE_TIMEOUT_MILLIS = 15_000L
+        private const val RACE_TIMEOUT_MILLIS = 20_000L
+
+        /**
+         * Once a line-synced result has landed, word-by-word providers get
+         * this long to beat it before the race settles for the line-synced.
+         */
+        private const val LINE_SYNCED_GRACE_MILLIS = 3_500L
 
         private const val KEYWORDS = "official|video|audio|lyrics|lyric|visualizer|hd|hq|4k|remaster|remix|live|acoustic|version|edit|extended|radio|clean|explicit"
 

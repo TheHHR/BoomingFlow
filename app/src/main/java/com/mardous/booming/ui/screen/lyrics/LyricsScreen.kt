@@ -12,10 +12,12 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.add
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularWavyProgressIndicator
@@ -87,7 +89,7 @@ sealed class LyricsUiState(open val id: Long) {
     data class Loading(override val id: Long) : LyricsUiState(id)
     data class Empty(override val id: Long) : LyricsUiState(id)
     data class Instrumental(override val id: Long) : LyricsUiState(id)
-    data class Plain(override val id: Long, val lyrics: String) : LyricsUiState(id)
+    data class Plain(override val id: Long, val lyrics: String, val provider: String? = null) : LyricsUiState(id)
     data class Synced(override val id: Long, val syncedLyrics: SyncedLyrics) : LyricsUiState(id)
 }
 
@@ -394,9 +396,21 @@ private fun LyricsSurface(
                         text = uiState.lyrics,
                         color = contentColor,
                         textAlign = textAlign,
-                        style = settings.unsyncedStyle,
-                        modifier = Modifier.fillMaxSize()
+                        style = settings.unsyncedStyle
                     )
+                    if (settings.mode == LyricsViewSettings.Mode.Full &&
+                        !uiState.provider.isNullOrEmpty()
+                    ) {
+                        Text(
+                            text = stringResource(R.string.lyrics_by_x, uiState.provider!!),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = contentColor.copy(alpha = .5f),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .wrapContentWidth(Alignment.CenterHorizontally)
+                                .padding(top = 56.dp)
+                        )
+                    }
                 }
             }
 
