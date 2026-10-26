@@ -163,7 +163,8 @@ fun LyricsScreen(
             // uses the exact same colors as the rest of the app; the cover
             // extraction below is only a fallback while no scheme exists.
             val schemeColors = listOf(playerColorScheme.surfaceColor, playerColorScheme.primaryColor)
-                .takeIf { colors -> colors.none { it == Color.Transparent } }
+                .takeIf { colors -> colors.none { it == 0 } }
+                ?.map { Color(it) }
             if (schemeColors != null) {
                 gradientColors = schemeColors
             } else {
@@ -192,14 +193,14 @@ fun LyricsScreen(
     // the FAB picks up the extracted scheme like the rest of the app.
     val followPlayerColor = Preferences.followPlayerColor
     val fabContainer =
-        if (followPlayerColor && playerColorScheme.surfaceColor != Color.Transparent) {
-            playerColorScheme.surfaceColor
+        if (followPlayerColor && playerColorScheme.surfaceColor != 0) {
+            Color(playerColorScheme.surfaceColor)
         } else {
             MaterialTheme.colorScheme.surface
         }
     val fabContent =
-        if (followPlayerColor && playerColorScheme.onSurfaceColor != Color.Transparent) {
-            playerColorScheme.onSurfaceColor
+        if (followPlayerColor && playerColorScheme.onSurfaceColor != 0) {
+            Color(playerColorScheme.onSurfaceColor)
         } else {
             MaterialTheme.colorScheme.onSurface
         }
