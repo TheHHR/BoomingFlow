@@ -550,9 +550,7 @@
     <string name="visuals_header">Wizualne</string>
     <!-- Interface preferences -->
     <string name="general_theme_title">Motyw ogólny</string>
-    <string name="pure_black_theme_title">Głęboka czerń</string>
     <string name="use_custom_font_title">Niestandardowa czcionka</string>
-    <string name="appbar_mode_title">Styl nagłówka</string>
     <string name="library_categories_title">Zarządzaj kartami</string>
     <string name="library_categories_summary">Konfiguruj widoczność i kolejność kategorii biblioteki.</string>
     <string name="remember_last_page_title">Zapamiętaj ostatnią stronę</string>

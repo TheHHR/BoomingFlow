@@ -535,9 +535,7 @@
     <string name="visuals_header">Visuals</string>
     <!-- Interface preferences -->
     <string name="general_theme_title">Γενικό θέμα</string>
-    <string name="pure_black_theme_title">Καθαρό Μαύρο</string>
     <string name="use_custom_font_title">Use custom font</string>
-    <string name="appbar_mode_title">Στυλ κεφαλίδας</string>
     <string name="library_categories_title">Κατηγορίες βιβλιοθηκών</string>
     <string name="library_categories_summary">Ρυθμίστε την ορατότητα και τη σειρά των κατηγοριών βιβλιοθήκης.</string>
     <string name="remember_last_page_title">Απομνημόνευση τελευταίας σελίδας</string>

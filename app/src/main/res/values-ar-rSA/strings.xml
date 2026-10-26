@@ -567,9 +567,7 @@
     <string name="visuals_header">التأثيرات المرئية</string>
     <!-- Interface preferences -->
     <string name="general_theme_title">السمة العامة</string>
-    <string name="pure_black_theme_title">أسود خالص</string>
     <string name="use_custom_font_title">استخدام خط مخصص</string>
-    <string name="appbar_mode_title">نمط شريط العنوان</string>
     <string name="library_categories_title">فئات المكتبة</string>
     <string name="library_categories_summary">اضبط ظهور فئات المكتبة وترتيبها.</string>
     <string name="remember_last_page_title">تذكّر آخر صفحة</string>

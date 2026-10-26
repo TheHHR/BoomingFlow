@@ -586,9 +586,7 @@
     <string name="lastfm_title">Last.fm</string>
     <string name="metadata_title">Метамәгълүматлар</string>
     <string name="general_theme_title">Гомуми тема</string>
-    <string name="pure_black_theme_title">Чиста кара</string>
     <string name="use_custom_font_title">Үз хәрефне куллану</string>
-    <string name="appbar_mode_title">Башлык стиле</string>
     <string name="library_categories_title">Саклауханә категориялар</string>
     <string name="library_categories_summary">Саклауханә категорияләренең күзаллавын һәм тәртибен көйләгез.</string>
     <string name="remember_last_page_title">Соңгы битне онытмау</string>

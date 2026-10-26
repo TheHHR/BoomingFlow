@@ -535,9 +535,7 @@
     <string name="visuals_header">Visuales</string>
     <!-- Interface preferences -->
     <string name="general_theme_title">Tema general</string>
-    <string name="pure_black_theme_title">Negro puro</string>
     <string name="use_custom_font_title">Usar tipo de letra personalizado</string>
-    <string name="appbar_mode_title">Estilo de cabecera</string>
     <string name="library_categories_title">Categorías de la fonoteca</string>
     <string name="library_categories_summary">Configure la visibilidad y el orden de las categorías de la fonoteca.</string>
     <string name="remember_last_page_title">Recordar última página</string>

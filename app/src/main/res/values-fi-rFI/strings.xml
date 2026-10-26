@@ -533,9 +533,7 @@
     <string name="visuals_header">Visuaalit</string>
     <!-- Interface preferences -->
     <string name="general_theme_title">Yleinen teema</string>
-    <string name="pure_black_theme_title">Puhdas Musta</string>
     <string name="use_custom_font_title">Käytä mukautettua kirjasinta</string>
-    <string name="appbar_mode_title">Otsikon tyyli</string>
     <string name="library_categories_title">Kirjaston kategoriat</string>
     <string name="library_categories_summary">Määritä kirjaston kategorioiden näkyvyys ja järjestys.</string>
     <string name="remember_last_page_title">Muista viimeinen sivu</string>

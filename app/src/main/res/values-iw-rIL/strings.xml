@@ -543,9 +543,7 @@
     <string name="visuals_header">ויזואליים</string>
     <!-- Interface preferences -->
     <string name="general_theme_title">ערכת נושא כללית</string>
-    <string name="pure_black_theme_title">שחור טהור</string>
     <string name="use_custom_font_title">השתמש בגופן מותאם אישית</string>
-    <string name="appbar_mode_title">סגנון כותרת</string>
     <string name="library_categories_title">קטגוריות בספרייה</string>
     <string name="library_categories_summary">הגדר את הנראות והסדר של קטגוריות הספרייה.</string>
     <string name="remember_last_page_title">זכור את העמוד האחרון</string>

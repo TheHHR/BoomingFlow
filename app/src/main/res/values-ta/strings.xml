@@ -598,9 +598,7 @@
     <string name="lastfm_title">Last.fm</string>
     <string name="metadata_title">மேனிலை தரவு</string>
     <string name="general_theme_title">பொது கருப்பொருள்</string>
-    <string name="pure_black_theme_title">தூய கருப்பு</string>
     <string name="use_custom_font_title">தனிப்பயன் எழுத்துருவைப் பயன்படுத்தவும்</string>
-    <string name="appbar_mode_title">தலைப்பு நடை</string>
     <string name="library_categories_title">நூலக வகைகள்</string>
     <string name="library_categories_summary">நூலக வகைகளின் தெரிவுநிலை மற்றும் வரிசையை உள்ளமைக்கவும்.</string>
     <string name="remember_last_page_title">கடைசி பக்கத்தை நினைவில் கொள்க</string>

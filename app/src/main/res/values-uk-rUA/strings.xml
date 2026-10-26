@@ -550,9 +550,7 @@
     <string name="visuals_header">Візуальні ефекти</string>
     <!-- Interface preferences -->
     <string name="general_theme_title">Загальна тема</string>
-    <string name="pure_black_theme_title">Чистий чорний</string>
     <string name="use_custom_font_title">Використати власний шрифт</string>
-    <string name="appbar_mode_title">Стиль заголовка</string>
     <string name="library_categories_title">Категорії бібліотеки</string>
     <string name="library_categories_summary">Налаштуйте видимість та порядок категорій бібліотеки.</string>
     <string name="remember_last_page_title">Запам\'ятовувати останню сторінку</string>

@@ -535,9 +535,7 @@
     <string name="visuals_header">Visuelle</string>
     <!-- Interface preferences -->
     <string name="general_theme_title">Generelt tema</string>
-    <string name="pure_black_theme_title">Ren Sort</string>
     <string name="use_custom_font_title">Brug brugerdefineret skrifttype</string>
-    <string name="appbar_mode_title">Sidehoved stil</string>
     <string name="library_categories_title">Biblioteks kategorier</string>
     <string name="library_categories_summary">Indstil synlighed og rækkefølge af bibliotekskategorier.</string>
     <string name="remember_last_page_title">Husk sidste side</string>

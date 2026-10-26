@@ -550,9 +550,7 @@
     <string name="visuals_header">Визуальные эффекты</string>
     <!-- Interface preferences -->
     <string name="general_theme_title">Общая тема</string>
-    <string name="pure_black_theme_title">Чистый черный</string>
     <string name="use_custom_font_title">Использовать свой шрифт</string>
-    <string name="appbar_mode_title">Стиль заголовка</string>
     <string name="library_categories_title">Категории библиотеки</string>
     <string name="library_categories_summary">Настройте видимость и порядок категорий библиотеки.</string>
     <string name="remember_last_page_title">Запоминать последнюю страницу</string>

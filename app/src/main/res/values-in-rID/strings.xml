@@ -526,9 +526,7 @@
     <string name="visuals_header">Visual</string>
     <!-- Interface preferences -->
     <string name="general_theme_title">Tema umum</string>
-    <string name="pure_black_theme_title">Hitam Pekat</string>
     <string name="use_custom_font_title">Gunakan font kustom</string>
-    <string name="appbar_mode_title">Gaya tajuk</string>
     <string name="library_categories_title">Kategori perpustakaan</string>
     <string name="library_categories_summary">Konfigurasikan visibilitas dan urutan kategori perpustakaan.</string>
     <string name="remember_last_page_title">Ingat halaman terakhir</string>

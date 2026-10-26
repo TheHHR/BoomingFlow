@@ -535,9 +535,7 @@
     <string name="visuals_header">Visuals</string>
     <!-- Interface preferences -->
     <string name="general_theme_title">जनरल थीम</string>
-    <string name="pure_black_theme_title">प्योर ब्लैक</string>
     <string name="use_custom_font_title">Use custom font</string>
-    <string name="appbar_mode_title">हेडर स्टाइल</string>
     <string name="library_categories_title">लाइब्रेरी की कैटेगरीज</string>
     <string name="library_categories_summary">लाइब्रेरी श्रेणियों की दृश्यता और क्रम को कॉन्फ़िगर करें।</string>
     <string name="remember_last_page_title">पिछली पेज याद रखना</string>
