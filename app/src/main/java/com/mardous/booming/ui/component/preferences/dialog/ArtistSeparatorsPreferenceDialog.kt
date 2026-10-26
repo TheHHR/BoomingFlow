@@ -68,18 +68,19 @@ class ArtistSeparatorsPreferenceDialog : DialogFragment() {
                 input.setText("")
             }
         }
+        val density = resources.displayMetrics.density
+        fun px(value: Int): Int = (value * density).toInt()
         val inputRow = LinearLayout(context).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
-            setPadding(0, 0, 0, dp(8))
+            setPadding(0, 0, 0, px(8))
             addView(input)
             addView(addButton)
         }
 
-        val density = resources.displayMetrics.density
         val root = LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(dp(20), dp(8), dp(20), 0)
+            setPadding(px(20), px(8), px(20), 0)
             addView(inputRow)
             addView(
                 ScrollView(context).apply { addView(tokenContainer) },
@@ -111,7 +112,4 @@ class ArtistSeparatorsPreferenceDialog : DialogFragment() {
         tokenRows[token] = row
         return row
     }
-
-    private fun android.content.Context.dp(value: Int): Int =
-        (value * resources.displayMetrics.density).toInt()
 }
