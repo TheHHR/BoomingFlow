@@ -35,7 +35,24 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build debug APK
-        run: ./gradlew assembleGithubDebug --no-daemon
+        run: |
+          set -o pipefail
+          ./gradlew assembleGithubDebug --no-daemon 2>&1 | tee build.log
+
+      - name: Report compile errors
+        if: failure()
+        run: |
+          ERRORS=$(grep -E "^e: |error: |Caused by: " build.log | head -40)
+          if [ -n "$ERRORS" ]; then
+            echo "$ERRORS"
+            while IFS= read -r line; do
+              echo "::error::$line"
+            done <<< "$ERRORS"
+          else
+            echo "No compile errors matched - tail of build log:"
+            tail -80 build.log
+          fi
+          exit 1
 
       - name: Find APK
         run: |
