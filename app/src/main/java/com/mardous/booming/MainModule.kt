@@ -97,7 +97,7 @@ val networkModule = module {
     single { LastFmService(client = get()) }
     single { ListenBrainzService(client = get()) }
     single { MusicBrainzService(client = get()) }
-    single { LyricsDownloadService(client = get()) }
+    single { LyricsDownloadService(client = get(), preferences = get()) }
     single { QueueStateHolder() }
     single { com.mardous.booming.online.download.SongDownloader(androidContext(), get(), get()) }
 }

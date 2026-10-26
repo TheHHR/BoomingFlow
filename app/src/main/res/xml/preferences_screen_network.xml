@@ -216,6 +216,96 @@
             app:isPreferenceVisible="@bool/enable_lyrically_provider"
             app:key="lyrically_enabled"/>
 
+        <SwitchPreferenceCompat
+            app:iconSpaceReserved="true"
+            app:title="@string/use_unison_provider_title"
+            app:summary="@string/use_unison_provider_summary"
+            app:defaultValue="false"
+            app:layout="@layout/list_item_view"
+            app:widgetLayout="@layout/preference_switch"
+            app:key="unison_enabled"/>
+
+        <SwitchPreferenceCompat
+            app:iconSpaceReserved="true"
+            app:title="@string/use_binilyrics_provider_title"
+            app:summary="@string/use_binilyrics_provider_summary"
+            app:defaultValue="false"
+            app:layout="@layout/list_item_view"
+            app:widgetLayout="@layout/preference_switch"
+            app:key="binilyrics_enabled"/>
+
+        <SwitchPreferenceCompat
+            app:iconSpaceReserved="true"
+            app:title="@string/use_youlyplus_provider_title"
+            app:summary="@string/use_youlyplus_provider_summary"
+            app:defaultValue="false"
+            app:layout="@layout/list_item_view"
+            app:widgetLayout="@layout/preference_switch"
+            app:key="youlyplus_enabled"/>
+
+        <SwitchPreferenceCompat
+            app:iconSpaceReserved="true"
+            app:title="@string/use_kouzu_provider_title"
+            app:summary="@string/use_kouzu_provider_summary"
+            app:defaultValue="false"
+            app:layout="@layout/list_item_view"
+            app:widgetLayout="@layout/preference_switch"
+            app:key="kouzu_enabled"/>
+
+        <SwitchPreferenceCompat
+            app:iconSpaceReserved="true"
+            app:title="@string/use_synclrc_provider_title"
+            app:summary="@string/use_synclrc_provider_summary"
+            app:defaultValue="false"
+            app:layout="@layout/list_item_view"
+            app:widgetLayout="@layout/preference_switch"
+            app:key="synclrc_enabled"/>
+
+        <SwitchPreferenceCompat
+            app:iconSpaceReserved="true"
+            app:title="@string/use_spotify_provider_title"
+            app:summary="@string/use_spotify_provider_summary"
+            app:defaultValue="false"
+            app:layout="@layout/list_item_view"
+            app:widgetLayout="@layout/preference_switch"
+            app:key="paxsenix_spotify_enabled"/>
+
+        <SwitchPreferenceCompat
+            app:iconSpaceReserved="true"
+            app:title="@string/use_youtube_provider_title"
+            app:summary="@string/use_youtube_provider_summary"
+            app:defaultValue="false"
+            app:layout="@layout/list_item_view"
+            app:widgetLayout="@layout/preference_switch"
+            app:key="paxsenix_youtube_enabled"/>
+
+        <SwitchPreferenceCompat
+            app:iconSpaceReserved="true"
+            app:title="@string/use_netease_provider_title"
+            app:summary="@string/use_netease_provider_summary"
+            app:defaultValue="false"
+            app:layout="@layout/list_item_view"
+            app:widgetLayout="@layout/preference_switch"
+            app:key="paxsenix_netease_enabled"/>
+
+        <SwitchPreferenceCompat
+            app:iconSpaceReserved="true"
+            app:title="@string/use_kugou_provider_title"
+            app:summary="@string/use_kugou_provider_summary"
+            app:defaultValue="false"
+            app:layout="@layout/list_item_view"
+            app:widgetLayout="@layout/preference_switch"
+            app:key="kugou_enabled"/>
+
+        <SwitchPreferenceCompat
+            app:iconSpaceReserved="true"
+            app:title="@string/use_simpmusic_provider_title"
+            app:summary="@string/use_simpmusic_provider_summary"
+            app:defaultValue="false"
+            app:layout="@layout/list_item_view"
+            app:widgetLayout="@layout/preference_switch"
+            app:key="simpmusic_enabled"/>
+
         <Preference
             app:icon="@drawable/ic_delete_24dp"
             app:title="@string/delete_downloaded_lyrics_title"

@@ -23,9 +23,19 @@ enum class LyricsProvider(
     val displayName: String,
     private val networkFeature: NetworkFeature
 ) {
+    Unison("Unison", NetworkFeature.Lyrics.Unison),
+    BiniLyrics("BiniLyrics", NetworkFeature.Lyrics.BiniLyrics),
+    YouLyPlus("YouLyPlus", NetworkFeature.Lyrics.YouLyPlus),
+    Kouzu("Kouzu", NetworkFeature.Lyrics.Kouzu),
+    SyncLRC("SyncLRC", NetworkFeature.Lyrics.SyncLRC),
     LRCLib("LRCLib", NetworkFeature.Lyrics.LRCLib),
     BetterLyrics("BetterLyrics", NetworkFeature.Lyrics.BetterLyrics),
-    Lyrically("Lyrically", NetworkFeature.Lyrics.Lyrically);
+    Lyrically("Lyrically", NetworkFeature.Lyrics.Lyrically),
+    Spotify("Spotify", NetworkFeature.Lyrics.PaxsenixSpotify),
+    YouTubeCaptions("YouTube Captions", NetworkFeature.Lyrics.PaxsenixYouTube),
+    Netease("Netease", NetworkFeature.Lyrics.PaxsenixNetease),
+    KuGou("KuGou", NetworkFeature.Lyrics.KuGou),
+    SimpMusic("SimpMusic", NetworkFeature.Lyrics.SimpMusic);
 
     val isAvailableForCurrentPolicy get() = networkFeature.isAvailableForCurrentPolicy
     val isEnabled get() = networkFeature.isEnabled

@@ -26,10 +26,21 @@ import com.mardous.booming.data.local.lyrics.lrc.LrcLyricsParser
 import com.mardous.booming.data.local.lyrics.ttml.TtmlLyricsParser
 import com.mardous.booming.data.remote.lyrics.api.LyricsProvider
 import com.mardous.booming.data.remote.lyrics.api.betterlyrics.BetterLyricsApi
+import com.mardous.booming.data.remote.lyrics.api.binilyrics.BiniLyricsApi
+import com.mardous.booming.data.remote.lyrics.api.kouzu.KouzuApi
+import com.mardous.booming.data.remote.lyrics.api.kugou.KugouApi
 import com.mardous.booming.data.remote.lyrics.api.lrclib.LrcLibApi
 import com.mardous.booming.data.remote.lyrics.api.lyrically.LyricallyApi
+import com.mardous.booming.data.remote.lyrics.api.paxsenix.PaxsenixNeteaseApi
+import com.mardous.booming.data.remote.lyrics.api.paxsenix.PaxsenixSpotifyApi
+import com.mardous.booming.data.remote.lyrics.api.paxsenix.PaxsenixYouTubeApi
+import com.mardous.booming.data.remote.lyrics.api.simpmusic.SimpMusicApi
+import com.mardous.booming.data.remote.lyrics.api.synclrc.SyncLrcApi
+import com.mardous.booming.data.remote.lyrics.api.unison.UnisonApi
+import com.mardous.booming.data.remote.lyrics.api.youlyplus.YouLyPlusApi
 import com.mardous.booming.extensions.media.albumArtistName
 import com.mardous.booming.extensions.media.extractMainArtistName
+import android.content.SharedPreferences
 import io.ktor.client.HttpClient
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Deferred
@@ -47,12 +58,22 @@ class LyricsProviderParams(
     val preferWordSynced: Boolean = false
 )
 
-class LyricsDownloadService(client: HttpClient) {
+class LyricsDownloadService(client: HttpClient, preferences: SharedPreferences) {
 
     private val apiByProvider = mapOf(
-        LyricsProvider.Lyrically to LyricallyApi(client),
+        LyricsProvider.Unison to UnisonApi(client, preferences),
+        LyricsProvider.BiniLyrics to BiniLyricsApi(client),
+        LyricsProvider.YouLyPlus to YouLyPlusApi(client),
+        LyricsProvider.Kouzu to KouzuApi(client),
+        LyricsProvider.SyncLRC to SyncLrcApi(client),
+        LyricsProvider.LRCLib to LrcLibApi(client),
         LyricsProvider.BetterLyrics to BetterLyricsApi(client),
-        LyricsProvider.LRCLib to LrcLibApi(client)
+        LyricsProvider.Lyrically to LyricallyApi(client),
+        LyricsProvider.Spotify to PaxsenixSpotifyApi(client),
+        LyricsProvider.YouTubeCaptions to PaxsenixYouTubeApi(client),
+        LyricsProvider.Netease to PaxsenixNeteaseApi(client),
+        LyricsProvider.KuGou to KugouApi(client),
+        LyricsProvider.SimpMusic to SimpMusicApi(client)
     )
 
     private val lrcLyricsParser = LrcLyricsParser()
