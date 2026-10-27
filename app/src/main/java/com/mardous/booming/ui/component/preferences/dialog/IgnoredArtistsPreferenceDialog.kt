@@ -34,6 +34,12 @@ class IgnoredArtistsPreferenceDialog : DialogFragment() {
             orientation = LinearLayout.VERTICAL
         }
 
+        // Seed a row per ignored entry so the list can be reviewed and
+        // items restored (unchecking a row removes it from the list).
+        for (name in active) {
+            container.addView(row(context, name))
+        }
+
         val input = TextInputEditText(context).apply {
             hint = getString(R.string.ignored_artists_hint)
             inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS

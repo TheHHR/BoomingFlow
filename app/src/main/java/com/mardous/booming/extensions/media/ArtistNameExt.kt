@@ -25,7 +25,11 @@ import java.util.regex.Pattern
 private var cachedPattern: Pair<String, Pattern>? = null
 private var cachedExceptions: Pair<String, List<String>>? = null
 
-private fun currentArtistNamePattern(): Pattern {
+/**
+ * Pattern that matches a single separator occurrence (used with find() to
+ * cut the name at every separator, left to right).
+ */
+private fun currentSeparatorPattern(): Pattern {
     val tokenKey = Preferences.artistSeparatorsRaw
         .deserialize(Preferences.defaultArtistSeparators)
         .joinToString("\u0000")
@@ -52,7 +56,7 @@ private fun currentArtistNamePattern(): Pattern {
         Pattern.compile("(?!x)x")
     } else {
         Pattern.compile(
-            "(.*)(${alternatives.joinToString("|")})(.*)",
+            alternatives.joinToString("|"),
             Pattern.CASE_INSENSITIVE or Pattern.UNICODE_CASE
         )
     }
@@ -89,16 +93,18 @@ fun String.splitArtistName(): List<String> {
     }
 
     val parts = mutableListOf<String>()
-    var rest = masked.trim()
-    while (rest.isNotEmpty()) {
-        val matcher = currentArtistNamePattern().matcher(rest)
-        if (matcher.matches()) {
-            parts.add(matcher.group(1) ?: break)
-            rest = matcher.group(3).orEmpty()
-        } else {
-            parts.add(rest)
-            break
+    val matcher = currentSeparatorPattern().matcher(masked)
+    var start = 0
+    while (start <= masked.length && matcher.find(start)) {
+        // Cut at every separator occurrence left to right, so names built
+        // with multiple different separators split completely.
+        if (matcher.start() > start) {
+            parts.add(masked.substring(start, matcher.start()))
         }
+        start = matcher.end()
+    }
+    if (start < masked.length) {
+        parts.add(masked.substring(start))
     }
 
     val result = parts.map { part ->
