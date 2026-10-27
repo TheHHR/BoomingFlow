@@ -519,7 +519,13 @@ fun ItemDetailHeaderBinding.applyHeaderAccentFromArt(bitmap: Bitmap) {
         }
         if (!root.isAttachedToWindow) return@launch
         val accent = paletteColor.primaryColor
-        playAction.applyPlayerAccent(accent)
+        // playAction's static type varies with layout variants, hence the
+        // runtime type checks (same pattern as PlaylistDetailFragment).
+        when (val playButton = playAction) {
+            is MorphicIconButton -> playButton.applyPlayerAccent(accent)
+            is MaterialButton -> playButton.applyPlayerAccent(accent, tonal = true)
+            else -> Unit
+        }
         shuffleAction.applyPlayerAccent(accent, tonal = true)
         searchAction?.applyPlayerAccent(accent)
     }

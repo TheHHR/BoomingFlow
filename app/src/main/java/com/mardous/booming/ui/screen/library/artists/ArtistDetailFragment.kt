@@ -183,7 +183,7 @@ class ArtistDetailFragment : AbsMainActivityFragment(R.layout.fragment_artist_de
                 crossfade(false)
                 listener(
                     onSuccess = { _, result ->
-                        applyHeaderAccentFromArt(result.image.toBitmap())
+                        headerBinding.applyHeaderAccentFromArt(result.image.toBitmap())
                     }
                 )
             }
