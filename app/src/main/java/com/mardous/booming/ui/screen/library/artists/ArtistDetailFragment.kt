@@ -32,6 +32,7 @@ import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import coil3.request.crossfade
+import coil3.toBitmap
 import com.google.android.material.transition.MaterialArcMotion
 import com.google.android.material.transition.MaterialContainerTransform
 import com.mardous.booming.R
@@ -58,6 +59,7 @@ import com.mardous.booming.extensions.navigation.asFragmentExtras
 import com.mardous.booming.extensions.navigation.playInfoArgs
 import com.mardous.booming.extensions.navigation.searchArgs
 import com.mardous.booming.extensions.plurals
+import com.mardous.booming.extensions.resources.applyHeaderAccentFromArt
 import com.mardous.booming.extensions.resources.removeHorizontalMarginIfRequired
 import com.mardous.booming.extensions.resources.setupStatusBarForeground
 import com.mardous.booming.extensions.resources.surfaceColor
@@ -177,7 +179,14 @@ class ArtistDetailFragment : AbsMainActivityFragment(R.layout.fragment_artist_de
                 arguments.artistId.toString()
             }
             headerBinding.image.removeHorizontalMarginIfRequired()
-            headerBinding.image.artistImage(getArtist()) { crossfade(false) }
+            headerBinding.image.artistImage(getArtist()) {
+                crossfade(false)
+                listener(
+                    onSuccess = { _, result ->
+                        applyHeaderAccentFromArt(result.image.toBitmap())
+                    }
+                )
+            }
 
             headerBinding.title.text = getArtist().displayName()
             headerBinding.subtitle.text = getArtist().artistInfo(requireContext())

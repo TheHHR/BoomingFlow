@@ -2,6 +2,7 @@ package com.mardous.booming.coil.fetcher
 
 import android.content.ContentResolver
 import android.content.SharedPreferences
+import android.util.LruCache
 import android.webkit.MimeTypeMap
 import coil3.ImageLoader
 import coil3.decode.DataSource
@@ -15,9 +16,11 @@ import com.mardous.booming.coil.model.ArtistImage
 import com.mardous.booming.data.model.Artist
 import com.mardous.booming.data.model.network.NetworkFeature
 import com.mardous.booming.data.repository.Repository
+import com.mardous.booming.online.data.spotify.SpotifyClient
 import com.mardous.booming.util.ImageSize
 import com.mardous.booming.util.PREFERRED_IMAGE_SIZE
 import com.mardous.booming.util.Preferences.requireString
+import org.apache.commons.text.similarity.JaroWinklerSimilarity
 import okio.Path.Companion.toOkioPath
 import okio.buffer
 import okio.source
@@ -32,11 +35,51 @@ class ArtistImageFetcher(
     private val imageSize: String
 ) : Fetcher {
 
+    /**
+     * Searches Spotify for the artist and returns the image URL of the best
+     * name match, or null. Results are memoized per session so scrolling
+     * the artists page doesn't re-search for every rebind.
+     */
+    private suspend fun fetchSpotifyImageUrl(artistName: String): String? {
+        val cacheKey = artistName.trim().lowercase()
+        spotifySearchCache.get(cacheKey)?.let { return it }
+
+        val candidates = runCatching {
+            SpotifyClient.searchArtists(artistName, limit = 5)
+        }.getOrDefault(emptyList())
+
+        val best = candidates
+            .filter { !it.imageUrl.isNullOrBlank() }
+            .maxByOrNull { nameSimilarity(it.name, artistName) }
+        val url = best?.takeIf {
+            nameSimilarity(it.name, artistName) >= MIN_NAME_SIMILARITY
+        }?.imageUrl
+
+        synchronized(spotifySearchCache) { spotifySearchCache.put(cacheKey, url) }
+        return url
+    }
+
     companion object {
         // Maximum 4 queries per artist
         private const val MAX_RESULT_PER_PAGE = 5
         private const val MAX_RESULT_COUNT = 20
+
+        /** Minimum Jaro-Winkler similarity for a Spotify name match. */
+        private const val MIN_NAME_SIMILARITY = 0.90
+
+        /**
+         * Session-scoped memo of Spotify image lookups (null = searched and
+         * found nothing). Kept in the companion so it survives fetcher
+         * instance recreation.
+         */
+        private val spotifySearchCache = LruCache<String, String?>(200)
+
+        private val nameComparator = JaroWinklerSimilarity()
+
+        fun nameSimilarity(a: String, b: String): Double =
+            nameComparator.apply(a.trim().lowercase(), b.trim().lowercase())
     }
+}
 
     private val contentResolver: ContentResolver
         get() = options.context.contentResolver
@@ -54,6 +97,17 @@ class ArtistImageFetcher(
         }
 
         if (!image.isNameUnknown && NetworkFeature.Images.Artists.isEnabled) {
+            // Spotify first (higher-quality real artist photos, works even
+            // without a connected account via the anonymous token), Deezer
+            // as fallback.
+            val spotifyImageUrl = fetchSpotifyImageUrl(image.name)
+            if (spotifyImageUrl != null) {
+                val data = loader.components.map(spotifyImageUrl, options)
+                val output = loader.components.newFetcher(data, options, loader)
+                val (fetcher) = checkNotNull(output) { "no supported fetcher for $spotifyImageUrl" }
+                return fetcher.fetch()
+            }
+
             var pageIndex = 0
             var revisedResults = 0
             var deezerArtist = repository.deezerArtist(image.name, MAX_RESULT_PER_PAGE, pageIndex)

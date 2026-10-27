@@ -38,16 +38,24 @@ import androidx.core.content.ContextCompat
 import androidx.core.graphics.ColorUtils
 import androidx.core.widget.TextViewCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.findViewTreeLifecycleOwner
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import android.widget.ImageView
 import android.view.View
 import com.mardous.booming.core.model.theme.AccentSchemes
+import com.mardous.booming.core.palette.PaletteProcessor
 import com.google.android.material.slider.Slider
 import com.mardous.booming.R
+import com.mardous.booming.databinding.ItemDetailHeaderBinding
 import com.mardous.booming.extensions.isNightMode
 import com.mardous.booming.extensions.resolveColor
 import com.mardous.booming.ui.component.views.MorphicIconButton
+import android.graphics.Bitmap
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlin.math.abs
 
 val Int.isColorLight: Boolean
@@ -496,4 +504,23 @@ fun getPrimaryTextColor(context: Context, isDark: Boolean = !context.isNightMode
         if (isDisabled) R.color.primary_text_disabled_dark else R.color.primary_text_dark
     }
     return context.getColorCompat(resolveColor)
+}
+/**
+ * Extracts an accent from the detail page's own header artwork and applies
+ * it to the play/shuffle/search action buttons, so each page carries the
+ * color of the art it displays (artist picture or album cover).
+ */
+fun ItemDetailHeaderBinding.applyHeaderAccentFromArt(bitmap: Bitmap) {
+    val context = root.context
+    val lifecycleOwner = root.findViewTreeLifecycleOwner() ?: return
+    lifecycleOwner.lifecycleScope.launch {
+        val paletteColor = withContext(Dispatchers.Default) {
+            PaletteProcessor.getPaletteColor(context, bitmap)
+        }
+        if (!root.isAttachedToWindow) return@launch
+        val accent = paletteColor.primaryColor
+        playAction.applyPlayerAccent(accent)
+        shuffleAction.applyPlayerAccent(accent, tonal = true)
+        searchAction?.applyPlayerAccent(accent)
+    }
 }

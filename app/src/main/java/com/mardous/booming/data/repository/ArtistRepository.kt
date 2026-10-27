@@ -127,7 +127,14 @@ class RealArtistRepository(
         val songs = songRepository.songs(
             songRepository.makeSongCursor(AudioColumns.ARTIST + " LIKE ?", arrayOf("%$query%"), DEFAULT_SORT_ORDER)
         )
-        val artists = splitIntoArtists(songs)
+        // The SQL pre-filter matches songs whose artist tag CONTAINS the
+        // query; splitting creates entries for every part of those names,
+        // so collaborators would leak into the results without this
+        // display-name check.
+        val trimmedQuery = query.trim()
+        val artists = splitIntoArtists(songs).filter {
+            it.name.contains(trimmedQuery, ignoreCase = true)
+        }
         return sortArtists(artists)
     }
 
@@ -191,7 +198,12 @@ class RealArtistRepository(
                 DEFAULT_SORT_ORDER
             )
         )
-        val artists = splitIntoAlbumArtists(songs)
+        // Same reason as artists(query): drop split entries whose display
+        // name doesn't actually match the query.
+        val trimmedQuery = query.trim()
+        val artists = splitIntoAlbumArtists(songs).filter {
+            it.name.contains(trimmedQuery, ignoreCase = true)
+        }
         return sortArtists(artists)
     }
 

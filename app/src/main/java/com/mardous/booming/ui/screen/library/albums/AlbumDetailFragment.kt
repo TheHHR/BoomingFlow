@@ -31,6 +31,7 @@ import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.LinearLayoutManager
 import coil3.request.crossfade
+import coil3.toBitmap
 import com.google.android.material.transition.MaterialArcMotion
 import com.google.android.material.transition.MaterialContainerTransform
 import com.mardous.booming.R
@@ -56,6 +57,7 @@ import com.mardous.booming.extensions.navigation.asFragmentExtras
 import com.mardous.booming.extensions.navigation.playInfoArgs
 import com.mardous.booming.extensions.navigation.searchArgs
 import com.mardous.booming.extensions.plurals
+import com.mardous.booming.extensions.resources.applyHeaderAccentFromArt
 import com.mardous.booming.extensions.resources.removeHorizontalMarginIfRequired
 import com.mardous.booming.extensions.resources.setupStatusBarForeground
 import com.mardous.booming.extensions.resources.surfaceColor
@@ -165,7 +167,14 @@ class AlbumDetailFragment : AbsMainActivityFragment(R.layout.fragment_album_deta
         headerAdapter = HeaderAdapter { headerBinding ->
             headerBinding.image.transitionName = arguments.albumId.toString()
             headerBinding.image.removeHorizontalMarginIfRequired()
-            headerBinding.image.albumImage(getAlbum()) { crossfade(false) }
+            headerBinding.image.albumImage(getAlbum()) {
+                crossfade(false)
+                listener(
+                    onSuccess = { _, result ->
+                        headerBinding.applyHeaderAccentFromArt(result.image.toBitmap())
+                    }
+                )
+            }
 
             headerBinding.title.text = getAlbum().name
 
