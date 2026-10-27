@@ -158,8 +158,7 @@ class App : Application(), SingletonImageLoader.Factory {
                 add(AudioCoverKeyer())
                 add(
                     AudioCoverFetcher.Factory(
-                        preferences = get(),
-                        repository = get()
+                        preferences = get()
                     )
                 )
 
@@ -169,8 +168,7 @@ class App : Application(), SingletonImageLoader.Factory {
                 add(
                     ArtistImageFetcher.Factory(
                         preferences = get(),
-                        customImageManager = get(),
-                        repository = get()
+                        customImageManager = get()
                     )
                 )
 

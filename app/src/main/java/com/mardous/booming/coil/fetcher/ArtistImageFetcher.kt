@@ -15,7 +15,6 @@ import com.mardous.booming.coil.CustomArtistImageManager
 import com.mardous.booming.coil.model.ArtistImage
 import com.mardous.booming.data.model.Artist
 import com.mardous.booming.data.model.network.NetworkFeature
-import com.mardous.booming.data.repository.Repository
 import com.mardous.booming.online.data.spotify.SpotifyClient
 import com.mardous.booming.online.data.spotify.SpotifyPrefs
 import com.mardous.booming.util.ImageSize
@@ -25,13 +24,11 @@ import org.apache.commons.text.similarity.JaroWinklerSimilarity
 import okio.Path.Companion.toOkioPath
 import okio.buffer
 import okio.source
-import kotlin.math.min
 
 class ArtistImageFetcher(
     private val loader: ImageLoader,
     private val options: Options,
     private val customImageManager: CustomArtistImageManager,
-    private val repository: Repository,
     private val image: ArtistImage,
     private val imageSize: String
 ) : Fetcher {
@@ -88,40 +85,14 @@ class ArtistImageFetcher(
         }
 
         if (!image.isNameUnknown && NetworkFeature.Images.Artists.isEnabled) {
-            // Spotify first (higher-quality real artist photos, works even
-            // without a connected account via the anonymous token), Deezer
-            // as fallback.
+            // Spotify: higher-quality real artist photos, works even without
+            // a connected account via the anonymous token.
             val spotifyImageUrl = fetchSpotifyImageUrl(image.name)
             if (spotifyImageUrl != null) {
                 val data = loader.components.map(spotifyImageUrl, options)
                 val output = loader.components.newFetcher(data, options, loader)
                 val (fetcher) = checkNotNull(output) { "no supported fetcher for $spotifyImageUrl" }
                 return fetcher.fetch()
-            }
-
-            var pageIndex = 0
-            var revisedResults = 0
-            var deezerArtist = repository.deezerArtist(image.name, MAX_RESULT_PER_PAGE, pageIndex)
-            val total = min(deezerArtist?.total ?: 0, MAX_RESULT_COUNT)
-            while (deezerArtist != null && revisedResults < total) {
-                val (matched, imageUrl) = deezerArtist.getBestImage(image.name, imageSize)
-                if (matched) {
-                    if (imageUrl != null) {
-                        val data = loader.components.map(imageUrl, options)
-                        val output = loader.components.newFetcher(data, options, loader)
-                        val (fetcher) = checkNotNull(output) { "no supported fetcher for $imageUrl" }
-                        return fetcher.fetch()
-                    }
-                    break
-                }
-                revisedResults += deezerArtist.result.size
-                if (revisedResults < total) {
-                    deezerArtist = repository.deezerArtist(
-                        name = image.name,
-                        limit = min((total - revisedResults), MAX_RESULT_PER_PAGE),
-                        index = pageIndex++
-                    )
-                }
             }
         }
 
@@ -142,8 +113,7 @@ class ArtistImageFetcher(
 
     class Factory(
         private val preferences: SharedPreferences,
-        private val customImageManager: CustomArtistImageManager,
-        private val repository: Repository
+        private val customImageManager: CustomArtistImageManager
     ) : Fetcher.Factory<ArtistImage> {
         override fun create(
             data: ArtistImage,
@@ -154,7 +124,6 @@ class ArtistImageFetcher(
                 loader = imageLoader,
                 options = options,
                 customImageManager = customImageManager,
-                repository = repository,
                 image = data,
                 imageSize = preferences.requireString(PREFERRED_IMAGE_SIZE, ImageSize.MEDIUM)
             )
@@ -162,10 +131,6 @@ class ArtistImageFetcher(
     }
 
     companion object {
-        // Maximum 4 queries per artist
-        private const val MAX_RESULT_PER_PAGE = 5
-        private const val MAX_RESULT_COUNT = 20
-
         /** Minimum Jaro-Winkler similarity for a Spotify name match. */
         private const val MIN_NAME_SIMILARITY = 0.90
 

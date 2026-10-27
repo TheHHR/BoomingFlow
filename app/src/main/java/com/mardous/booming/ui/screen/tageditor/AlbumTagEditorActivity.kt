@@ -88,27 +88,6 @@ class AlbumTagEditorActivity : AbsTagEditorActivity() {
         } else albumBinding.genre.setText(genre)
     }
 
-    override fun downloadOnlineImage() {
-        val albumTitleStr = albumBinding.album.text?.toString()
-        val albumArtistNameStr = albumBinding.albumArtist.text?.toString()
-        if (albumArtistNameStr.isNullOrBlank() || albumTitleStr.isNullOrBlank()) {
-            showToast(resources.getString(R.string.album_or_artist_empty))
-            return
-        }
-        viewModel.getAlbumInfo(albumArtistNameStr, albumTitleStr).observe(this) { deezerAlbum ->
-            if (deezerAlbum != null) {
-                val url = deezerAlbum.imageUrl
-                if (!url.isNullOrEmpty()) {
-                    loadImageFromUrl(url)
-                } else {
-                    showToast(R.string.could_not_download_album_cover)
-                }
-            } else {
-                showToast(R.string.could_not_download_album_cover)
-            }
-        }
-    }
-
     override fun fetchSpotifyImage() {
         val albumTitleStr = albumBinding.album.text?.toString()
         val albumArtistNameStr = albumBinding.albumArtist.text?.toString()

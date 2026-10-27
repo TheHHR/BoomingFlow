@@ -12,10 +12,6 @@ import com.mardous.booming.data.model.network.LoginState
 import com.mardous.booming.data.model.network.ScrobblingResult
 import com.mardous.booming.data.model.network.ScrobblingService
 import com.mardous.booming.data.model.network.lastfm.LastFmFailure
-import com.mardous.booming.data.remote.deezer.DeezerService
-import com.mardous.booming.data.remote.deezer.model.DeezerAlbum
-import com.mardous.booming.data.remote.deezer.model.DeezerArtist
-import com.mardous.booming.data.remote.deezer.model.DeezerTrack
 import com.mardous.booming.data.remote.lastfm.LastFmService
 import com.mardous.booming.data.remote.lastfm.model.LastFmAlbum
 import com.mardous.booming.data.remote.lastfm.model.LastFmArtist
@@ -53,9 +49,6 @@ interface NetworkRepository {
     suspend fun updateNowPlaying(service: ScrobblingService, song: Song): ScrobblingResult
     suspend fun artistInfo(name: String, lang: String?, cache: String?): LastFmArtist?
     suspend fun albumInfo(artist: String, album: String, lang: String?): LastFmAlbum?
-    suspend fun deezerTrack(artist: String, title: String): DeezerTrack?
-    suspend fun deezerArtist(name: String, limit: Int, index: Int): DeezerArtist?
-    suspend fun deezerAlbum(artist: String, name: String): DeezerAlbum?
     suspend fun musicBrainzRecording(title: String, artist: String): MusicBrainzSearchResponse?
     suspend fun musicBrainzRecordingDetails(id: String): MusicBrainzRecording?
 }
@@ -65,7 +58,6 @@ class NetworkRepositoryImpl(
     private val preferences: SharedPreferences,
     private val lastFmService: LastFmService,
     private val listenBrainzService: ListenBrainzService,
-    private val deezerService: DeezerService,
     private val musicBrainzService: MusicBrainzService
 ) : NetworkRepository {
 
@@ -155,37 +147,11 @@ class NetworkRepositoryImpl(
         return try {
             lastFmService.albumInfo(album, artist, lang)
         } catch (e: Exception) {
-            Log.e(TAG, "Last.fm: album info couldn't be retrieved!", e)
-            null
-        }
-    }
+             Log.e(TAG, "Last.fm: album info couldn't be retrieved!", e)
+             null
+         }
+     }
 
-    override suspend fun deezerTrack(artist: String, title: String): DeezerTrack? {
-        return try {
-            deezerService.track(artist, title)
-        } catch (e: Exception) {
-            Log.e(TAG, "Deezer: track info couldn't be retrieved!", e)
-            null
-        }
-    }
-
-    override suspend fun deezerArtist(name: String, limit: Int, index: Int): DeezerArtist? {
-        return try {
-            deezerService.artist(name, limit, index)
-        } catch (e: Exception) {
-            Log.e(TAG, "Deezer: artist info couldn't be retrieved!", e)
-            null
-        }
-    }
-
-    override suspend fun deezerAlbum(artist: String, name: String): DeezerAlbum? {
-        return try {
-            deezerService.album(artist, name)
-        } catch (e: Exception) {
-            Log.e(TAG, "Deezer: album info couldn't be retrieved!", e)
-            null
-        }
-    }
 
     override suspend fun musicBrainzRecording(title: String, artist: String): MusicBrainzSearchResponse? {
         return try {

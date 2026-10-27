@@ -28,7 +28,6 @@ import com.mardous.booming.data.local.EditTarget
 import com.mardous.booming.data.local.MediaStoreWriter
 import com.mardous.booming.data.local.backup.BackupManager
 import com.mardous.booming.data.model.Genre
-import com.mardous.booming.data.remote.deezer.DeezerService
 import com.mardous.booming.data.remote.github.GitHubService
 import com.mardous.booming.data.remote.jsonHttpClient
 import com.mardous.booming.data.remote.lastfm.LastFmService
@@ -93,7 +92,6 @@ val networkModule = module {
     factory { jsonHttpClient(okHttpClient = get()) }
     factory { provideOkHttp(context = get()) }
     single { GitHubService(context = androidContext(), client = get()) }
-    single { DeezerService(client = get()) }
     single { LastFmService(client = get()) }
     single { ListenBrainzService(client = get()) }
     single { MusicBrainzService(client = get()) }
@@ -277,7 +275,6 @@ private val dataModule = module {
             preferences = get(),
             lastFmService = get(),
             listenBrainzService = get(),
-            deezerService = get(),
             musicBrainzService = get()
         )
     } bind NetworkRepository::class

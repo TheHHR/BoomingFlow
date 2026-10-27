@@ -47,8 +47,8 @@ private fun cacheInterceptor(): Interceptor {
 
         val response = chain.proceed(originalRequest)
 
-        // Only cache Deezer and Last.fm API responses
-        if (url.contains("api.deezer.com") || url.contains("ws.audioscrobbler.com")) {
+        // Only cache Last.fm API responses
+        if (url.contains("ws.audioscrobbler.com")) {
             val cacheControl = CacheControl.Builder()
                 .maxAge(4, TimeUnit.DAYS)
                 .build()
@@ -67,7 +67,7 @@ private fun offlineCacheInterceptor(): Interceptor {
         var request = chain.request()
         val url = request.url.toString()
 
-        if ((url.contains("api.deezer.com") || url.contains("ws.audioscrobbler.com")) &&
+        if (url.contains("ws.audioscrobbler.com") &&
             !com.mardous.booming.data.model.network.NetworkFeature.isOnline(ignoreWifiSetting = true)
         ) {
             val cacheControl = CacheControl.Builder()

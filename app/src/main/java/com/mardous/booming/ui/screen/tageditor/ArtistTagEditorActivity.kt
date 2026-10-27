@@ -103,8 +103,6 @@ class ArtistTagEditorActivity : AbsTagEditorActivity() {
             .show()
     }
 
-    override fun downloadOnlineImage() {}
-
     override fun searchOnlineImage() {
         webSearch(artistName)
     }

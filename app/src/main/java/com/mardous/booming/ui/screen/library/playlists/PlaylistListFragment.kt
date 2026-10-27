@@ -194,11 +194,11 @@ class PlaylistListFragment : AbsRecyclerViewCustomGridSizeFragment<RecyclerView.
         )
 
         val concat = ConcatAdapter(
-            yourHeaderAdapter!!,
-            playlistAdapter!!,
             likedHeaderAdapter!!,
             likedRowAdapter!!,
-            spotifyShelf!!
+            spotifyShelf!!,
+            yourHeaderAdapter!!,
+            playlistAdapter!!
         )
         refreshSectionVisibility()
         return concat

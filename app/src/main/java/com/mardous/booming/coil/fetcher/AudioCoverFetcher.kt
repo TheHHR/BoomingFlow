@@ -13,9 +13,10 @@ import com.kyant.taglib.TagLib
 import com.mardous.booming.coil.model.AudioCover
 import com.mardous.booming.coil.util.AudioCoverUtils
 import com.mardous.booming.data.model.network.NetworkFeature
-import com.mardous.booming.data.repository.Repository
 import com.mardous.booming.extensions.media.asAlbumCoverUri
 import com.mardous.booming.extensions.media.isArtistNameUnknown
+import com.mardous.booming.online.data.spotify.SpotifyClient
+import com.mardous.booming.online.data.spotify.thumbnailUrl
 import com.mardous.booming.util.ImageSize
 import com.mardous.booming.util.PREFERRED_IMAGE_SIZE
 import com.mardous.booming.util.Preferences.requireString
@@ -26,7 +27,6 @@ import okio.source
 class AudioCoverFetcher(
     private val loader: ImageLoader,
     private val options: Options,
-    private val repository: Repository,
     private val cover: AudioCover,
     private val imageSize: String
 ) : Fetcher {
@@ -71,12 +71,19 @@ class AudioCoverFetcher(
         if (stream == null &&
             !cover.artistName.isArtistNameUnknown() &&
             NetworkFeature.Images.Albums.isEnabled) {
-            val imageUrl = if (cover.isAlbum) {
-                repository.deezerAlbum(cover.artistName, cover.albumName)?.getBestImage(cover.albumName, imageSize)
-                    ?: repository.deezerTrack(cover.artistName, cover.title)?.getBestImage(imageSize)
-            } else {
-                repository.deezerTrack(cover.artistName, cover.title)?.getBestImage(imageSize)
-            }
+            // Spotify cover lookup: album search first, track search as
+            // fallback for songs whose album tag is unreliable.
+            val imageUrl = runCatching {
+                if (cover.isAlbum) {
+                    SpotifyClient.searchAlbums("${cover.artistName} ${cover.albumName}", limit = 1)
+                        .firstOrNull()?.imageUrl
+                        ?: SpotifyClient.searchTracks("${cover.artistName} ${cover.title}", limit = 1)
+                            .firstOrNull()?.thumbnailUrl()
+                } else {
+                    SpotifyClient.searchTracks("${cover.artistName} ${cover.title}", limit = 1)
+                        .firstOrNull()?.thumbnailUrl()
+                }
+            }.getOrNull()
             if (imageUrl != null) {
                 val data = loader.components.map(imageUrl, options)
                 val output = loader.components.newFetcher(data, options, loader)
@@ -98,8 +105,7 @@ class AudioCoverFetcher(
     }
 
     class Factory(
-        private val preferences: SharedPreferences,
-        private val repository: Repository
+        private val preferences: SharedPreferences
     ) : Fetcher.Factory<AudioCover> {
         override fun create(
             data: AudioCover,
@@ -109,7 +115,6 @@ class AudioCoverFetcher(
             return AudioCoverFetcher(
                 loader = imageLoader,
                 options = options,
-                repository = repository,
                 cover = data,
                 imageSize = preferences.requireString(PREFERRED_IMAGE_SIZE, ImageSize.MEDIUM)
             )

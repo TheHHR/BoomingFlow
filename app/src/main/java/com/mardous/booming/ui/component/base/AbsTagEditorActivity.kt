@@ -104,8 +104,6 @@ abstract class AbsTagEditorActivity : AbsBaseActivity(),
 
     protected open fun onDefaultGenreSelection(genre: String) {}
 
-    protected abstract fun downloadOnlineImage()
-
     protected abstract fun searchOnlineImage()
 
     protected abstract fun restoreImage()
@@ -116,7 +114,6 @@ abstract class AbsTagEditorActivity : AbsBaseActivity(),
 
     protected open fun selectImage() {
         val items = arrayOf(
-            getString(com.mardous.booming.R.string.download_image),
             getString(com.mardous.booming.R.string.fetch_from_spotify),
             getString(com.mardous.booming.R.string.pick_from_local_storage),
             getString(com.mardous.booming.R.string.web_search),
@@ -127,12 +124,11 @@ abstract class AbsTagEditorActivity : AbsBaseActivity(),
             .setTitle(com.mardous.booming.R.string.update_image)
             .setItems(items) { _: DialogInterface, which: Int ->
                 when (which) {
-                    0 -> downloadOnlineImage()
-                    1 -> fetchSpotifyImage()
-                    2 -> startImagePicker()
-                    3 -> searchOnlineImage()
-                    4 -> restoreImage()
-                    5 -> deleteImage()
+                    0 -> fetchSpotifyImage()
+                    1 -> startImagePicker()
+                    2 -> searchOnlineImage()
+                    3 -> restoreImage()
+                    4 -> deleteImage()
                 }
             }
             .show()

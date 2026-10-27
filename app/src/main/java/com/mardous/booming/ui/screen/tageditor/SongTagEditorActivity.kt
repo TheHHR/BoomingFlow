@@ -186,30 +186,6 @@ class SongTagEditorActivity : AbsTagEditorActivity() {
         } else songBinding.genre.setText(genre)
     }
 
-    override fun downloadOnlineImage() {
-        val songTitleStr = songBinding.title.text?.toString()
-        var albumArtistNameStr = songBinding.albumArtist.text?.toString()
-        if (albumArtistNameStr.isNullOrBlank()) {
-            albumArtistNameStr = songBinding.artist.text?.toString()
-        }
-        if (songTitleStr.isNullOrBlank() || albumArtistNameStr.isNullOrBlank()) {
-            showToast(resources.getString(R.string.album_or_artist_empty))
-            return
-        }
-        viewModel.getTrackInfo(albumArtistNameStr, songTitleStr).observe(this) { deezerTrack ->
-            if (deezerTrack != null) {
-                val url = deezerTrack.imageUrl
-                if (!url.isNullOrEmpty()) {
-                    loadImageFromUrl(url)
-                } else {
-                    showToast(R.string.could_not_download_album_cover)
-                }
-            } else {
-                showToast(R.string.could_not_download_album_cover)
-            }
-        }
-    }
-
     override fun fetchSpotifyImage() {
         val songTitleStr = songBinding.title.text?.toString()
         var artistNameStr = songBinding.artist.text?.toString()

@@ -90,11 +90,11 @@ class TagEditorViewModel(
                 val newValue = TagEditorResult(
                     title = metadataReader.first(MetadataReader.TITLE),
                     album = metadataReader.first(MetadataReader.ALBUM),
-                    artist = metadataReader.merge(MetadataReader.ARTIST),
-                    albumArtist = metadataReader.first(MetadataReader.ALBUM_ARTIST),
-                    composer = metadataReader.merge(MetadataReader.COMPOSER),
-                    conductor = metadataReader.merge(MetadataReader.PRODUCER),
-                    publisher = metadataReader.merge(MetadataReader.COPYRIGHT),
+                    artist = metadataReader.value(MetadataReader.ARTIST),
+                    albumArtist = metadataReader.value(MetadataReader.ALBUM_ARTIST),
+                    composer = metadataReader.value(MetadataReader.COMPOSER),
+                    conductor = metadataReader.value(MetadataReader.PRODUCER),
+                    publisher = metadataReader.value(MetadataReader.COPYRIGHT),
                     genre = metadataReader.merge(MetadataReader.GENRE),
                     year = metadataReader.first(MetadataReader.YEAR),
                     trackNumber = metadataReader.value(MetadataReader.TRACK_NUMBER),
@@ -102,8 +102,8 @@ class TagEditorViewModel(
                     discNumber = metadataReader.value(MetadataReader.DISC_NUMBER),
                     discTotal = metadataReader.value(MetadataReader.DISC_TOTAL),
                     lyrics = metadataReader.value(MetadataReader.LYRICS),
-                    lyricist = metadataReader.merge(MetadataReader.LYRICIST),
-                    arranger = metadataReader.merge(MetadataReader.ARRANGER),
+                    lyricist = metadataReader.value(MetadataReader.LYRICIST),
+                    arranger = metadataReader.value(MetadataReader.ARRANGER),
                     comment = metadataReader.value(MetadataReader.COMMENT)
                 )
                 _tagResult.postValue(newValue)
@@ -138,14 +138,6 @@ class TagEditorViewModel(
         } else {
             emit(false)
         }
-    }
-
-    fun getAlbumInfo(artistName: String, albumName: String) = liveData(Dispatchers.IO) {
-        emit(repository.deezerAlbum(artistName, albumName))
-    }
-
-    fun getTrackInfo(artistName: String, title: String) = liveData(Dispatchers.IO) {
-        emit(repository.deezerTrack(artistName, title))
     }
 
     fun fetchMusicBrainzTags(title: String, artist: String) = liveData(Dispatchers.IO) {
