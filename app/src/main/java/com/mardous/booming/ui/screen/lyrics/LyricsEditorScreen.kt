@@ -564,7 +564,7 @@ fun LyricsSelectorDialog(
     onDismissRequest: () -> Unit,
     onModeSelected: (LyricsMode) -> Unit
 ) {
-    var selectedMode by remember { mutableStateOf(LyricsMode.Plain) }
+    var selectedMode by remember { mutableStateOf(LyricsMode.Synced) }
 
     AlertDialog(
         onDismissRequest = onDismissRequest,

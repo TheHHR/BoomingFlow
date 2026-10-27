@@ -23,6 +23,7 @@ import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
 import android.view.ViewGroup
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.mardous.booming.R
 import com.mardous.booming.coil.DEFAULT_SONG_IMAGE
@@ -34,8 +35,12 @@ import com.mardous.booming.databinding.TagEditorSongFieldBinding
 import com.mardous.booming.extensions.resources.getResized
 import com.mardous.booming.extensions.showToast
 import com.mardous.booming.extensions.webSearch
+import com.mardous.booming.online.data.spotify.SpotifyClient
+import com.mardous.booming.online.data.spotify.SpotifyTrack
+import com.mardous.booming.online.data.spotify.thumbnailUrl
 import com.mardous.booming.ui.component.base.AbsTagEditorActivity
 import com.mardous.booming.ui.component.views.getPlaceholderDrawable
+import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
 
@@ -203,6 +208,54 @@ class SongTagEditorActivity : AbsTagEditorActivity() {
                 showToast(R.string.could_not_download_album_cover)
             }
         }
+    }
+
+    override fun fetchSpotifyImage() {
+        val songTitleStr = songBinding.title.text?.toString()
+        var artistNameStr = songBinding.artist.text?.toString()
+        if (artistNameStr.isNullOrBlank()) {
+            artistNameStr = songBinding.albumArtist.text?.toString()
+        }
+        if (songTitleStr.isNullOrBlank() || artistNameStr.isNullOrBlank()) {
+            showToast(resources.getString(R.string.album_or_artist_empty))
+            return
+        }
+        showToast(R.string.searching)
+        lifecycleScope.launch {
+            val tracks = runCatching {
+                SpotifyClient.searchTracks("$songTitleStr $artistNameStr", limit = 10)
+            }.getOrDefault(emptyList())
+            if (tracks.isEmpty()) {
+                showToast(R.string.could_not_download_album_cover)
+                return@launch
+            }
+            showSpotifyTrackSelectionDialog(tracks)
+        }
+    }
+
+    private fun showSpotifyTrackSelectionDialog(tracks: List<SpotifyTrack>) {
+        val titles = tracks.map { track ->
+            val artists = track.artists.joinToString(", ") { it.name }
+            val album = track.album?.name.orEmpty()
+            buildList {
+                add(track.name)
+                if (artists.isNotBlank()) add(artists)
+                if (album.isNotBlank()) add(album)
+            }.joinToString(" • ")
+        }.toTypedArray()
+
+        MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.fetch_from_spotify)
+            .setItems(titles) { _, which ->
+                val url = tracks[which].thumbnailUrl()
+                if (url.isNullOrEmpty()) {
+                    showToast(R.string.could_not_download_album_cover)
+                } else {
+                    loadImageFromUrl(url)
+                }
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
     }
 
     override fun searchOnlineImage() {

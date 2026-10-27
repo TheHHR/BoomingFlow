@@ -295,10 +295,8 @@ class LyricsViewModel(
 
                 // Stored lyrics are the top priority and final: whatever the
                 // user downloaded, edited or picked is THE lyrics for this
-                // song - no sidecar or embedded override. The one exception:
-                // if the stored lyrics are not word-by-word, a single
-                // background sweep hunts for a word-by-word upgrade.
-                val stored = repository.storedLyrics(song, allowDownload = false, preferWordSynced = false)
+                // song.
+                val stored = repository.storedLyrics(song, allowDownload = false)
                 if (stored != null) {
                     val parsed = repository.parseRawLyrics(song, stored)
                     if (isActive) {
@@ -309,23 +307,11 @@ class LyricsViewModel(
                             is ParsedLyrics.Empty -> LyricsUiState.Empty(song.id)
                         }
                     }
-                    val upgradeEligible = when (parsed) {
-                        is ParsedLyrics.Synced -> !parsed.lyrics.isWordSynced
-                        is ParsedLyrics.Plain -> true
-                        else -> false
-                    }
-                    if (isActive && upgradeEligible && repository.canAttemptWordSyncedUpgrade(song)) {
-                        val upgraded = fetchUpgradedLyrics(song)
-                        if (isActive && upgraded is LyricsUiState.Synced &&
-                            upgraded.syncedLyrics.isWordSynced
-                        ) {
-                            _lyricsUiState.value = upgraded
-                        }
-                    }
                 } else {
                     // Nothing stored: sidecar files and embedded tags show
-                    // instantly, then the provider race replaces them when
-                    // it finds something better.
+                    // instantly, then the download stage replaces them when
+                    // it finds something better (synced preferred over
+                    // plain). Downloads are saved automatically.
                     val sources = listOf(LyricsSource.File, LyricsSource.Embedded)
                     val localState = getBestLocalLyrics(song, sources)
 
@@ -337,10 +323,10 @@ class LyricsViewModel(
                         } else if (isActive) {
                             _lyricsUiState.value = localState
                         }
-                        val upgradedState = fetchUpgradedLyrics(song)
+                        val downloaded = fetchLyrics(song)
                         if (isActive) {
-                            if (upgradedState != null && isUpgrade(localState, upgradedState)) {
-                                _lyricsUiState.value = upgradedState
+                            if (downloaded != null && isUpgrade(localState, downloaded)) {
+                                _lyricsUiState.value = downloaded
                             } else if (localState is LyricsUiState.Empty) {
                                 _lyricsUiState.value = LyricsUiState.Empty(song.id)
                             }
@@ -354,25 +340,20 @@ class LyricsViewModel(
     }
 
     /**
-     * The quality ladder is word-by-word > line-synced > plain, with local
-     * (offline) lyrics always the last resort: any provider result of a
-     * higher tier replaces the local one. Once word-by-word lyrics are
-     * available there is nothing better to hunt for, so the network stage
-     * is skipped entirely.
+     * Synced lyrics are the target: the download stage runs whenever the
+     * local result isn't synced yet (plain or nothing). Instrumental marks
+     * are final.
      */
     private fun canUpgrade(localState: LyricsUiState): Boolean = when (localState) {
         is LyricsUiState.Instrumental -> false
-        is LyricsUiState.Synced -> !localState.syncedLyrics.isWordSynced
+        is LyricsUiState.Synced -> false
         else -> true
     }
 
-    private suspend fun fetchUpgradedLyrics(song: Song): LyricsUiState? =
+    private suspend fun fetchLyrics(song: Song): LyricsUiState? =
         withContext(IO) {
-            val stored = repository.storedLyrics(
-                song,
-                allowDownload = true,
-                preferWordSynced = true
-            ) ?: return@withContext null
+            val stored = repository.storedLyrics(song, allowDownload = true)
+                ?: return@withContext null
             when (val parsed = repository.parseRawLyrics(song, stored)) {
                 is ParsedLyrics.Instrumental -> LyricsUiState.Instrumental(song.id)
                 is ParsedLyrics.Synced -> LyricsUiState.Synced(song.id, parsed.lyrics)
@@ -381,16 +362,11 @@ class LyricsViewModel(
             }
         }
 
-    private fun isUpgrade(localState: LyricsUiState, upgraded: LyricsUiState): Boolean = when {
-        upgraded is LyricsUiState.Instrumental -> true
-        upgraded is LyricsUiState.Synced -> when {
-            // Word-synced lyrics beat any local content.
-            upgraded.syncedLyrics.isWordSynced ->
-                localState !is LyricsUiState.Synced || !localState.syncedLyrics.isWordSynced
-            // Line-synced only beats plain/empty lyrics.
-            else -> localState is LyricsUiState.Plain || localState is LyricsUiState.Empty
-        }
-        upgraded is LyricsUiState.Plain -> localState is LyricsUiState.Empty
+    private fun isUpgrade(localState: LyricsUiState, downloaded: LyricsUiState): Boolean = when {
+        downloaded is LyricsUiState.Instrumental -> true
+        // Synced (word-by-word or line) replaces plain/empty lyrics.
+        downloaded is LyricsUiState.Synced -> localState !is LyricsUiState.Synced
+        downloaded is LyricsUiState.Plain -> localState is LyricsUiState.Empty
         else -> false
     }
 

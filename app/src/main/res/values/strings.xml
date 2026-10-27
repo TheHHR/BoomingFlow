@@ -288,6 +288,7 @@
     <string name="remove_cover">Remove cover</string>
     <string name="could_not_download_album_cover">"Couldn\u2019t download a matching album cover."</string>
     <string name="download_image">Download image</string>
+    <string name="fetch_from_spotify">Fetch from Spotify</string>
     <string name="pick_from_local_storage">Pick from local storage</string>
     <string name="about_x_title">About %s</string>
     <string name="yes">Yes</string>

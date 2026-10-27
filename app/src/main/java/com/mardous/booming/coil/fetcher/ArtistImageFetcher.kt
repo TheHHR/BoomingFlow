@@ -17,6 +17,7 @@ import com.mardous.booming.data.model.Artist
 import com.mardous.booming.data.model.network.NetworkFeature
 import com.mardous.booming.data.repository.Repository
 import com.mardous.booming.online.data.spotify.SpotifyClient
+import com.mardous.booming.online.data.spotify.SpotifyPrefs
 import com.mardous.booming.util.ImageSize
 import com.mardous.booming.util.PREFERRED_IMAGE_SIZE
 import com.mardous.booming.util.Preferences.requireString
@@ -44,8 +45,15 @@ class ArtistImageFetcher(
      * the artists page doesn't re-search for every rebind.
      */
     private suspend fun fetchSpotifyImageUrl(artistName: String): String? {
+        val context = options.context
         val cacheKey = artistName.trim().lowercase()
         spotifySearchCache.get(cacheKey)?.let { return it }
+        // Persisted URL first: survives restarts, works offline (the image
+        // itself then comes from the Coil disk cache).
+        SpotifyPrefs.getArtistImageUrl(context, cacheKey)?.let { persisted ->
+            synchronized(spotifySearchCache) { spotifySearchCache.put(cacheKey, persisted) }
+            return persisted
+        }
 
         val candidates = runCatching {
             SpotifyClient.searchArtists(artistName, limit = 5)
@@ -59,6 +67,11 @@ class ArtistImageFetcher(
         }?.imageUrl
 
         synchronized(spotifySearchCache) { spotifySearchCache.put(cacheKey, url) }
+        // Only successful matches are persisted - a failed/no-result search
+        // is retried later instead of being remembered forever.
+        if (url != null) {
+            SpotifyPrefs.setArtistImageUrl(context, cacheKey, url)
+        }
         return url
     }
 

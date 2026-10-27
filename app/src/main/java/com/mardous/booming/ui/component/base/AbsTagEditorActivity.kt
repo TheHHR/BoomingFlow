@@ -117,6 +117,7 @@ abstract class AbsTagEditorActivity : AbsBaseActivity(),
     protected open fun selectImage() {
         val items = arrayOf(
             getString(com.mardous.booming.R.string.download_image),
+            getString(com.mardous.booming.R.string.fetch_from_spotify),
             getString(com.mardous.booming.R.string.pick_from_local_storage),
             getString(com.mardous.booming.R.string.web_search),
             getString(com.mardous.booming.R.string.restore_default),
@@ -127,14 +128,21 @@ abstract class AbsTagEditorActivity : AbsBaseActivity(),
             .setItems(items) { _: DialogInterface, which: Int ->
                 when (which) {
                     0 -> downloadOnlineImage()
-                    1 -> startImagePicker()
-                    2 -> searchOnlineImage()
-                    3 -> restoreImage()
-                    4 -> deleteImage()
+                    1 -> fetchSpotifyImage()
+                    2 -> startImagePicker()
+                    3 -> searchOnlineImage()
+                    4 -> restoreImage()
+                    5 -> deleteImage()
                 }
             }
             .show()
     }
+
+    /**
+     * Override in tag editors that can resolve Spotify cover art; the base
+     * implementation is a no-op.
+     */
+    protected open fun fetchSpotifyImage() = Unit
 
     protected open fun deleteImage() {
         setImageBitmap(null)
