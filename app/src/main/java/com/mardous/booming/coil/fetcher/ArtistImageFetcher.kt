@@ -35,6 +35,9 @@ class ArtistImageFetcher(
     private val imageSize: String
 ) : Fetcher {
 
+    private val contentResolver: ContentResolver
+        get() = options.context.contentResolver
+
     /**
      * Searches Spotify for the artist and returns the image URL of the best
      * name match, or null. Results are memoized per session so scrolling
@@ -58,31 +61,6 @@ class ArtistImageFetcher(
         synchronized(spotifySearchCache) { spotifySearchCache.put(cacheKey, url) }
         return url
     }
-
-    companion object {
-        // Maximum 4 queries per artist
-        private const val MAX_RESULT_PER_PAGE = 5
-        private const val MAX_RESULT_COUNT = 20
-
-        /** Minimum Jaro-Winkler similarity for a Spotify name match. */
-        private const val MIN_NAME_SIMILARITY = 0.90
-
-        /**
-         * Session-scoped memo of Spotify image lookups (null = searched and
-         * found nothing). Kept in the companion so it survives fetcher
-         * instance recreation.
-         */
-        private val spotifySearchCache = LruCache<String, String?>(200)
-
-        private val nameComparator = JaroWinklerSimilarity()
-
-        fun nameSimilarity(a: String, b: String): Double =
-            nameComparator.apply(a.trim().lowercase(), b.trim().lowercase())
-    }
-}
-
-    private val contentResolver: ContentResolver
-        get() = options.context.contentResolver
 
     override suspend fun fetch(): FetchResult? {
         if (customImageManager.hasCustomImage(image)) {
@@ -168,5 +146,26 @@ class ArtistImageFetcher(
                 imageSize = preferences.requireString(PREFERRED_IMAGE_SIZE, ImageSize.MEDIUM)
             )
         }
+    }
+
+    companion object {
+        // Maximum 4 queries per artist
+        private const val MAX_RESULT_PER_PAGE = 5
+        private const val MAX_RESULT_COUNT = 20
+
+        /** Minimum Jaro-Winkler similarity for a Spotify name match. */
+        private const val MIN_NAME_SIMILARITY = 0.90
+
+        /**
+         * Session-scoped memo of Spotify image lookups (null = searched and
+         * found nothing). Kept in the companion so it survives fetcher
+         * instance recreation.
+         */
+        private val spotifySearchCache = LruCache<String, String?>(200)
+
+        private val nameComparator = JaroWinklerSimilarity()
+
+        fun nameSimilarity(a: String, b: String): Double =
+            nameComparator.apply(a.trim().lowercase(), b.trim().lowercase())
     }
 }
