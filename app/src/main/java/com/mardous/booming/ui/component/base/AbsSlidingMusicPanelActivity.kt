@@ -316,6 +316,9 @@ abstract class AbsSlidingMusicPanelActivity : AbsBaseActivity(),
         get() = (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) ==
                 Configuration.UI_MODE_NIGHT_YES
 
+    /** Last color written into the window background drawable, for smooth retint animation. */
+    private var lastAppliedWindowBackground: Int? = null
+
     private fun applyPlayerAccent(accent: Int) {
         if (Preferences.followPlayerColor) {
             // Nothing playing (accent 0) falls back to the neutral gray
@@ -337,22 +340,20 @@ abstract class AbsSlidingMusicPanelActivity : AbsBaseActivity(),
                 ColorStateList.valueOf(scheme.secondaryContainer)
             )
             // The window background drives every screen that doesn't paint
-            // its own; keep it pure black when the black theme is on.
+            // its own; keep it pure black when the black theme is on. The
+            // swap animates so the retint doesn't tear the hierarchy
+            // mid-transition.
             val targetColor = if (isDarkTheme && Preferences.blackTheme) {
                 Color.BLACK
             } else {
                 scheme.background
             }
-            // Animate the background swap so the retint doesn't tear the
-            // whole hierarchy mid-transition.
-            val drawable = window.background as? ColorDrawable
-            if (drawable != null) {
-                ObjectAnimator.ofArgb(drawable, "color", drawable.color, targetColor)
-                    .setDuration(scheme.mode.preferredAnimDuration)
-                    .start()
-            } else {
-                window.setBackgroundDrawable(ColorDrawable(targetColor))
-            }
+            val drawable = ColorDrawable(lastAppliedWindowBackground ?: targetColor)
+            window.setBackgroundDrawable(drawable)
+            ObjectAnimator.ofArgb(drawable, "color", drawable.color, targetColor)
+                .setDuration(500L)
+                .start()
+            lastAppliedWindowBackground = targetColor
         } else {
             // Follow-color off: restore the original themed navigation colors
             // (resolved from the Material 3 theme) instead of nulling them -
@@ -373,6 +374,7 @@ abstract class AbsSlidingMusicPanelActivity : AbsBaseActivity(),
                 ColorStateList.valueOf(resolveColor(M3R.attr.colorSecondaryContainer))
             )
             window.setBackgroundDrawable(null)
+            lastAppliedWindowBackground = null
         }
     }
 

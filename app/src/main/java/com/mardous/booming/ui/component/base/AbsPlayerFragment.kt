@@ -17,6 +17,8 @@
 
 package com.mardous.booming.ui.component.base
 
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
 import android.animation.AnimatorSet
 import android.app.Activity
 import android.content.Intent
@@ -380,8 +382,10 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) : Fragment(layoutRes
         // Notify the host once the player surfaces finished recoloring, so
         // the window background + navigation retint swap in AFTER the
         // animation instead of tearing the hierarchy mid-transition.
-        colorAnimatorSet?.addListener(onEnd = {
-            onPlayerColorSchemeApplied(scheme)
+        colorAnimatorSet?.addListener(object : AnimatorListenerAdapter() {
+            override fun onAnimationEnd(animation: Animator) {
+                onPlayerColorSchemeApplied(scheme)
+            }
         })
         return colorAnimatorSet
     }

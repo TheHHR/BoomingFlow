@@ -233,7 +233,7 @@ private class AccentOriginals(
     val switchTrack: ColorStateList? = null,
     val switchThumb: ColorStateList? = null,
     val iconColor: Int? = null,
-    val indicatorColor: ColorStateList? = null
+    @ColorInt val indicatorColor: Int? = null
 )
 
 /**
@@ -539,7 +539,7 @@ fun com.google.android.material.progressindicator.CircularProgressIndicator.appl
     if (getTag(R.id.tag_accent_originals) == null) {
         setTag(
             R.id.tag_accent_originals,
-            AccentOriginals(indicatorColor = ColorStateList.valueOf(indicatorColor))
+            AccentOriginals(indicatorColor = indicatorColor)
         )
     }
     val original = getTag(R.id.tag_accent_originals) as? AccentOriginals
