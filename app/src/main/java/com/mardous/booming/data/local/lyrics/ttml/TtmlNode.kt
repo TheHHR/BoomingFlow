@@ -38,8 +38,12 @@ data class TtmlNode(
 
     fun getOpenChild(type: Int): TtmlNode? {
         if (closed) return null
-        if (this.type == type) return this
-        return children.firstNotNullOfOrNull { it.getOpenChild(type) }
+        // Prefer the deepest open descendant: nested sections must close
+        // innermost-first for the tree to stay consistent.
+        for (child in children.asReversed()) {
+            child.getOpenChild(type)?.let { return it }
+        }
+        return if (this.type == type) this else null
     }
 
     fun getChildren(type: Int): List<TtmlNode> {
@@ -83,6 +87,8 @@ data class TtmlNode(
         if (closed || node.closed) return false
 
         if (this.type == NODE_BODY && node.type == NODE_SECTION ||
+            this.type == NODE_BODY && node.type == NODE_LINE ||
+            this.type == NODE_SECTION && node.type == NODE_SECTION ||
             this.type == NODE_SECTION && node.type == NODE_LINE ||
             this.type == NODE_LINE && node.type == NODE_WORD
         ) {

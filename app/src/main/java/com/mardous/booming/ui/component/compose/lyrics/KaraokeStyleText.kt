@@ -114,7 +114,9 @@ fun KaraokeLineView(
             lineHeight * wrappedLines.size
         }
 
-        val lineEnd = rowRenderData.last().lastWordEnd
+        // lastOrNull: a line of only-blank syllables produces no wrapped
+        // rows, and .last() would crash on it.
+        val lineEnd = rowRenderData.lastOrNull()?.lastWordEnd ?: 0L
         val lineHasAlreadyPassed = currentMillis >= lineEnd && !selectedLine
         val animatedAlpha by animateFloatAsState(
             targetValue = if (lineHasAlreadyPassed) .4f else 1f,
@@ -470,7 +472,7 @@ private fun createLineGradientBrush(
     val totalWidth = rowData.totalWidth
 
     if (totalWidth <= 0f) {
-        val isFinished = currentTimeMs >= lineLayout.last().word.end
+        val isFinished = currentTimeMs >= (lineLayout.lastOrNull()?.word?.end ?: 0L)
         return SolidColor(if (isFinished) activeColor else inactiveColor)
     }
 
@@ -478,8 +480,10 @@ private fun createLineGradientBrush(
         if (currentTimeMs <= rowData.firstWordStart) return@run if (rtlContent) 1f else 0f
         if (currentTimeMs >= rowData.lastWordEnd) return@run if (rtlContent) 0f else 1f
 
+        // Inclusive end boundary, matching the spanned-word renderer so
+        // both renderers agree at t == word.end.
         val activeWordLayout = lineLayout.find {
-            currentTimeMs in it.word.start until it.word.end
+            currentTimeMs >= it.word.start && currentTimeMs <= it.word.end
         }
 
         val currentPixelPosition = when {

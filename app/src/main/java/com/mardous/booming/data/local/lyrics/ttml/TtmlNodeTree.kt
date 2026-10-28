@@ -108,9 +108,11 @@ internal class TtmlNodeTree {
     fun openSection(node: TtmlNode): Boolean {
         if (!hasRoot) return false
 
-        val sectionNode = getOpenNode(TtmlNode.NODE_SECTION)
-        if (sectionNode == null && node.type == TtmlNode.NODE_SECTION) {
-            return rootNode?.addChildNode(node) == true
+        if (node.type == TtmlNode.NODE_SECTION) {
+            // Sections can nest (common in valid TTML): a section with no
+            // open parent attaches to the root, otherwise to the open one.
+            val parent = getOpenNode(TtmlNode.NODE_SECTION) ?: rootNode
+            return parent?.addChildNode(node) == true
         }
         return false
     }
@@ -120,8 +122,10 @@ internal class TtmlNodeTree {
 
         val lineNode = getOpenNode(TtmlNode.NODE_LINE)
         if (lineNode == null && node.type == TtmlNode.NODE_LINE) {
+            // Lines normally live inside a section (div), but plain TTML
+            // files put them directly under the body.
             val currentSection = getOpenNode(TtmlNode.NODE_SECTION)
-            return currentSection?.addChildNode(node) == true
+            return (currentSection ?: rootNode)?.addChildNode(node) == true
         }
         return false
     }
@@ -259,10 +263,12 @@ internal class TtmlNodeTree {
 
         if (!hasRoot) return false
 
-        val openNode = getOpenNode(type)
+        // Fresh deepest-first search: the cached entry can be an outer
+        // node of the same type while a nested one is the one closing.
+        val openNode = rootNode?.getOpenChild(type)
+        openNodes.remove(type)
         if (openNode != null) {
             val closed = openNode.close()
-            openNodes.remove(type)
             if (openNode.type == TtmlNode.NODE_BODY) {
                 for (acc in accompaniments.values) {
                     if (acc is TtmlTranslation && acc.isInLine) {
@@ -299,11 +305,11 @@ internal class TtmlNodeTree {
         checkNotNull(rootNode) { "The node tree does not have a root" }
         check(closed) { "The node tree must be closed to obtain nested data" }
 
-        val duration = rootNode!!.dur.takeIf { it > -1 } ?: trackLength
-        val sectionNodes = rootNode!!.getChildren(TtmlNode.NODE_SECTION)
+        val duration = (rootNode!!.dur.takeIf { it > -1 } ?: trackLength).coerceAtLeast(0L)
 
-        // Flatten the hierarchy to get all lines across all sections
-        val lineNodes = sectionNodes.flatMap { it.getChildren(TtmlNode.NODE_LINE) }.sortedBy { it.begin }
+        // Flatten the hierarchy to get all lines: directly under the body,
+        // inside sections, and inside nested sections.
+        val lineNodes = rootNode!!.collectLines().sortedBy { it.begin }
         val translation = getClosedTranslation()
         val transliteration = getClosedTransliteration()
 
@@ -355,6 +361,11 @@ internal class TtmlNodeTree {
                 // If end time is not specified, use the start time of the next line
                 if (line.end == -1L) {
                     line.end = (if (i < lastLineIndex) lineNodes[i + 1].begin else duration)
+                }
+                if (line.end < line.begin) {
+                    // Never let a missing duration produce an invalid line
+                    // (the model rejects negative durations).
+                    line.end = line.begin
                 }
                 if (line.dur == -1L) {
                     line.dur = (line.end - line.begin)
@@ -420,6 +431,16 @@ internal class TtmlNodeTree {
         return null
     }
 
+    private fun medianWordDuration(wordNodes: List<TtmlNode>): Long {
+        val durations = wordNodes.mapNotNull { word -> word.dur.takeIf { it > 0 } }
+        if (durations.isEmpty()) return 0L
+        return durations.sorted()[durations.size / 2]
+    }
+
+    private fun TtmlNode.collectLines(): List<TtmlNode> =
+        getChildren(TtmlNode.NODE_LINE) +
+                getChildren(TtmlNode.NODE_SECTION).flatMap { it.collectLines() }
+
     private fun createSyncedLine(
         line: TtmlNode,
         transliteration: TtmlTransliteration?,
@@ -466,8 +487,18 @@ internal class TtmlNodeTree {
                 val word = wordNodes[j]
                 // Resolve word end time based on the next word's start time
                 if (word.end == -1L) {
-                    word.end = (if (j < lastWordIndex) wordNodes[j + 1].begin else line.end)
+                    word.end = if (j < lastWordIndex) {
+                        wordNodes[j + 1].begin
+                    } else {
+                        // Last word: cap the synthesized fill duration so the
+                        // karaoke gradient doesn't keep sweeping through
+                        // instrumental gaps (line.end is the next line's
+                        // start, which includes the gap).
+                        val median = medianWordDuration(wordNodes)
+                        (word.begin + maxOf(1_500L, median * 3)).coerceAtMost(line.end)
+                    }
                 }
+                if (word.end < word.begin) word.end = word.begin
                 if (word.dur == -1L) {
                     word.dur = (word.end - word.begin)
                 }

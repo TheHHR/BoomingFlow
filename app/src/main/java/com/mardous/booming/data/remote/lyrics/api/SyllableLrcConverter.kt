@@ -29,10 +29,21 @@ object SyllableLrcConverter {
 
             val syllables = line["syllabus"] as? JsonArray
             if (isWordType && !syllables.isNullOrEmpty()) {
+                var lastSyllableTime = -1L
                 for (syllableElement in syllables) {
                     val syllable = syllableElement as? JsonObject ?: continue
-                    val syllableTime = syllable["time"]?.jsonPrimitive?.longOrNull ?: 0L
-                    output.append(formatTimestamp(syllableTime, bracketed = false))
+                    val syllableTime = syllable["time"]?.jsonPrimitive?.longOrNull
+                    // A syllable without a usable time keeps the line
+                    // timestamp: emitting <00:00.00> would create a
+                    // zero-millisecond word that sorts first and breaks
+                    // the karaoke gradient.
+                    val stamp = when {
+                        syllableTime != null && syllableTime > 0 -> syllableTime
+                        lastSyllableTime > 0 -> lastSyllableTime
+                        else -> timeMs
+                    }
+                    lastSyllableTime = stamp
+                    output.append(formatTimestamp(stamp, bracketed = false))
                     output.append(syllable["text"]?.jsonPrimitive?.content ?: "")
                 }
             } else {
@@ -47,7 +58,12 @@ object SyllableLrcConverter {
         val safeTime = timeMs.coerceAtLeast(0L)
         val minutes = safeTime / 60000L
         val seconds = (safeTime % 60000L) / 1000L
-        val hundredths = (safeTime % 1000L) / 10L
+        // Round to the nearest hundredth instead of truncating: up to 10ms
+        // per timestamp is lost otherwise, which accumulates visibly for
+        // fast syllables.
+        val hundredths = (safeTime % 1000L).let { ms ->
+            if (ms % 10L >= 5L) ms / 10L + 1L else ms / 10L
+        }.coerceAtMost(99L)
         val timestamp = String.format(Locale.US, "%02d:%02d.%02d", minutes, seconds, hundredths)
         return if (bracketed) "[$timestamp]" else "<$timestamp>"
     }

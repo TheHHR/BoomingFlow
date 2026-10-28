@@ -123,6 +123,9 @@ class LyricsViewModel(
             _saveEvent.send(event)
 
             if (event == LyricsEditorResult.Success) {
+                // The user edited the lyrics on purpose: block the
+                // automatic word-by-word upgrade from replacing them.
+                synchronized(wordUpgradeAttempted) { wordUpgradeAttempted.add(song.id) }
                 // Lyrics need to be updated to avoid unnecessary save operations
                 val newLyrics = getEditorLyricsBySources(song, newLyrics.keys.toList())
                 _lyricsEditorUiState.value = uiState.copy(isLoading = false, lyrics = newLyrics)
@@ -166,6 +169,8 @@ class LyricsViewModel(
 
     fun deleteLyrics() = viewModelScope.launch(IO) {
         repository.deleteAllLyrics()
+        // Fresh start: stored lyrics are gone, allow new upgrade sweeps.
+        synchronized(wordUpgradeAttempted) { wordUpgradeAttempted.clear() }
     }
 
     fun importCustomFont(context: Context, uri: Uri) = liveData(IO) {
@@ -258,6 +263,9 @@ class LyricsViewModel(
             if (parsed is ParsedLyrics.Empty) {
                 _providerSwitchState.value = ProviderSwitchState(failureProvider = provider)
             } else {
+                // The user picked this provider on purpose: block the
+                // automatic word-by-word upgrade from replacing it.
+                synchronized(wordUpgradeAttempted) { wordUpgradeAttempted.add(song.id) }
                 providerSwitchResults.clear()
                 providerSwitchResults[cacheKey] = parsed
                 if (song.id == _lyricsUiState.value.id) {
@@ -306,6 +314,13 @@ class LyricsViewModel(
                             is ParsedLyrics.Plain -> LyricsUiState.Plain(song.id, parsed.lyrics, parsed.provider)
                             is ParsedLyrics.Empty -> LyricsUiState.Empty(song.id)
                         }
+                        // Stored lyrics are final, but a line-synced result
+                        // still gets ONE background upgrade sweep for a
+                        // word-by-word version (older races could only ever
+                        // store the first line-synced winner).
+                        if (parsed is ParsedLyrics.Synced && !parsed.lyrics.isWordSynced) {
+                            maybeUpgradeToWordSynced(song)
+                        }
                     }
                 } else {
                     // Nothing stored: sidecar files and embedded tags show
@@ -348,6 +363,32 @@ class LyricsViewModel(
         is LyricsUiState.Instrumental -> false
         is LyricsUiState.Synced -> false
         else -> true
+    }
+
+    /**
+     * One word-by-word upgrade sweep per song per session: replaces the
+     * stored lyrics (and the displayed state) when a word-by-word version
+     * is found. Runs in the background so the line-synced lyrics show
+     * immediately.
+     */
+    private fun maybeUpgradeToWordSynced(song: Song) {
+        if (synchronized(wordUpgradeAttempted) { wordUpgradeAttempted.contains(song.id) }) return
+        synchronized(wordUpgradeAttempted) { wordUpgradeAttempted.add(song.id) }
+        viewModelScope.launch {
+            val upgraded = withContext(IO) {
+                try {
+                    repository.downloadWordSyncedUpgrade(song)
+                } catch (e: kotlinx.coroutines.CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    Log.e("LyricsViewModel", "Word-synced upgrade failed for ${song.title}", e)
+                    null
+                }
+            } ?: return@launch
+            if (isActive && currentLyricsSong.id == song.id) {
+                _lyricsUiState.value = LyricsUiState.Synced(song.id, upgraded)
+            }
+        }
     }
 
     private suspend fun fetchLyrics(song: Song): LyricsUiState? =
@@ -542,5 +583,14 @@ class LyricsViewModel(
                 _fullLyricsViewSettings.value = createViewSettings(LyricsViewMode.Full)
             }
         }
+    }
+
+    companion object {
+        /**
+         * Song ids whose word-by-word upgrade sweep already ran this
+         * session (static so it survives ViewModel recreation). Songs
+         * whose sweep found nothing are retried next app start.
+         */
+        private val wordUpgradeAttempted = HashSet<Long>()
     }
 }

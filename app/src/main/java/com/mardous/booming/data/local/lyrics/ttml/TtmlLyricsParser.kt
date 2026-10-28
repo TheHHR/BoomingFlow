@@ -165,8 +165,21 @@ class TtmlLyricsParser : LyricsParser {
             }
 
             val nodeTree = TtmlNodeTree()
+            // A tag the tree can't accept is skipped together with its
+            // subtree instead of aborting the whole document (a `break`
+            // would truncate every lyric line after the offending tag).
+            var skipDepth = 0
             var eventType = parser.eventType
             while (eventType != XmlPullParser.END_DOCUMENT) {
+                if (skipDepth > 0) {
+                    if (eventType == XmlPullParser.START_TAG) {
+                        skipDepth++
+                    } else if (eventType == XmlPullParser.END_TAG) {
+                        skipDepth--
+                    }
+                    eventType = parser.next()
+                    continue
+                }
                 when (eventType) {
                     XmlPullParser.START_TAG -> {
                         val name = parser.name
@@ -204,14 +217,14 @@ class TtmlLyricsParser : LyricsParser {
                             TtmlNode.TAG_TEXT -> {
                                 // Associated with accompaniment (translation/transliteration)
                                 val key = parser.getAttributeValue(null, "for")
-                                if (!nodeTree.prepareAccompanimentText(key)) break
+                                if (!nodeTree.prepareAccompanimentText(key)) skipDepth = 1
                             }
 
                             TtmlNode.TAG_BODY -> {
                                 val hasRoot = nodeTree.addRoot(
                                     TtmlNode.buildBody(parser.getTimeAttribute("dur"))
                                 )
-                                if (!hasRoot) break
+                                if (!hasRoot) skipDepth = 1
                             }
 
                             TtmlNode.TAG_DIV -> {
@@ -223,7 +236,7 @@ class TtmlLyricsParser : LyricsParser {
                                         dur = parser.getTimeAttribute("dur")
                                     )
                                 )
-                                if (!openSection && nodeTree.hasRoot) break
+                                if (!openSection && nodeTree.hasRoot) skipDepth = 1
                             }
 
                             TtmlNode.TAG_PARAGRAPH -> {
@@ -238,7 +251,7 @@ class TtmlLyricsParser : LyricsParser {
                                         agent = agentAttribute?.let { nodeTree.getAgent(it) }
                                     )
                                 )
-                                if (!openLine && nodeTree.hasRoot) break
+                                if (!openLine && nodeTree.hasRoot) skipDepth = 1
                             }
 
                             TtmlNode.TAG_SPAN -> {
@@ -254,7 +267,7 @@ class TtmlLyricsParser : LyricsParser {
                                             dur = parser.getTimeAttribute("dur")
                                         )
                                     )
-                                    if (!openWord && nodeTree.hasRoot) break
+                                    if (!openWord && nodeTree.hasRoot) skipDepth = 1
                                 } else {
                                     when (role) {
                                         "x-bg" -> {
@@ -276,17 +289,19 @@ class TtmlLyricsParser : LyricsParser {
                             continue
                         }
                         when (name) {
+                            // Close failures are no-ops: the corresponding
+                            // open never happened (e.g. inside a skipped
+                            // subtree) and must not abort the document.
                             TtmlNode.TAG_TRANSLITERATION,
-                            TtmlNode.TAG_TRANSLATION -> if (!nodeTree.closeAccompaniment()) break
-                            TtmlNode.TAG_TEXT -> if (!nodeTree.finishAccompanimentText()) break
-                            TtmlNode.TAG_BODY -> if (!nodeTree.closeNode(TtmlNode.NODE_BODY)) break
-                            TtmlNode.TAG_DIV -> if (!nodeTree.closeNode(TtmlNode.NODE_SECTION)) break
-                            TtmlNode.TAG_PARAGRAPH -> if (!nodeTree.closeNode(TtmlNode.NODE_LINE)) break
+                            TtmlNode.TAG_TRANSLATION -> nodeTree.closeAccompaniment()
+                            TtmlNode.TAG_TEXT -> nodeTree.finishAccompanimentText()
+                            TtmlNode.TAG_BODY -> nodeTree.closeNode(TtmlNode.NODE_BODY)
+                            TtmlNode.TAG_DIV -> nodeTree.closeNode(TtmlNode.NODE_SECTION)
+                            TtmlNode.TAG_PARAGRAPH -> nodeTree.closeNode(TtmlNode.NODE_LINE)
                             TtmlNode.TAG_SPAN -> {
                                 if (!nodeTree.finishTranslationForCurrentLine()) {
-                                    val closeWord = nodeTree.closeNode(TtmlNode.NODE_WORD)
-                                    if (!closeWord) {
-                                        if (!nodeTree.closeBackground()) break
+                                    if (!nodeTree.closeNode(TtmlNode.NODE_WORD)) {
+                                        nodeTree.closeBackground()
                                     }
                                 }
                             }
@@ -352,7 +367,9 @@ class TtmlLyricsParser : LyricsParser {
             var durationSeconds = (hours * 3600).toDouble()
             durationSeconds += (minutes * 60).toDouble()
             durationSeconds += seconds.toDouble()
-            durationSeconds += (fraction?.toDouble() ?: 0.0) / 1000
+            // Scale the fraction by its digit count: `.5` is half a second,
+            // not 5 milliseconds.
+            durationSeconds += (fraction?.toLong() ?: 0L) / Math.pow(10.0, (fraction?.length ?: 0).toDouble())
             return (durationSeconds * 1000).toLong()
         }
         matcher = CLOCK_TIME_SIMPLE.matcher(time)

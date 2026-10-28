@@ -41,6 +41,12 @@ class LrcLyricsParser : LyricsParser {
                 continue
             }
 
+            // Netease klyric lines ([ms](dur)word) carry no mm:ss tags, so
+            // the line-time check below would misclassify them as plain.
+            if (KLYRIC_LINE_PATTERN.matches(trimmed)) {
+                return LyricsInfo.Valid(actuallySynced = true)
+            }
+
             val match = LINE_PATTERN.matchEntire(trimmed)
             if (match != null) {
                 val hasContent = match.groupValues.getOrNull(2)?.isNotBlank() == true
@@ -100,8 +106,6 @@ class LrcLyricsParser : LyricsParser {
 
                     // Check for metadata attributes like [ti:Title]
                     val attrResult = ATTRIBUTE_PATTERN.find(line)
-                    // Special case: Karaoke word-sync line or Background-only line
-                    val karaokeMatcher = KARAOKE_LINE_PATTERN.find(line)
                     if (attrResult != null) {
                         val attr = attrResult.groupValues[1].lowercase(Locale.getDefault()).trim()
                         val value = attrResult.groupValues[2].lowercase(Locale.getDefault())
@@ -109,18 +113,33 @@ class LrcLyricsParser : LyricsParser {
                             .takeUnless { it.isEmpty() } ?: continue
 
                         attributes[attr] = value
-                    } else if (karaokeMatcher != null && rawLines.isNotEmpty()) {
-                        val lastNode = rawLines.last()
-                        val matches = KARAOKE_WORD_PATTERN.findAll(karaokeMatcher.groupValues[1]).toList()
-                        matches.forEachIndexed { index, match ->
-                            var wordText = match.groupValues[1]
-                            if (index < matches.lastIndex && !wordText.endsWith(" ")) {
-                                wordText += " "
+                    } else if (KLYRIC_LINE_PATTERN.matches(line)) {
+                        // Netease klyric: every line is a sequence of
+                        // [startMs](durationMs)word entries.
+                        val words = KLYRIC_WORD_PATTERN.findAll(line).toList()
+                        val lineStart = words.firstOrNull()?.groupValues?.get(1)?.toLongOrNull()
+                        if (words.isNotEmpty() && lineStart != null) {
+                            val text = words.joinToString("") { it.groupValues[3] }.trim()
+                            val node = LrcNode(lineStart, text, null, line)
+                            words.forEach { match ->
+                                val startMs = match.groupValues[1].toLongOrNull()
+                                val durMs = match.groupValues[2].toLongOrNull()
+                                if (startMs != null && durMs != null) {
+                                    node.addChild(startMs, startMs + durMs, match.groupValues[3], node.actor)
+                                }
                             }
-                            val startMs = (match.groupValues[2].toFloat() * 1000).toLong()
-                            val endMs = (match.groupValues[3].toFloat() * 1000).toLong()
-
-                            lastNode.addChild(startMs, endMs, wordText, lastNode.actor)
+                            rawLines.add(node)
+                        }
+                    } else if (WORD_ONLY_LINE_PATTERN.containsMatchIn(line) && rawLines.isNotEmpty()) {
+                        // Word-only line (no [mm:ss] line tag): enhanced-LRC
+                        // words continuing the previous line.
+                        val lastNode = rawLines.last()
+                        LINE_WORD_PATTERN.findAll(line).forEach { match ->
+                            lastNode.addChild(
+                                start = parseTime(match),
+                                text = match.groupValues.getOrNull(3),
+                                actor = lastNode.actor
+                            )
                         }
                     } else {
                         // Check for lyric lines with timestamps
@@ -351,9 +370,11 @@ class LrcLyricsParser : LyricsParser {
     private fun parseTime(result: MatchResult): Long {
         try {
             val m = result.groupValues.getOrNull(1)?.toInt()
-            val s = result.groupValues.getOrNull(2)?.toFloat()
+            val s = result.groupValues.getOrNull(2)?.toDouble()
             return if (m != null && s != null) {
-                (s * LRC_SECONDS_TO_MS_MULTIPLIER).toLong() + m * LRC_MINUTES_TO_MS_MULTIPLIER
+                // Round instead of truncating: "12.34" must be 12340 ms,
+                // not 12339 (float truncation loses the last millisecond).
+                Math.round(s * LRC_SECONDS_TO_MS) + m * LRC_MINUTES_TO_MS
             } else LrcNode.INVALID_DURATION
         } catch (e: Exception) {
             Log.d("LrcLyricsParser", "LRC timestamp format is incorrect: ${result.value}", e)
@@ -362,8 +383,8 @@ class LrcLyricsParser : LyricsParser {
     }
 
     companion object {
-        private const val LRC_SECONDS_TO_MS_MULTIPLIER = 1000f
-        private const val LRC_MINUTES_TO_MS_MULTIPLIER = 60 * 1000
+        private const val LRC_SECONDS_TO_MS = 1000.0
+        private const val LRC_MINUTES_TO_MS = 60 * 1000
 
         private val TIME_PATTERN = Regex("(\\d+):(\\d{2}(?:\\.\\d+)?)")
         private val LINE_PATTERN = Regex("((?:\\[.*?])+)(.*?)(?:\\[bg:(.*?)])?$")
@@ -372,7 +393,14 @@ class LrcLyricsParser : LyricsParser {
         private val LINE_WORD_PATTERN = Regex("<${TIME_PATTERN.pattern}>([^<]*)")
         private val BACKGROUND_ONLY_PATTERN = Regex("^\\[bg:(.*?)]\\s*$")
         private val ATTRIBUTE_PATTERN = Regex("\\[(offset|ti|ar|al|length|by|instrumental|type):(.+)]", RegexOption.IGNORE_CASE)
-        private val KARAOKE_LINE_PATTERN = Regex("^<(.*)>$")
-        private val KARAOKE_WORD_PATTERN = Regex("([^:|]+):(\\d+(?:\\.\\d+)?):(\\d+(?:\\.\\d+)?)")
+
+        /** A line that starts with an enhanced-LRC word tag: `<mm:ss.xx>word...`. */
+        private val WORD_ONLY_LINE_PATTERN = Regex("^\\s*<\\d{1,3}:\\d{2}")
+
+        /** A full Netease klyric line: one or more `[startMs](durMs)word` entries. */
+        private val KLYRIC_LINE_PATTERN = Regex("^(?:\\[\\d+\\]\\(\\d+\\)[^\\[]*)+$")
+
+        /** A single Netease klyric word entry. */
+        private val KLYRIC_WORD_PATTERN = Regex("\\[(\\d+)\\]\\((\\d+)\\)([^\\[]*)")
     }
 }

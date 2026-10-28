@@ -194,10 +194,11 @@ class PlayerViewModel(
             }
         }
         if (events.contains(Player.EVENT_POSITION_DISCONTINUITY)) {
-            if (!player.playWhenReady) {
-                _progressFlow.value = player.contentPosition
-                _durationFlow.value = player.contentDuration
-            }
+            // Push the position on every seek, playing or not: the lyrics
+            // word fill lags behind a seek by up to a progress-tick
+            // otherwise.
+            _progressFlow.value = player.contentPosition
+            _durationFlow.value = player.contentDuration
         }
     }
 

@@ -32,13 +32,16 @@ data class LrcNode(
     private fun toWord(startIndex: Int, trimEnd: Boolean = false): SyncedLyrics.Word {
         val currentText = checkNotNull(text) { "Word text cannot be null" }
         val wordText = if (trimEnd) currentText.trimEnd() else currentText
+        // Malformed tags can carry an end before the start; the model
+        // rejects negative durations.
+        val wordEnd = end.coerceAtLeast(start)
         return SyncedLyrics.Word(
             content = wordText,
             start = start,
             startIndex = startIndex,
-            end = end,
+            end = wordEnd,
             endIndex = startIndex + (wordText.length - 1),
-            duration = (end - start),
+            duration = (wordEnd - start),
             actor = actor
         )
     }
@@ -48,22 +51,36 @@ data class LrcNode(
             return getLineSyncedTextContent()
         }
 
-        val validChildren = children
-            .filterNot { it.text.isNullOrEmpty() }
-            .sortedBy { it.start }
+        val sortedChildren = children.sortedBy { it.start }
+        val validChildren = sortedChildren.filterNot { it.text.isNullOrEmpty() }
 
         if (validChildren.isEmpty()) {
             return getLineSyncedTextContent()
         }
 
-        val lastWordIndex = validChildren.lastIndex
-        for (i in 0 until lastWordIndex) {
-            if (validChildren[i].end == INVALID_DURATION) {
-                validChildren[i].end = validChildren[i + 1].start
+        // Fill missing word end times from the next child's start - over ALL
+        // children, including empty-text ones: eLRC writers emit explicit
+        // end markers (`word <end>` tags), which arrive as children whose
+        // only payload is the timestamp.
+        for (i in sortedChildren.indices) {
+            val child = sortedChildren[i]
+            if (child.end == INVALID_DURATION) {
+                sortedChildren.getOrNull(i + 1)?.let { next ->
+                    child.end = next.start.coerceAtLeast(child.start)
+                }
             }
         }
-        if (validChildren[lastWordIndex].end == INVALID_DURATION) {
-            validChildren[lastWordIndex].end = end
+
+        val lastWordIndex = validChildren.lastIndex
+        val lastWord = validChildren[lastWordIndex]
+        if (lastWord.end == INVALID_DURATION) {
+            // No end marker for the last word: fill to the line end, but
+            // cap the synthesized fill so the karaoke gradient doesn't
+            // keep sweeping through instrumental gaps (the line end is
+            // the next line's start, gap included).
+            val median = medianDuration(sortedChildren)
+            lastWord.end = (lastWord.start + maxOf(1_500L, median * 3)).coerceAtMost(end)
+            if (lastWord.end < lastWord.start) lastWord.end = lastWord.start
         }
 
         var nextWordStartIndex = 0
@@ -91,6 +108,14 @@ data class LrcNode(
             rawContent = rawLine.orEmpty(),
             syllables = words
         )
+    }
+
+    private fun medianDuration(children: List<LrcNode>): Long {
+        val durations = children.mapNotNull { child ->
+            if (child.end > INVALID_DURATION && child.end > child.start) child.end - child.start else null
+        }
+        if (durations.isEmpty()) return 0L
+        return durations.sorted()[durations.size / 2]
     }
 
     private fun getLineSyncedTextContent() = SyncedLyrics.TextContent(

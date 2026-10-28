@@ -493,7 +493,10 @@ private fun LyricsSurface(
                     isPlaying = isPlaying
                 )
 
-                LaunchedEffect(playerProgress) {
+                // Keyed on the frame-smoothed position so the karaoke word
+                // fill advances at display frame rate instead of the 100ms
+                // progress-tick rate.
+                LaunchedEffect(smoothProgress) {
                     lyricsViewState.updatePosition(smoothProgress)
                 }
 

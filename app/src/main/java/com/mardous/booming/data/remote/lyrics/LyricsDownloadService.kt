@@ -35,9 +35,11 @@ import io.ktor.client.HttpClient
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.selects.select
+import kotlinx.coroutines.selects.onTimeout
 import kotlinx.coroutines.withTimeoutOrNull
 import java.io.IOException
 
@@ -141,11 +143,14 @@ class LyricsDownloadService(client: HttpClient) {
     /**
      * Queries every provider in parallel and merges results as they arrive,
      * so the pipeline latency is the fastest provider rather than the sum
-     * of all of them. The first synced result (word-by-word or line -
-     * whichever arrives first) ends the race immediately; plain results
-     * never stop it. The whole race is capped at [RACE_TIMEOUT_MILLIS]; on
+     * of all of them. Word-by-word content always wins: when the first
+     * line-synced result arrives it is kept as a provisional merge and the
+     * race keeps running for [WORD_SYNCED_GRACE_MILLIS] in case a
+     * word-by-word result is still on the way; plain results never stop
+     * the race. The whole race is capped at [RACE_TIMEOUT_MILLIS]; on
      * timeout the partial merge still wins.
      */
+    @OptIn(ExperimentalCoroutinesApi::class)
     private suspend fun raceProviders(
         song: Song,
         title: String,
@@ -170,22 +175,31 @@ class LyricsDownloadService(client: HttpClient) {
                     }.toMutableSet()
 
                     try {
+                        var firstSyncedAtNanos: Long? = null
                         while (pending.isNotEmpty()) {
-                            val completed = select<Pair<Deferred<RawLyrics.Remote?>, RawLyrics.Remote?>> {
+                            // A line-synced merge is provisional: keep the
+                            // grace window open for a word-by-word arrival.
+                            val graceRemainingNanos = firstSyncedAtNanos?.let { start ->
+                                WORD_SYNCED_GRACE_NANOS - (System.nanoTime() - start)
+                            }
+                            if (graceRemainingNanos != null && graceRemainingNanos <= 0) break
+                            val completed = select<Pair<Deferred<RawLyrics.Remote?>, RawLyrics.Remote?>?> {
                                 for (candidate in pending) {
                                     candidate.onAwait { response -> candidate to response }
                                 }
-                            }
-                            val (deferred, response) = completed ?: break
+                                graceRemainingNanos?.let { remaining ->
+                                    onTimeout(remaining / 1_000_000L + 1) { null }
+                                }
+                            } ?: break
+                            val (deferred, response) = completed
                             pending.remove(deferred)
 
                             if (response != null) {
                                 outcome.remote = outcome.remote.accept(response)
-                                // The first synced result (word-by-word or
-                                // line - first arrival wins) ends the race.
-                                // The first synced result (word-by-word or
-                                // line - first arrival wins) ends the race.
-                                if (outcome.remote.hasSynced || outcome.remote.hasWordSynced) break
+                                if (outcome.remote.hasWordSynced) break
+                                if (outcome.remote.hasSynced && firstSyncedAtNanos == null) {
+                                    firstSyncedAtNanos = System.nanoTime()
+                                }
                             }
                         }
                     } finally {
@@ -197,7 +211,6 @@ class LyricsDownloadService(client: HttpClient) {
             throw e
         }
 
-        // Word-by-word always wins over whichever synced content merged first.
         outcome.sweptAll = !timedOut && !outcome.remote.hasSynced &&
                 !outcome.remote.hasWordSynced && !outcome.remote.hasPlain
         return outcome
@@ -231,6 +244,14 @@ class LyricsDownloadService(client: HttpClient) {
          * false "no lyrics" results.
          */
         private const val RACE_TIMEOUT_MILLIS = 20_000L
+
+        /**
+         * Grace window after the first line-synced result arrives: the race
+         * keeps running this long hoping for a word-by-word result before
+         * settling for the line-synced merge.
+         */
+        private const val WORD_SYNCED_GRACE_MILLIS = 4_000L
+        private val WORD_SYNCED_GRACE_NANOS = WORD_SYNCED_GRACE_MILLIS * 1_000_000L
 
         private const val KEYWORDS = "official|video|audio|lyrics|lyric|visualizer|hd|hq|4k|remaster|remix|live|acoustic|version|edit|extended|radio|clean|explicit"
 

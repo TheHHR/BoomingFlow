@@ -77,11 +77,18 @@ sealed interface RawLyrics : Parcelable {
             if (!hasPlain && plain?.isEmpty == false) {
                 result = result.copy(plain = plain)
             }
-            if (!hasSynced && synced?.isEmpty == false) {
-                result = result.copy(synced = synced)
+            // Word-level content delivered in the synced slot (BiniLyrics or
+            // YouLyPlus TTML, enhanced LRC from YouLyPlus/Lyrically, Netease
+            // klyric...) is routed into the wordSynced slot here, so the
+            // quality ladder (word > line > plain) applies to every
+            // provider instead of only SyncLRC.
+            val routedSynced = synced?.takeUnless { it.isWordLevel() }
+            val routedWordSynced = wordSynced ?: synced?.takeIf { it.isWordLevel() }
+            if (!hasSynced && routedSynced?.isEmpty == false) {
+                result = result.copy(synced = routedSynced)
             }
-            if (!hasWordSynced && wordSynced?.isEmpty == false) {
-                result = result.copy(wordSynced = wordSynced)
+            if (!hasWordSynced && routedWordSynced?.isEmpty == false) {
+                result = result.copy(wordSynced = routedWordSynced)
             }
             return result
         }
@@ -125,7 +132,6 @@ sealed interface RawLyrics : Parcelable {
         val instrumental: Boolean = false
     ) : RawLyrics {
         override fun accept(other: RawLyrics?): RawLyrics = this
-
     }
 
     @Parcelize
@@ -138,5 +144,28 @@ sealed interface RawLyrics : Parcelable {
     ) : RawLyrics {
         override val lyrics: String get() = newContent
         override fun accept(other: RawLyrics?): RawLyrics = this
+    }
+}
+
+/** TTML word node: a `<span>` carrying its own begin timestamp. */
+private val TTML_WORD_SPAN = Regex("""<span[^>]*\bbegin\s*=""")
+
+/** Enhanced-LRC word tag: `<mm:ss.xx>` inside a line. */
+private val ELRC_WORD_TAG = Regex("""<\d{1,3}:\d{1,2}[.:]\d{1,3}>""")
+
+/** Netease klyric word entry: `[wordStartMs](wordDurationMs)word`. */
+private val KLYRIC_WORD_TAG = Regex("""\[\d+\]\(\d+\)""")
+
+/**
+ * Heuristically detects word-level (karaoke) lyric text so that content
+ * arriving in the synced slot can be routed to the wordSynced slot.
+ */
+internal fun RawLyrics.Remote.Content.isWordLevel(): Boolean {
+    val text = lyrics ?: return false
+    return when {
+        // TTML documents: word-level only when word <span begin=...> nodes exist
+        text.contains("<tt") || text.contains("<p begin=") || text.contains("xmlns=") ->
+            TTML_WORD_SPAN.containsMatchIn(text)
+        else -> ELRC_WORD_TAG.containsMatchIn(text) || KLYRIC_WORD_TAG.containsMatchIn(text)
     }
 }

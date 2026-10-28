@@ -49,11 +49,14 @@ class LrcLibApi(private val client: HttpClient) : LyricsApi {
 
                 val durationScore = it.durationInSeconds
                     ?.let { resultDurationInSeconds ->
+                        // Both values are in SECONDS: compare against
+                        // 2/5/10s thresholds (the ms-scale thresholds
+                        // matched everything and the check was inert).
                         val durationDiff = abs(resultDurationInSeconds - songDurationInSeconds)
                         when {
-                            durationDiff <= 2000 -> 1.0 // Excellent match
-                            durationDiff <= 5000 -> 0.6 // Good match
-                            durationDiff <= 10000 -> 0.2 // Acceptable match
+                            durationDiff <= 2.0 -> 1.0 // Excellent match
+                            durationDiff <= 5.0 -> 0.6 // Good match
+                            durationDiff <= 10.0 -> 0.2 // Acceptable match
                             else -> -1.0 // Likely wrong version
                         }
                     } ?: 0.0

@@ -179,7 +179,11 @@ fun LyricsView(
                 lineSpacing = lineSpacing,
                 modifier = Modifier
                     .animateItem(placementSpec = tween(durationMillis = 500)),
-                onClick = { onSeekTo(line.start - (state.lyrics?.offset ?: 0)) }
+                onClick = {
+                    // A positive [offset] on a 0-start intro line would seek
+                    // to a negative position.
+                    onSeekTo((line.start - (state.lyrics?.offset ?: 0)).coerceAtLeast(0L))
+                }
             )
         }
 
@@ -383,7 +387,10 @@ fun LyricsLineContentView(
     val progressFraction = when {
         progressMillis < startMillis -> 0f
         progressMillis > endMillis -> 1f
-        else -> ((progressMillis - startMillis).toFloat() / (endMillis - startMillis).toFloat()).coerceIn(0f, 1f)
+        // Zero-duration lines would divide by zero (NaN fraction).
+        endMillis > startMillis ->
+            ((progressMillis - startMillis).toFloat() / (endMillis - startMillis).toFloat()).coerceIn(0f, 1f)
+        else -> 1f
     }
 
     val effectDuration = ((endMillis - startMillis) / 2).coerceAtMost(500).toInt()
@@ -645,8 +652,13 @@ private fun BubblesLine(
 
     val progressFraction by remember(progressMillis) {
         derivedStateOf {
-            ((progressMillis.toFloat() - startMillis) / (endMillis - startMillis))
-                .coerceIn(0f, 1f)
+            // Zero-duration lines would divide by zero (NaN fraction).
+            if (endMillis > startMillis) {
+                ((progressMillis.toFloat() - startMillis) / (endMillis - startMillis))
+                    .coerceIn(0f, 1f)
+            } else {
+                if (progressMillis >= endMillis) 1f else 0f
+            }
         }
     }
 

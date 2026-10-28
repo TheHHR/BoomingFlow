@@ -19,6 +19,7 @@ import com.mardous.booming.data.model.lyrics.LyricsFile
 import com.mardous.booming.data.model.lyrics.LyricsSource
 import com.mardous.booming.data.model.lyrics.ParsedLyrics
 import com.mardous.booming.data.model.lyrics.RawLyrics
+import com.mardous.booming.data.model.lyrics.SyncedLyrics
 import com.mardous.booming.data.model.network.NetworkFeature
 import com.mardous.booming.data.remote.lyrics.LyricsDownloadService
 import com.mardous.booming.data.remote.lyrics.LyricsProviderParams
@@ -50,6 +51,14 @@ interface LyricsRepository {
      * provider switch.
      */
     suspend fun applyProviderLyrics(song: Song, provider: LyricsProvider): ParsedLyrics
+
+    /**
+     * One-shot background sweep for songs whose stored lyrics are only
+     * line-synced: re-runs the provider race and, when word-by-word
+     * lyrics are found, replaces the stored row and returns the parsed
+     * word-synced lyrics. Returns null when nothing better was found.
+     */
+    suspend fun downloadWordSyncedUpgrade(song: Song): SyncedLyrics?
 
     suspend fun saveLyrics(
         song: Song,
@@ -148,7 +157,9 @@ class RealLyricsRepository(
                         lyrics = rawLyrics.lyrics,
                         ignoreBlankLines = ignoreBlankLines,
                         markInstrumentalByTitle = markInstrumentalByTitle,
-                        provider = rawLyrics.synced?.source ?: rawLyrics.plain?.source
+                        provider = rawLyrics.wordSynced?.source
+                            ?: rawLyrics.synced?.source
+                            ?: rawLyrics.plain?.source
                     )
                 }
             }
@@ -363,6 +374,35 @@ class RealLyricsRepository(
         return parseRawLyrics(song, cacheLyrics(song.id, stored))
     }
 
+    override suspend fun downloadWordSyncedUpgrade(song: Song): SyncedLyrics? {
+        if (song.id == Song.emptySong.id || isRecentlyMissed(song.id)) return null
+        val sweep = try {
+            lyricsDownloadService.remoteLyricsDetailed(
+                song,
+                providerParams = LyricsProviderParams()
+            )
+        } catch (e: CancellationException) {
+            throw e
+        } catch (_: Exception) {
+            null
+        } ?: return null
+        val wordContent = sweep.remote.wordSynced ?: return null
+        val parsed = parseRawLyrics(song, RawLyrics.Remote(wordSynced = wordContent))
+        val upgraded = (parsed as? ParsedLyrics.Synced)?.lyrics?.takeIf { it.isWordSynced }
+            ?: return null
+        val stored = RawLyrics.Remote(wordSynced = wordContent).prepareToStore() ?: return null
+        lyricsDao.insertLyrics(
+            LyricsEntity(
+                id = song.id,
+                lyrics = stored.lyrics,
+                provider = stored.provider
+            )
+        )
+        removeCachedLyrics(LyricsSource.Downloaded, song.id)
+        cacheLyrics(song.id, stored)
+        return upgraded
+    }
+
     override suspend fun saveLyrics(
         song: Song,
         originalLyricsBySource: Map<LyricsSource, RawLyrics?>,
@@ -379,7 +419,10 @@ class RealLyricsRepository(
                 if (originalLyrics.lyrics != content) {
                     RawLyrics.Edited(
                         originalLyrics = originalLyrics,
-                        newContent = content
+                        newContent = content,
+                        // Keep the provider that produced the stored lyrics
+                        // so an edit doesn't wipe the attribution.
+                        newContentProvider = (originalLyrics as? RawLyrics.Stored)?.provider
                     )
                 } else null
             }
