@@ -141,9 +141,10 @@ fun Fragment.collectPlayerAccent(action: (Int) -> Unit) {
     viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
         PlayerAccentState.accentColor.collect { accent ->
             if (Preferences.followPlayerColor) {
-                // 0 only means "nothing playing": consumers restore their
-                // themed defaults. Monochrome/coverless playback delivers a
-                // neutral gray accent instead.
+                // 0 only occurs before the first emission; idle (nothing
+                // playing), monochrome and coverless playback all deliver
+                // the neutral gray accent instead, so consumers apply the
+                // accent rather than restoring themed defaults.
                 action(accent)
             }
         }

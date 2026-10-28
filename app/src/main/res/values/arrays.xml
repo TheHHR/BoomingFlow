@@ -47,18 +47,6 @@
         <item>1</item>
     </string-array>
 
-    <string-array name="pref_image_size_entries">
-        <item>@string/image_size_large</item>
-        <item>@string/image_size_medium</item>
-        <item>@string/image_size_small</item>
-    </string-array>
-
-    <string-array name="pref_image_size_values">
-        <item>large</item>
-        <item>medium</item>
-        <item>small</item>
-    </string-array>
-
     <string-array name="pref_stream_quality_entries">
         <item>@string/stream_quality_opus</item>
         <item>@string/stream_quality_aac</item>

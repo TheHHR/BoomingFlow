@@ -357,7 +357,9 @@ abstract class AbsSlidingMusicPanelActivity : AbsBaseActivity(),
         } else {
             // Follow-color off: restore the original themed navigation colors
             // (resolved from the Material 3 theme) instead of nulling them -
-            // null removes the active-tab indicator drawable entirely.
+            // null removes the active-tab indicator drawable entirely. The
+            // active icon uses onSecondaryContainer so it stays visible on
+            // the secondaryContainer-colored indicator pill.
             val states = arrayOf(
                 intArrayOf(android.R.attr.state_checked),
                 intArrayOf(-android.R.attr.state_checked)
@@ -365,11 +367,17 @@ abstract class AbsSlidingMusicPanelActivity : AbsBaseActivity(),
             navigationView.itemIconTintList = ColorStateList(
                 states,
                 intArrayOf(
-                    resolveColor(M3R.attr.colorSecondaryContainer),
+                    resolveColor(M3R.attr.colorOnSecondaryContainer),
                     resolveColor(M3R.attr.colorOnSurfaceVariant)
                 )
             )
-            navigationView.itemTextColor = navigationView.itemIconTintList
+            navigationView.itemTextColor = ColorStateList(
+                states,
+                intArrayOf(
+                    resolveColor(M3R.attr.colorOnSurface),
+                    resolveColor(M3R.attr.colorOnSurfaceVariant)
+                )
+            )
             navigationView.setItemActiveIndicatorColor(
                 ColorStateList.valueOf(resolveColor(M3R.attr.colorSecondaryContainer))
             )
@@ -381,13 +389,18 @@ abstract class AbsSlidingMusicPanelActivity : AbsBaseActivity(),
     /**
      * App-level accent pipeline: extracts the artwork palette of the current
      * song even when the now-playing screen is closed and feeds
-     * [PlayerAccentState]. Monochrome covers and missing artwork clear the
-     * accent so the app reverts to Material You.
+     * [PlayerAccentState]. Monochrome covers, missing artwork and the
+     * idle state (nothing playing) all fall back to the neutral gray
+     * accent, so every follow-color surface keeps the same neutral look
+     * instead of reverting to Material You.
      */
     private suspend fun refreshFollowPlayerAccent(song: Song) {
         if (!Preferences.followPlayerColor) return
         if (song.id == -1L) {
-            PlayerAccentState.clear()
+            // Nothing playing: the neutral gray accent keeps Compose
+            // screens and per-view accents consistent with the bottom
+            // bar. 0 is reserved for "follow-color disabled".
+            PlayerAccentState.update(AccentSchemes.NEUTRAL_ACCENT)
             return
         }
         val context = applicationContext

@@ -41,6 +41,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import android.widget.ImageView
 import android.view.View
@@ -212,6 +213,11 @@ fun FloatingActionButton.applyColor(color: Int) {
     val textColor = getPrimaryTextColor(context, color.isColorLight)
     backgroundTintList = ColorStateList.valueOf(color)
     imageTintList = ColorStateList.valueOf(textColor)
+    if (this is ExtendedFloatingActionButton) {
+        // The label would otherwise keep the themed content color, which
+        // can clash with the accent background.
+        setTextColor(textColor)
+    }
 }
 
 fun TextView.applyColor(color: Int) {
@@ -345,7 +351,10 @@ fun ViewGroup.applyPreferenceSwitchAccent(@ColorInt accent: Int, @ColorInt check
 fun ViewGroup.applyPreferenceToggleAccent(@ColorInt accent: Int, @ColorInt checkedBg: Int, @ColorInt checkedText: Int) {
     for (i in 0 until childCount) {
         val child = getChildAt(i)
-        if (child is MaterialButton) {
+        // Only toggle-group buttons (checkable) carry the two-state accent
+        // lists; non-checkable buttons such as the Exclusions "Configure"
+        // actions keep their themed look.
+        if (child is MaterialButton && child.isCheckable) {
             child.applyTogglePlayerAccent(accent, checkedBg, checkedText)
         } else if (child is ViewGroup) {
             child.applyPreferenceToggleAccent(accent, checkedBg, checkedText)
@@ -417,14 +426,19 @@ fun MaterialButton.applyTogglePlayerAccent(@ColorInt accent: Int, @ColorInt chec
         ?.getColorForState(uncheckedState, currentTextColor) ?: currentTextColor
     val states = arrayOf(
         intArrayOf(android.R.attr.state_checked),
-        uncheckedState
+        uncheckedState,
+        // Empty spec: the last-resort default for drawable states that
+        // match neither spec above (e.g. non-checkable or disabled
+        // buttons). Without it those resolve to the caller-supplied
+        // fallback (0 = transparent) and render invisible.
+        intArrayOf()
     )
-    backgroundTintList = ColorStateList(states, intArrayOf(checkedBg, uncheckedBg))
-    setTextColor(ColorStateList(states, intArrayOf(checkedText, uncheckedText)))
+    backgroundTintList = ColorStateList(states, intArrayOf(checkedBg, uncheckedBg, uncheckedBg))
+    setTextColor(ColorStateList(states, intArrayOf(checkedText, uncheckedText, uncheckedText)))
     val originalStroke = original?.strokeColor
     if (originalStroke != null) {
         val uncheckedStroke = originalStroke.getColorForState(uncheckedState, originalStroke.defaultColor)
-        strokeColor = ColorStateList(states, intArrayOf(checkedBg, uncheckedStroke))
+        strokeColor = ColorStateList(states, intArrayOf(checkedBg, uncheckedStroke, uncheckedStroke))
     }
 }
 

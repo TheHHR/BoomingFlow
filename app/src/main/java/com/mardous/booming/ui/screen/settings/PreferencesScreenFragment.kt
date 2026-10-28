@@ -104,7 +104,6 @@ import com.mardous.booming.util.NOW_PLAYING_EXTRA_INFO
 import com.mardous.booming.util.NOW_PLAYING_SCREEN
 import com.mardous.booming.util.ON_CLEAR_QUEUE_ACTION
 import com.mardous.booming.util.ON_SONG_CLICK_ACTION
-import com.mardous.booming.util.PREFERRED_IMAGE_SIZE
 import com.mardous.booming.util.Preferences
 import com.mardous.booming.util.SPOTIFY_LOGIN
 import com.mardous.booming.util.SPOTIFY_TOKEN_LOGIN
@@ -381,12 +380,6 @@ open class PreferenceScreenFragment : PreferenceFragmentCompat(),
         }
 
         findPreference<Preference>(IGNORE_MEDIA_STORE)?.onPreferenceChangeListener =
-            Preference.OnPreferenceChangeListener { _, _ ->
-                clearImageLoaderCache()
-                true
-            }
-
-        findPreference<Preference>(PREFERRED_IMAGE_SIZE)?.onPreferenceChangeListener =
             Preference.OnPreferenceChangeListener { _, _ ->
                 clearImageLoaderCache()
                 true

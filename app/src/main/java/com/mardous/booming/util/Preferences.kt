@@ -568,14 +568,6 @@ interface PlaylistCutoff {
     }
 }
 
-interface ImageSize {
-    companion object {
-        const val LARGE = "large"
-        const val MEDIUM = "medium"
-        const val SMALL = "small"
-    }
-}
-
 interface UpdateSearchMode {
     companion object {
         const val EVERY_DAY = "every_day"
@@ -651,7 +643,6 @@ const val PAUSE_ON_ZERO_VOLUME = "pause_on_zero_volume"
 const val MP3_INDEX_SEEKING = "mp3_index_seeking"
 const val IGNORE_MEDIA_STORE = "ignore_media_store"
 const val USE_FOLDER_ART = "use_folder_art"
-const val PREFERRED_IMAGE_SIZE = "preferred_image_size"
 const val ONLY_ALBUM_ARTISTS = "only_album_artists"
 const val TRASH_MUSIC_FILES = "trash_music_files"
 const val RECURSIVE_FOLDER_ACTIONS = "recursive_folder_actions"

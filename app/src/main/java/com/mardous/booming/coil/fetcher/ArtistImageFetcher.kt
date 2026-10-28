@@ -17,9 +17,6 @@ import com.mardous.booming.data.model.Artist
 import com.mardous.booming.data.model.network.NetworkFeature
 import com.mardous.booming.online.data.spotify.SpotifyClient
 import com.mardous.booming.online.data.spotify.SpotifyPrefs
-import com.mardous.booming.util.ImageSize
-import com.mardous.booming.util.PREFERRED_IMAGE_SIZE
-import com.mardous.booming.util.Preferences.requireString
 import org.apache.commons.text.similarity.JaroWinklerSimilarity
 import okio.Path.Companion.toOkioPath
 import okio.buffer
@@ -29,8 +26,7 @@ class ArtistImageFetcher(
     private val loader: ImageLoader,
     private val options: Options,
     private val customImageManager: CustomArtistImageManager,
-    private val image: ArtistImage,
-    private val imageSize: String
+    private val image: ArtistImage
 ) : Fetcher {
 
     private val contentResolver: ContentResolver
@@ -124,8 +120,7 @@ class ArtistImageFetcher(
                 loader = imageLoader,
                 options = options,
                 customImageManager = customImageManager,
-                image = data,
-                imageSize = preferences.requireString(PREFERRED_IMAGE_SIZE, ImageSize.MEDIUM)
+                image = data
             )
         }
     }

@@ -2,6 +2,7 @@ package com.mardous.booming.coil.fetcher
 
 import android.content.SharedPreferences
 import android.util.Log
+import android.util.LruCache
 import coil3.ImageLoader
 import coil3.decode.DataSource
 import coil3.decode.ImageSource
@@ -17,10 +18,8 @@ import com.mardous.booming.data.model.network.NetworkFeature
 import com.mardous.booming.extensions.media.asAlbumCoverUri
 import com.mardous.booming.extensions.media.isArtistNameUnknown
 import com.mardous.booming.online.data.spotify.SpotifyClient
+import com.mardous.booming.online.data.spotify.SpotifyPrefs
 import com.mardous.booming.online.data.spotify.thumbnailUrl
-import com.mardous.booming.util.ImageSize
-import com.mardous.booming.util.PREFERRED_IMAGE_SIZE
-import com.mardous.booming.util.Preferences.requireString
 import okio.IOException
 import okio.buffer
 import okio.source
@@ -28,8 +27,7 @@ import okio.source
 class AudioCoverFetcher(
     private val loader: ImageLoader,
     private val options: Options,
-    private val cover: AudioCover,
-    private val imageSize: String
+    private val cover: AudioCover
 ) : Fetcher {
 
     private val contentResolver get() = options.context.contentResolver
@@ -72,32 +70,7 @@ class AudioCoverFetcher(
         if (stream == null &&
             !cover.artistName.isArtistNameUnknown() &&
             NetworkFeature.Images.Albums.isEnabled) {
-            // Spotify cover lookup. Query format mirrors the tag editor
-            // (title/album name first, artist last); iterate candidates and
-            // take the first that actually has art instead of a blind first
-            // hit. Track search is the fallback for songs whose album tag
-            // is unreliable.
-            val query = if (cover.isAlbum) {
-                "${cover.albumName} ${cover.artistName}"
-            } else {
-                "${cover.title} ${cover.artistName}"
-            }
-            val imageUrl = runCatching {
-                if (cover.isAlbum) {
-                    SpotifyClient.searchAlbums(query, limit = 5)
-                        .firstNotNullOfOrNull { it.imageUrl }
-                        ?: SpotifyClient.searchTracks("${cover.title} ${cover.artistName}", limit = 5)
-                            .firstNotNullOfOrNull { it.thumbnailUrl() }
-                } else {
-                    SpotifyClient.searchTracks(query, limit = 5)
-                        .firstNotNullOfOrNull { it.thumbnailUrl() }
-                }
-            }.onFailure { e ->
-                Log.w("AudioCoverFetcher", "Spotify cover lookup failed for '$query'", e)
-            }.getOrNull()
-            if (BuildConfig.DEBUG) {
-                Log.d("AudioCoverFetcher", "Online cover lookup '$query' -> $imageUrl")
-            }
+            val imageUrl = fetchSpotifyCoverUrl()
             if (imageUrl != null) {
                 val data = loader.components.map(imageUrl, options)
                 val output = loader.components.newFetcher(data, options, loader)
@@ -118,6 +91,53 @@ class AudioCoverFetcher(
         )
     }
 
+    /**
+     * Resolves the Spotify cover URL for this item: the session cache
+     * first, then the persisted URL map (survives restarts, works
+     * offline - the image itself then comes from the Coil disk cache),
+     * and finally a fresh search. Successful lookups are persisted.
+     *
+     * The search query mirrors the tag editor's proven format
+     * (title/album name first, artist last); candidates are iterated
+     * and the first that actually has art wins. Track search is the
+     * fallback for songs whose album tag is unreliable.
+     */
+    private suspend fun fetchSpotifyCoverUrl(): String? {
+        val cacheKey = "${cover.artistName.trim().lowercase()}|${cover.albumName.trim().lowercase()}"
+        spotifyCoverCache.get(cacheKey)?.let { return it }
+        val context = options.context
+        SpotifyPrefs.getAlbumCoverUrl(context, cacheKey)?.let { persisted ->
+            spotifyCoverCache.put(cacheKey, persisted)
+            return persisted
+        }
+        val query = if (cover.isAlbum) {
+            "${cover.albumName} ${cover.artistName}"
+        } else {
+            "${cover.title} ${cover.artistName}"
+        }
+        val url = runCatching {
+            if (cover.isAlbum) {
+                SpotifyClient.searchAlbums(query, limit = 5)
+                    .firstNotNullOfOrNull { it.imageUrl }
+                    ?: SpotifyClient.searchTracks("${cover.title} ${cover.artistName}", limit = 5)
+                        .firstNotNullOfOrNull { it.thumbnailUrl() }
+            } else {
+                SpotifyClient.searchTracks(query, limit = 5)
+                    .firstNotNullOfOrNull { it.thumbnailUrl() }
+            }
+        }.onFailure { e ->
+            Log.w("AudioCoverFetcher", "Spotify cover lookup failed for '$query'", e)
+        }.getOrNull()
+        if (BuildConfig.DEBUG) {
+            Log.d("AudioCoverFetcher", "Online cover lookup '$query' -> $url")
+        }
+        if (url != null) {
+            spotifyCoverCache.put(cacheKey, url)
+            SpotifyPrefs.setAlbumCoverUrl(context, cacheKey, url)
+        }
+        return url
+    }
+
     class Factory(
         private val preferences: SharedPreferences
     ) : Fetcher.Factory<AudioCover> {
@@ -129,9 +149,16 @@ class AudioCoverFetcher(
             return AudioCoverFetcher(
                 loader = imageLoader,
                 options = options,
-                cover = data,
-                imageSize = preferences.requireString(PREFERRED_IMAGE_SIZE, ImageSize.MEDIUM)
+                cover = data
             )
         }
+    }
+
+    companion object {
+        /**
+         * Session-scoped memo of resolved Spotify cover URLs, kept in the
+         * companion so it survives fetcher instance recreation.
+         */
+        private val spotifyCoverCache = LruCache<String, String>(200)
     }
 }

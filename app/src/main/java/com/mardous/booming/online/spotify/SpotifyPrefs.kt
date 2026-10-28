@@ -155,4 +155,45 @@ object SpotifyPrefs {
             }
         }.getOrDefault(emptyMap())
     }
+
+    // ── Album cover URL persistence ──────────────────────────────────────
+    //
+    // Resolved Spotify album-cover URLs, keyed by the normalized
+    // "artist|album" pair. Persisted so online covers survive restarts
+    // and work offline (the Coil disk cache then serves the image
+    // itself). The map is insertion-ordered and trimmed to
+    // [MAX_ALBUM_COVER_URLS] entries.
+
+    private const val KEY_ALBUM_COVER_URLS = "spotify_album_cover_urls"
+    private const val MAX_ALBUM_COVER_URLS = 1000
+
+    fun getAlbumCoverUrl(context: Context, key: String): String? {
+        val map = readAlbumCoverUrls(context)
+        return map[key]?.takeIf { it.isNotBlank() }
+    }
+
+    fun setAlbumCoverUrl(context: Context, key: String, url: String?) {
+        val map = readAlbumCoverUrls(context).toMutableMap()
+        if (url.isNullOrBlank()) {
+            map.remove(key)
+        } else {
+            map[key] = url
+        }
+        while (map.size > MAX_ALBUM_COVER_URLS) {
+            map.remove(map.keys.first())
+        }
+        val json = buildJsonObject {
+            for ((coverKey, imageUrl) in map) put(coverKey, imageUrl)
+        }
+        prefs(context).edit { putString(KEY_ALBUM_COVER_URLS, json.toString()) }
+    }
+
+    private fun readAlbumCoverUrls(context: Context): Map<String, String> {
+        val stored = prefs(context).getString(KEY_ALBUM_COVER_URLS, null) ?: return emptyMap()
+        return runCatching {
+            Json.parseToJsonElement(stored).jsonObject.entries.associate { (key, value) ->
+                key to value.jsonPrimitive.content
+            }
+        }.getOrDefault(emptyMap())
+    }
 }

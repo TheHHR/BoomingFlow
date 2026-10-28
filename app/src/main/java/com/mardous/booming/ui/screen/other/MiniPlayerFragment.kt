@@ -30,11 +30,13 @@ import coil3.request.Disposable
 import com.mardous.booming.R
 import com.mardous.booming.coil.songImage
 import com.mardous.booming.core.PlayerAccentState
+import com.mardous.booming.core.model.theme.AccentSchemes
 import com.mardous.booming.extensions.resources.withAlpha
 import com.mardous.booming.core.model.player.ProgressState
 import com.mardous.booming.core.model.theme.NowPlayingButtonStyle
 import com.mardous.booming.databinding.FragmentMiniPlayerBinding
 import com.mardous.booming.extensions.isTablet
+import com.mardous.booming.extensions.isNightMode
 import com.mardous.booming.extensions.launchAndRepeatWithViewLifecycle
 import com.mardous.booming.extensions.media.displayArtistName
 import com.mardous.booming.extensions.resources.*
@@ -166,10 +168,13 @@ class MiniPlayerFragment : Fragment(R.layout.fragment_mini_player),
             defaultProgressColors = binding.progressBar.indicatorColor
             defaultProgressTrack = binding.progressBar.trackColor
         }
-        binding.actionPlayPause.setIconTintResource(android.R.color.transparent)
-        binding.actionPlayPause.iconTint = ColorStateList.valueOf(accent)
-        binding.progressBar.setIndicatorColor(accent)
-        binding.progressBar.setTrackColor(accent.withAlpha(0.25f))
+        // Scheme roles instead of the raw accent: the neutral idle accent
+        // would otherwise land as a low-contrast raw gray on the themed
+        // surface.
+        val scheme = AccentSchemes.viewScheme(accent, requireContext().isNightMode)
+        binding.actionPlayPause.iconTint = ColorStateList.valueOf(scheme.primary)
+        binding.progressBar.setIndicatorColor(scheme.primary)
+        binding.progressBar.setTrackColor(scheme.primary.withAlpha(0.25f))
     }
 
     fun setupExtraControls() {

@@ -41,16 +41,6 @@
             app:widgetLayout="@layout/preference_switch"
             app:key="allow_online_album_covers"/>
 
-        <ListPreference
-            app:iconSpaceReserved="true"
-            app:title="@string/preferred_image_size_title"
-            app:entries="@array/pref_image_size_entries"
-            app:entryValues="@array/pref_image_size_values"
-            app:useSimpleSummaryProvider="true"
-            app:defaultValue="medium"
-            app:layout="@layout/list_item_view"
-            app:key="preferred_image_size"/>
-
     </PreferenceCategory>
 
     <PreferenceCategory
