@@ -539,7 +539,7 @@ fun com.google.android.material.progressindicator.CircularProgressIndicator.appl
     if (getTag(R.id.tag_accent_originals) == null) {
         setTag(
             R.id.tag_accent_originals,
-            AccentOriginals(indicatorColor = indicatorColor)
+            AccentOriginals(indicatorColor = indicatorColor.firstOrNull())
         )
     }
     val original = getTag(R.id.tag_accent_originals) as? AccentOriginals
