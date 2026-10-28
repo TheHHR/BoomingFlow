@@ -50,24 +50,29 @@ sealed interface RawLyrics : Parcelable {
     data class Remote(
         val plain: Content? = null,
         val synced: Content? = null,
+        val wordSynced: Content? = null,
         private val instrumental: Boolean = false
     ) : RawLyrics {
 
         val hasPlain get() = plain?.isEmpty == false
         val hasSynced get() = synced?.isEmpty == false
+        val hasWordSynced get() = wordSynced?.isEmpty == false
         val hasBoth get() = hasPlain && hasSynced
 
         override val lyrics: String?
-            get() = synced?.lyrics ?: plain?.lyrics
+            get() = wordSynced?.lyrics ?: synced?.lyrics ?: plain?.lyrics
 
         override fun accept(other: RawLyrics?): Remote {
             if (other is Remote) {
-                return accept(other.plain, other.synced)
+                return accept(other.plain, other.synced, other.wordSynced)
             }
             return this
         }
 
-        fun accept(plain: Content?, synced: Content?): Remote {
+        fun accept(plain: Content?, synced: Content?): Remote =
+            accept(plain, synced, null)
+
+        fun accept(plain: Content?, synced: Content?, wordSynced: Content?): Remote {
             var result = this
             if (!hasPlain && plain?.isEmpty == false) {
                 result = result.copy(plain = plain)
@@ -75,11 +80,14 @@ sealed interface RawLyrics : Parcelable {
             if (!hasSynced && synced?.isEmpty == false) {
                 result = result.copy(synced = synced)
             }
+            if (!hasWordSynced && wordSynced?.isEmpty == false) {
+                result = result.copy(wordSynced = wordSynced)
+            }
             return result
         }
 
         fun prepareToStore(): Stored? {
-            val contentToStore = synced ?: plain
+            val contentToStore = wordSynced ?: synced ?: plain
             if (contentToStore != null) {
                 return Stored(
                     lyrics = contentToStore.lyrics,

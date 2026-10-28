@@ -556,6 +556,7 @@
     <string name="action_hide_lyrics">Hide lyrics</string>
     <string name="plain_lyrics">Plain</string>
     <string name="synced_lyrics">Synced</string>
+    <string name="word_by_word_lyrics">Word by word</string>
     <string name="embedded_lyrics">Embedded</string>
     <string name="downloaded_lyrics">Downloaded</string>
     <string name="file_lyrics">File</string>

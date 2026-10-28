@@ -17,6 +17,7 @@
 
 package com.mardous.booming.ui.screen.player.cover
 
+import android.util.LruCache
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
@@ -93,6 +94,20 @@ class CoverPagerFragment : Fragment(R.layout.fragment_player_album_cover),
 
     private var currentPosition = 0
 
+    /**
+     * The song list behind the currently attached pager adapter - used to
+     * avoid rebuilding the pager when a queue emission carries identical
+     * content.
+     */
+    private var currentAdapterSongs: List<Song>? = null
+
+    /**
+     * True while [androidx.viewpager2.widget.ViewPager2.setCurrentItem] is
+     * replaying a playback-driven position change, so [onPageSelected]
+     * doesn't feed it back into the player as a user request.
+     */
+    private var suppressOnPageSelectedPlayback = false
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentPlayerAlbumCoverBinding.bind(view)
@@ -159,18 +174,29 @@ class CoverPagerFragment : Fragment(R.layout.fragment_player_album_cover),
         viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
             playerViewModel.queueFlow.collect { queue ->
                 _binding?.viewPager?.let { pager ->
-                    pager.adapter = AlbumCoverPagerAdapter(parentFragmentManager, queue)
-                    applyCurrentTransition()
-                    pager.doOnPreDraw {
-                        val itemCount = pager.adapter?.count ?: 0
-                        val lastIndex = (itemCount - 1).coerceAtLeast(0)
-                        val target = playerViewModel.position.current.coerceIn(0, lastIndex)
-                        if (itemCount > 0) {
-                            if (pager.currentItem != target) {
-                                pager.setCurrentItem(target, false)
+                    // Rebuild the pager only when the queue CONTENT changed -
+                    // re-creating every page (inflation + cover load + palette
+                    // work) on identical content is what made next-song
+                    // transitions stutter.
+                    val currentSongs = currentAdapterSongs
+                    if (currentSongs == null || currentSongs.map { it.id } != queue.map { it.id }) {
+                        currentAdapterSongs = queue
+                        pager.adapter = AlbumCoverPagerAdapter(parentFragmentManager, queue)
+                        applyCurrentTransition()
+                        pager.doOnPreDraw {
+                            val itemCount = pager.adapter?.count ?: 0
+                            val lastIndex = (itemCount - 1).coerceAtLeast(0)
+                            val target = playerViewModel.position.current.coerceIn(0, lastIndex)
+                            if (itemCount > 0) {
+                                if (pager.currentItem != target) {
+                                    pager.setCurrentItem(target, false)
+                                }
+                                onPageSelected(target)
                             }
-                            onPageSelected(target)
                         }
+                    } else if (pager.currentItem != playerViewModel.position.current) {
+                        // Same queue, different position - just scroll there.
+                        pager.setCurrentItem(playerViewModel.position.current, true)
                     }
                 }
             }
@@ -179,7 +205,11 @@ class CoverPagerFragment : Fragment(R.layout.fragment_player_album_cover),
             playerViewModel.positionFlow.collect { position ->
                 _binding?.viewPager?.let { pager ->
                     if (pager.currentItem != position.current) {
+                        // Playback-driven page change: suppress the redundant
+                        // playSongAt round-trip from onPageSelected.
+                        suppressOnPageSelectedPlayback = true
                         pager.setCurrentItem(position.current, true)
+                        suppressOnPageSelectedPlayback = false
                     }
                 }
             }
@@ -210,7 +240,7 @@ class CoverPagerFragment : Fragment(R.layout.fragment_player_album_cover),
     override fun onPageSelected(position: Int) {
         currentPosition = position
         requestColor(position)
-        if (position != playerViewModel.position.current) {
+        if (!suppressOnPageSelectedPlayback && position != playerViewModel.position.current) {
             playerViewModel.playSongAt(position)
         }
     }
@@ -305,19 +335,40 @@ class CoverPagerFragment : Fragment(R.layout.fragment_player_album_cover),
     }
 
     private fun requestColor(position: Int) {
-        if (playerViewModel.queue.isNotEmpty()) {
-            (viewPager.adapter as? AlbumCoverPagerAdapter)
-                ?.receiveColor(colorReceiver, position)
+        if (playerViewModel.queue.isEmpty()) {
+            return
         }
+        // Serve the memoized palette immediately when we've seen this song
+        // before; the live extraction still refreshes it afterward.
+        val song = playerViewModel.queue.getOrNull(position)
+        if (song != null) {
+            paletteMemo.get(song.id)?.let { cached ->
+                if (currentPosition == position) {
+                    callbacks?.onColorChanged(cached)
+                }
+            }
+        }
+        (viewPager.adapter as? AlbumCoverPagerAdapter)
+            ?.receiveColor(colorReceiver, position)
     }
 
     private val colorReceiver = object : ColorReceiver {
         override fun onColorReady(color: PaletteColor, request: Int) {
             if (currentPosition == request) {
                 callbacks?.onColorChanged(color)
+                playerViewModel.queue.getOrNull(request)?.let { song ->
+                    paletteMemo.put(song.id, color)
+                }
             }
         }
     }
+
+    /**
+     * Memoized palette per song id: lets a returning song re-apply its color
+     * scheme instantly, before the fresh cover (and its async palette
+     * extraction) completes.
+     */
+    private val paletteMemo = LruCache<Long, PaletteColor>(100)
 
     internal fun setCallbacks(callbacks: Callbacks?) {
         this.callbacks = callbacks

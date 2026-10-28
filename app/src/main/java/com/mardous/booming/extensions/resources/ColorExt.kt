@@ -232,7 +232,8 @@ private class AccentOriginals(
     val strokeColor: ColorStateList? = null,
     val switchTrack: ColorStateList? = null,
     val switchThumb: ColorStateList? = null,
-    val iconColor: Int? = null
+    val iconColor: Int? = null,
+    val indicatorColor: ColorStateList? = null
 )
 
 /**
@@ -529,4 +530,23 @@ fun ItemDetailHeaderBinding.applyHeaderAccentFromArt(bitmap: Bitmap) {
         shuffleAction.applyPlayerAccent(accent, tonal = true)
         searchAction?.applyPlayerAccent(accent)
     }
+}
+/**
+ * Tints a Material progress indicator with the player accent. An accent of
+ * 0 restores the themed indicator color captured at first application.
+ */
+fun com.google.android.material.progressindicator.CircularProgressIndicator.applyPlayerAccent(@ColorInt accent: Int) {
+    if (getTag(R.id.tag_accent_originals) == null) {
+        setTag(
+            R.id.tag_accent_originals,
+            AccentOriginals(indicatorColor = ColorStateList.valueOf(indicatorColor))
+        )
+    }
+    val original = getTag(R.id.tag_accent_originals) as? AccentOriginals
+    if (accent == 0) {
+        original?.indicatorColor?.let { setIndicatorColor(it) }
+        return
+    }
+    val scheme = AccentSchemes.viewScheme(accent, context.isNightMode)
+    setIndicatorColor(scheme.primary)
 }

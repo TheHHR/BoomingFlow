@@ -60,6 +60,7 @@ class DiscoverFragment : AbsMainActivityFragment(R.layout.fragment_discover), IS
         binding.retryButton.setOnClickListener { discoverViewModel.load() }
         collectPlayerAccent { accent ->
             binding.retryButton.applyPlayerAccent(accent)
+            binding.progress.applyPlayerAccent(accent)
         }
 
         viewLifecycleOwner.launchAndRepeatWithViewLifecycle {

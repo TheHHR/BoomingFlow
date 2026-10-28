@@ -10,5 +10,6 @@ enum class LyricsSource(val titleRes: Int) {
 
 enum class LyricsMode(val titleRes: Int) {
     Plain(R.string.plain_lyrics),
-    Synced(R.string.synced_lyrics)
+    Synced(R.string.synced_lyrics),
+    WordByWord(R.string.word_by_word_lyrics)
 }

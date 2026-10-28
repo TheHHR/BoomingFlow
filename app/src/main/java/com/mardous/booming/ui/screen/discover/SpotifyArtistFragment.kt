@@ -83,6 +83,7 @@ class SpotifyArtistFragment : AbsMainActivityFragment(R.layout.fragment_detail_l
         collectPlayerAccent { accent ->
             binding.playAction.applyPlayerAccent(accent)
             binding.shuffleAction.applyPlayerAccent(accent, tonal = true)
+            binding.progressIndicator.applyPlayerAccent(accent)
             // Badge tints are applied at bind time - rebind so they follow.
             trackAdapter.notifyDataSetChanged()
         }

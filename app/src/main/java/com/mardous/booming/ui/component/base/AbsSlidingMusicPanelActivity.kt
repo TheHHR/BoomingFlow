@@ -24,6 +24,7 @@ import android.content.SharedPreferences
 import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
+import android.animation.ObjectAnimator
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.net.Uri
@@ -316,8 +317,14 @@ abstract class AbsSlidingMusicPanelActivity : AbsBaseActivity(),
                 Configuration.UI_MODE_NIGHT_YES
 
     private fun applyPlayerAccent(accent: Int) {
-        if (Preferences.followPlayerColor && accent != 0) {
-            val scheme = AccentSchemes.viewScheme(accent, isDarkTheme)
+        if (Preferences.followPlayerColor) {
+            // Nothing playing (accent 0) falls back to the neutral gray
+            // scheme - the same look a coverless song produces - instead of
+            // reverting to Material You.
+            val scheme = AccentSchemes.viewScheme(
+                if (accent != 0) accent else AccentSchemes.NEUTRAL_ACCENT,
+                isDarkTheme
+            )
             val states = arrayOf(
                 intArrayOf(android.R.attr.state_checked),
                 intArrayOf(-android.R.attr.state_checked)
@@ -326,22 +333,45 @@ abstract class AbsSlidingMusicPanelActivity : AbsBaseActivity(),
             val tint = ColorStateList(states, colors)
             navigationView.itemIconTintList = tint
             navigationView.itemTextColor = tint
-            navigationView.setItemActiveIndicatorColor(ColorStateList.valueOf(scheme.secondaryContainer))
+            navigationView.setItemActiveIndicatorColor(
+                ColorStateList.valueOf(scheme.secondaryContainer)
+            )
             // The window background drives every screen that doesn't paint
             // its own; keep it pure black when the black theme is on.
-            window.setBackgroundDrawable(
-                ColorDrawable(
-                    if (isDarkTheme && Preferences.blackTheme) {
-                        Color.BLACK
-                    } else {
-                        scheme.background
-                    }
+            val targetColor = if (isDarkTheme && Preferences.blackTheme) {
+                Color.BLACK
+            } else {
+                scheme.background
+            }
+            // Animate the background swap so the retint doesn't tear the
+            // whole hierarchy mid-transition.
+            val drawable = window.background as? ColorDrawable
+            if (drawable != null) {
+                ObjectAnimator.ofArgb(drawable, "color", drawable.color, targetColor)
+                    .setDuration(scheme.mode.preferredAnimDuration)
+                    .start()
+            } else {
+                window.setBackgroundDrawable(ColorDrawable(targetColor))
+            }
+        } else {
+            // Follow-color off: restore the original themed navigation colors
+            // (resolved from the Material 3 theme) instead of nulling them -
+            // null removes the active-tab indicator drawable entirely.
+            val states = arrayOf(
+                intArrayOf(android.R.attr.state_checked),
+                intArrayOf(-android.R.attr.state_checked)
+            )
+            navigationView.itemIconTintList = ColorStateList(
+                states,
+                intArrayOf(
+                    resolveColor(M3R.attr.colorSecondaryContainer),
+                    resolveColor(M3R.attr.colorOnSurfaceVariant)
                 )
             )
-        } else {
-            navigationView.itemIconTintList = null
-            navigationView.itemTextColor = null
-            navigationView.setItemActiveIndicatorColor(null)
+            navigationView.itemTextColor = navigationView.itemIconTintList
+            navigationView.setItemActiveIndicatorColor(
+                ColorStateList.valueOf(resolveColor(M3R.attr.colorSecondaryContainer))
+            )
             window.setBackgroundDrawable(null)
         }
     }

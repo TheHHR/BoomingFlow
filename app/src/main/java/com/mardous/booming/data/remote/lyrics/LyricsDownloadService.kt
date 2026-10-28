@@ -114,7 +114,7 @@ class LyricsDownloadService(client: HttpClient) {
             return offline
         }
 
-        if (!outcome.remote.hasSynced && !outcome.remote.hasPlain) {
+        if (!outcome.remote.hasSynced && !outcome.remote.hasWordSynced && !outcome.remote.hasPlain) {
             val fallbackArtist = song.artistName.extractMainArtistName()
             if (fallbackArtist.isNotBlank() && !fallbackArtist.equals(cleanedArtist, ignoreCase = true)) {
                 val fallbackOutcome = try {
@@ -183,7 +183,9 @@ class LyricsDownloadService(client: HttpClient) {
                                 outcome.remote = outcome.remote.accept(response)
                                 // The first synced result (word-by-word or
                                 // line - first arrival wins) ends the race.
-                                if (outcome.remote.hasSynced) break
+                                // The first synced result (word-by-word or
+                                // line - first arrival wins) ends the race.
+                                if (outcome.remote.hasSynced || outcome.remote.hasWordSynced) break
                             }
                         }
                     } finally {
@@ -196,7 +198,8 @@ class LyricsDownloadService(client: HttpClient) {
         }
 
         // Word-by-word always wins over whichever synced content merged first.
-        outcome.sweptAll = !timedOut && !outcome.remote.hasSynced && !outcome.remote.hasPlain
+        outcome.sweptAll = !timedOut && !outcome.remote.hasSynced &&
+                !outcome.remote.hasWordSynced && !outcome.remote.hasPlain
         return outcome
     }
 

@@ -94,18 +94,29 @@ class SyncLrcApi(private val client: HttpClient) : LyricsApi {
         val synced = root["synced"]?.jsonPrimitive?.contentOrNull
         val plain = root["plain"]?.jsonPrimitive?.contentOrNull
 
-        val syncedContent = when {
-            !karaoke.isNullOrBlank() && KARAOKE_WORD_PATTERN.containsMatchIn(karaoke) ->
-                RawLyrics.Remote.Content(provider.displayName, karaoke)
-            !synced.isNullOrBlank() ->
-                RawLyrics.Remote.Content(provider.displayName, synced)
-            else -> null
+        // Karaoke (word-level) is kept as its own variant instead of
+        // collapsing into the synced slot, so both line-synced and
+        // word-by-word content can be offered downstream.
+        val isWordLevel = !karaoke.isNullOrBlank() && KARAOKE_WORD_PATTERN.containsMatchIn(karaoke)
+        val wordContent = if (isWordLevel) {
+            RawLyrics.Remote.Content(provider.displayName, karaoke)
+        } else {
+            null
+        }
+        val syncedContent = if (!isWordLevel && !synced.isNullOrBlank()) {
+            RawLyrics.Remote.Content(provider.displayName, synced)
+        } else {
+            null
         }
         val plainContent = plain?.takeIf { it.isNotBlank() }
             ?.let { RawLyrics.Remote.Content(provider.displayName, it) }
-        if (syncedContent == null && plainContent == null) return null
+        if (syncedContent == null && wordContent == null && plainContent == null) return null
 
-        return RawLyrics.Remote(plain = plainContent, synced = syncedContent)
+        return RawLyrics.Remote(
+            plain = plainContent,
+            synced = syncedContent,
+            wordSynced = wordContent
+        )
     }
 
     companion object {

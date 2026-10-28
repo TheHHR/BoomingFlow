@@ -377,8 +377,21 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) : Fragment(layoutRes
                 }
                 playTogether(tintTargets)
             }
+        // Notify the host once the player surfaces finished recoloring, so
+        // the window background + navigation retint swap in AFTER the
+        // animation instead of tearing the hierarchy mid-transition.
+        colorAnimatorSet?.addListener(onEnd = {
+            onPlayerColorSchemeApplied(scheme)
+        })
         return colorAnimatorSet
     }
+
+    /**
+     * Called when the player's color-scheme animation completes. The host
+     * activity overrides this to defer its window/nav retint until this
+     * moment.
+     */
+    protected open fun onPlayerColorSchemeApplied(scheme: PlayerColorScheme) {}
 
     private fun cancelColorAnimator() {
         colorAnimatorSet?.cancel()

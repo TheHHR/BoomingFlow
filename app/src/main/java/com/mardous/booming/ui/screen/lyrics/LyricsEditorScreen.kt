@@ -241,14 +241,12 @@ fun LyricsEditorScreen(
     }
 
     ObserveAsEvent(viewModel.downloadEvent) { downloadedLyrics ->
-        if (downloadedLyrics.hasBoth) {
-            downloadedLyricsForSelector = downloadedLyrics
-        } else if (downloadedLyrics.hasPlain) {
-            setLyricsContent(downloadedLyrics.plain?.lyrics)
-        } else if (downloadedLyrics.hasSynced) {
-            setLyricsContent(downloadedLyrics.synced?.lyrics)
-        } else {
-            showManualSearchDialog = true
+        when {
+            downloadedLyrics.hasBoth || downloadedLyrics.hasWordSynced ->
+                downloadedLyricsForSelector = downloadedLyrics
+            downloadedLyrics.hasPlain -> setLyricsContent(downloadedLyrics.plain?.lyrics)
+            downloadedLyrics.hasSynced -> setLyricsContent(downloadedLyrics.synced?.lyrics)
+            else -> showManualSearchDialog = true
         }
     }
 
@@ -277,14 +275,17 @@ fun LyricsEditorScreen(
     }
 
     if (downloadedLyricsForSelector != null) {
+        val downloaded = downloadedLyricsForSelector!!
         LyricsSelectorDialog(
+            hasWordByWord = downloaded.hasWordSynced,
             onDismissRequest = {
                 downloadedLyricsForSelector = null
             },
             onModeSelected = { mode ->
                 val content = when (mode) {
-                    LyricsMode.Plain -> downloadedLyricsForSelector?.plain?.lyrics
-                    LyricsMode.Synced -> downloadedLyricsForSelector?.synced?.lyrics
+                    LyricsMode.Plain -> downloaded.plain?.lyrics
+                    LyricsMode.Synced -> downloaded.synced?.lyrics
+                    LyricsMode.WordByWord -> downloaded.wordSynced?.lyrics
                 }
                 setLyricsContent(content)
                 downloadedLyricsForSelector = null
@@ -561,6 +562,7 @@ fun LyricsEditorScreen(
 
 @Composable
 fun LyricsSelectorDialog(
+    hasWordByWord: Boolean,
     onDismissRequest: () -> Unit,
     onModeSelected: (LyricsMode) -> Unit
 ) {
@@ -590,6 +592,18 @@ fun LyricsSelectorDialog(
                     contentPadding = PaddingValues(horizontal = 8.dp, vertical = 12.dp),
                     modifier = Modifier.fillMaxWidth()
                 )
+
+                if (hasWordByWord) {
+                    DialogListItemWithRadio(
+                        title = stringResource(R.string.word_by_word_lyrics),
+                        onClick = {
+                            selectedMode = LyricsMode.WordByWord
+                        },
+                        isSelected = selectedMode == LyricsMode.WordByWord,
+                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 12.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
             }
         },
         confirmButton = {
