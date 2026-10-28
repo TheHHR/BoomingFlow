@@ -36,7 +36,7 @@
             app:icon="@drawable/ic_album_24dp"
             app:title="@string/online_album_covers_title"
             app:summary="@string/online_album_covers_summary"
-            app:defaultValue="false"
+            app:defaultValue="true"
             app:layout="@layout/list_item_view"
             app:widgetLayout="@layout/preference_switch"
             app:key="allow_online_album_covers"/>

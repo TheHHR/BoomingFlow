@@ -40,7 +40,7 @@ sealed class NetworkFeature(
     sealed class Images(preferenceKey: String, isOnByDefault: Boolean) :
         NetworkFeature(preferenceKey, isOnByDefault) {
         object Artists : Images(ALLOW_ONLINE_ARTIST_IMAGES_KEY, true)
-        object Albums : Images(ALLOW_ONLINE_ALBUM_COVERS_KEY, false)
+        object Albums : Images(ALLOW_ONLINE_ALBUM_COVERS_KEY, true)
     }
 
     sealed class Lyrics(preferenceKey: String, isOnByDefault: Boolean) :

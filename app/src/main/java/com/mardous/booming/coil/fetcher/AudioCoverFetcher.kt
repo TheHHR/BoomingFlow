@@ -10,6 +10,7 @@ import coil3.fetch.Fetcher
 import coil3.fetch.SourceFetchResult
 import coil3.request.Options
 import com.kyant.taglib.TagLib
+import com.mardous.booming.BuildConfig
 import com.mardous.booming.coil.model.AudioCover
 import com.mardous.booming.coil.util.AudioCoverUtils
 import com.mardous.booming.data.model.network.NetworkFeature
@@ -71,19 +72,32 @@ class AudioCoverFetcher(
         if (stream == null &&
             !cover.artistName.isArtistNameUnknown() &&
             NetworkFeature.Images.Albums.isEnabled) {
-            // Spotify cover lookup: album search first, track search as
-            // fallback for songs whose album tag is unreliable.
+            // Spotify cover lookup. Query format mirrors the tag editor
+            // (title/album name first, artist last); iterate candidates and
+            // take the first that actually has art instead of a blind first
+            // hit. Track search is the fallback for songs whose album tag
+            // is unreliable.
+            val query = if (cover.isAlbum) {
+                "${cover.albumName} ${cover.artistName}"
+            } else {
+                "${cover.title} ${cover.artistName}"
+            }
             val imageUrl = runCatching {
                 if (cover.isAlbum) {
-                    SpotifyClient.searchAlbums("${cover.artistName} ${cover.albumName}", limit = 1)
-                        .firstOrNull()?.imageUrl
-                        ?: SpotifyClient.searchTracks("${cover.artistName} ${cover.title}", limit = 1)
-                            .firstOrNull()?.thumbnailUrl()
+                    SpotifyClient.searchAlbums(query, limit = 5)
+                        .firstNotNullOfOrNull { it.imageUrl }
+                        ?: SpotifyClient.searchTracks("${cover.title} ${cover.artistName}", limit = 5)
+                            .firstNotNullOfOrNull { it.thumbnailUrl() }
                 } else {
-                    SpotifyClient.searchTracks("${cover.artistName} ${cover.title}", limit = 1)
-                        .firstOrNull()?.thumbnailUrl()
+                    SpotifyClient.searchTracks(query, limit = 5)
+                        .firstNotNullOfOrNull { it.thumbnailUrl() }
                 }
+            }.onFailure { e ->
+                Log.w("AudioCoverFetcher", "Spotify cover lookup failed for '$query'", e)
             }.getOrNull()
+            if (BuildConfig.DEBUG) {
+                Log.d("AudioCoverFetcher", "Online cover lookup '$query' -> $imageUrl")
+            }
             if (imageUrl != null) {
                 val data = loader.components.map(imageUrl, options)
                 val output = loader.components.newFetcher(data, options, loader)
