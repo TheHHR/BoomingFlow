@@ -385,7 +385,7 @@ class LyricsViewModel(
                     null
                 }
             } ?: return@launch
-            if (isActive && currentLyricsSong.id == song.id) {
+            if (isActive && currentLyricsSong?.id == song.id) {
                 _lyricsUiState.value = LyricsUiState.Synced(song.id, upgraded)
             }
         }
