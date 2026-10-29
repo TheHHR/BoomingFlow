@@ -34,8 +34,11 @@ import com.mardous.booming.util.Preferences
 class ClearQueueActionPreferenceDialog : DialogFragment() {
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        // Matches the queue-next dialog: no Material title/buttons (the
+        // dialog window background would otherwise sandwich the Compose
+        // content), uniform surfaceContainerHigh, selection persists and
+        // dismisses immediately.
         return MaterialAlertDialogBuilder(requireContext())
-            .setTitle(R.string.on_clear_queue_title)
             .setView(
                 ComposeView(requireContext()).apply {
                     setViewCompositionStrategy(
@@ -51,13 +54,13 @@ class ClearQueueActionPreferenceDialog : DialogFragment() {
                                 onActionClick = { action ->
                                     selectedAction = action
                                     Preferences.clearQueueAction = action
+                                    dismiss()
                                 }
                             )
                         }
                     }
                 }
             )
-            .setNegativeButton(R.string.close_action, null)
             .create()
     }
 
@@ -79,7 +82,7 @@ class ClearQueueActionPreferenceDialog : DialogFragment() {
                 modifier = Modifier
                     .fillMaxWidth()
                     .wrapContentHeight()
-                    .padding(top = 24.dp)
+                    .padding(vertical = 24.dp)
             ) {
                 items(actions) { action ->
                     DialogListItemWithRadio(

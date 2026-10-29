@@ -27,9 +27,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.mardous.booming.R
 import com.mardous.booming.core.model.GridViewType
 import com.mardous.booming.extensions.isLandscape
+import kotlin.math.max
 
 abstract class AbsRecyclerViewCustomGridSizeFragment<Adt : RecyclerView.Adapter<*>, LM : RecyclerView.LayoutManager> :
-    AbsRecyclerViewFragment<Adt, LM>() {
+    AbsRecyclerViewFragment<Adt, LM>(), ViewOptionsDialogHost.Callback {
 
     protected var gridSize: Int
         get() = getSavedGridSize()
@@ -98,29 +99,25 @@ abstract class AbsRecyclerViewCustomGridSizeFragment<Adt : RecyclerView.Adapter<
 
     override fun onCreateMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateMenu(menu, inflater)
-        menu.findItem(R.id.action_view_type).run {
-            this.isEnabled = isGridMode
-            this.subMenu?.findItem(viewType.itemId)?.isChecked = true
-        }
-        menu.findItem(R.id.action_grid_size).run {
-            if (resources.isLandscape) {
-                this.setTitle(R.string.action_grid_size_land)
-            }
-            this.subMenu?.let { setUpGridSizeMenu(it) }
-        }
+        // View type and grid size are chosen in the accent-following
+        // Compose dialog below; the submenu entries stay hidden.
     }
 
     override fun onMenuItemSelected(item: MenuItem): Boolean {
-        val selectedViewType = GridViewType.entries.firstOrNull { type -> type.itemId == item.itemId }
-        if (selectedViewType != null) {
-            item.isChecked = !item.isChecked
-            this.viewType = selectedViewType
-            return true
-        }
-        if (handleGridSizeMenuItem(item)) {
+        if (item.itemId == R.id.action_view_type || item.itemId == R.id.action_grid_size) {
+            ViewOptionsDialog.show(this, viewType, gridSize, maxGridSize)
             return true
         }
         return super.onMenuItemSelected(item)
+    }
+
+    override fun onViewTypeSelected(type: GridViewType) {
+        viewType = type
+    }
+
+    override fun onGridSizeSelected(size: Int) {
+        gridSize = size
+        toolbar.menu.findItem(R.id.action_view_type)?.isEnabled = isGridMode
     }
 
     protected abstract fun getSavedViewType(): GridViewType
@@ -130,34 +127,25 @@ abstract class AbsRecyclerViewCustomGridSizeFragment<Adt : RecyclerView.Adapter<
     protected abstract fun onGridSizeChanged(isLand: Boolean, gridColumns: Int)
 
     private fun setUpGridSizeMenu(gridSizeMenu: Menu) {
-        when (this.gridSize) {
-            1 -> gridSizeMenu.findItem(R.id.action_grid_size_1).isChecked = true
-            2 -> gridSizeMenu.findItem(R.id.action_grid_size_2).isChecked = true
-            3 -> gridSizeMenu.findItem(R.id.action_grid_size_3).isChecked = true
-            4 -> gridSizeMenu.findItem(R.id.action_grid_size_4).isChecked = true
-            5 -> gridSizeMenu.findItem(R.id.action_grid_size_5).isChecked = true
-            6 -> gridSizeMenu.findItem(R.id.action_grid_size_6).isChecked = true
-            7 -> gridSizeMenu.findItem(R.id.action_grid_size_7).isChecked = true
-            8 -> gridSizeMenu.findItem(R.id.action_grid_size_8).isChecked = true
-        }
-        val maxGridSize = this.maxGridSize
-        if (maxGridSize < 8) {
-            gridSizeMenu.findItem(R.id.action_grid_size_8).isVisible = false
-        }
-        if (maxGridSize < 7) {
-            gridSizeMenu.findItem(R.id.action_grid_size_7).isVisible = false
-        }
-        if (maxGridSize < 6) {
-            gridSizeMenu.findItem(R.id.action_grid_size_6).isVisible = false
-        }
-        if (maxGridSize < 5) {
-            gridSizeMenu.findItem(R.id.action_grid_size_5).isVisible = false
-        }
-        if (maxGridSize < 4) {
-            gridSizeMenu.findItem(R.id.action_grid_size_4).isVisible = false
-        }
-        if (maxGridSize < 3) {
-            gridSizeMenu.findItem(R.id.action_grid_size_3).isVisible = false
+        // Legacy overflow-menu entries are hidden; the Compose dialog is
+        // the only selector now.
+        val allItems = listOf(
+            R.id.action_grid_size_1 to 1,
+            R.id.action_grid_size_2 to 2,
+            R.id.action_grid_size_3 to 3,
+            R.id.action_grid_size_4 to 4,
+            R.id.action_grid_size_5 to 5,
+            R.id.action_grid_size_6 to 6,
+            R.id.action_grid_size_7 to 7,
+            R.id.action_grid_size_8 to 8
+        )
+        val selected = max(this.gridSize, 1)
+        allItems.forEach { (itemId, size) ->
+            gridSizeMenu.findItem(itemId)?.let {
+                it.isCheckable = true
+                it.isChecked = size == selected
+                it.isVisible = size <= max(maxGridSize, 2)
+            }
         }
     }
 

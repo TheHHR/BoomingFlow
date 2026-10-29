@@ -461,7 +461,7 @@ private fun LyricsSurface(
                         text = uiState.lyrics,
                         color = contentColor,
                         textAlign = textAlign,
-                        style = settings.unsyncedStyle
+                        style = settings.syncedStyle
                     )
                     if (settings.mode == LyricsViewSettings.Mode.Full &&
                         !uiState.provider.isNullOrEmpty()

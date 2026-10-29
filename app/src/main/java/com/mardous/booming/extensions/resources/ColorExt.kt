@@ -351,17 +351,23 @@ fun ViewGroup.applyPreferenceSwitchAccent(@ColorInt accent: Int, @ColorInt check
 fun ViewGroup.applyPreferenceToggleAccent(@ColorInt accent: Int, @ColorInt checkedBg: Int, @ColorInt checkedText: Int) {
     for (i in 0 until childCount) {
         val child = getChildAt(i)
-        // Only toggle-group buttons (checkable) carry the two-state accent
-        // lists; non-checkable buttons such as the Exclusions "Configure"
-        // actions keep their themed look.
-        if (child is MaterialButton && child.isCheckable) {
-            child.applyTogglePlayerAccent(accent, checkedBg, checkedText)
-        } else if (child is ViewGroup) {
-            child.applyPreferenceToggleAccent(accent, checkedBg, checkedText)
+        // Toggle-group buttons (checkable) carry the two-state accent
+        // lists; plain action buttons such as the Exclusions "Configure"
+        // actions get a solid content-colored accent instead. SeekBars
+        // get the raw accent on thumb + progress track.
+        when {
+            child is MaterialButton && child.isCheckable ->
+                child.applyTogglePlayerAccent(accent, checkedBg, checkedText)
+            child is MaterialButton -> child.applyPlainActionAccent(accent)
+            child is android.widget.SeekBar -> child.applyPreferenceSeekBarAccent(accent)
+            child is SwitchCompat -> {
+                val scheme = AccentSchemes.viewScheme(accent, context.isNightMode)
+                child.applyPlayerAccent(accent, scheme.primary, scheme.onPrimary)
+            }
+            child is ViewGroup -> child.applyPreferenceToggleAccent(accent, checkedBg, checkedText)
         }
     }
 }
-
 /**
  * Recolors preference category header titles - the ones the theme draws
  * with the primary color - with the accent scheme's primary. An accent of
@@ -440,6 +446,75 @@ fun MaterialButton.applyTogglePlayerAccent(@ColorInt accent: Int, @ColorInt chec
         val uncheckedStroke = originalStroke.getColorForState(uncheckedState, originalStroke.defaultColor)
         strokeColor = ColorStateList(states, intArrayOf(checkedBg, uncheckedStroke, uncheckedStroke))
     }
+}
+
+/**
+ * Applies the player accent to a plain (non-checkable) action button such
+ * as the Library → Exclusions "Configure" actions: text + icon in the
+ * accent scheme's primary, no state games. 0 restores the themed defaults.
+ */
+fun MaterialButton.applyPlainActionAccent(@ColorInt accent: Int) {
+    if (getTag(R.id.tag_accent_originals) == null) {
+        setTag(
+            R.id.tag_accent_originals,
+            AccentOriginals(
+                textColors = textColors,
+                iconTint = iconTint
+            )
+        )
+    }
+    val original = getTag(R.id.tag_accent_originals) as? AccentOriginals
+    if (accent == 0) {
+        original?.let {
+            it.textColors?.let { setTextColor(it) }
+            it.iconTint?.let { iconTint = it }
+        }
+        return
+    }
+    val scheme = AccentSchemes.viewScheme(accent, context.isNightMode)
+    val content = ColorStateList.valueOf(scheme.primary)
+    setTextColor(content)
+    iconTint = content
+}
+
+/**
+ * Applies the player accent to a settings SeekBar (thumb, progress track
+ * and tick marks in the scheme primary). 0 restores the themed defaults.
+ */
+fun android.widget.SeekBar.applyPreferenceSeekBarAccent(@ColorInt accent: Int) {
+    if (getTag(R.id.tag_accent_originals) == null) {
+        setTag(
+            R.id.tag_accent_originals,
+            AccentOriginals(
+                switchTrack = progressTintList,
+                switchThumb = thumbTintList,
+                backgroundTint = progressBackgroundTintList
+            )
+        )
+    }
+    val original = getTag(R.id.tag_accent_originals) as? AccentOriginals
+    if (accent == 0) {
+        original?.let {
+            it.switchTrack?.let { progressTintList = it }
+            it.switchThumb?.let { thumbTintList = it }
+            it.backgroundTint?.let { progressBackgroundTintList = it }
+        }
+        return
+    }
+    val scheme = AccentSchemes.viewScheme(accent, context.isNightMode)
+    val primary = ColorStateList.valueOf(scheme.primary)
+    // Unchecked track renders in the on-surface-variant tone, filled with
+    // the accent when checked; disabled matches unchecked for visibility.
+    val track = ColorStateList(
+        arrayOf(
+            intArrayOf(-android.R.attr.state_enabled),
+            intArrayOf()
+        ),
+        intArrayOf(scheme.onSurfaceVariant, scheme.primary)
+    )
+    progressTintList = track
+    progressBackgroundTintList = ColorStateList.valueOf(scheme.onSurfaceVariant)
+    thumbTintList = primary
 }
 
 /**

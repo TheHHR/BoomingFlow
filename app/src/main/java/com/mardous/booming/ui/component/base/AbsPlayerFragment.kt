@@ -284,6 +284,16 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) : Fragment(layoutRes
         }
     }
 
+    /**
+     * Don't stack the queue onto itself: repeating the swipe while the
+     * queue is already open would silently fail (or double-navigate on
+     * some navigation versions).
+     */
+    private fun currentDestinationAllowsQueueOpen(): Boolean =
+        runCatching { findNavController().currentDestination?.id }
+            .getOrNull()
+            ?.let { it != R.id.nav_queue } == true
+
     override fun gestureDetected(gestureType: GestureType): Boolean {
         return when (gestureType) {
             is GestureType.Tap -> onQuickActionEvent(Preferences.coverSingleTapAction)
@@ -330,7 +340,7 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) : Fragment(layoutRes
                     }
 
                     GestureType.Fling.DIRECTION_UP -> {
-                        if (Preferences.isSwipeUpQueue) {
+                        if (Preferences.isSwipeUpQueue && currentDestinationAllowsQueueOpen()) {
                             findNavController().navigate(R.id.nav_queue)
                             true
                         } else false

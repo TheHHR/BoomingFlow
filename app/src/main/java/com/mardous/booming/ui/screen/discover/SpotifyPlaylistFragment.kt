@@ -10,7 +10,9 @@ import androidx.core.view.updatePadding
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.progressindicator.CircularProgressIndicator
 import com.mardous.booming.R
+import com.mardous.booming.core.PlayerAccentState
 import com.mardous.booming.databinding.FragmentDetailListBinding
 import com.mardous.booming.extensions.collectPlayerAccent
 import com.mardous.booming.extensions.launchAndRepeatWithViewLifecycle
@@ -26,6 +28,7 @@ import com.mardous.booming.online.spotify.resolveBatchForPlayback
 import com.mardous.booming.online.spotify.resolveForPlayback
 import com.mardous.booming.ui.IScrollHelper
 import com.mardous.booming.ui.component.base.AbsMainActivityFragment
+import com.mardous.booming.util.Preferences
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -88,6 +91,12 @@ class SpotifyPlaylistFragment : AbsMainActivityFragment(R.layout.fragment_detail
             binding.playAction.applyPlayerAccent(accent)
             binding.shuffleAction.applyPlayerAccent(accent, tonal = true)
             binding.progressIndicator.applyPlayerAccent(accent)
+            // The download-menu action view (inflated separately) follows
+            // the accent too; it re-inflates per menu rebuild, so tint it
+            // here as well.
+            downloadMenuItem?.actionView
+                ?.findViewById<CircularProgressIndicator>(R.id.action_progress)
+                ?.applyPlayerAccent(accent)
             // Badge tints are applied at bind time - rebind so they follow.
             trackAdapter.notifyDataSetChanged()
         }
@@ -311,6 +320,10 @@ class SpotifyPlaylistFragment : AbsMainActivityFragment(R.layout.fragment_detail
             if (item.actionView == null) {
                 val actionView = layoutInflater.inflate(R.layout.action_view_download_progress, null)
                 actionView.setOnClickListener { openDownloadsManager() }
+                if (Preferences.followPlayerColor) {
+                    actionView.findViewById<CircularProgressIndicator>(R.id.action_progress)
+                        ?.applyPlayerAccent(PlayerAccentState.accentColor.value)
+                }
                 item.actionView = actionView
             }
         } else {

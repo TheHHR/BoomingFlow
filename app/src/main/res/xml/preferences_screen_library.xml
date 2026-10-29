@@ -154,7 +154,7 @@
             app:icon="@drawable/ic_image_24dp"
             app:title="@string/ignore_media_store_album_covers_title"
             app:summary="@string/ignore_media_store_album_covers_summary"
-            app:defaultValue="false"
+            app:defaultValue="true"
             app:layout="@layout/list_item_view"
             app:widgetLayout="@layout/preference_switch"
             app:key="ignore_media_store"/>

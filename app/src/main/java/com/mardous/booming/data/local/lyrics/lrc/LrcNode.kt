@@ -16,15 +16,21 @@ data class LrcNode(
 
     fun addChild(start: Long, end: Long = INVALID_DURATION, text: String?, actor: LyricsActor?): Boolean {
         if (start > INVALID_DURATION) {
-            val node = LrcNode(
+            // Whitespace-only capture groups ("word ", "<end> ", "[bg:x]"
+            // tails...) are timestamps with nothing spoken; they carry the
+            // next boundary. Store them as zero-width children so they feed
+            // the end-time fill below, but filter them before building
+            // Words: blank syllables break the word fill (`.last()` crash
+            // on empty groupings) and poison the line lookup.
+            val wordNode = LrcNode(
                 start = start,
                 text = text,
                 bgText = null,
                 rawLine = null,
                 actor = actor
             )
-            node.end = end
-            return children.add(node)
+            wordNode.end = end
+            return children.add(wordNode)
         }
         return false
     }
@@ -52,7 +58,10 @@ data class LrcNode(
         }
 
         val sortedChildren = children.sortedBy { it.start }
-        val validChildren = sortedChildren.filterNot { it.text.isNullOrEmpty() }
+        // Blank chunks (whitespace-only captures from end-tag boundaries
+        // like "<end> ", or empty end markers) carry only the timestamp.
+        // They feed the end-time fill but must never become spoken Words.
+        val validChildren = sortedChildren.filterNot { it.text.isNullOrBlank() }
 
         if (validChildren.isEmpty()) {
             return getLineSyncedTextContent()
@@ -77,7 +86,8 @@ data class LrcNode(
             // No end marker for the last word: fill to the line end, but
             // cap the synthesized fill so the karaoke gradient doesn't
             // keep sweeping through instrumental gaps (the line end is
-            // the next line's start, gap included).
+            // the next line's start, gap included). A guard against a
+            // missing end below protects words past the line length tag.
             val median = medianDuration(sortedChildren)
             lastWord.end = (lastWord.start + maxOf(1_500L, median * 3)).coerceAtMost(end)
             if (lastWord.end < lastWord.start) lastWord.end = lastWord.start
@@ -129,10 +139,15 @@ data class LrcNode(
         if (start <= INVALID_DURATION && end <= INVALID_DURATION) {
             return null
         }
+        // Word end times past the line's own end (karaoke leftovers in
+        // tail tracks, or a [length] tag shorter than the tags) would make
+        // SyncedLyrics reject the whole file (`duration >= 0` require).
+        // Clamp instead: the fill already rests on capped values.
+        val safeEnd = if (end > INVALID_DURATION) maxOf(end, start) else end
         return SyncedLyrics.Line(
             start = start,
-            end = end,
-            duration = (end - start),
+            end = safeEnd,
+            duration = (safeEnd - start),
             content = getTextContent(),
             transliteration = null,
             translation = null,

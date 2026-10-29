@@ -17,6 +17,8 @@
 
 package com.mardous.booming.ui.adapters.preference
 
+import android.content.res.ColorStateList
+import androidx.annotation.ColorInt
 import com.mardous.booming.core.model.player.MetadataField
 import com.mardous.booming.ui.adapters.DraggableItemAdapter
 
@@ -25,12 +27,25 @@ import com.mardous.booming.ui.adapters.DraggableItemAdapter
  */
 class ExtraInfoAdapter(extraInfo: MutableList<MetadataField>) : DraggableItemAdapter<MetadataField>(extraInfo) {
 
+    /** Player-accent tint for the checkboxes; 0 = themed default. */
+    @ColorInt
+    var accent: Int = 0
+        set(value) {
+            field = value
+            notifyDataSetChanged()
+        }
+
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         super.onBindViewHolder(holder, position)
         val extraInfo = items[position]
 
         holder.title.text = holder.title.resources.getString(extraInfo.content.displayNameRes)
         holder.checkBox.isChecked = extraInfo.isEnabled
+        holder.checkBox.buttonTintList = if (accent != 0) {
+            ColorStateList.valueOf(accent)
+        } else {
+            null
+        }
 
         holder.itemView.setOnClickListener {
             extraInfo.isEnabled = !extraInfo.isEnabled

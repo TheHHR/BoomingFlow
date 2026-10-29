@@ -77,8 +77,14 @@ data class TtmlNode(
             return false
         }
         if (this.type == NODE_WORD) {
-            this.text = text
-            return true
+            // Whitespace-only chunks belong to whatever node is currently
+            // open (the line gap or adjacent word); they must never become
+            // word text of their own. Blank syllables break the word fill
+            // (`.last()` crash) and poison the line lookup.
+            if (this.text == null && !text.isNullOrBlank() && !text.isWhitespace()) {
+                this.text = text
+                return true
+            }
         }
         return false
     }

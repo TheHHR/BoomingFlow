@@ -18,6 +18,12 @@ class PlayerGesturesController(
 
     private var viewRect: Rect? = null
 
+    /** Slow, deliberate upward drag fallback: fires once past the threshold. */
+    private var dragStartY = -1f
+    private var dragStartX = -1f
+    private var dragFired = false
+    private val dragThresholdPx = context.resources.displayMetrics.density * SWIPE_UP_DRAG_DP
+
     private val onGestureListener = object : GestureDetector.SimpleOnGestureListener() {
         override fun onSingleTapConfirmed(event: MotionEvent): Boolean {
             return consumeGesture(GestureType.Tap)
@@ -90,6 +96,31 @@ class PlayerGesturesController(
             return false
 
         viewRect = Rect(0, 0, v.width, v.height)
+        when (event.actionMasked) {
+            MotionEvent.ACTION_DOWN -> {
+                dragStartX = event.x
+                dragStartY = event.y
+                dragFired = false
+            }
+            MotionEvent.ACTION_MOVE -> {
+                // Slow deliberate drags never produce an onFling: trigger
+                // the queue gesture once a mostly-vertical drag travels far
+                // enough upward.
+                if (!dragFired && dragStartY >= 0 && dragStartX >= 0) {
+                    val dx = event.x - dragStartX
+                    val dy = event.y - dragStartY
+                    if (-dy >= dragThresholdPx && abs(dy) >= abs(dx) * 2) {
+                        dragFired = true
+                        if (consumeGesture(GestureType.Fling(GestureType.Fling.DIRECTION_UP))) {
+                            return true
+                        }
+                    }
+                }
+            }
+            MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                dragFired = true // let fling handle it from here
+            }
+        }
         return gestureDetector?.onTouchEvent(event) == true
     }
 
@@ -166,5 +197,8 @@ class PlayerGesturesController(
 
         private const val LEFT_EDGE_DOUBLE_TAP_THRESHOLD = 0.30f
         private const val RIGHT_EDGE_DOUBLE_TAP_THRESHOLD = 0.70f
+
+        /** Slow-drag distance (dp) that triggers an upward fling gesture. */
+        private const val SWIPE_UP_DRAG_DP = 96
     }
 }

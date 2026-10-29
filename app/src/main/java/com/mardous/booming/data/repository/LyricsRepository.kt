@@ -21,6 +21,8 @@ import com.mardous.booming.data.model.lyrics.ParsedLyrics
 import com.mardous.booming.data.model.lyrics.RawLyrics
 import com.mardous.booming.data.model.lyrics.SyncedLyrics
 import com.mardous.booming.data.model.network.NetworkFeature
+import com.mardous.booming.online.download.DownloadRegistry
+import com.mardous.booming.online.playback.isOnlineContentUri
 import com.mardous.booming.data.remote.lyrics.LyricsDownloadService
 import com.mardous.booming.data.remote.lyrics.LyricsProviderParams
 import com.mardous.booming.data.remote.lyrics.api.LyricsProvider
@@ -74,8 +76,31 @@ class RealLyricsRepository(
     private val context: Context,
     private val preferences: SharedPreferences,
     private val lyricsDownloadService: LyricsDownloadService,
-    private val lyricsDao: LyricsDao
+    private val lyricsDao: LyricsDao,
+    private val songRepository: SongRepository
 ) : LyricsRepository {
+
+    /**
+     * Canonical lyrics-row id for a song. Online (yt:/innertube) tracks and
+     * locally stored downloads of the same song must share one row, so
+     * online songs check whether they have a downloaded local copy first
+     * (via DownloadRegistry) and read/write lyrics under that MediaStore
+     * id instead of their own video-hash id.
+     */
+    private suspend fun lyricsIdFor(song: Song): Long {
+        if (song.id == Song.emptySong.id) return Song.emptySong.id
+        val videoId = onlineVideoId(song) ?: return song.id
+        val localUri = runCatching { DownloadRegistry.get(videoId) }.getOrNull() ?: return song.id
+        return runCatching {
+            val local = songRepository.songsByUri(android.net.Uri.parse(localUri))
+            local.firstOrNull()?.id ?: song.id
+        }.getOrDefault(song.id)
+    }
+
+    private fun onlineVideoId(song: Song): String? {
+        val uri = song.uri ?: return null
+        return if (isOnlineContentUri(uri)) uri.host else null
+    }
 
     private val memoryCache = LruCache<Long, Map<LyricsSource, RawLyrics>>(20)
 
@@ -261,11 +286,12 @@ class RealLyricsRepository(
     ): RawLyrics.Stored? {
         if (song.id == Song.emptySong.id) return null
         try {
-            val cached = getCachedLyrics<RawLyrics.Stored>(LyricsSource.Downloaded, song.id)
+            val lyricsId = lyricsIdFor(song)
+            val cached = getCachedLyrics<RawLyrics.Stored>(LyricsSource.Downloaded, lyricsId)
             if (cached != null) {
                 return cached
             }
-            val storedRow = lyricsDao.getLyrics(song.id)
+            val storedRow = lyricsDao.getLyrics(lyricsId)
             val stored = storedRow?.let {
                 RawLyrics.Stored(
                     lyrics = it.lyrics,
@@ -274,9 +300,9 @@ class RealLyricsRepository(
                 )
             }
             if (stored != null) {
-                return cacheLyrics(song.id, stored)
+                return cacheLyrics(lyricsId, stored)
             }
-            if (allowDownload && !isRecentlyMissed(song.id)) {
+            if (allowDownload && !isRecentlyMissed(lyricsId)) {
                 // The download attempt is failure-isolated: a network error
                 // must never discard the stored lyrics.
                 val sweep = try {
@@ -293,27 +319,27 @@ class RealLyricsRepository(
                 if (storableLyrics != null) {
                     if (storableLyrics.instrumental) {
                         lyricsDao.insertLyrics(
-                            LyricsEntity(song.id, instrumental = true)
+                            LyricsEntity(lyricsId, instrumental = true)
                         )
-                        return cacheLyrics(song.id, storableLyrics)
+                        return cacheLyrics(lyricsId, storableLyrics)
                     }
                     lyricsDao.insertLyrics(
                         LyricsEntity(
-                            id = song.id,
+                            id = lyricsId,
                             lyrics = storableLyrics.lyrics,
                             provider = storableLyrics.provider
                         )
                     )
-                    return cacheLyrics(song.id, storableLyrics)
+                    return cacheLyrics(lyricsId, storableLyrics)
                 } else if (sweep != null && sweep.sweptAll && NetworkFeature.isOnline()) {
                     // Only a sweep where every provider genuinely finished and
                     // reported nothing counts as a miss. Timeout-truncated or
                     // failed sweeps are retried on the next play instead of
                     // showing "no lyrics" for the next half hour.
-                    recordMiss(song.id)
+                    recordMiss(lyricsId)
                 }
             }
-            return stored?.let { cacheLyrics(song.id, it) } ?: cached
+            return stored?.let { cacheLyrics(lyricsId, it) } ?: cached
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
@@ -342,7 +368,7 @@ class RealLyricsRepository(
 
     override suspend fun applyProviderLyrics(song: Song, provider: LyricsProvider): ParsedLyrics {
         if (song.id == Song.emptySong.id) return ParsedLyrics.Empty
-
+        val lyricsId = lyricsIdFor(song)
         val params = LyricsProviderParams(
             providers = listOf(provider),
             ignoreWifiSetting = true,
@@ -359,10 +385,10 @@ class RealLyricsRepository(
         val stored = remote.prepareToStore() ?: return ParsedLyrics.Empty
         lyricsDao.insertLyrics(
             if (stored.instrumental) {
-                LyricsEntity(song.id, instrumental = true)
+                LyricsEntity(lyricsId, instrumental = true)
             } else {
                 LyricsEntity(
-                    id = song.id,
+                    id = lyricsId,
                     lyrics = stored.lyrics,
                     provider = stored.provider
                 )
@@ -370,12 +396,13 @@ class RealLyricsRepository(
         )
         // The user picked these lyrics on purpose; a previous miss must not
         // suppress anything anymore.
-        clearNegativeCache(song.id)
-        return parseRawLyrics(song, cacheLyrics(song.id, stored))
+        clearNegativeCache(lyricsId)
+        return parseRawLyrics(song, cacheLyrics(lyricsId, stored))
     }
 
     override suspend fun downloadWordSyncedUpgrade(song: Song): SyncedLyrics? {
-        if (song.id == Song.emptySong.id || isRecentlyMissed(song.id)) return null
+        val lyricsId = lyricsIdFor(song)
+        if (lyricsId == Song.emptySong.id || isRecentlyMissed(lyricsId)) return null
         val sweep = try {
             lyricsDownloadService.remoteLyricsDetailed(
                 song,
@@ -393,13 +420,13 @@ class RealLyricsRepository(
         val stored = RawLyrics.Remote(wordSynced = wordContent).prepareToStore() ?: return null
         lyricsDao.insertLyrics(
             LyricsEntity(
-                id = song.id,
+                id = lyricsId,
                 lyrics = stored.lyrics,
                 provider = stored.provider
             )
         )
-        removeCachedLyrics(LyricsSource.Downloaded, song.id)
-        cacheLyrics(song.id, stored)
+        removeCachedLyrics(LyricsSource.Downloaded, lyricsId)
+        cacheLyrics(lyricsId, stored)
         return upgraded
     }
 
@@ -444,10 +471,11 @@ class RealLyricsRepository(
                     }
 
                     is RawLyrics.Stored -> {
+                        val lyricsId = lyricsIdFor(song)
                         runCatching {
                             lyricsDao.insertLyrics(
                                 LyricsEntity(
-                                    id = song.id,
+                                    id = lyricsId,
                                     lyrics = it.newContent,
                                     provider = it.newContentProvider,
                                     instrumental = it.instrumental
@@ -456,8 +484,8 @@ class RealLyricsRepository(
                             true
                         }.getOrDefault(false).also { success ->
                             if (success) {
-                                removeCachedLyrics(LyricsSource.Downloaded, song.id)
-                                clearNegativeCache(song.id)
+                                removeCachedLyrics(LyricsSource.Downloaded, lyricsId)
+                                clearNegativeCache(lyricsId)
                             }
                         }
                     }

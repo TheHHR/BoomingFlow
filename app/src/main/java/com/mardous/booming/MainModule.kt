@@ -265,7 +265,8 @@ private val dataModule = module {
             context = androidContext(),
             preferences = get(),
             lyricsDownloadService = get(),
-            lyricsDao = get()
+            lyricsDao = get(),
+            songRepository = get()
         )
     } bind LyricsRepository::class
 

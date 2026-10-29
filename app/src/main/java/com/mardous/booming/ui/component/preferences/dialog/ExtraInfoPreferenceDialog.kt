@@ -25,9 +25,12 @@ import androidx.fragment.app.DialogFragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.mardous.booming.R
+import com.mardous.booming.core.PlayerAccentState
 import com.mardous.booming.core.model.player.MetadataField
+import com.mardous.booming.core.model.theme.AccentSchemes
 import com.mardous.booming.databinding.DialogRecyclerViewBinding
 import com.mardous.booming.extensions.create
+import com.mardous.booming.extensions.isNightMode
 import com.mardous.booming.ui.adapters.preference.ExtraInfoAdapter
 import com.mardous.booming.util.NOW_PLAYING_EXTRA_INFO
 import com.mardous.booming.util.Preferences
@@ -49,6 +52,13 @@ class ExtraInfoPreferenceDialog : DialogFragment() {
         }
 
         adapter = ExtraInfoAdapter(currentContent.toMutableList())
+        if (Preferences.followPlayerColor) {
+            val scheme = AccentSchemes.viewScheme(
+                PlayerAccentState.accentColor.value,
+                requireContext().isNightMode
+            )
+            adapter.accent = scheme.primary
+        }
 
         val binding = DialogRecyclerViewBinding.inflate(layoutInflater)
         binding.recyclerView.layoutManager = LinearLayoutManager(activity)

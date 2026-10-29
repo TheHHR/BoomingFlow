@@ -138,8 +138,15 @@ internal class TtmlNodeTree {
 
         if (!hasRoot) return false
 
+        // Spans in the accompaniment section (<head>) are resources for
+        // translations/transliterations, not karaoke words for the body.
+        // They must be ignored here so they never end up as lyric words.
         val lineNode = getOpenNode(TtmlNode.NODE_LINE)
-        if (lineNode != null && node.type == TtmlNode.NODE_WORD) {
+        if (lineNode == null) {
+            return getOpenNode(TtmlNode.NODE_BODY) != null
+        }
+
+        if (node.type == TtmlNode.NODE_WORD) {
             if (background) {
                 node.setBackground(true)
             }
