@@ -39,6 +39,7 @@ class ThemePreference @JvmOverloads constructor(
     var customCallback: Callback? = null
 
     private var widgetView: View? = null
+    private var buttonGroup: MaterialButtonToggleGroup? = null
     private val selectorIds = hashMapOf(
         GeneralTheme.LIGHT to R.id.lightTheme,
         GeneralTheme.DARK to R.id.darkTheme,
@@ -51,24 +52,35 @@ class ThemePreference @JvmOverloads constructor(
         holder.itemView.background = null
 
         widgetView = holder.findViewById(android.R.id.widget_frame)
-        widgetView?.findViewById<MaterialButtonToggleGroup>(R.id.buttonGroup)?.apply {
-            // MaterialButtonToggleGroup.check() dispatches to registered
-            // listeners on state change: detach ours before touching the
-            // checked button or a rebind would act like a user tap.
-            removeOnButtonCheckedListener(this@ThemePreference)
-            isEnabled = (Preferences.generalTheme != GeneralTheme.BLACK)
-            // While Pure Black is active the stored selection stays
-            // checked (it is what returns when Black is disabled); the
-            // BLACK value itself has no button and maps to the Auto icon.
-            check(selectorIds[Preferences.storedGeneralTheme] ?: R.id.systemDefault)
-            addOnButtonCheckedListener(this@ThemePreference)
-        }
+        buttonGroup = widgetView?.findViewById(R.id.buttonGroup)
+        syncRow()
+    }
+
+    /**
+     * Writes the stored theme onto the row (checked button and enabled
+     * state). Called from onBindViewHolder and immediately after any
+     * theme preference change, so the row never shows a stale state.
+     */
+    fun syncRow() {
+        val group = buttonGroup ?: return
+        // MaterialButtonToggleGroup.check() dispatches to registered
+        // listeners on state change: detach ours while syncing so a
+        // programmatic check isn't treated as a user tap (which would
+        // rewrite the stored theme and restart the app).
+        group.removeOnButtonCheckedListener(this@ThemePreference)
+        group.isEnabled = (Preferences.generalTheme != GeneralTheme.BLACK)
+        // While Pure Black is active the stored selection stays
+        // checked (it is what returns when Black is disabled); the
+        // BLACK value itself has no button and maps to the Auto icon.
+        group.check(selectorIds[Preferences.storedGeneralTheme] ?: R.id.systemDefault)
+        group.addOnButtonCheckedListener(this@ThemePreference)
     }
 
     override fun onPrepareForRemoval() {
         super.onPrepareForRemoval()
         customCallback = null
         widgetView = null
+        buttonGroup = null
     }
 
     override fun onButtonChecked(group: MaterialButtonToggleGroup, checkedId: Int, isChecked: Boolean) {

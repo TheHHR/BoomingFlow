@@ -93,6 +93,7 @@ import com.mardous.booming.util.COVER_SINGLE_TAP_ACTION
 import com.mardous.booming.util.ENABLE_ROTATION_LOCK
 import com.mardous.booming.util.GENERAL_THEME
 import com.mardous.booming.util.BLACK_THEME
+import com.mardous.booming.util.BLACK_THEME
 import com.mardous.booming.util.IGNORE_MEDIA_STORE
 import com.mardous.booming.util.LANGUAGE_NAME
 import com.mardous.booming.util.LASTFM_LOGIN
@@ -545,11 +546,7 @@ open class PreferenceScreenFragment : PreferenceFragmentCompat(),
     override fun onSharedPreferenceChanged(preferences: SharedPreferences, key: String?) {
         when (key) {
             GENERAL_THEME,
-            BLACK_THEME -> findPreference<ThemePreference>(GENERAL_THEME)?.apply {
-                // Rebind the 3-button row immediately (stored selection,
-                // enabled state) - recreations are handled by applyDayNightMode.
-                notifyChanged()
-            }
+            BLACK_THEME -> findPreference<ThemePreference>(GENERAL_THEME)?.syncRow()
             NOW_PLAYING_SCREEN -> onUpdateNowPlayingScreen()
             COVER_DOUBLE_TAP_ACTION,
             COVER_LEFT_DOUBLE_TAP_ACTION,
