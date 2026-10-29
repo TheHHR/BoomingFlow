@@ -29,7 +29,8 @@ class UpdateViewModel(private val updateService: GitHubService): ViewModel() {
 
     val latestRelease get() = updateEvent?.peekContent()?.data
 
-    fun searchForUpdate(fromUser: Boolean, allowExperimental: Boolean = Preferences.experimentalUpdates) =
+    // Stable releases only; the experimental-updates toggle was removed.
+    fun searchForUpdate(fromUser: Boolean, allowExperimental: Boolean = false) =
         viewModelScope.launch(Dispatchers.IO) {
             val current = updateEvent?.peekContent() ?: UpdateSearchResult(executedAtMillis = Preferences.lastUpdateSearch)
             if (current.shouldStartNewSearchFor(fromUser, allowExperimental)) {

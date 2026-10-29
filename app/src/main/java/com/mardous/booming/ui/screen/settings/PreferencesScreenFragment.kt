@@ -92,6 +92,7 @@ import com.mardous.booming.util.COVER_RIGHT_DOUBLE_TAP_ACTION
 import com.mardous.booming.util.COVER_SINGLE_TAP_ACTION
 import com.mardous.booming.util.ENABLE_ROTATION_LOCK
 import com.mardous.booming.util.GENERAL_THEME
+import com.mardous.booming.util.BLACK_THEME
 import com.mardous.booming.util.IGNORE_MEDIA_STORE
 import com.mardous.booming.util.LANGUAGE_NAME
 import com.mardous.booming.util.LASTFM_LOGIN
@@ -313,10 +314,15 @@ open class PreferenceScreenFragment : PreferenceFragmentCompat(),
             customCallback = object : ThemePreference.Callback {
                 override fun onThemeSelected(themeName: String) {
                     Preferences.generalTheme = themeName
-                    setDefaultNightMode(Preferences.getDayNightMode(themeName))
-                    restartActivity()
+                    applyDayNightMode(Preferences.getDayNightMode(themeName))
                 }
             }
+        }
+
+        findPreference<Preference>(BLACK_THEME)?.setOnPreferenceChangeListener { _, newValue ->
+            val themeName = Preferences.getGeneralTheme(newValue as Boolean)
+            applyDayNightMode(Preferences.getDayNightMode(themeName))
+            true
         }
 
         findPreference<Preference>(FOLLOW_PLAYER_COLOR)?.setOnPreferenceChangeListener { _, _ ->
@@ -538,6 +544,12 @@ open class PreferenceScreenFragment : PreferenceFragmentCompat(),
 
     override fun onSharedPreferenceChanged(preferences: SharedPreferences, key: String?) {
         when (key) {
+            GENERAL_THEME,
+            BLACK_THEME -> findPreference<ThemePreference>(GENERAL_THEME)?.apply {
+                // Rebind the 3-button row immediately (stored selection,
+                // enabled state) - recreations are handled by applyDayNightMode.
+                notifyChanged()
+            }
             NOW_PLAYING_SCREEN -> onUpdateNowPlayingScreen()
             COVER_DOUBLE_TAP_ACTION,
             COVER_LEFT_DOUBLE_TAP_ACTION,
@@ -611,6 +623,19 @@ open class PreferenceScreenFragment : PreferenceFragmentCompat(),
 
     private fun restartActivity() {
         activity?.recreate()
+    }
+
+    /**
+     * Applies a day/night mode immediately: setDefaultNightMode recreates
+     * the activity itself whenever the night mode actually changed, so a
+     * manual recreate is only needed when it didn't.
+     */
+    private fun applyDayNightMode(mode: Int) {
+        if (AppCompatDelegate.getDefaultNightMode() == mode) {
+            restartActivity()
+        } else {
+            setDefaultNightMode(mode)
+        }
     }
 
     override fun onDestroyView() {

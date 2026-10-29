@@ -223,7 +223,12 @@ class CoverProvider : ContentProvider(), KoinComponent {
             themed,
             DynamicColorsOptions.Builder().build()
         )
-        return appTheme.dynamicColorOverlay?.let { ContextThemeWrapper(dynamic, it) } ?: dynamic
+        val isNight =
+            (configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) ==
+                    Configuration.UI_MODE_NIGHT_YES
+        return if (appTheme.dynamicColorOverlay != null && isNight) {
+            ContextThemeWrapper(dynamic, appTheme.dynamicColorOverlay)
+        } else dynamic
     }
 
     private suspend fun servePlaceholder(

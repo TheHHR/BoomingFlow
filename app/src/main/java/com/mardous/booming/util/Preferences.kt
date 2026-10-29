@@ -85,6 +85,10 @@ object Preferences : KoinComponent {
         get() = getGeneralTheme(blackTheme)
         set(value) = preferences.edit { putString(GENERAL_THEME, value) }
 
+    /** The stored theme selection, ignoring the Pure Black override. */
+    val storedGeneralTheme: String
+        get() = preferences.requireString(GENERAL_THEME, GeneralTheme.AUTO)
+
     fun getThemeMode(themeName: String) = when (themeName) {
         GeneralTheme.LIGHT -> AppTheme.Mode.Light
         GeneralTheme.DARK -> AppTheme.Mode.Dark
@@ -179,10 +183,22 @@ object Preferences : KoinComponent {
         }
         set(categories) = preferences.edit { putString(LIBRARY_CATEGORIES, categories.serialize()) }
 
-    fun getDefaultLibraryCategoryInfos() =
-        CategoryInfo.Category.entries.mapIndexed { index, category ->
-            CategoryInfo(category, index < CategoryInfo.MAX_VISIBLE_CATEGORIES)
-        }
+    /**
+     * Tabs shown on a fresh install, in bottom-bar order: Home, Songs,
+     * Playlists, Folders, Discover. Everything else stays available but
+     * hidden in the Library categories settings.
+     */
+    fun getDefaultLibraryCategoryInfos() = listOf(
+        CategoryInfo(CategoryInfo.Category.Home, true),
+        CategoryInfo(CategoryInfo.Category.Songs, true),
+        CategoryInfo(CategoryInfo.Category.Playlists, true),
+        CategoryInfo(CategoryInfo.Category.Folders, true),
+        CategoryInfo(CategoryInfo.Category.Discover, true),
+        CategoryInfo(CategoryInfo.Category.Albums, false),
+        CategoryInfo(CategoryInfo.Category.Artists, false),
+        CategoryInfo(CategoryInfo.Category.Genres, false),
+        CategoryInfo(CategoryInfo.Category.Years, false)
+    )
 
     val isRememberLastPage: Boolean
         get() = preferences.getBoolean(REMEMBER_LAST_PAGE, true)
@@ -475,9 +491,6 @@ object Preferences : KoinComponent {
     val rotationLockEnabled: Boolean
         get() = preferences.getBoolean(ENABLE_ROTATION_LOCK, false)
 
-    val experimentalUpdates: Boolean
-        get() = preferences.getBoolean(EXPERIMENTAL_UPDATES, false)
-
     var lastUpdateSearch: Long
         get() = preferences.getLong(LAST_UPDATE_SEARCH, -1)
         set(value) = preferences.edit { putLong(LAST_UPDATE_SEARCH, value) }
@@ -662,7 +675,6 @@ const val LANGUAGE_NAME = "language_name"
 const val AUTO_LANGUAGE = "auto"
 const val LAST_UPDATE_SEARCH = "last_update_search"
 const val LAST_UPDATE_ID = "last_update_id"
-const val EXPERIMENTAL_UPDATES = "experimental_updates"
 const val START_DIRECTORY = "start_directory"
 const val INITIALIZED_BLACKLIST = "initialized_blacklist"
 const val HIERARCHY_FOLDER_VIEW = "hierarchy_folder_view"

@@ -60,7 +60,9 @@ import com.mardous.booming.data.local.ReplayGainTagExtractor
 import com.mardous.booming.ui.screen.error.ErrorActivity
 import com.mardous.booming.ui.screen.settings.SettingsScreen
 import com.mardous.booming.util.AUTO_LANGUAGE
-import com.mardous.booming.util.EXPERIMENTAL_UPDATES
+import com.mardous.booming.util.BLACK_THEME
+import com.mardous.booming.util.GENERAL_THEME
+import com.mardous.booming.util.GeneralTheme
 import com.mardous.booming.util.LANGUAGE_NAME
 import com.mardous.booming.util.Preferences.getDayNightMode
 import org.koin.android.ext.android.get
@@ -105,10 +107,9 @@ class App : Application(), SingletonImageLoader.Factory {
             for (screen in SettingsScreen.entries) {
                 PreferenceManager.setDefaultValues(this, screen.layoutRes, true)
             }
-            if (isExperimentalBuild()) {
-                prefs.edit { putBoolean(EXPERIMENTAL_UPDATES, true) }
-            }
         }
+
+        migrateLegacyBlackTheme(prefs)
 
         migrateLanguageTag(prefs)
 
@@ -119,6 +120,18 @@ class App : Application(), SingletonImageLoader.Factory {
             .apply()
 
         AppCompatDelegate.setDefaultNightMode(getDayNightMode())
+    }
+
+    private fun migrateLegacyBlackTheme(prefs: SharedPreferences) {
+        // The theme picker can never store "black" anymore; a value left
+        // over from an old install or backup would otherwise permanently
+        // trap the picker (BLACK has no button and loses to night mode).
+        if (prefs.getString(GENERAL_THEME, null) == GeneralTheme.BLACK) {
+            prefs.edit {
+                putString(GENERAL_THEME, GeneralTheme.DARK)
+                putBoolean(BLACK_THEME, true)
+            }
+        }
     }
 
     private fun migrateLanguageTag(prefs: SharedPreferences) {
@@ -238,9 +251,6 @@ class App : Application(), SingletonImageLoader.Factory {
         fun isFDroidBuild() = BuildConfig.FLAVOR.equals("fdroid", ignoreCase = true)
 
         fun isPlayStoreBuild() = BuildConfig.FLAVOR.equals("playstore", ignoreCase = true)
-
-        fun isExperimentalBuild(): Boolean =
-            BuildConfig.VERSION_NAME.contains("(alpha|beta|rc)".toRegex(RegexOption.IGNORE_CASE))
 
         fun restart(activity: Activity) {
             val intent = Intent(activity, MainActivity::class.java)

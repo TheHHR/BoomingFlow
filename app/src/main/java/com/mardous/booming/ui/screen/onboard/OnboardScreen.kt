@@ -597,7 +597,14 @@ private fun ConfigurationStepContent(
                 title = stringResource(R.string.general_theme_title),
                 supportingContent = {
                     ButtonGroup(
-                        onSelected = { preferences.edit { putString(GENERAL_THEME, it) } },
+                        onSelected = {
+                            preferences.edit { putString(GENERAL_THEME, it) }
+                            // The default night mode is set once per process
+                            // at startup; apply the picked mode immediately
+                            // so the rest of onboarding renders the right
+                            // day/night palette without a restart.
+                            AppCompatDelegate.setDefaultNightMode(Preferences.getDayNightMode(it))
+                        },
                         buttonItems = listOf(
                             GeneralTheme.AUTO,
                             GeneralTheme.LIGHT,

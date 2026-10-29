@@ -50,11 +50,17 @@ class ThemePreference @JvmOverloads constructor(
         // Disable ripple effect
         holder.itemView.background = null
 
-        val generalTheme = Preferences.generalTheme
         widgetView = holder.findViewById(android.R.id.widget_frame)
         widgetView?.findViewById<MaterialButtonToggleGroup>(R.id.buttonGroup)?.apply {
-            isEnabled = (generalTheme != GeneralTheme.BLACK)
-            check(generalTheme.let { selectorIds[it] ?: R.id.systemDefault })
+            // MaterialButtonToggleGroup.check() dispatches to registered
+            // listeners on state change: detach ours before touching the
+            // checked button or a rebind would act like a user tap.
+            removeOnButtonCheckedListener(this@ThemePreference)
+            isEnabled = (Preferences.generalTheme != GeneralTheme.BLACK)
+            // While Pure Black is active the stored selection stays
+            // checked (it is what returns when Black is disabled); the
+            // BLACK value itself has no button and maps to the Auto icon.
+            check(selectorIds[Preferences.storedGeneralTheme] ?: R.id.systemDefault)
             addOnButtonCheckedListener(this@ThemePreference)
         }
     }

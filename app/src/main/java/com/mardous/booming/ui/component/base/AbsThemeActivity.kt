@@ -19,6 +19,7 @@ package com.mardous.booming.ui.component.base
 
 import android.annotation.SuppressLint
 import android.content.pm.ActivityInfo
+import android.content.res.Configuration
 import android.graphics.Color.TRANSPARENT
 import android.os.Bundle
 import androidx.activity.SystemBarStyle
@@ -65,7 +66,10 @@ abstract class AbsThemeActivity : AppCompatActivity() {
         if (appTheme.applyDynamicColors) {
             val dynamicColorsOptions = DynamicColorsOptions.Builder()
                 .setOnAppliedCallback {
-                    appTheme.dynamicColorOverlay?.let { setTheme(it) }
+                    // The overlay only resolves under night/v31 resources;
+                    // without an active night mode it would silently no-op
+                    // and leave gray dynamic-color surfaces.
+                    appTheme.dynamicColorOverlay?.takeIf { isNightModeActive() }?.let { setTheme(it) }
                 }
             DynamicColors.applyToActivityIfAvailable(this, dynamicColorsOptions.build())
         }
@@ -73,6 +77,10 @@ abstract class AbsThemeActivity : AppCompatActivity() {
             setTheme(R.style.CustomFontThemeOverlay)
         }
     }
+
+    private fun isNightModeActive(): Boolean =
+        (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) ==
+                Configuration.UI_MODE_NIGHT_YES
 
     fun setLightStatusBar(lightStatusBar: Boolean = surfaceColor().isColorLight) {
         windowInsetsController?.isAppearanceLightStatusBars = lightStatusBar

@@ -187,12 +187,14 @@ data class SpotifyLibraryFolder(
 
 /** Personalized content returned by Spotify's web-player Home query. */
 @Stable
+@Serializable
 data class SpotifyHomeFeed(
     val greeting: String? = null,
     val sections: List<SpotifyHomeSection> = emptyList(),
 )
 
 @Stable
+@Serializable
 data class SpotifyHomeSection(
     val uri: String = "",
     val title: String? = null,
@@ -201,11 +203,13 @@ data class SpotifyHomeSection(
 )
 
 @Stable
+@Serializable
 sealed class SpotifyHomeItem {
     abstract val uri: String
     abstract val id: String
 
     @Stable
+    @Serializable
     data class Playlist(
         override val uri: String,
         override val id: String,
@@ -216,6 +220,7 @@ sealed class SpotifyHomeItem {
     ) : SpotifyHomeItem()
 
     @Stable
+    @Serializable
     data class Album(
         override val uri: String,
         override val id: String,
@@ -225,6 +230,7 @@ sealed class SpotifyHomeItem {
     ) : SpotifyHomeItem()
 
     @Stable
+    @Serializable
     data class Artist(
         override val uri: String,
         override val id: String,

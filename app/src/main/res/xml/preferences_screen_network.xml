@@ -266,15 +266,6 @@
             app:isPreferenceVisible="@bool/enable_builtin_updater"
             app:key="update_search_mode"/>
 
-        <SwitchPreferenceCompat
-            app:title="@string/receive_experimental_updates_title"
-            app:summary="@string/receive_experimental_updates_summary"
-            app:defaultValue="false"
-            app:layout="@layout/list_item_view"
-            app:widgetLayout="@layout/preference_switch"
-            app:isPreferenceVisible="@bool/enable_builtin_updater"
-            app:key="experimental_updates"/>
-
         <com.mardous.booming.ui.component.preferences.ProgressIndicatorPreference
             app:title="@string/search_for_update_title"
             app:persistent="false"

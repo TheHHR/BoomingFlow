@@ -28,14 +28,13 @@ import com.mardous.booming.ui.screen.settings.streaming.StreamingLoginMode
 import com.mardous.booming.ui.screen.settings.streaming.StreamingService
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
-import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class DiscoverFragment : AbsMainActivityFragment(R.layout.fragment_discover), IScrollHelper {
 
     private var _binding: FragmentDiscoverBinding? = null
     private val binding get() = _binding!!
 
-    private val discoverViewModel: DiscoverViewModel by viewModel()
+    private val discoverViewModel: DiscoverViewModel by activityViewModel()
     private val authViewModel: StreamingAuthViewModel by activityViewModel()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -57,7 +56,7 @@ class DiscoverFragment : AbsMainActivityFragment(R.layout.fragment_discover), IS
             StreamingLoginDialogFragment.create(StreamingService.Spotify, StreamingLoginMode.WebView)
                 .show(childFragmentManager, "spotify_connect")
         }
-        binding.retryButton.setOnClickListener { discoverViewModel.load() }
+        binding.retryButton.setOnClickListener { discoverViewModel.load(force = true) }
         collectPlayerAccent { accent ->
             binding.retryButton.applyPlayerAccent(accent)
             binding.progress.applyPlayerAccent(accent)
@@ -67,15 +66,15 @@ class DiscoverFragment : AbsMainActivityFragment(R.layout.fragment_discover), IS
             launch {
                 discoverViewModel.uiState.collect { state -> render(state) }
             }
-            launch {
-                var previousState: SpotifyAuthState? = null
-                authViewModel.authState.collect { state ->
-                    when (state) {
-                        SpotifyAuthState.CONNECTED -> {
-                            if (previousState != SpotifyAuthState.CONNECTED) {
-                                discoverViewModel.load()
+                launch {
+                    var previousState: SpotifyAuthState? = null
+                    authViewModel.authState.collect { state ->
+                        when (state) {
+                            SpotifyAuthState.CONNECTED -> {
+                                if (previousState != SpotifyAuthState.CONNECTED) {
+                                    discoverViewModel.load(force = true)
+                                }
                             }
-                        }
                         SpotifyAuthState.NOT_CONNECTED -> discoverViewModel.onNotConnected()
                         else -> Unit
                     }
@@ -141,7 +140,7 @@ class DiscoverFragment : AbsMainActivityFragment(R.layout.fragment_discover), IS
 
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
         if (menuItem.itemId == R.id.action_refresh) {
-            discoverViewModel.load()
+            discoverViewModel.load(force = true)
             return true
         }
         return false
