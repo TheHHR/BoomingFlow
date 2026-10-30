@@ -118,6 +118,9 @@ class PlaylistDetailFragment : AbsMainActivityFragment(R.layout.fragment_playlis
             }
             binding.header.shuffleAction.applyPlayerAccent(accent, tonal = true)
             binding.header.searchAction?.applyPlayerAccent(accent)
+            // Checked (selected) rows tint at bind time; rebind so they
+            // don't keep the previous accent.
+            playlistSongAdapter?.refreshCheckedRows()
         }
 
         materialSharedAxis(view)

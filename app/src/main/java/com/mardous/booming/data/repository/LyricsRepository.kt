@@ -264,7 +264,10 @@ class RealLyricsRepository(
     }
 
     override suspend fun embeddedLyrics(song: Song): RawLyrics.Embedded? {
-        if (song.id != Song.emptySong.id) {
+        // Streaming songs have no readable tags: their uri is an
+        // innertube:// pseudo-uri, not a MediaStore entry. The Stored
+        // row (shared with any downloaded copy) is their only lyrics.
+        if (song.id != Song.emptySong.id && !isOnlineContentUri(song.uri)) {
             getCachedLyrics<RawLyrics.Embedded>(LyricsSource.Embedded, song.id)?.let { return it }
             try {
                 val metadataReader = MetadataReader(song.uri)
@@ -436,8 +439,13 @@ class RealLyricsRepository(
         newContentBySource: Map<LyricsSource, String>
     ): Boolean? {
         try {
+            // Streaming songs have no embedded tags to rewrite (their
+            // uri is innertube://, not a MediaStore entry): drop the
+            // Embedded branch up front so only Stored still applies.
+            val isStream = isOnlineContentUri(song.uri)
             val editedLyrics = newContentBySource.mapNotNull { (source, content) ->
                 if (source == LyricsSource.File) return@mapNotNull null
+                if (isStream && source == LyricsSource.Embedded) return@mapNotNull null
 
                 val originalLyrics = originalLyricsBySource[source] ?: when (source) {
                     LyricsSource.Embedded -> RawLyrics.Embedded(null)
@@ -500,6 +508,11 @@ class RealLyricsRepository(
     }
 
     override suspend fun writableUris(song: Song): List<Uri> {
+        // Streaming songs live behind innertube:// pseudo-uris: there is
+        // no MediaStore entry to request a write for.
+        if (isOnlineContentUri(song.uri)) {
+            return emptyList()
+        }
         if (hasR()) {
             return listOf(song.uri).filterNot { it == Uri.EMPTY }
         }

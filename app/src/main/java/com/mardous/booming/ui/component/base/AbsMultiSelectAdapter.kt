@@ -99,6 +99,17 @@ abstract class AbsMultiSelectAdapter<VH : RecyclerView.ViewHolder, I>(
         return true
     }
 
+    /** Rebinds all checked rows so their selection fill follows a new accent. */
+    fun refreshCheckedRows() {
+        if (checked.isEmpty()) return
+        for (i in 0 until itemCount) {
+            val identifier = getIdentifier(i)
+            if (identifier != null && checked.contains(identifier)) {
+                notifyItemChanged(i)
+            }
+        }
+    }
+
     private fun clearChecked() {
         checked.clear()
         notifyDataSetChanged()

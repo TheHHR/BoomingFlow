@@ -93,7 +93,6 @@ import com.mardous.booming.util.COVER_SINGLE_TAP_ACTION
 import com.mardous.booming.util.ENABLE_ROTATION_LOCK
 import com.mardous.booming.util.GENERAL_THEME
 import com.mardous.booming.util.BLACK_THEME
-import com.mardous.booming.util.BLACK_THEME
 import com.mardous.booming.util.IGNORE_MEDIA_STORE
 import com.mardous.booming.util.LANGUAGE_NAME
 import com.mardous.booming.util.LASTFM_LOGIN
@@ -106,6 +105,7 @@ import com.mardous.booming.util.NOW_PLAYING_EXTRA_INFO
 import com.mardous.booming.util.NOW_PLAYING_SCREEN
 import com.mardous.booming.util.ON_CLEAR_QUEUE_ACTION
 import com.mardous.booming.util.ON_SONG_CLICK_ACTION
+import com.mardous.booming.util.GeneralTheme
 import com.mardous.booming.util.Preferences
 import com.mardous.booming.util.SPOTIFY_LOGIN
 import com.mardous.booming.util.SPOTIFY_TOKEN_LOGIN
@@ -300,6 +300,8 @@ open class PreferenceScreenFragment : PreferenceFragmentCompat(),
     }
 
     fun preparePreferences() {
+        updateBlackThemeAvailability()
+
         findPreference<Preference>("about")?.summary =
             getString(R.string.about_summary, BuildConfig.VERSION_NAME)
 
@@ -314,6 +316,12 @@ open class PreferenceScreenFragment : PreferenceFragmentCompat(),
         findPreference<ThemePreference>(GENERAL_THEME)?.apply {
             customCallback = object : ThemePreference.Callback {
                 override fun onThemeSelected(themeName: String) {
+                    // Pure Black only exists under Dark: leaving Dark
+                    // clears the stale flag so it can't linger into
+                    // Light/Auto through getGeneralTheme().
+                    if (themeName != GeneralTheme.DARK && Preferences.blackTheme) {
+                        Preferences.blackTheme = false
+                    }
                     Preferences.generalTheme = themeName
                     applyDayNightMode(Preferences.getDayNightMode(themeName))
                 }
@@ -546,7 +554,10 @@ open class PreferenceScreenFragment : PreferenceFragmentCompat(),
     override fun onSharedPreferenceChanged(preferences: SharedPreferences, key: String?) {
         when (key) {
             GENERAL_THEME,
-            BLACK_THEME -> findPreference<ThemePreference>(GENERAL_THEME)?.syncRow()
+            BLACK_THEME -> {
+                findPreference<ThemePreference>(GENERAL_THEME)?.syncRow()
+                updateBlackThemeAvailability()
+            }
             NOW_PLAYING_SCREEN -> onUpdateNowPlayingScreen()
             COVER_DOUBLE_TAP_ACTION,
             COVER_LEFT_DOUBLE_TAP_ACTION,
@@ -556,6 +567,13 @@ open class PreferenceScreenFragment : PreferenceFragmentCompat(),
             ON_CLEAR_QUEUE_ACTION -> onUpdateQueuePreferences()
             LyricsViewSettings.Key.BACKGROUND_EFFECT -> onUpdateLyricsPreferences()
         }
+    }
+
+    private fun updateBlackThemeAvailability() {
+        // Pure Black is only meaningful under Dark: unclickable in
+        // Auto/Light so toggling it there can't corrupt the stored theme.
+        findPreference<Preference>(BLACK_THEME)?.isEnabled =
+            Preferences.storedGeneralTheme == GeneralTheme.DARK
     }
 
     private fun onUpdateNowPlayingScreen() {

@@ -105,6 +105,9 @@ abstract class AbsRecyclerViewFragment<A : RecyclerView.Adapter<*>, LM : Recycle
             }
             collectPlayerAccent { accent ->
                 binding.shuffleButton.applyPlayerAccent(accent)
+                // Checked (selected) rows tint at bind time; rebind so
+                // they don't keep the previous accent.
+                (adapter as? AbsMultiSelectAdapter<*, *>)?.refreshCheckedRows()
             }
         } else {
             binding.shuffleButton.isVisible = false

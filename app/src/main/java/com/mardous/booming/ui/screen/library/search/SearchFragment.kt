@@ -209,8 +209,8 @@ class SearchFragment : AbsMainActivityFragment(R.layout.fragment_search),
                 )
             }
             binding.keyboardPopup.applyPlayerAccent(accent)
-            // Badges are tinted at bind time from the accent state; rebind
-            // so they don't keep the previous accent.
+            // Badges and checked (selected) rows tint at bind time;
+            // rebind so they don't keep the previous accent.
             searchAdapter.notifyDataSetChanged()
         }
         viewLifecycleOwner.launchAndRepeatWithViewLifecycle {

@@ -25,11 +25,8 @@ import android.view.View
 import androidx.annotation.LayoutRes
 import androidx.recyclerview.widget.RecyclerView
 import com.mardous.booming.R
-import com.mardous.booming.core.PlayerAccentState
 import com.mardous.booming.core.model.GridViewType
 import com.mardous.booming.extensions.isLandscape
-import com.mardous.booming.extensions.resources.tintMenuCheckedItems
-import com.mardous.booming.util.Preferences
 
 abstract class AbsRecyclerViewCustomGridSizeFragment<Adt : RecyclerView.Adapter<*>, LM : RecyclerView.LayoutManager> :
     AbsRecyclerViewFragment<Adt, LM>() {
@@ -110,16 +107,6 @@ abstract class AbsRecyclerViewCustomGridSizeFragment<Adt : RecyclerView.Adapter<
                 this.setTitle(R.string.action_grid_size_land)
             }
             this.subMenu?.let { setUpGridSizeMenu(it) }
-        }
-    }
-
-    override fun onPrepareMenu(menu: Menu) {
-        super.onPrepareMenu(menu)
-        // The checked entries (grid size, view type, sort order) follow the
-        // player accent instead of the Material You check color. Runs on
-        // every menu display so a new selection re-tints immediately.
-        if (Preferences.followPlayerColor) {
-            requireContext().tintMenuCheckedItems(menu, PlayerAccentState.accentColor.value)
         }
     }
 

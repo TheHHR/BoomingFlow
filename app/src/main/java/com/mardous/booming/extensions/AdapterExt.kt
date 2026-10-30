@@ -17,6 +17,7 @@
 
 package com.mardous.booming.extensions
 
+import android.view.View
 import androidx.cardview.widget.CardView
 import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.lifecycle.lifecycleScope
@@ -26,13 +27,17 @@ import coil3.request.ImageRequest
 import coil3.toBitmap
 import com.google.android.material.card.MaterialCardView
 import com.mardous.booming.coil.placeholderDrawableRes
+import com.mardous.booming.core.PlayerAccentState
 import com.mardous.booming.core.model.PaletteColor
 import com.mardous.booming.core.palette.PaletteProcessor
+import com.mardous.booming.extensions.resources.RowSelectionStyle
+import com.mardous.booming.extensions.resources.applyRowSelectionPlayerAccent
 import com.mardous.booming.extensions.resources.getPrimaryTextColor
 import com.mardous.booming.extensions.resources.isColorLight
 import com.mardous.booming.extensions.resources.toColorStateList
 import com.mardous.booming.extensions.resources.withAlpha
 import com.mardous.booming.ui.component.base.MediaEntryViewHolder
+import com.mardous.booming.util.Preferences
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -91,10 +96,25 @@ var MediaEntryViewHolder.isActivated: Boolean
                 isCheckable = true
                 isChecked = activated
             }
+            applyRowSelection(itemView, activated, RowSelectionStyle.Strong)
         } else {
             itemView.isActivated = activated
+            applyRowSelection(itemView, activated, RowSelectionStyle.Plain)
         }
     }
+
+private fun applyRowSelection(itemView: View, activated: Boolean, style: RowSelectionStyle) {
+    if (!activated) {
+        itemView.applyRowSelectionPlayerAccent(0, false, style)
+        return
+    }
+    val accent = if (Preferences.followPlayerColor) {
+        PlayerAccentState.accentColor.value
+    } else {
+        0
+    }
+    itemView.applyRowSelectionPlayerAccent(accent, true, style)
+}
 
 val RecyclerView.Adapter<*>?.isNullOrEmpty: Boolean
     get() = this == null || isEmpty

@@ -11,8 +11,11 @@ import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.textview.MaterialTextView
 import com.mardous.booming.R
 import com.mardous.booming.core.model.theme.AccentSchemes
+import com.mardous.booming.core.PlayerAccentState
 import com.mardous.booming.extensions.isNightMode
+import com.mardous.booming.extensions.resources.RowSelectionStyle
 import com.mardous.booming.extensions.resources.applyBadgePlayerAccent
+import com.mardous.booming.extensions.resources.applyRowSelectionPlayerAccent
 import com.mardous.booming.coil.DEFAULT_PLAYLIST_IMAGE
 import com.mardous.booming.coil.DEFAULT_SONG_IMAGE
 import com.mardous.booming.coil.placeholderDrawableRes
@@ -23,6 +26,7 @@ import com.mardous.booming.online.data.spotify.SpotifyTrack
 import com.mardous.booming.online.data.spotify.thumbnailUrl
 import com.mardous.booming.online.download.DownloadRegistry
 import com.mardous.booming.ui.component.base.AbsMultiSelectAdapter
+import com.mardous.booming.util.Preferences
 import coil3.load
 import kotlin.properties.Delegates
 
@@ -125,6 +129,12 @@ class SpotifyTrackAdapter(
         val identifier = getIdentifier(position)
         val isChecked = identifier?.let { isChecked(it) } == true
         holder.itemView.isActivated = isChecked
+        val accent = if (Preferences.followPlayerColor) {
+            PlayerAccentState.accentColor.value
+        } else {
+            0
+        }
+        holder.itemView.applyRowSelectionPlayerAccent(accent, isChecked, RowSelectionStyle.Plain)
         holder.index.text = (position + 1).toString()
         holder.title.text = track.name
 

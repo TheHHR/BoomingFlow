@@ -107,8 +107,9 @@ object Preferences : KoinComponent {
         }
     }
 
-    val blackTheme: Boolean
+    var blackTheme: Boolean
         get() = preferences.getBoolean(BLACK_THEME, false)
+        set(value) = preferences.edit { putBoolean(BLACK_THEME, value) }
 
     val followPlayerColor: Boolean
         get() = preferences.getBoolean(FOLLOW_PLAYER_COLOR, false)

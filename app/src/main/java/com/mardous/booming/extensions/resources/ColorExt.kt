@@ -23,6 +23,9 @@ import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffColorFilter
+import android.graphics.drawable.Drawable
+import android.graphics.drawable.GradientDrawable
+import android.graphics.drawable.RippleDrawable
 import android.text.style.ForegroundColorSpan
 import android.widget.ImageButton
 import android.widget.SeekBar
@@ -36,12 +39,12 @@ import android.view.ViewGroup
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.ColorUtils
-import androidx.core.graphics.drawable.DrawableCompat
 import androidx.core.widget.TextViewCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.card.MaterialCardView
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import android.widget.ImageView
@@ -235,6 +238,8 @@ fun MorphicIconButton.applyColor(color: Int) {
 private class AccentOriginals(
     val backgroundTint: ColorStateList? = null,
     val textColors: ColorStateList? = null,
+    val background: Drawable? = null,
+    val cardBackground: ColorStateList? = null,
     val iconTint: ColorStateList? = null,
     val strokeColor: ColorStateList? = null,
     val switchTrack: ColorStateList? = null,
@@ -519,43 +524,6 @@ fun android.widget.SeekBar.applyPreferenceSeekBarAccent(@ColorInt accent: Int) {
 }
 
 /**
- * Applies the player accent to the checked items of a native overflow /
- * popup menu: the checked row gets an accent check icon from
- * R.drawable.ic_check_24dp. Unchecked rows are untouched.
- *
- * Menus that hide optional icons need setOptionalIconsVisible first; the
- * helper does that automatically when it finds at least one checkable
- * entry. All checkable items are processed this way so a previously
- * checked row never keeps a stale icon. Menus are rebuilt by the
- * framework, so this must run wherever the menu is (re)populated; pass
- * accent == 0 to restore the native look.
- */
-@SuppressLint("RestrictedApi")
-fun Context.tintMenuCheckedItems(menu: android.view.Menu, @ColorInt accent: Int) {
-    var needsOptionalIcons = false
-    for (i in 0 until menu.size()) {
-        val item = menu.getItem(i)
-        if (item.hasSubMenu()) {
-            item.subMenu?.let { tintMenuCheckedItems(it, accent) }
-            continue
-        }
-        if (!item.isCheckable) continue
-        needsOptionalIcons = true
-        if (accent != 0 && item.isChecked) {
-            val check = ContextCompat.getDrawable(this, R.drawable.ic_check_24dp)?.mutate()
-                ?: continue
-            DrawableCompat.setTintList(check, ColorStateList.valueOf(accent))
-            item.icon = check
-        } else {
-            item.icon = null
-        }
-    }
-    if (needsOptionalIcons) {
-        (menu as? androidx.appcompat.view.menu.MenuBuilder)?.setOptionalIconsVisible(true)
-    }
-}
-
-/**
  * Tints a download badge with the accent scheme (background = primary,
  * check icon = onPrimary). An accent of 0 restores the drawable defaults.
  */
@@ -568,6 +536,74 @@ fun View.applyBadgePlayerAccent(@ColorInt accent: Int, @ColorInt bgColor: Int, @
         (this as? ImageView)?.imageTintList = ColorStateList.valueOf(iconColor)
     }
 }
+
+/**
+ * Colors the selected (activated) state of a list row with the player
+ * accent. With follow-player-color off (accent 0) or when the row is
+ * not selected, the drawable default is restored. Selected rows get a
+ * ripple over an accent secondary-container fill ([style] mirrors the
+ * two row background styles: plain rounded vs strong square).
+ */
+fun View.applyRowSelectionPlayerAccent(
+    @ColorInt accent: Int,
+    activated: Boolean,
+    style: RowSelectionStyle = RowSelectionStyle.Plain
+) {
+    if (this is MaterialCardView) {
+        // Card rows draw their own background: recolor the card for the
+        // checked state instead of replacing the drawable.
+        var originals = getTag(R.id.tag_accent_originals) as? AccentOriginals
+        if (originals?.cardBackground == null && originals?.background != null) {
+            // First run predates the cardBackground field; recapture.
+            originals = null
+            setTag(R.id.tag_accent_originals, null)
+        }
+        if (originals == null) {
+            originals = AccentOriginals(cardBackground = cardBackgroundColor)
+            setTag(R.id.tag_accent_originals, originals)
+        }
+        setCardBackgroundColor(
+            if (!activated || accent == 0) {
+                originals.cardBackground
+            } else {
+                ColorStateList.valueOf(
+                    AccentSchemes.viewScheme(accent, context.isNightMode).secondaryContainer
+                )
+            }
+        )
+        return
+    }
+    var originals = getTag(R.id.tag_accent_originals) as? AccentOriginals
+    if (originals == null) {
+        originals = AccentOriginals(background = background)
+        setTag(R.id.tag_accent_originals, originals)
+    }
+    if (!activated || accent == 0) {
+        background = originals.background
+        return
+    }
+    val scheme = AccentSchemes.viewScheme(accent, context.isNightMode)
+    val corner = if (style == RowSelectionStyle.Plain) {
+        context.resources.getDimension(R.dimen.m3_card_corner_radius)
+    } else 0f
+    background = RippleDrawable(
+        ColorStateList.valueOf(context.resolveColor(android.R.attr.colorControlHighlight)),
+        GradientDrawable().apply {
+            shape = GradientDrawable.RECTANGLE
+            cornerRadius = corner
+            setColor(scheme.secondaryContainer)
+        },
+        // Uncolored mask: the ripple is clipped to the rounded/square
+        // row shape without muting the fill.
+        GradientDrawable().apply {
+            shape = GradientDrawable.RECTANGLE
+            cornerRadius = corner
+            setColor(Color.WHITE)
+        }
+    )
+}
+
+enum class RowSelectionStyle { Plain, Strong }
 
 /**
  * Applies the player accent to a [MorphicIconButton] using the accent

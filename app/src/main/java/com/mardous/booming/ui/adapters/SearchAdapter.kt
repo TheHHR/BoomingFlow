@@ -33,6 +33,7 @@ import com.mardous.booming.R
 import com.mardous.booming.core.model.theme.AccentSchemes
 import com.mardous.booming.extensions.isNightMode
 import com.mardous.booming.extensions.resources.applyBadgePlayerAccent
+import com.mardous.booming.extensions.resources.applyRowSelectionPlayerAccent
 import com.mardous.booming.coil.DEFAULT_GENRE_IMAGE
 import com.mardous.booming.coil.albumImage
 import com.mardous.booming.coil.artistImage
@@ -278,6 +279,16 @@ class SearchAdapter(
             get() = itemView.isActivated
             set(activated) {
                 itemView.isActivated = activated
+                val accent = if (com.mardous.booming.util.Preferences.followPlayerColor) {
+                    com.mardous.booming.core.PlayerAccentState.accentColor.value
+                } else {
+                    0
+                }
+                itemView.applyRowSelectionPlayerAccent(
+                    accent,
+                    activated,
+                    com.mardous.booming.extensions.resources.RowSelectionStyle.Plain
+                )
             }
 
         private val sharedElements: Array<Pair<View, String>>

@@ -27,6 +27,7 @@ import androidx.core.view.isGone
 import com.mardous.booming.R
 import com.mardous.booming.coil.playlistImage
 import com.mardous.booming.data.local.room.PlaylistWithSongs
+import com.mardous.booming.extensions.isActivated
 import com.mardous.booming.extensions.media.asNumberOfSongs
 import com.mardous.booming.ui.IPlaylistCallback
 import com.mardous.booming.ui.component.base.AbsMultiSelectAdapter
@@ -69,7 +70,7 @@ class PlaylistAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val playlist = dataSet[position]
         val isChecked = isChecked(playlist)
-        holder.itemView.isActivated = isChecked
+        holder.isActivated = isChecked
         holder.menu?.isGone = isChecked
         holder.title?.text = playlist.playlistEntity.playlistName
         if (holder.text != null) {

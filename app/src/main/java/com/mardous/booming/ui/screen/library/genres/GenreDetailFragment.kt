@@ -97,6 +97,7 @@ class GenreDetailFragment : AbsMainActivityFragment(R.layout.fragment_detail_lis
         collectPlayerAccent { accent ->
             binding.playAction.applyPlayerAccent(accent)
             binding.shuffleAction.applyPlayerAccent(accent, tonal = true)
+            songAdapter.refreshCheckedRows()
         }
     }
 

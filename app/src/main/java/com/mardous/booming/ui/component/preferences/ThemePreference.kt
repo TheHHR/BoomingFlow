@@ -68,7 +68,10 @@ class ThemePreference @JvmOverloads constructor(
         // programmatic check isn't treated as a user tap (which would
         // rewrite the stored theme and restart the app).
         group.removeOnButtonCheckedListener(this@ThemePreference)
-        group.isEnabled = (Preferences.generalTheme != GeneralTheme.BLACK)
+        // The Pure Black preference itself is only enabled under Dark
+        // (see updateBlackThemeAvailability); the theme buttons stay
+        // interactive here so the user can always switch away.
+        group.isEnabled = true
         // While Pure Black is active the stored selection stays
         // checked (it is what returns when Black is disabled); the
         // BLACK value itself has no button and maps to the Auto icon.
