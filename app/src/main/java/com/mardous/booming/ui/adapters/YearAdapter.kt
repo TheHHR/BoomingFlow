@@ -22,6 +22,7 @@ import android.view.*
 import androidx.annotation.LayoutRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isGone
+import androidx.recyclerview.widget.RecyclerView
 import com.mardous.booming.R
 import com.mardous.booming.coil.DEFAULT_YEAR_IMAGE
 import com.mardous.booming.data.model.ReleaseYear
@@ -122,7 +123,8 @@ class YearAdapter(
                 }
 
                 override fun onMenuItemClick(item: MenuItem): Boolean {
-                    return callback?.yearMenuItemClick(currentYear, item) ?: false
+                    val year = currentYear ?: return false
+                    return callback?.yearMenuItemClick(year, item) ?: false
                 }
             })
         }

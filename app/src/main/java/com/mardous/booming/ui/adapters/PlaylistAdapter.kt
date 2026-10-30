@@ -24,6 +24,7 @@ import android.view.ViewGroup
 import androidx.annotation.LayoutRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isGone
+import androidx.recyclerview.widget.RecyclerView
 import com.mardous.booming.R
 import com.mardous.booming.coil.playlistImage
 import com.mardous.booming.data.local.room.PlaylistWithSongs

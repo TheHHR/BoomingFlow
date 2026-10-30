@@ -28,6 +28,7 @@ import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.fragment.app.FragmentActivity
+import androidx.recyclerview.widget.RecyclerView
 import coil3.load
 import com.mardous.booming.R
 import com.mardous.booming.coil.DEFAULT_SONG_IMAGE
@@ -210,7 +211,8 @@ class FileAdapter(
                     }
 
                     override fun onMenuItemClick(item: MenuItem): Boolean {
-                        return callback?.fileMenuItemClick(currentFile, item) == true
+                        val file = currentFile ?: return false
+                        return callback?.fileMenuItemClick(file, item) == true
                     }
                 })
             }
