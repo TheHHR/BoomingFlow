@@ -12,14 +12,17 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.progressindicator.CircularProgressIndicator
 import com.mardous.booming.R
+import com.mardous.booming.coil.DEFAULT_PLAYLIST_IMAGE
+import com.mardous.booming.coil.placeholderDrawableRes
 import com.mardous.booming.core.PlayerAccentState
-import com.mardous.booming.databinding.FragmentDetailListBinding
+import com.mardous.booming.databinding.FragmentPlaylistDetailBinding
 import com.mardous.booming.extensions.collectPlayerAccent
 import com.mardous.booming.extensions.launchAndRepeatWithViewLifecycle
 import com.mardous.booming.extensions.resources.applyPlayerAccent
 import com.mardous.booming.extensions.setSupportActionBar
 import com.mardous.booming.extensions.showToast
 import com.mardous.booming.online.data.spotify.SpotifyTrack
+import com.mardous.booming.online.data.spotify.thumbnailUrl
 import com.mardous.booming.online.download.DownloadEvent
 import com.mardous.booming.online.download.DownloadFormat
 import com.mardous.booming.online.download.DownloadRegistry
@@ -28,16 +31,19 @@ import com.mardous.booming.online.spotify.resolveBatchForPlayback
 import com.mardous.booming.online.spotify.resolveForPlayback
 import com.mardous.booming.ui.IScrollHelper
 import com.mardous.booming.ui.component.base.AbsMainActivityFragment
+import com.mardous.booming.ui.component.views.MorphicIconButton
 import com.mardous.booming.util.Preferences
+import coil3.load
+import com.google.android.material.button.MaterialButton
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class SpotifyPlaylistFragment : AbsMainActivityFragment(R.layout.fragment_detail_list), IScrollHelper {
+class SpotifyPlaylistFragment : AbsMainActivityFragment(R.layout.fragment_playlist_detail), IScrollHelper {
 
-    private var _binding: FragmentDetailListBinding? = null
+    private var _binding: FragmentPlaylistDetailBinding? = null
     private val binding get() = _binding!!
 
     private val playlistId: String?
@@ -85,11 +91,18 @@ class SpotifyPlaylistFragment : AbsMainActivityFragment(R.layout.fragment_detail
         )
         binding.recyclerView.adapter = trackAdapter
 
-        binding.playAction.setOnClickListener { playAll(shuffle = false) }
-        binding.shuffleAction.setOnClickListener { playAll(shuffle = true) }
+        binding.header.playAction.setOnClickListener { playAll(shuffle = false) }
+        binding.header.shuffleAction.setOnClickListener { playAll(shuffle = true) }
+        binding.header.searchAction?.setOnClickListener { openScopedSearch() }
         collectPlayerAccent { accent ->
-            binding.playAction.applyPlayerAccent(accent)
-            binding.shuffleAction.applyPlayerAccent(accent, tonal = true)
+            // playAction is a MorphicIconButton in the header layout; the
+            // branch mirrors the local playlist detail for safety.
+            when (val playButton = binding.header.playAction) {
+                is MorphicIconButton -> playButton.applyPlayerAccent(accent)
+                is MaterialButton -> playButton.applyPlayerAccent(accent)
+            }
+            binding.header.shuffleAction.applyPlayerAccent(accent, tonal = true)
+            binding.header.searchAction?.applyPlayerAccent(accent)
             binding.progressIndicator.applyPlayerAccent(accent)
             // The download-menu action view (inflated separately) follows
             // the accent too; it re-inflates per menu rebuild, so tint it
@@ -113,12 +126,16 @@ class SpotifyPlaylistFragment : AbsMainActivityFragment(R.layout.fragment_detail
                         }
                         setSupportActionBar(binding.toolbar, name)
                         binding.toolbar.setNavigationOnClickListener { findNavController().navigateUp() }
-                        binding.title.text = name
-                        binding.subtitle.text = getString(
+                        binding.collapsingAppBarLayout.title = name
+                        binding.header.title.text = name
+                        binding.header.subtitle.text = getString(
                             R.string.discover_playlist_subtitle,
                             playlist.owner?.displayName.orEmpty(),
                             playlist.tracks?.total ?: 0
                         )
+                        binding.header.image.load(playlist.thumbnailUrl() ?: DEFAULT_PLAYLIST_IMAGE) {
+                            placeholderDrawableRes(requireContext(), DEFAULT_PLAYLIST_IMAGE)
+                        }
                     }
                 }
             }
@@ -128,7 +145,11 @@ class SpotifyPlaylistFragment : AbsMainActivityFragment(R.layout.fragment_detail
                         val label = getString(R.string.liked_songs_label)
                         setSupportActionBar(binding.toolbar, label)
                         binding.toolbar.setNavigationOnClickListener { findNavController().navigateUp() }
-                        binding.title.text = label
+                        binding.collapsingAppBarLayout.title = label
+                        binding.header.title.text = label
+                        binding.header.image.load(DEFAULT_PLAYLIST_IMAGE) {
+                            placeholderDrawableRes(requireContext(), DEFAULT_PLAYLIST_IMAGE)
+                        }
                     }
                 }
             }
@@ -138,7 +159,7 @@ class SpotifyPlaylistFragment : AbsMainActivityFragment(R.layout.fragment_detail
                     applyTracks()
                     maybeAutoDownload(tracks)
                     if (viewModel.isLiked.value) {
-                        binding.subtitle.text =
+                        binding.header.subtitle.text =
                             getString(R.string.liked_songs_subtitle, tracks.size)
                     }
                 }

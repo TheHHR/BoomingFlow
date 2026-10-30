@@ -33,6 +33,13 @@ class PlaylistsSectionsViewModel(application: Application) : AndroidViewModel(ap
         ignoreUnknownKeys = true
     }
 
+    init {
+        // Show the cached sections instantly (discover-style): the shelf
+        // stays hidden while disconnected, and load() silently
+        // revalidates and overwrites the cache on success.
+        restoreCache()
+    }
+
     @Serializable
     private data class SectionsCache(
         val likedTotal: Int? = null,

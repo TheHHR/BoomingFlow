@@ -110,6 +110,13 @@ abstract class AbsRecyclerViewCustomGridSizeFragment<Adt : RecyclerView.Adapter<
         }
     }
 
+    override fun onPrepareMenu(menu: Menu) {
+        super.onPrepareMenu(menu)
+        // Re-apply the saved grid size on every menu display so the
+        // checked state survives any menu (re)creation path.
+        menu.findItem(R.id.action_grid_size)?.subMenu?.let { setUpGridSizeMenu(it) }
+    }
+
     override fun onMenuItemSelected(item: MenuItem): Boolean {
         val selectedViewType = GridViewType.entries.firstOrNull { type -> type.itemId == item.itemId }
         if (selectedViewType != null) {
