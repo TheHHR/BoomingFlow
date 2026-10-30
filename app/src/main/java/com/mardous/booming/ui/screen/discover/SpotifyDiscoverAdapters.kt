@@ -83,6 +83,18 @@ class SpotifyTrackAdapter(
             notifyDataSetChanged()
         }
 
+    /**
+     * Accent from the playlist cover when present (detail page); badge
+     * tint uses it over the player accent. 0 = no override.
+     */
+    var headerAccent: Int = 0
+        set(value) {
+            if (field != value) {
+                field = value
+                notifyDataSetChanged()
+            }
+        }
+
     override fun getIdentifier(position: Int): com.mardous.booming.data.model.Song? {
         val item = dataSet.getOrNull(position) ?: return null
         if (item.id.isBlank()) return null
@@ -189,7 +201,9 @@ class SpotifyTrackAdapter(
             true
         }
         holder.badge.isVisible = isDownloaded
-        val accent = if (com.mardous.booming.util.Preferences.followPlayerColor) {
+        val accent = if (headerAccent != 0) {
+            headerAccent
+        } else if (com.mardous.booming.util.Preferences.followPlayerColor) {
             com.mardous.booming.core.PlayerAccentState.accentColor.value
         } else {
             0

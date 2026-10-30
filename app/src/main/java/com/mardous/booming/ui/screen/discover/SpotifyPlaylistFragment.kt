@@ -18,6 +18,7 @@ import com.mardous.booming.core.PlayerAccentState
 import com.mardous.booming.databinding.FragmentPlaylistDetailBinding
 import com.mardous.booming.extensions.collectPlayerAccent
 import com.mardous.booming.extensions.launchAndRepeatWithViewLifecycle
+import com.mardous.booming.extensions.resources.applyHeaderAccentFromArt
 import com.mardous.booming.extensions.resources.applyPlayerAccent
 import com.mardous.booming.extensions.setSupportActionBar
 import com.mardous.booming.extensions.showToast
@@ -34,6 +35,7 @@ import com.mardous.booming.ui.component.base.AbsMainActivityFragment
 import com.mardous.booming.ui.component.views.MorphicIconButton
 import com.mardous.booming.util.Preferences
 import coil3.load
+import coil3.toBitmap
 import com.google.android.material.button.MaterialButton
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -53,6 +55,16 @@ class SpotifyPlaylistFragment : AbsMainActivityFragment(R.layout.fragment_playli
     private val songDownloader: SongDownloader by inject()
 
     private lateinit var trackAdapter: SpotifyTrackAdapter
+
+    /**
+     * Accent extracted from the playlist cover (PaletteProcessor), same
+     * always-on scheme as artist/album pages. Null until the cover
+     * loads; badge/download-progress fall back to the player accent.
+     */
+    private var headerAccent: Int? = null
+
+    private fun effectiveAccent(playerAccent: Int): Int =
+        headerAccent ?: if (Preferences.followPlayerColor) playerAccent else 0
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -95,22 +107,24 @@ class SpotifyPlaylistFragment : AbsMainActivityFragment(R.layout.fragment_playli
         binding.header.shuffleAction.setOnClickListener { playAll(shuffle = true) }
         binding.header.searchAction?.setOnClickListener { openScopedSearch() }
         collectPlayerAccent { accent ->
+            val effective = effectiveAccent(accent)
             // playAction is a MorphicIconButton in the header layout; the
             // branch mirrors the local playlist detail for safety.
             when (val playButton = binding.header.playAction) {
-                is MorphicIconButton -> playButton.applyPlayerAccent(accent)
-                is MaterialButton -> playButton.applyPlayerAccent(accent)
+                is MorphicIconButton -> playButton.applyPlayerAccent(effective)
+                is MaterialButton -> playButton.applyPlayerAccent(effective)
             }
-            binding.header.shuffleAction.applyPlayerAccent(accent, tonal = true)
-            binding.header.searchAction?.applyPlayerAccent(accent)
-            binding.progressIndicator.applyPlayerAccent(accent)
+            binding.header.shuffleAction.applyPlayerAccent(effective, tonal = true)
+            binding.header.searchAction?.applyPlayerAccent(effective)
+            binding.progressIndicator.applyPlayerAccent(effective)
             // The download-menu action view (inflated separately) follows
             // the accent too; it re-inflates per menu rebuild, so tint it
             // here as well.
             downloadMenuItem?.actionView
                 ?.findViewById<CircularProgressIndicator>(R.id.action_progress)
-                ?.applyPlayerAccent(accent)
+                ?.applyPlayerAccent(effective)
             // Badge tints are applied at bind time - rebind so they follow.
+            trackAdapter.headerAccent = effective
             trackAdapter.notifyDataSetChanged()
         }
 
@@ -135,6 +149,11 @@ class SpotifyPlaylistFragment : AbsMainActivityFragment(R.layout.fragment_playli
                         )
                         binding.header.image.load(playlist.thumbnailUrl() ?: DEFAULT_PLAYLIST_IMAGE) {
                             placeholderDrawableRes(requireContext(), DEFAULT_PLAYLIST_IMAGE)
+                            listener(
+                                onSuccess = { _, result ->
+                                    applyHeaderPalette(result.image.toBitmap())
+                                }
+                            )
                         }
                     }
                 }
@@ -149,6 +168,11 @@ class SpotifyPlaylistFragment : AbsMainActivityFragment(R.layout.fragment_playli
                         binding.header.title.text = label
                         binding.header.image.load(DEFAULT_PLAYLIST_IMAGE) {
                             placeholderDrawableRes(requireContext(), DEFAULT_PLAYLIST_IMAGE)
+                            listener(
+                                onSuccess = { _, result ->
+                                    applyHeaderPalette(result.image.toBitmap())
+                                }
+                            )
                         }
                     }
                 }
@@ -190,6 +214,18 @@ class SpotifyPlaylistFragment : AbsMainActivityFragment(R.layout.fragment_playli
                     applyTracks()
                 }
             }
+        }
+    }
+
+    private fun applyHeaderPalette(bitmap: android.graphics.Bitmap) {
+        binding.header.applyHeaderAccentFromArt(bitmap) { accent ->
+            headerAccent = accent
+            val effective = effectiveAccent(com.mardous.booming.core.PlayerAccentState.accentColor.value)
+            trackAdapter.headerAccent = effective
+            trackAdapter.notifyDataSetChanged()
+            downloadMenuItem?.actionView
+                ?.findViewById<CircularProgressIndicator>(R.id.action_progress)
+                ?.applyPlayerAccent(effective)
         }
     }
 

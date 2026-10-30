@@ -117,6 +117,14 @@ abstract class AbsRecyclerViewCustomGridSizeFragment<Adt : RecyclerView.Adapter<
         menu.findItem(R.id.action_grid_size)?.subMenu?.let { setUpGridSizeMenu(it) }
     }
 
+    override fun onMenuClosed(menu: Menu) {
+        super.onMenuClosed(menu)
+        // Normalize the checked state right after any menu close, so
+        // the next open shows the saved size even when the framework
+        // rebuilds the submenu without a prepare pass.
+        menu.findItem(R.id.action_grid_size)?.subMenu?.let { setUpGridSizeMenu(it) }
+    }
+
     override fun onMenuItemSelected(item: MenuItem): Boolean {
         val selectedViewType = GridViewType.entries.firstOrNull { type -> type.itemId == item.itemId }
         if (selectedViewType != null) {
@@ -137,8 +145,8 @@ abstract class AbsRecyclerViewCustomGridSizeFragment<Adt : RecyclerView.Adapter<
     protected abstract fun onGridSizeChanged(isLand: Boolean, gridColumns: Int)
 
     private fun setUpGridSizeMenu(gridSizeMenu: Menu) {
-        // Check marks use the accent-colored drawable applied in
-        // onPrepareMenu; selection + visibility are managed here.
+        // Selection + visibility are managed here; re-applied from the
+        // saved value on menu create, prepare, close and after a tap.
         val allSizes = listOf(1, 2, 3, 4, 5, 6, 7, 8)
         val selected = if (this.gridSize > 0) this.gridSize else 1
         val visibleLimit = if (this.maxGridSize >= 2) this.maxGridSize else 8
@@ -176,6 +184,11 @@ abstract class AbsRecyclerViewCustomGridSizeFragment<Adt : RecyclerView.Adapter<
             this.toolbar.menu
                 .findItem(R.id.action_view_type)
                 ?.isEnabled = this.isGridMode
+            // Normalize every grid-size item against the saved value so
+            // the exclusive group never keeps a stale selection.
+            this.toolbar.menu
+                .findItem(R.id.action_grid_size)
+                ?.subMenu?.let { setUpGridSizeMenu(it) }
             return true
         }
         return false

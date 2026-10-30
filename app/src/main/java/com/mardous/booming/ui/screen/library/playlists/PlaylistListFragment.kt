@@ -100,7 +100,14 @@ class PlaylistListFragment : AbsRecyclerViewCustomGridSizeFragment<RecyclerView.
         viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
             launch {
                 authViewModel.authState.collect { state ->
-                    spotifyConnected = state == SpotifyAuthState.CONNECTED
+                    // A stored session counts as connected for display:
+                    // the shelf is cached and must not wait for the
+                    // live verifySession() roundtrip (or its offline
+                    // timeout). Only an explicit NOT_CONNECTED hides it.
+                    val hasStoredSession = com.mardous.booming.online.data.spotify.SpotifyPrefs
+                        .isConnected(requireContext())
+                    spotifyConnected = state == SpotifyAuthState.CONNECTED ||
+                        (hasStoredSession && state != SpotifyAuthState.NOT_CONNECTED)
                     if (spotifyConnected) {
                         sectionsViewModel.load()
                     }

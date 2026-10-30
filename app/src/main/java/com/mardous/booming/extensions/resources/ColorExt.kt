@@ -669,7 +669,10 @@ fun getPrimaryTextColor(context: Context, isDark: Boolean = !context.isNightMode
  * it to the play/shuffle/search action buttons, so each page carries the
  * color of the art it displays (artist picture or album cover).
  */
-fun ItemDetailHeaderBinding.applyHeaderAccentFromArt(bitmap: Bitmap) {
+fun ItemDetailHeaderBinding.applyHeaderAccentFromArt(
+    bitmap: Bitmap,
+    onAccent: (Int) -> Unit = {}
+) {
     val context = root.context
     val lifecycleOwner = root.findViewTreeLifecycleOwner() ?: return
     lifecycleOwner.lifecycleScope.launch {
@@ -678,6 +681,7 @@ fun ItemDetailHeaderBinding.applyHeaderAccentFromArt(bitmap: Bitmap) {
         }
         if (!root.isAttachedToWindow) return@launch
         val accent = paletteColor.primaryColor
+        onAccent(accent)
         // playAction's static type varies with layout variants, hence the
         // runtime type checks (same pattern as PlaylistDetailFragment).
         when (val playButton = playAction) {

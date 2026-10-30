@@ -37,16 +37,26 @@ class SpotifyPlaylistViewModel(application: Application) : AndroidViewModel(appl
     }
 
     private suspend fun loadPlaylist(playlistId: String) {
+        // Show the cached playlist instantly (cover + tracks) while the
+        // network refresh runs - same pattern as the liked-songs path.
+        SpotifyPlaylistCache.read(getApplication(), playlistId)?.let { cache ->
+            if (cache.tracks.isNotEmpty()) {
+                cache.playlist?.let { _playlist.value = it }
+                _tracks.value = cache.tracks
+                _loading.value = false
+            }
+        }
+
         var playlist: SpotifyPlaylist? = null
         SpotifyClient.playlist(playlistId)
             .onSuccess { playlist = it; _playlist.value = it }
             .onFailure {
-                val cache = SpotifyPlaylistCache.read(getApplication(), playlistId)
-                if (cache != null && cache.tracks.isNotEmpty()) {
-                    cache.playlist?.let { _playlist.value = it }
-                    _tracks.value = cache.tracks
-                    _loading.value = false
-                    return
+                if (_tracks.value.isEmpty()) {
+                    val cache = SpotifyPlaylistCache.read(getApplication(), playlistId)
+                    if (cache != null && cache.tracks.isNotEmpty()) {
+                        cache.playlist?.let { _playlist.value = it }
+                        _tracks.value = cache.tracks
+                    }
                 }
                 _loading.value = false
                 return

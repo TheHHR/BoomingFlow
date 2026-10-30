@@ -36,6 +36,8 @@ import com.h6ah4i.android.widget.advrecyclerview.animator.RefactoredDefaultItemA
 import com.h6ah4i.android.widget.advrecyclerview.draggable.RecyclerViewDragDropManager
 import com.h6ah4i.android.widget.advrecyclerview.utils.WrapperAdapterUtils
 import com.mardous.booming.R
+import coil3.request.crossfade
+import coil3.toBitmap
 import com.mardous.booming.coil.playlistImage
 import com.mardous.booming.data.local.room.PlaylistWithSongs
 import com.mardous.booming.data.mapper.searchFilter
@@ -46,6 +48,7 @@ import com.mardous.booming.data.model.Song
 import com.mardous.booming.databinding.FragmentPlaylistDetailBinding
 import com.mardous.booming.extensions.applyHorizontalWindowInsets
 import com.mardous.booming.extensions.collectPlayerAccent
+import com.mardous.booming.extensions.resources.applyHeaderAccentFromArt
 import com.mardous.booming.extensions.resources.applyPlayerAccent
 import com.google.android.material.button.MaterialButton
 import com.mardous.booming.ui.component.views.MorphicIconButton
@@ -148,7 +151,14 @@ class PlaylistDetailFragment : AbsMainActivityFragment(R.layout.fragment_playlis
             }
             binding.collapsingAppBarLayout.title = playlist.playlistEntity.playlistName
             binding.header.subtitle.text = playlist.songs.toSongs().playlistInfo(requireContext())
-            binding.header.image.playlistImage(playlist)
+            binding.header.image.playlistImage(playlist) {
+                crossfade(false)
+                listener(
+                    onSuccess = { _, result ->
+                        binding.header.applyHeaderAccentFromArt(result.image.toBitmap())
+                    }
+                )
+            }
         }
         detailViewModel.getSongs().observe(viewLifecycleOwner) {
             binding.progressIndicator.hide()
