@@ -238,14 +238,14 @@ fun MorphicIconButton.applyColor(color: Int) {
 private class AccentOriginals(
     val backgroundTint: ColorStateList? = null,
     val textColors: ColorStateList? = null,
-    val background: Drawable? = null,
-    val cardBackground: ColorStateList? = null,
     val iconTint: ColorStateList? = null,
     val strokeColor: ColorStateList? = null,
     val switchTrack: ColorStateList? = null,
     val switchThumb: ColorStateList? = null,
     val iconColor: Int? = null,
-    @ColorInt val indicatorColor: Int? = null
+    @ColorInt val indicatorColor: Int? = null,
+    val background: Drawable? = null,
+    val cardBackground: ColorStateList? = null
 )
 
 /**
@@ -553,11 +553,6 @@ fun View.applyRowSelectionPlayerAccent(
         // Card rows draw their own background: recolor the card for the
         // checked state instead of replacing the drawable.
         var originals = getTag(R.id.tag_accent_originals) as? AccentOriginals
-        if (originals?.cardBackground == null && originals?.background != null) {
-            // First run predates the cardBackground field; recapture.
-            originals = null
-            setTag(R.id.tag_accent_originals, null)
-        }
         if (originals == null) {
             originals = AccentOriginals(cardBackground = cardBackgroundColor)
             setTag(R.id.tag_accent_originals, originals)

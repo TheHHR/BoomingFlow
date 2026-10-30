@@ -129,12 +129,12 @@ class SpotifyTrackAdapter(
         val identifier = getIdentifier(position)
         val isChecked = identifier?.let { isChecked(it) } == true
         holder.itemView.isActivated = isChecked
-        val accent = if (Preferences.followPlayerColor) {
+        val rowAccent = if (Preferences.followPlayerColor) {
             PlayerAccentState.accentColor.value
         } else {
             0
         }
-        holder.itemView.applyRowSelectionPlayerAccent(accent, isChecked, RowSelectionStyle.Plain)
+        holder.itemView.applyRowSelectionPlayerAccent(rowAccent, isChecked, RowSelectionStyle.Plain)
         holder.index.text = (position + 1).toString()
         holder.title.text = track.name
 
