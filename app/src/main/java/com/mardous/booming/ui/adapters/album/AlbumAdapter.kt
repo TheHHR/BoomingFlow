@@ -24,6 +24,7 @@ import android.view.ViewGroup
 import androidx.annotation.LayoutRes
 import androidx.core.view.isGone
 import androidx.fragment.app.FragmentActivity
+import androidx.recyclerview.widget.RecyclerView
 import com.mardous.booming.R
 import com.mardous.booming.coil.DEFAULT_ALBUM_IMAGE
 import com.mardous.booming.core.model.sort.SortKey
@@ -128,8 +129,8 @@ open class AlbumAdapter(
     }
 
     open inner class ViewHolder(itemView: View) : MediaEntryViewHolder(itemView) {
-        protected open val album: Album
-            get() = dataSet[bindingAdapterPosition]
+        protected open val album: Album?
+            get() = dataSet.getOrNull(bindingAdapterPosition)
 
         protected val sharedElements: Array<Pair<View, String>>?
             get() = if (imageContainer != null) {
@@ -141,15 +142,20 @@ open class AlbumAdapter(
             }
 
         override fun onClick(view: View) {
+            val album = album ?: return
             if (isInQuickSelectMode) {
-                toggleChecked(bindingAdapterPosition)
+                val position = bindingAdapterPosition
+                if (position == RecyclerView.NO_POSITION) return
+                toggleChecked(position)
             } else {
                 callback?.albumClick(album, sharedElements)
             }
         }
 
         override fun onLongClick(view: View): Boolean {
-            toggleChecked(bindingAdapterPosition)
+            val position = bindingAdapterPosition
+            if (position == RecyclerView.NO_POSITION) return false
+            toggleChecked(position)
             return true
         }
 
@@ -158,17 +164,19 @@ open class AlbumAdapter(
                 override val popupMenuRes: Int
                     get() = R.menu.menu_item_album
 
-                override fun onMenuItemClick(item: MenuItem): Boolean {
-                    return callback?.albumMenuItemClick(album, item, sharedElements) ?: false
-                }
-            })
-            play?.setOnClickListener {
-                val albumSongs = with(SongSortMode.AlbumSongs) {
-                    album.songs.sorted()
-                }
-                getViewModel<PlayerViewModel>()
-                    ?.openQueue(albumSongs, shuffleMode = OpenShuffleMode.Off)
+            override fun onMenuItemClick(item: MenuItem): Boolean {
+                val album = album ?: return false
+                return callback?.albumMenuItemClick(album, item, sharedElements) ?: false
             }
+        })
+        play?.setOnClickListener {
+            val album = album ?: return@setOnClickListener
+            val albumSongs = with(SongSortMode.AlbumSongs) {
+                album.songs.sorted()
+            }
+            getViewModel<PlayerViewModel>()
+                ?.openQueue(albumSongs, shuffleMode = OpenShuffleMode.Off)
+        }
         }
     }
 

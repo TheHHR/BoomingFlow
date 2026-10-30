@@ -23,6 +23,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.isGone
 import androidx.fragment.app.FragmentActivity
+import androidx.recyclerview.widget.RecyclerView
 import com.mardous.booming.R
 import com.mardous.booming.coil.DEFAULT_ARTIST_IMAGE
 import com.mardous.booming.core.sort.ArtistSortMode
@@ -114,8 +115,8 @@ class ArtistAdapter constructor(
 
     open inner class ViewHolder(itemView: View) : MediaEntryViewHolder(itemView) {
 
-        protected val artist: Artist
-            get() = dataSet[bindingAdapterPosition]
+        protected val artist: Artist?
+            get() = dataSet.getOrNull(bindingAdapterPosition)
 
         protected val sharedElements: Array<Pair<View, String>>?
             get() = if (imageContainer != null) {
@@ -127,19 +128,25 @@ class ArtistAdapter constructor(
             }
 
         protected open fun onArtistMenuItemClick(item: MenuItem): Boolean {
+            val artist = artist ?: return false
             return callback?.artistMenuItemClick(artist, item, sharedElements) ?: false
         }
 
         override fun onClick(view: View) {
+            val artist = artist ?: return
             if (isInQuickSelectMode) {
-                toggleChecked(bindingAdapterPosition)
+                val position = bindingAdapterPosition
+                if (position == RecyclerView.NO_POSITION) return
+                toggleChecked(position)
             } else {
                 callback?.artistClick(artist, sharedElements)
             }
         }
 
         override fun onLongClick(view: View): Boolean {
-            return toggleChecked(bindingAdapterPosition)
+            val position = bindingAdapterPosition
+            if (position == RecyclerView.NO_POSITION) return false
+            return toggleChecked(position)
         }
 
         init {
@@ -152,6 +159,7 @@ class ArtistAdapter constructor(
                 }
             })
             play?.setOnClickListener {
+                val artist = artist ?: return@setOnClickListener
                 val artistSongs = with(SongSortMode.ArtistSongs) {
                     artist.songs.sorted()
                 }

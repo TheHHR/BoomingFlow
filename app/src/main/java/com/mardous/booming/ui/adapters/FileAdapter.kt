@@ -167,8 +167,8 @@ class FileAdapter(
     }
 
     inner class ViewHolder(itemView: View, itemViewType: Int) : MediaEntryViewHolder(itemView) {
-        private val currentFile: FileSystemItem
-            get() = files[bindingAdapterPosition]
+        private val currentFile: FileSystemItem?
+            get() = files.getOrNull(bindingAdapterPosition)
 
         private val filePopupMenuResource: Int
             get() = when (itemViewType) {
@@ -178,15 +178,19 @@ class FileAdapter(
             }
 
         override fun onClick(view: View) {
+            val position = bindingAdapterPosition
+            if (position == RecyclerView.NO_POSITION) return
             if (isInQuickSelectMode) {
-                toggleChecked(bindingAdapterPosition)
+                toggleChecked(position)
             } else {
-                callback?.fileClick(currentFile)
+                currentFile?.let { callback?.fileClick(it) }
             }
         }
 
         override fun onLongClick(view: View): Boolean {
-            toggleChecked(bindingAdapterPosition)
+            val position = bindingAdapterPosition
+            if (position == RecyclerView.NO_POSITION) return false
+            toggleChecked(position)
             return true
         }
 

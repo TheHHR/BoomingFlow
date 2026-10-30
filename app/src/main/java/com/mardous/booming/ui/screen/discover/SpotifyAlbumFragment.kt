@@ -71,6 +71,7 @@ class SpotifyAlbumFragment : AbsMainActivityFragment(R.layout.fragment_detail_li
     private lateinit var trackAdapter: SpotifyTrackAdapter
 
     private var localSongs: List<Song> = emptyList()
+    private var remoteTracks: List<SpotifyTrack> = emptyList()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -138,7 +139,11 @@ class SpotifyAlbumFragment : AbsMainActivityFragment(R.layout.fragment_detail_li
                 .firstOrNull { it.name.equals(name, ignoreCase = true) }
             val songs = matched?.sortedSongs.orEmpty()
             withContext(Dispatchers.Main) {
-                localSongs = songs
+                if (songs != localSongs) {
+                    localSongs = songs
+                    localSongAdapter.dataSet = songs
+                }
+                localHeaderAdapter.setVisible(songs.isNotEmpty())
                 applyTracks()
             }
         }
@@ -149,7 +154,10 @@ class SpotifyAlbumFragment : AbsMainActivityFragment(R.layout.fragment_detail_li
             launch {
                 viewModel.tracks.collect { tracks ->
                     trackAdapter.downloadedTrackIds = songDownloader.downloadedSpotifyTrackIds()
-                    applyTracks()
+                    if (tracks != remoteTracks) {
+                        remoteTracks = tracks
+                        applyTracks()
+                    }
                 }
             }
             launch {
@@ -171,11 +179,12 @@ class SpotifyAlbumFragment : AbsMainActivityFragment(R.layout.fragment_detail_li
     }
 
     private fun applyTracks() {
-        val tracks = viewModel.tracks.value
+        val tracks = remoteTracks
         val loading = viewModel.loading.value
-        localSongAdapter.dataSet = localSongs
-        localHeaderAdapter.setVisible(localSongs.isNotEmpty())
         spotifyHeaderAdapter.setVisible(tracks.isNotEmpty())
+        if (trackAdapter.dataSet != tracks) {
+            trackAdapter.dataSet = tracks
+        }
         val total = localSongs.size + tracks.size
         binding.progressIndicator.isVisible = loading && total == 0
         binding.recyclerView.isVisible = !binding.progressIndicator.isVisible && total > 0

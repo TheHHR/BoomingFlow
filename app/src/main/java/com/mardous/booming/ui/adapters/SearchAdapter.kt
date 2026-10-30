@@ -294,14 +294,16 @@ class SearchAdapter(
             get() = arrayOf(image!! to image.transitionName)
 
         override fun onClick(view: View) {
-            val item = dataSet[bindingAdapterPosition]
+            val position = bindingAdapterPosition
+            if (position == RecyclerView.NO_POSITION) return
+            val item = dataSet.getOrNull(position) ?: return
             when (itemViewType) {
                 ALBUM -> callback?.albumClick(item as Album, sharedElements)
                 ARTIST -> callback?.artistClick(item as Artist, sharedElements)
                 SONG -> {
                     val song = item as Song
                     if (isInQuickSelectMode) {
-                        toggleChecked(bindingAdapterPosition)
+                        toggleChecked(position)
                     } else {
                         callback?.songClick(song, dataSet)
                     }
@@ -311,7 +313,7 @@ class SearchAdapter(
                 SPOTIFY_TRACK -> {
                     val track = item as com.mardous.booming.online.data.spotify.SpotifyTrack
                     if (isInQuickSelectMode) {
-                        toggleChecked(bindingAdapterPosition)
+                        toggleChecked(position)
                     } else {
                         val tracks = dataSet.filterIsInstance<com.mardous.booming.online.data.spotify.SpotifyTrack>()
                         spotifyCallback?.spotifyTrackClick(track, tracks)
@@ -330,8 +332,10 @@ class SearchAdapter(
         }
 
         override fun onLongClick(view: View): Boolean {
+            val position = bindingAdapterPosition
+            if (position == RecyclerView.NO_POSITION) return false
             return when (itemViewType) {
-                SONG, SPOTIFY_TRACK -> toggleChecked(bindingAdapterPosition)
+                SONG, SPOTIFY_TRACK -> toggleChecked(position)
                 else -> menu?.let {
                     it.callOnClick()
                     true
@@ -351,8 +355,11 @@ class SearchAdapter(
             menu?.apply {
                 if (itemViewType == SPOTIFY_TRACK) {
                     setOnClickListener { anchor ->
-                        val track = dataSet[bindingAdapterPosition]
-                            as com.mardous.booming.online.data.spotify.SpotifyTrack
+                        val position = bindingAdapterPosition
+                        if (position == RecyclerView.NO_POSITION) return@setOnClickListener
+                        val track = dataSet.getOrNull(position)
+                            as? com.mardous.booming.online.data.spotify.SpotifyTrack
+                            ?: return@setOnClickListener
                         val tracks = dataSet.filterIsInstance<com.mardous.booming.online.data.spotify.SpotifyTrack>()
                         val popup = android.widget.PopupMenu(anchor.context, anchor)
                         popup.menu.add(0, 1, 0, anchor.context.getString(R.string.action_play))
@@ -398,7 +405,9 @@ class SearchAdapter(
                         }
 
                         override fun onMenuItemClick(item: MenuItem): Boolean {
-                            when (val data = dataSet[bindingAdapterPosition]) {
+                            val position = bindingAdapterPosition
+                            if (position == RecyclerView.NO_POSITION) return false
+                            when (val data = dataSet.getOrNull(position) ?: return false) {
                                 is Song -> return callback?.songMenuItemClick(data, item) ?: false
                                 is Album -> return callback?.albumMenuItemClick(data, item, sharedElements) ?: false
                                 is Artist -> return callback?.artistMenuItemClick(data, item, sharedElements) ?: false

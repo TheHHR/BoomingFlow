@@ -29,6 +29,7 @@ import androidx.annotation.MenuRes
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.fragment.app.FragmentActivity
+import androidx.recyclerview.widget.RecyclerView
 import com.mardous.booming.R
 import com.mardous.booming.coil.DEFAULT_SONG_IMAGE
 import com.mardous.booming.core.model.action.SongClickBehavior
@@ -148,8 +149,8 @@ open class SongAdapter(
     }
 
     open inner class ViewHolder(view: View) : MediaEntryViewHolder(view) {
-        protected open val song: Song
-            get() = dataSet[bindingAdapterPosition]
+        protected open val song: Song?
+            get() = dataSet.getOrNull(bindingAdapterPosition)
 
         @get:MenuRes
         protected open val songMenuRes: Int
@@ -168,22 +169,27 @@ open class SongAdapter(
         }
 
         protected open fun onSongMenuItemClick(item: MenuItem): Boolean {
+            val position = bindingAdapterPosition
+            if (position == RecyclerView.NO_POSITION) return false
             if (item.itemId == R.id.action_play) {
                 val playerViewModel = activity.getViewModel<PlayerViewModel>()
                 val playOptionBehavior = Preferences.playOptionClickBehavior
-                playerViewModel.openSongs(bindingAdapterPosition, dataSet, playOptionBehavior)
+                playerViewModel.openSongs(position, dataSet, playOptionBehavior)
                 return true
             }
+            val song = song ?: return false
             return callback?.songMenuItemClick(song, item, sharedElements) ?: false
         }
 
         override fun onClick(view: View) {
+            val position = bindingAdapterPosition
+            if (position == RecyclerView.NO_POSITION) return
             if (isInQuickSelectMode) {
-                toggleChecked(bindingAdapterPosition)
+                toggleChecked(position)
             } else {
                 val songClickBehavior = Preferences.songClickAction
                 val playerViewModel = activity.getViewModel<PlayerViewModel>()
-                playerViewModel.openSongs(bindingAdapterPosition, dataSet, songClickBehavior)
+                playerViewModel.openSongs(position, dataSet, songClickBehavior)
                 if (!songClickBehavior.isAbleToPlay) {
                     activity.showToast(R.string.added_title_to_playing_queue)
                 }
@@ -191,7 +197,9 @@ open class SongAdapter(
         }
 
         override fun onLongClick(view: View): Boolean {
-            return toggleChecked(bindingAdapterPosition)
+            val position = bindingAdapterPosition
+            if (position == RecyclerView.NO_POSITION) return false
+            return toggleChecked(position)
         }
 
         init {

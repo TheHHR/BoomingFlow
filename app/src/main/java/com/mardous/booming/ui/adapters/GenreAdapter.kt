@@ -80,11 +80,11 @@ class GenreAdapter(
 
     inner class ViewHolder(itemView: View) : MediaEntryViewHolder(itemView) {
 
-        private val genre: Genre
-            get() = dataSet[bindingAdapterPosition]
+        private val genre: Genre?
+            get() = dataSet.getOrNull(bindingAdapterPosition)
 
         override fun onClick(view: View) {
-            callback?.genreClick(genre)
+            genre?.let { callback?.genreClick(it) }
         }
 
         init {

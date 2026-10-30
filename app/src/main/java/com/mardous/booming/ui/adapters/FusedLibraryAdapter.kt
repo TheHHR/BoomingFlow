@@ -127,6 +127,7 @@ class FusedLibraryAdapter(
     var spotifyItems: List<SpotifyHomeItem>
         get() = shelfAdapter.items
         set(value) {
+            if (shelfAdapter.items == value) return
             shelfAdapter.items = value
             headerAdapter.setVisible(value.isNotEmpty())
             notifyDataSetChanged()

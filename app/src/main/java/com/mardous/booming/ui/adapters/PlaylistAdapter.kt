@@ -112,26 +112,31 @@ class PlaylistAdapter(
                     get() = R.menu.menu_item_playlist
 
                 override fun onMenuItemClick(item: MenuItem): Boolean =
-                    callback?.playlistMenuItemClick(playlist, item) ?: false
+                    playlist?.let { callback?.playlistMenuItemClick(it, item) } ?: false
             })
             play?.setOnClickListener {
-                getViewModel<PlayerViewModel>()?.openPlaylist(playlist.playlistEntity)
+                playlist?.let { getViewModel<PlayerViewModel>()?.openPlaylist(it.playlistEntity) }
             }
         }
 
-        private val playlist: PlaylistWithSongs
-            get() = dataSet[bindingAdapterPosition]
+        private val playlist: PlaylistWithSongs?
+            get() = dataSet.getOrNull(bindingAdapterPosition)
 
         override fun onClick(view: View) {
+            val position = bindingAdapterPosition
+            if (position == RecyclerView.NO_POSITION) return
             if (isInQuickSelectMode) {
-                toggleChecked(bindingAdapterPosition)
+                toggleChecked(position)
             } else {
+                val playlist = playlist ?: return
                 callback?.playlistClick(playlist)
             }
         }
 
         override fun onLongClick(view: View): Boolean {
-            return toggleChecked(bindingAdapterPosition)
+            val position = bindingAdapterPosition
+            if (position == RecyclerView.NO_POSITION) return false
+            return toggleChecked(position)
         }
     }
 }
