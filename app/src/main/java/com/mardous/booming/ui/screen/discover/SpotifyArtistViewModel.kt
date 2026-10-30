@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.mardous.booming.online.data.spotify.SpotifyClient
+import com.mardous.booming.online.data.spotify.SpotifyHomeItem
 import com.mardous.booming.online.data.spotify.SpotifyTrack
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -13,6 +14,9 @@ class SpotifyArtistViewModel(application: Application) : AndroidViewModel(applic
 
     private val _tracks = MutableStateFlow<List<SpotifyTrack>>(emptyList())
     val tracks = _tracks.asStateFlow()
+
+    private val _albums = MutableStateFlow<List<SpotifyHomeItem.Album>>(emptyList())
+    val albums = _albums.asStateFlow()
 
     private val _loading = MutableStateFlow(false)
     val loading = _loading.asStateFlow()
@@ -27,6 +31,20 @@ class SpotifyArtistViewModel(application: Application) : AndroidViewModel(applic
             _error.value = null
             try {
                 _tracks.value = SpotifyClient.artistTopTracks(artistId)
+                // Album shelf loads on the same gate as the tracks.
+                _albums.value = SpotifyClient.artistAlbums(artistId).map { album ->
+                    com.mardous.booming.online.data.spotify.SpotifyHomeItem.Album(
+                        uri = "spotify:album:${album.id}",
+                        id = album.id,
+                        name = album.name,
+                        artists = listOf(
+                            com.mardous.booming.online.data.spotify.SpotifySimpleArtist(
+                                name = album.artistName
+                            )
+                        ),
+                        imageUrl = album.imageUrl
+                    )
+                }
             } catch (e: Exception) {
                 _error.value = e.message
             } finally {

@@ -32,7 +32,10 @@ import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.LinearLayoutManager
 import coil3.request.crossfade
 import coil3.toBitmap
-import com.google.android.material.transition.MaterialArcMotion
+import com.mardous.booming.extensions.launchAndRepeatWithViewLifecycle
+import com.mardous.booming.online.spotify.resolveBatchForPlayback
+import com.mardous.booming.online.spotify.resolveForPlayback
+import com.mardous.booming.core.model.shuffle.OpenShuffleModeimport com.google.android.material.transition.MaterialArcMotion
 import com.google.android.material.transition.MaterialContainerTransform
 import com.mardous.booming.R
 import com.mardous.booming.coil.albumImage
@@ -69,6 +72,7 @@ import com.mardous.booming.ui.IAlbumCallback
 import com.mardous.booming.ui.ISongCallback
 import com.mardous.booming.ui.adapters.HeaderAdapter
 import com.mardous.booming.ui.adapters.HorizontalListAdapter
+import com.mardous.booming.ui.adapters.PlayableSectionHeaderAdapter
 import com.mardous.booming.ui.adapters.SectionHeaderAdapter
 import com.mardous.booming.ui.adapters.WikiAdapter
 import com.mardous.booming.ui.adapters.album.AlbumAdapter
@@ -79,6 +83,10 @@ import com.mardous.booming.ui.component.menu.onAlbumsMenu
 import com.mardous.booming.ui.component.menu.onSongMenu
 import com.mardous.booming.ui.component.menu.onSongsMenu
 import com.mardous.booming.util.Preferences
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
 import java.util.Locale
@@ -101,6 +109,8 @@ class AlbumDetailFragment : AbsMainActivityFragment(R.layout.fragment_album_deta
     private lateinit var headerAdapter: HeaderAdapter
     private lateinit var songHeaderAdapter: SectionHeaderAdapter
     private lateinit var simpleSongAdapter: SimpleSongAdapter
+    private lateinit var spotifyHeaderAdapter: PlayableSectionHeaderAdapter
+    private lateinit var spotifyTrackAdapter: com.mardous.booming.ui.screen.discover.SpotifyTrackAdapter
     private lateinit var moreAlbumsAdapter: HorizontalListAdapter
     private lateinit var wikiAdapter: WikiAdapter
     private lateinit var concatAdapter: ConcatAdapter
@@ -108,6 +118,10 @@ class AlbumDetailFragment : AbsMainActivityFragment(R.layout.fragment_album_deta
     private var albumArtistExists = false
     private var lang: String? = null
     private var biography: String? = null
+
+    /** Full Spotify tracklist by the resolver in the view model. */
+    private var spotifyTracks: List<com.mardous.booming.online.data.spotify.SpotifyTrack> = emptyList()
+    private val songDownloader: com.mardous.booming.online.download.SongDownloader by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -145,6 +159,24 @@ class AlbumDetailFragment : AbsMainActivityFragment(R.layout.fragment_album_deta
         setupRecyclerView()
 
         detailViewModel.loadAlbumDetail()
+        viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
+            launch {
+                detailViewModel.spotifyTracks.collect { tracks ->
+                    if (tracks != spotifyTracks) {
+                        spotifyTracks = tracks
+                        spotifyHeaderAdapter.setVisible(tracks.isNotEmpty())
+                        if (spotifyTrackAdapter.dataSet != tracks) {
+                            spotifyTrackAdapter.dataSet = tracks
+                        }
+                    }
+                }
+            }
+            launch {
+                com.mardous.booming.online.download.DownloadRegistry.downloadedSpotifyIds.collect { ids ->
+                    spotifyTrackAdapter.downloadedTrackIds = ids
+                }
+            }
+        }
     }
 
     private fun getAlbum(): Album = detailViewModel.getAlbum()
@@ -202,6 +234,25 @@ class AlbumDetailFragment : AbsMainActivityFragment(R.layout.fragment_album_deta
         }
         createSongAdapter()
 
+        // Spotify section: the full album tracklist below the local
+        // songs, with its own play/shuffle (streams resolve on tap).
+        spotifyHeaderAdapter = PlayableSectionHeaderAdapter(
+            title = getString(R.string.spotify_section_title),
+            onPlayClick = { playSpotifyTracks(shuffle = false) },
+            onShuffleClick = { playSpotifyTracks(shuffle = true) }
+        )
+        spotifyHeaderAdapter.setVisible(false)
+        spotifyTrackAdapter = com.mardous.booming.ui.screen.discover.SpotifyTrackAdapter(
+            requireActivity(),
+            onTrackClick = { index -> playSpotifyTrackAt(index) },
+            onPlayNext = { index -> spotifyPlayNextAt(index) },
+            onAddToQueue = { index -> spotifyEnqueueAt(index) },
+            onDownload = { index -> spotifyDownloadAt(index) },
+            onMultipleItemsAction = { menuItem, songs ->
+                handleOnlineSongsMenu(menuItem, songs)
+            }
+        )
+
         val albumAdapter = AlbumAdapter(requireActivity(), emptyList(), R.layout.item_image, callback = this)
         moreAlbumsAdapter = HorizontalListAdapter("", albumAdapter) {
             createSortOrderMenu(it, AlbumSortMode.SimilarAlbums) {
@@ -220,10 +271,119 @@ class AlbumDetailFragment : AbsMainActivityFragment(R.layout.fragment_album_deta
             headerAdapter,
             songHeaderAdapter,
             simpleSongAdapter,
+            spotifyHeaderAdapter,
+            spotifyTrackAdapter,
             moreAlbumsAdapter,
             wikiAdapter
         )
         binding.recyclerView.adapter = concatAdapter
+    }
+
+    private fun handleOnlineSongsMenu(menuItem: MenuItem, songs: List<Song>) {
+        val tracks = songs.mapNotNull { song ->
+            spotifyTracks.firstOrNull { it.id == song.data.removePrefix("yt:") }
+        }
+        when (menuItem.itemId) {
+            R.id.action_play_next,
+            R.id.action_add_to_playing_queue -> {
+                viewLifecycleOwner.lifecycleScope.launch {
+                    val items = withContext(Dispatchers.IO) { tracks.mapNotNull { it.resolveForPlayback() } }
+                    if (items.isNotEmpty()) {
+                        if (menuItem.itemId == R.id.action_play_next) {
+                            playerViewModel.playOnlineQueueNext(items)
+                            showToast(R.string.queue_added_next)
+                        } else {
+                            playerViewModel.addOnlineQueue(items)
+                            showToast(R.string.queue_added)
+                        }
+                    }
+                }
+            }
+
+            R.id.action_add_to_playlist -> {
+                com.mardous.booming.ui.dialogs.playlists.AddToPlaylistDialog.create(songs)
+                    .show(childFragmentManager, "ADD_TO_PLAYLIST")
+            }
+
+            else -> showToast(R.string.remote_action_unavailable)
+        }
+    }
+
+    private fun playSpotifyTracks(shuffle: Boolean) {
+        val tracks = spotifyTracks
+        if (tracks.isEmpty()) return
+        val ordered = if (shuffle) tracks.shuffled() else tracks
+        viewLifecycleOwner.lifecycleScope.launch {
+            val first = withContext(Dispatchers.IO) { ordered.first().resolveForPlayback() }
+            if (first == null) {
+                showToast(getString(R.string.no_youtube_match_found, ordered.first().name))
+                return@launch
+            }
+            playerViewModel.playOnlineQueue(listOf(first))
+            viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+                playerViewModel.addOnlineQueue(ordered.drop(1).resolveBatchForPlayback(20))
+            }
+        }
+    }
+
+    private fun playSpotifyTrackAt(index: Int) {
+        val tracks = spotifyTracks
+        val track = tracks.getOrNull(index) ?: return
+        viewLifecycleOwner.lifecycleScope.launch {
+            val item = withContext(Dispatchers.IO) { track.resolveForPlayback() }
+            if (item == null) {
+                showToast(getString(R.string.no_youtube_match_found, track.name))
+                return@launch
+            }
+            playerViewModel.playOnlineQueue(listOf(item))
+            viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+                playerViewModel.addOnlineQueue(tracks.drop(index + 1).resolveBatchForPlayback(20))
+            }
+            if (index > 0) {
+                viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+                    var insertIndex = 0
+                    tracks.take(index).chunked(20).forEach { chunk ->
+                        val items = chunk.resolveBatchForPlayback(20)
+                        if (items.isNotEmpty()) {
+                            playerViewModel.addOnlineQueueAt(insertIndex, items)
+                            insertIndex += items.size
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun spotifyPlayNextAt(index: Int) {
+        val track = spotifyTracks.getOrNull(index) ?: return
+        viewLifecycleOwner.lifecycleScope.launch {
+            val item = withContext(Dispatchers.IO) { track.resolveForPlayback() }
+            if (item == null) {
+                showToast(getString(R.string.no_youtube_match_found, track.name))
+            } else {
+                playerViewModel.playOnlineQueueNext(listOf(item))
+                showToast(R.string.queue_added_next)
+            }
+        }
+    }
+
+    private fun spotifyEnqueueAt(index: Int) {
+        val track = spotifyTracks.getOrNull(index) ?: return
+        viewLifecycleOwner.lifecycleScope.launch {
+            val item = withContext(Dispatchers.IO) { track.resolveForPlayback() }
+            if (item == null) {
+                showToast(getString(R.string.no_youtube_match_found, track.name))
+            } else {
+                playerViewModel.addOnlineQueue(listOf(item))
+                showToast(R.string.queue_added)
+            }
+        }
+    }
+
+    private fun spotifyDownloadAt(index: Int) {
+        val track = spotifyTracks.getOrNull(index) ?: return
+        songDownloader.enqueue(listOf(track))
+        showToast(getString(R.string.download_queued_toast, 1))
     }
 
     private fun createSortOrderMenu(view: View, sortMode: SortMode, onChanged: () -> Unit) {

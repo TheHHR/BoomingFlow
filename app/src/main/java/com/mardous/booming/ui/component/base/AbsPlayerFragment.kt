@@ -97,8 +97,12 @@ import com.mardous.booming.ui.screen.player.cover.CoverPagerFragment
 import com.mardous.booming.ui.screen.tageditor.SongTagEditorActivity
 import com.mardous.booming.util.NOW_PLAYING_EXTRA_INFO
 import com.mardous.booming.util.Preferences
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
 
@@ -681,13 +685,50 @@ fun goToArtist(activity: Activity, song: Song) {
 }
 
 fun goToAlbum(activity: Activity, song: Song) {
-    goToDestination(
-        activity,
-        R.id.nav_album_detail,
-        albumDetailArgs(song.albumId),
-        removeTransition = true,
-        singleTop = false
-    )
+    if (song.albumId > 0 && !song.data.startsWith("yt:")) {
+        goToDestination(
+            activity,
+            R.id.nav_album_detail,
+            albumDetailArgs(song.albumId),
+            removeTransition = true,
+            singleTop = false
+        )
+        return
+    }
+    // No local album backs this song (streams carry a bogus album id).
+    // Resolve the Spotify album by name + artist and land on the fused
+    // Spotify album page instead.
+    val fragment = (activity as? MainActivity)?.currentFragment(R.id.fragment_container)
+    if (fragment == null || song.albumName.isBlank()) return
+    fragment.viewLifecycleOwner.lifecycleScope.launch {
+        val candidates = withContext(Dispatchers.IO) {
+            runCatching {
+                com.mardous.booming.online.data.spotify.SpotifyClient
+                    .searchAlbums(
+                        "${song.albumName} ${song.displayArtistName()}",
+                        limit = 5
+                    )
+            }.getOrDefault(emptyList())
+        }
+        val album = candidates.firstOrNull {
+            it.name.equals(song.albumName, ignoreCase = true)
+        } ?: candidates.firstOrNull() ?: return@launch
+        goToDestination(
+            activity,
+            R.id.nav_spotify_album,
+            com.mardous.booming.ui.screen.discover.SpotifyAlbumFragment.args(
+                com.mardous.booming.online.data.spotify.SpotifyAlbum(
+                    id = album.id,
+                    name = album.name,
+                    artistName = song.displayArtistName(),
+                    year = album.year,
+                    imageUrl = album.imageUrl
+                )
+            ),
+            removeTransition = true,
+            singleTop = false
+        )
+    }
 }
 
 fun goToGenre(activity: Activity, genre: Genre) {

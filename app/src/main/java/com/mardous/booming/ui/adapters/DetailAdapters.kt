@@ -29,8 +29,59 @@ import com.mardous.booming.databinding.ItemDetailHeaderBinding
 import com.mardous.booming.databinding.ItemDetailHorizontalListBinding
 import com.mardous.booming.databinding.ItemDetailSectionHeaderBinding
 import com.mardous.booming.databinding.ItemDetailWikiBinding
+import com.mardous.booming.databinding.ItemPlayableSectionHeaderBinding
 import com.mardous.booming.extensions.resources.setMarkdownText
 import com.mardous.booming.extensions.resources.show
+
+/**
+ * Section header with small play and shuffle buttons, used by the
+ * fused detail pages so each song section plays on its own.
+ */
+class PlayableSectionHeaderAdapter(
+    private var title: String,
+    private val onPlayClick: (() -> Unit)? = null,
+    private val onShuffleClick: (() -> Unit)? = null
+) : RecyclerView.Adapter<PlayableSectionHeaderAdapter.ViewHolder>() {
+
+    class ViewHolder(val binding: ItemPlayableSectionHeaderBinding) : RecyclerView.ViewHolder(binding.root)
+
+    private val stableId = View.generateViewId().toLong()
+    private var visible = true
+
+    init {
+        setHasStableIds(true)
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    fun setVisible(visible: Boolean) {
+        if (this.visible != visible) {
+            this.visible = visible
+            notifyDataSetChanged()
+        }
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    fun updateTitle(title: String) {
+        this.title = title
+        notifyDataSetChanged()
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        return ViewHolder(ItemPlayableSectionHeaderBinding.inflate(LayoutInflater.from(parent.context), parent, false))
+    }
+
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        holder.binding.title.text = title
+        holder.binding.playAction.isVisible = onPlayClick != null
+        holder.binding.shuffleAction.isVisible = onShuffleClick != null
+        holder.binding.playAction.setOnClickListener { onPlayClick?.invoke() }
+        holder.binding.shuffleAction.setOnClickListener { onShuffleClick?.invoke() }
+    }
+
+    override fun getItemCount(): Int = if (visible) 1 else 0
+
+    override fun getItemId(position: Int): Long = stableId
+}
 
 class HeaderAdapter(
     private val onBind: (ItemDetailHeaderBinding) -> Unit

@@ -28,7 +28,7 @@ import com.mardous.booming.online.download.SongDownloader
 import com.mardous.booming.online.spotify.resolveBatchForPlayback
 import com.mardous.booming.online.spotify.resolveForPlayback
 import com.mardous.booming.ui.ISongCallback
-import com.mardous.booming.ui.adapters.SectionHeaderAdapter
+import com.mardous.booming.ui.adapters.PlayableSectionHeaderAdapter
 import com.mardous.booming.ui.adapters.song.SimpleSongAdapter
 import com.mardous.booming.ui.component.base.AbsMainActivityFragment
 import com.mardous.booming.ui.component.menu.onSongMenu
@@ -65,9 +65,9 @@ class SpotifyAlbumFragment : AbsMainActivityFragment(R.layout.fragment_detail_li
             )
         }
 
-    private lateinit var localHeaderAdapter: SectionHeaderAdapter
+    private lateinit var localHeaderAdapter: PlayableSectionHeaderAdapter
     private lateinit var localSongAdapter: SimpleSongAdapter
-    private lateinit var spotifyHeaderAdapter: SectionHeaderAdapter
+    private lateinit var spotifyHeaderAdapter: PlayableSectionHeaderAdapter
     private lateinit var trackAdapter: SpotifyTrackAdapter
 
     private var localSongs: List<Song> = emptyList()
@@ -96,7 +96,11 @@ class SpotifyAlbumFragment : AbsMainActivityFragment(R.layout.fragment_detail_li
             binding.recyclerView.updatePadding(bottom = it.getWithSpace())
         }
 
-        localHeaderAdapter = SectionHeaderAdapter(getString(R.string.songs_label))
+        localHeaderAdapter = PlayableSectionHeaderAdapter(
+            title = getString(R.string.your_songs_label),
+            onPlayClick = { playLocalSongs(shuffle = false) },
+            onShuffleClick = { playLocalSongs(shuffle = true) }
+        )
         localSongAdapter = SimpleSongAdapter(
             context = requireActivity(),
             songs = emptyList(),
@@ -104,7 +108,11 @@ class SpotifyAlbumFragment : AbsMainActivityFragment(R.layout.fragment_detail_li
             sortMode = SongSortMode.AlbumSongs,
             callback = this
         )
-        spotifyHeaderAdapter = SectionHeaderAdapter(getString(R.string.spotify_section_title))
+        spotifyHeaderAdapter = PlayableSectionHeaderAdapter(
+            title = getString(R.string.spotify_section_title),
+            onPlayClick = { playSpotifyTracks(shuffle = false) },
+            onShuffleClick = { playSpotifyTracks(shuffle = true) }
+        )
         trackAdapter = SpotifyTrackAdapter(
             requireActivity(),
             onTrackClick = { index -> playTrackAt(index) },
@@ -282,21 +290,20 @@ class SpotifyAlbumFragment : AbsMainActivityFragment(R.layout.fragment_detail_li
         showToast(getString(R.string.download_queued_toast, 1))
     }
 
-    private fun playAll(shuffle: Boolean) {
-        // Local copy wins when the album exists locally; otherwise
-        // resolve the Spotify tracks to streams.
-        if (localSongs.isNotEmpty()) {
-            if (shuffle) {
-                playerViewModel.openAndShuffleQueue(localSongs)
-            } else {
-                playerViewModel.openQueue(
-                    localSongs,
-                    shuffleMode = com.mardous.booming.core.model.shuffle.OpenShuffleMode.Off
-                )
-            }
-            return
+    private fun playLocalSongs(shuffle: Boolean) {
+        if (localSongs.isEmpty()) return
+        if (shuffle) {
+            playerViewModel.openAndShuffleQueue(localSongs)
+        } else {
+            playerViewModel.openQueue(
+                localSongs,
+                shuffleMode = com.mardous.booming.core.model.shuffle.OpenShuffleMode.Off
+            )
         }
-        val tracks = viewModel.tracks.value
+    }
+
+    private fun playSpotifyTracks(shuffle: Boolean) {
+        val tracks = remoteTracks
         if (tracks.isEmpty()) return
         val ordered = if (shuffle) tracks.shuffled() else tracks
         viewLifecycleOwner.lifecycleScope.launch {
@@ -310,6 +317,16 @@ class SpotifyAlbumFragment : AbsMainActivityFragment(R.layout.fragment_detail_li
                 playerViewModel.addOnlineQueue(ordered.drop(1).resolveBatchForPlayback(20))
             }
         }
+    }
+
+    private fun playAll(shuffle: Boolean) {
+        // Main buttons keep the fused behavior: local songs first,
+        // Spotify tracks when nothing is local.
+        if (localSongs.isNotEmpty()) {
+            playLocalSongs(shuffle)
+            return
+        }
+        playSpotifyTracks(shuffle)
     }
 
     override fun songMenuItemClick(
