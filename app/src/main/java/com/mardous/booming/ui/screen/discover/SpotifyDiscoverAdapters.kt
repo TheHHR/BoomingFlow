@@ -122,7 +122,6 @@ class SpotifyTrackAdapter(
     }
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val index: MaterialTextView = itemView.findViewById(R.id.index)
         val image: ShapeableImageView = itemView.findViewById(R.id.image)
         val badge: ShapeableImageView = itemView.findViewById(R.id.badge)
         val title: MaterialTextView = itemView.findViewById(R.id.title)
@@ -147,7 +146,6 @@ class SpotifyTrackAdapter(
             0
         }
         holder.itemView.applyRowSelectionPlayerAccent(rowAccent, isChecked, RowSelectionStyle.Plain)
-        holder.index.text = (position + 1).toString()
         holder.title.text = track.name
 
         val parts = buildList {

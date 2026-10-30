@@ -12,19 +12,9 @@
     android:paddingStart="16dp"
     android:paddingEnd="8dp">
 
-    <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/index"
-        android:layout_width="24dp"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:textAppearance="?textAppearanceCaption"
-        android:textColor="?android:attr/textColorSecondary"
-        tools:text="1"/>
-
     <FrameLayout
         android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_marginStart="8dp">
+        android:layout_height="48dp">
 
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/image"

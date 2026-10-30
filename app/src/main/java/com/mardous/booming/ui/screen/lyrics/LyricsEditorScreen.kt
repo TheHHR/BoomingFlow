@@ -231,7 +231,19 @@ fun LyricsEditorScreen(
 
     val uiState by viewModel.lyricsEditorUiState.collectAsStateWithLifecycle()
     val editedContent = rememberSaveable(saver = SnapshotMapSaver) { mutableStateMapOf() }
-    var selectedSource by rememberSaveable { mutableStateOf(LyricsSource.Embedded) }
+    // Streaming tracks have no embedded tags or sidecar files - their
+    // lyrics live only in the Stored row. Default to it and hide the
+    // other sources so the selector can never pick an unwritable one.
+    val isStream = remember(song) {
+        song.data.startsWith("yt:") || song.uri?.scheme == "innertube"
+    }
+    val availableSources = remember(isStream) {
+        if (isStream) listOf(LyricsSource.Downloaded) else LyricsSource.entries
+    }
+    var selectedSource by rememberSaveable(isStream) {
+        mutableStateOf(if (isStream) LyricsSource.Downloaded else LyricsSource.Embedded)
+    }
+    selectedSource = availableSources.firstOrNull { it == selectedSource } ?: availableSources.first()
     val isFileSource by remember { derivedStateOf { selectedSource == LyricsSource.File } }
 
     fun setLyricsContent(content: String?) {
@@ -492,6 +504,7 @@ fun LyricsEditorScreen(
                     LyricsSourceSelector(
                         enabled = !uiState.isLoading,
                         selectedSource = selectedSource,
+                        sources = availableSources,
                         onSourceSelected = { selectedSource = it },
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -532,6 +545,7 @@ fun LyricsEditorScreen(
                 LyricsSourceSelector(
                     enabled = !uiState.isLoading,
                     selectedSource = selectedSource,
+                    sources = availableSources,
                     onSourceSelected = { selectedSource = it },
                     modifier = Modifier.padding(horizontal = 16.dp)
                 )
@@ -733,13 +747,14 @@ private fun LyricsSearchDialog(
 @Composable
 fun LyricsSourceSelector(
     selectedSource: LyricsSource,
+    sources: List<LyricsSource> = LyricsSource.entries,
     onSourceSelected: (LyricsSource) -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true
 ) {
     ButtonGroup(
         onSelected = onSourceSelected,
-        buttonItems = LyricsSource.entries,
+        buttonItems = sources,
         buttonStateResolver = { source -> source == selectedSource },
         buttonTextResolver = { source -> stringResource(source.titleRes) },
         buttonIconResolver = { source, isChecked ->

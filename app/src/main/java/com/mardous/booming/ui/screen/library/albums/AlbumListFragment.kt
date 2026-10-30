@@ -23,6 +23,7 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import androidx.core.content.edit
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.mardous.booming.R
@@ -35,6 +36,7 @@ import com.mardous.booming.extensions.navigation.albumDetailArgs
 import com.mardous.booming.extensions.navigation.asFragmentExtras
 import com.mardous.booming.extensions.showToast
 import com.mardous.booming.ui.IAlbumCallback
+import com.mardous.booming.ui.adapters.FusedLibraryAdapter
 import com.mardous.booming.ui.adapters.album.AlbumAdapter
 import com.mardous.booming.ui.component.base.AbsRecyclerViewCustomGridSizeFragment
 import com.mardous.booming.ui.component.menu.onAlbumMenu
@@ -42,7 +44,7 @@ import com.mardous.booming.ui.component.menu.onAlbumsMenu
 import com.mardous.booming.ui.screen.library.ReloadType
 import com.mardous.booming.util.Preferences
 
-class AlbumListFragment : AbsRecyclerViewCustomGridSizeFragment<AlbumAdapter, GridLayoutManager>(),
+class AlbumListFragment : AbsRecyclerViewCustomGridSizeFragment<FusedLibraryAdapter, GridLayoutManager>(),
     IAlbumCallback {
 
     override val titleRes: Int = R.string.albums_label
@@ -50,16 +52,23 @@ class AlbumListFragment : AbsRecyclerViewCustomGridSizeFragment<AlbumAdapter, Gr
     override val emptyMessageRes: Int
         get() = R.string.no_albums_label
 
+    private lateinit var fusedAdapter: FusedLibraryAdapter
+    private val sectionsViewModel: com.mardous.booming.ui.screen.discover.SpotifyLibrarySectionsViewModel by activityViewModels()
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         libraryViewModel.getAlbums().observe(viewLifecycleOwner) { albums ->
-            adapter?.dataSet = albums
+            (fusedAdapter.localAdapter as? AlbumAdapter)?.dataSet = albums
         }
+        sectionsViewModel.albums.observe(viewLifecycleOwner) { items ->
+            fusedAdapter.spotifyItems = items
+        }
+        sectionsViewModel.load()
     }
 
     override fun onShuffleClicked() {
         super.onShuffleClicked()
-        adapter?.dataSet?.let {
+        (fusedAdapter.localAdapter as? AlbumAdapter)?.dataSet?.let {
             playerViewModel.openShuffle(
                 providers = it,
                 mode = Preferences.albumShuffleMode,
@@ -79,24 +88,56 @@ class AlbumListFragment : AbsRecyclerViewCustomGridSizeFragment<AlbumAdapter, Gr
 
     override fun onPause() {
         super.onPause()
-        adapter?.actionMode?.finish()
+        (fusedAdapter.localAdapter as? AlbumAdapter)?.actionMode?.finish()
     }
 
     override fun createLayoutManager(): GridLayoutManager {
-        return GridLayoutManager(activity, gridSize)
+        val manager = GridLayoutManager(activity, gridSize)
+        manager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
+            override fun getSpanSize(position: Int): Int =
+                if (::fusedAdapter.isInitialized) {
+                    fusedAdapter.spanSizeFor(position, manager.spanCount)
+                } else {
+                    1
+                }
+        }
+        return manager
     }
 
-    override fun createAdapter(): AlbumAdapter {
+    override fun createAdapter(): FusedLibraryAdapter {
         val itemLayoutRes = itemLayoutRes
         notifyLayoutResChanged(itemLayoutRes)
-        val dataSet: List<Album> = adapter?.dataSet ?: ArrayList()
-        return AlbumAdapter(
-            activity = mainActivity,
-            dataSet = dataSet,
-            itemLayoutRes = itemLayoutRes,
-            sortMode = AlbumSortMode.AllAlbums,
-            callback = this
-        )
+        val dataSet: List<Album> = if (::fusedAdapter.isInitialized) {
+            (fusedAdapter.localAdapter as? AlbumAdapter)?.dataSet ?: ArrayList()
+        } else {
+            ArrayList()
+        }
+        fusedAdapter = FusedLibraryAdapter(
+            headerTitle = getString(R.string.spotify_section_title),
+            localAdapter = AlbumAdapter(
+                activity = mainActivity,
+                dataSet = dataSet,
+                itemLayoutRes = itemLayoutRes,
+                sortMode = AlbumSortMode.AllAlbums,
+                callback = this
+            )
+        ) { item ->
+            val album = item as? com.mardous.booming.online.data.spotify.SpotifyHomeItem.Album
+                ?: return@FusedLibraryAdapter
+            findNavController().navigate(
+                R.id.nav_spotify_album,
+                com.mardous.booming.ui.screen.discover.SpotifyAlbumFragment.args(
+                    com.mardous.booming.online.data.spotify.SpotifyAlbum(
+                        id = album.id,
+                        name = album.name,
+                        artistName = album.artists.joinToString { it.name },
+                        year = null,
+                        imageUrl = album.imageUrl
+                    )
+                )
+            )
+        }
+        return fusedAdapter
     }
 
     override fun albumClick(album: Album, sharedElements: Array<Pair<View, String>>?) {
@@ -140,7 +181,7 @@ class AlbumListFragment : AbsRecyclerViewCustomGridSizeFragment<AlbumAdapter, Gr
 
     override fun onGridSizeChanged(isLand: Boolean, gridColumns: Int) {
         layoutManager?.spanCount = gridColumns
-        adapter?.notifyDataSetChanged()
+        fusedAdapter.notifyDataSetChanged()
     }
 
     override fun onCreateMenu(menu: Menu, inflater: MenuInflater) {

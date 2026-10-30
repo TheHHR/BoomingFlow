@@ -23,6 +23,7 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import androidx.core.content.edit
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.mardous.booming.R
@@ -35,14 +36,16 @@ import com.mardous.booming.extensions.navigation.artistDetailArgs
 import com.mardous.booming.extensions.navigation.asFragmentExtras
 import com.mardous.booming.extensions.showToast
 import com.mardous.booming.ui.IArtistCallback
+import com.mardous.booming.ui.adapters.FusedLibraryAdapter
 import com.mardous.booming.ui.adapters.artist.ArtistAdapter
+import com.mardous.booming.ui.screen.discover.SpotifyLibrarySectionsViewModel
 import com.mardous.booming.ui.component.base.AbsRecyclerViewCustomGridSizeFragment
 import com.mardous.booming.ui.component.menu.onArtistMenu
 import com.mardous.booming.ui.component.menu.onArtistsMenu
 import com.mardous.booming.ui.screen.library.ReloadType
 import com.mardous.booming.util.Preferences
 
-class ArtistListFragment : AbsRecyclerViewCustomGridSizeFragment<ArtistAdapter, GridLayoutManager>(),
+class ArtistListFragment : AbsRecyclerViewCustomGridSizeFragment<FusedLibraryAdapter, GridLayoutManager>(),
     IArtistCallback {
 
     override val titleRes: Int = R.string.artists_label
@@ -50,16 +53,25 @@ class ArtistListFragment : AbsRecyclerViewCustomGridSizeFragment<ArtistAdapter, 
     override val emptyMessageRes: Int
         get() = R.string.no_artists_label
 
+    private lateinit var fusedAdapter: FusedLibraryAdapter
+    private val sectionsViewModel: SpotifyLibrarySectionsViewModel by activityViewModels()
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         libraryViewModel.getArtists().observe(viewLifecycleOwner) { artists ->
-            adapter?.dataSet = artists
+            fusedAdapter.localAdapter.let { local ->
+                if (local is ArtistAdapter) local.dataSet = artists
+            }
         }
+        sectionsViewModel.artists.observe(viewLifecycleOwner) { items ->
+            fusedAdapter.spotifyItems = items
+        }
+        sectionsViewModel.load()
     }
 
     override fun onShuffleClicked() {
         super.onShuffleClicked()
-        adapter?.dataSet?.let {
+        fusedAdapter.localAdapter.dataSet.let {
             playerViewModel.openShuffle(
                 providers = it,
                 mode = Preferences.artistShuffleMode,
@@ -78,14 +90,44 @@ class ArtistListFragment : AbsRecyclerViewCustomGridSizeFragment<ArtistAdapter, 
     }
 
     override fun createLayoutManager(): GridLayoutManager {
-        return GridLayoutManager(activity, gridSize)
+        val manager = GridLayoutManager(activity, gridSize)
+        manager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
+            override fun getSpanSize(position: Int): Int =
+                if (::fusedAdapter.isInitialized) {
+                    fusedAdapter.spanSizeFor(position, manager.spanCount)
+                } else {
+                    1
+                }
+        }
+        return manager
     }
 
-    override fun createAdapter(): ArtistAdapter {
+    override fun createAdapter(): FusedLibraryAdapter {
         val itemLayoutRes = itemLayoutRes
         notifyLayoutResChanged(itemLayoutRes)
-        val dataSet: List<Artist> = if (adapter == null) ArrayList() else adapter!!.dataSet
-        return ArtistAdapter(mainActivity, dataSet, itemLayoutRes, ArtistSortMode.AllArtists, this)
+        val dataSet: List<Artist> = if (::fusedAdapter.isInitialized) {
+            (fusedAdapter.localAdapter as? ArtistAdapter)?.dataSet ?: ArrayList()
+        } else {
+            ArrayList()
+        }
+        fusedAdapter = FusedLibraryAdapter(
+            headerTitle = getString(R.string.spotify_section_title),
+            localAdapter = ArtistAdapter(mainActivity, dataSet, itemLayoutRes, ArtistSortMode.AllArtists, this)
+        ) { item ->
+            val artist = item as? com.mardous.booming.online.data.spotify.SpotifyHomeItem.Artist
+                ?: return@FusedLibraryAdapter
+            findNavController().navigate(
+                R.id.nav_spotify_artist,
+                com.mardous.booming.ui.screen.discover.SpotifyArtistFragment.args(
+                    com.mardous.booming.online.data.spotify.SpotifyArtist(
+                        id = artist.id,
+                        name = artist.name,
+                        imageUrl = artist.imageUrl
+                    )
+                )
+            )
+        }
+        return fusedAdapter
     }
 
     override fun artistClick(artist: Artist, sharedElements: Array<Pair<View, String>>?) {
@@ -164,7 +206,7 @@ class ArtistListFragment : AbsRecyclerViewCustomGridSizeFragment<ArtistAdapter, 
 
     override fun onGridSizeChanged(isLand: Boolean, gridColumns: Int) {
         layoutManager?.spanCount = gridColumns
-        adapter?.notifyDataSetChanged()
+        fusedAdapter.notifyDataSetChanged()
     }
 
     override fun onMediaContentChanged() {
@@ -174,7 +216,7 @@ class ArtistListFragment : AbsRecyclerViewCustomGridSizeFragment<ArtistAdapter, 
 
     override fun onPause() {
         super.onPause()
-        adapter?.actionMode?.finish()
+        fusedAdapter.localAdapter.actionMode?.finish()
     }
 
     companion object {

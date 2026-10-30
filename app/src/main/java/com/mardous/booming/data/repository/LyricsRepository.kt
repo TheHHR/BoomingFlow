@@ -80,6 +80,9 @@ class RealLyricsRepository(
     private val songRepository: SongRepository
 ) : LyricsRepository {
 
+    private fun isStreamSong(song: Song): Boolean =
+        isOnlineContentUri(song.uri) || song.data.startsWith("yt:")
+
     /**
      * Canonical lyrics-row id for a song. Online (yt:/innertube) tracks and
      * locally stored downloads of the same song must share one row, so
@@ -98,8 +101,12 @@ class RealLyricsRepository(
     }
 
     private fun onlineVideoId(song: Song): String? {
-        val uri = song.uri ?: return null
-        return if (isOnlineContentUri(uri)) uri.host else null
+        // Streaming songs either use the innertube:// pseudo-uri (host is
+        // the video id) or carry the artwork https URL with a "yt:" data
+        // marker - handle both so the shared Stored row is found.
+        val uri = song.uri
+        if (isOnlineContentUri(uri)) return uri?.host
+        return song.data.removePrefix("yt:").takeIf { song.data.startsWith("yt:") && it.isNotBlank() }
     }
 
     private val memoryCache = LruCache<Long, Map<LyricsSource, RawLyrics>>(20)
@@ -228,6 +235,9 @@ class RealLyricsRepository(
     }
 
     override suspend fun fileLyrics(song: Song): RawLyrics.File? {
+        if (isOnlineContentUri(song.uri)) return null
+        val data = song.data
+        if (data.isBlank() || data.startsWith("yt:") || data.startsWith("innertube")) return null
         getCachedLyrics<RawLyrics.File>(LyricsSource.File, song.id)?.let { return it }
         try {
             val preferredFormatValue =
@@ -264,10 +274,11 @@ class RealLyricsRepository(
     }
 
     override suspend fun embeddedLyrics(song: Song): RawLyrics.Embedded? {
-        // Streaming songs have no readable tags: their uri is an
-        // innertube:// pseudo-uri, not a MediaStore entry. The Stored
+        // Streaming songs have no readable tags: their uri is either an
+        // innertube:// pseudo-uri or the artwork https URL (with a "yt:"
+        // data marker) - neither is a MediaStore entry. The Stored
         // row (shared with any downloaded copy) is their only lyrics.
-        if (song.id != Song.emptySong.id && !isOnlineContentUri(song.uri)) {
+        if (song.id != Song.emptySong.id && !isStreamSong(song)) {
             getCachedLyrics<RawLyrics.Embedded>(LyricsSource.Embedded, song.id)?.let { return it }
             try {
                 val metadataReader = MetadataReader(song.uri)
@@ -440,9 +451,10 @@ class RealLyricsRepository(
     ): Boolean? {
         try {
             // Streaming songs have no embedded tags to rewrite (their
-            // uri is innertube://, not a MediaStore entry): drop the
-            // Embedded branch up front so only Stored still applies.
-            val isStream = isOnlineContentUri(song.uri)
+            // uri is innertube:// or the artwork https URL, never a
+            // MediaStore entry): drop the Embedded branch up front so
+            // only Stored still applies.
+            val isStream = isStreamSong(song)
             val editedLyrics = newContentBySource.mapNotNull { (source, content) ->
                 if (source == LyricsSource.File) return@mapNotNull null
                 if (isStream && source == LyricsSource.Embedded) return@mapNotNull null
@@ -508,9 +520,11 @@ class RealLyricsRepository(
     }
 
     override suspend fun writableUris(song: Song): List<Uri> {
-        // Streaming songs live behind innertube:// pseudo-uris: there is
-        // no MediaStore entry to request a write for.
-        if (isOnlineContentUri(song.uri)) {
+        // Streaming songs live behind innertube:// pseudo-uris or
+        // artwork https URLs: there is no MediaStore entry to ever
+        // request a write for. Requesting one throws and hard-crashes
+        // the lyrics editor.
+        if (isStreamSong(song)) {
             return emptyList()
         }
         if (hasR()) {
@@ -577,7 +591,11 @@ class RealLyricsRepository(
     }
 
     private fun findLyricsFiles(song: Song): List<LyricsFile> {
-        val songFile = File(song.data)
+        val data = song.data
+        if (isStreamSong(song)) return emptyList()
+        if (data.isBlank()) return emptyList()
+        val songFile = File(data)
+        if (!songFile.isAbsolute) return emptyList()
         val parentDir = songFile.parentFile ?: return emptyList()
 
         val baseNames = listOf(

@@ -594,7 +594,6 @@ object SpotifyClient {
         val sectionItems = sectionObj.obj("sectionItems") ?: return null
         val items = sectionItems.arr("items")
             ?.mapNotNull { parseHomeItem(it.jsonObject) }
-            ?.filterIsInstance<SpotifyHomeItem.Playlist>()
             .orEmpty()
         if (items.isEmpty()) return null
 
@@ -616,6 +615,10 @@ object SpotifyClient {
         return when {
             type.contains("Playlist", ignoreCase = true) || uri.startsWith("spotify:playlist:") ->
                 parseHomePlaylist(data)
+            type.contains("Album", ignoreCase = true) || uri.startsWith("spotify:album:") ->
+                parseHomeAlbum(data)
+            type.contains("Artist", ignoreCase = true) || uri.startsWith("spotify:artist:") ->
+                parseHomeArtist(data)
             else -> null
         }
     }

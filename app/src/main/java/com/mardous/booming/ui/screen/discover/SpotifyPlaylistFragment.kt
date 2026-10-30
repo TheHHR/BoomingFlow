@@ -28,6 +28,7 @@ import com.mardous.booming.online.download.DownloadEvent
 import com.mardous.booming.online.download.DownloadFormat
 import com.mardous.booming.online.download.DownloadRegistry
 import com.mardous.booming.online.download.SongDownloader
+import com.mardous.booming.online.spotify.PlaylistAccentCache
 import com.mardous.booming.online.spotify.resolveBatchForPlayback
 import com.mardous.booming.online.spotify.resolveForPlayback
 import com.mardous.booming.ui.IScrollHelper
@@ -129,6 +130,10 @@ class SpotifyPlaylistFragment : AbsMainActivityFragment(R.layout.fragment_playli
         }
 
         val id = playlistId
+        PlaylistAccentCache.get(requireContext(), id ?: LIKED_SONGS_ID)?.let { cached ->
+            headerAccent = cached
+            trackAdapter.headerAccent = effectiveAccent(PlayerAccentState.accentColor.value)
+        }
         viewModel.load(if (id == LIKED_SONGS_ID) null else id)
 
         viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
@@ -220,6 +225,7 @@ class SpotifyPlaylistFragment : AbsMainActivityFragment(R.layout.fragment_playli
     private fun applyHeaderPalette(bitmap: android.graphics.Bitmap) {
         binding.header.applyHeaderAccentFromArt(bitmap) { accent ->
             headerAccent = accent
+            PlaylistAccentCache.put(requireContext(), playlistId ?: LIKED_SONGS_ID, accent)
             val effective = effectiveAccent(com.mardous.booming.core.PlayerAccentState.accentColor.value)
             trackAdapter.headerAccent = effective
             trackAdapter.notifyDataSetChanged()
