@@ -56,7 +56,7 @@ class SpotifyPlaylistFragment : AbsMainActivityFragment(R.layout.fragment_playli
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        _binding = FragmentDetailListBinding.bind(view)
+        _binding = FragmentPlaylistDetailBinding.bind(view)
 
         setSupportActionBar(binding.toolbar, null)
         binding.toolbar.setNavigationOnClickListener { findNavController().navigateUp() }
