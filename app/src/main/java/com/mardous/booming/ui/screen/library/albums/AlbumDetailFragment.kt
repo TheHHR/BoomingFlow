@@ -36,6 +36,7 @@ import com.google.android.material.transition.MaterialArcMotion
 import com.google.android.material.transition.MaterialContainerTransform
 import com.mardous.booming.R
 import com.mardous.booming.coil.albumImage
+import com.mardous.booming.core.PlayerAccentState
 import com.mardous.booming.core.sort.AlbumSortMode
 import com.mardous.booming.core.sort.SongSortMode
 import com.mardous.booming.core.sort.SortMode
@@ -61,6 +62,7 @@ import com.mardous.booming.extensions.resources.applyHeaderAccentFromArt
 import com.mardous.booming.extensions.resources.removeHorizontalMarginIfRequired
 import com.mardous.booming.extensions.resources.setupStatusBarForeground
 import com.mardous.booming.extensions.resources.surfaceColor
+import com.mardous.booming.extensions.resources.tintMenuCheckedItems
 import com.mardous.booming.extensions.setSupportActionBar
 import com.mardous.booming.extensions.utilities.buildInfoString
 import com.mardous.booming.core.model.shuffle.OpenShuffleMode
@@ -228,6 +230,9 @@ class AlbumDetailFragment : AbsMainActivityFragment(R.layout.fragment_album_deta
     private fun createSortOrderMenu(view: View, sortMode: SortMode, onChanged: () -> Unit) {
         val popupMenu = PopupMenu(view.context, view).apply {
             sortMode.createMenu(menu, hasSubMenu = false)
+            if (Preferences.followPlayerColor) {
+                view.context.tintMenuCheckedItems(menu, PlayerAccentState.accentColor.value)
+            }
             setOnMenuItemClickListener { item ->
                 if (sortMode.sortItemSelected(item)) {
                     onChanged()

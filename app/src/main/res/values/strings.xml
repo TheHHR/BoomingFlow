@@ -248,7 +248,6 @@
     <string name="view_type_image">Image</string>
     <string name="action_grid_size">Grid size</string>
     <string name="action_grid_size_land">Grid size (land)</string>
-    <string name="grid_size_x" translatable="false">%1$d</string>
     <string name="grid_size_1" translatable="false">1</string>
     <string name="grid_size_2" translatable="false">2</string>
     <string name="grid_size_3" translatable="false">3</string>

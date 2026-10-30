@@ -36,6 +36,7 @@ import android.view.ViewGroup
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.ColorUtils
+import androidx.core.graphics.drawable.DrawableCompat
 import androidx.core.widget.TextViewCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.findViewTreeLifecycleOwner
@@ -515,6 +516,38 @@ fun android.widget.SeekBar.applyPreferenceSeekBarAccent(@ColorInt accent: Int) {
     progressTintList = track
     progressBackgroundTintList = ColorStateList.valueOf(scheme.onSurfaceVariant)
     thumbTintList = primary
+}
+
+/**
+ * Applies the player accent to the checked items of a native overflow /
+ * popup menu: the checked row gets an accent check icon while keeping the
+ * native menu structure. Unchecked rows are untouched. Must run wherever
+ * the menu is (re)populated; passing accent == 0 restores the native
+ * look.
+ */
+@SuppressLint("RestrictedApi")
+fun Context.tintMenuCheckedItems(menu: android.view.Menu, @ColorInt accent: Int) {
+    for (i in 0 until menu.size()) {
+        val item = menu.getItem(i)
+        if (item.hasSubMenu()) {
+            item.subMenu?.let { tintMenuCheckedItems(it, accent) }
+            continue
+        }
+        if (!item.isCheckable) continue
+        // Overflow/popup menus hide item icons by default; enable them
+        // only on menus that actually carry checked entries, so unrelated
+        // icons (e.g. the Settings gear) stay hidden.
+        (menu as? androidx.appcompat.view.menu.MenuBuilder)
+            ?.setOptionalIconsVisible(true)
+        if (accent != 0 && item.isChecked) {
+            val check = ContextCompat.getDrawable(this, R.drawable.ic_check_24dp)?.mutate()
+                ?: continue
+            DrawableCompat.setTintList(check, ColorStateList.valueOf(accent))
+            item.icon = check
+        } else {
+            item.icon = null
+        }
+    }
 }
 
 /**

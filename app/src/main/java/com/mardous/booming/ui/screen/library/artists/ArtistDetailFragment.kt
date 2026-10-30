@@ -37,6 +37,7 @@ import com.google.android.material.transition.MaterialArcMotion
 import com.google.android.material.transition.MaterialContainerTransform
 import com.mardous.booming.R
 import com.mardous.booming.coil.artistImage
+import com.mardous.booming.core.PlayerAccentState
 import com.mardous.booming.core.sort.AlbumSortMode
 import com.mardous.booming.core.sort.SongSortMode
 import com.mardous.booming.core.sort.SortMode
@@ -63,6 +64,7 @@ import com.mardous.booming.extensions.resources.applyHeaderAccentFromArt
 import com.mardous.booming.extensions.resources.removeHorizontalMarginIfRequired
 import com.mardous.booming.extensions.resources.setupStatusBarForeground
 import com.mardous.booming.extensions.resources.surfaceColor
+import com.mardous.booming.extensions.resources.tintMenuCheckedItems
 import com.mardous.booming.extensions.setSupportActionBar
 import com.mardous.booming.core.model.shuffle.OpenShuffleMode
 import com.mardous.booming.ui.IAlbumCallback
@@ -282,6 +284,9 @@ class ArtistDetailFragment : AbsMainActivityFragment(R.layout.fragment_artist_de
     private fun createSortOrderMenu(view: View, sortMode: SortMode) {
         val popupMenu = PopupMenu(view.context, view).apply {
             sortMode.createMenu(menu, hasSubMenu = false)
+            if (Preferences.followPlayerColor) {
+                view.context.tintMenuCheckedItems(menu, PlayerAccentState.accentColor.value)
+            }
             setOnMenuItemClickListener { item ->
                 if (sortMode.sortItemSelected(item)) {
                     detailViewModel.loadArtistDetail()
