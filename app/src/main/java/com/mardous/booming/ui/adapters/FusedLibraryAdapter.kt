@@ -23,6 +23,13 @@ class SpotifyShelfAdapter(
     private val onItemClickListener: (SpotifyHomeItem) -> Unit
 ) : RecyclerView.Adapter<SpotifyShelfAdapter.ShelfViewHolder>() {
 
+    init {
+        // Required: this adapter is wrapped in a ConcatAdapter with
+        // ISOLATED_STABLE_IDS, which crashes at attach time unless
+        // every sub adapter has stable IDs.
+        setHasStableIds(true)
+    }
+
     var items: List<SpotifyHomeItem> = emptyList()
         set(value) {
             field = value
@@ -97,6 +104,9 @@ class SpotifyShelfAdapter(
     }
 
     override fun getItemCount(): Int = if (items.isEmpty()) 0 else 1
+
+    // Single row: one constant stable id.
+    override fun getItemId(position: Int): Long = 1L
 }
 
 /**

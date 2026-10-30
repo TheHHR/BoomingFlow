@@ -73,6 +73,14 @@ class SpotifyTrackAdapter(
     activity, R.menu.menu_media_selection
 ) {
 
+    init {
+        // Required: this adapter is wrapped in ConcatAdapters with
+        // ISOLATED_STABLE_IDS on the unified Spotify detail pages,
+        // which crashes at attach time unless every sub adapter has
+        // stable IDs.
+        setHasStableIds(true)
+    }
+
     var dataSet: List<SpotifyTrack> by Delegates.observable(emptyList()) { _, _, _ ->
         notifyDataSetChanged()
     }
@@ -235,6 +243,10 @@ class SpotifyTrackAdapter(
     }
 
     override fun getItemCount(): Int = dataSet.size
+
+    // Stable per-track ids: the lists are deduped by id upstream.
+    override fun getItemId(position: Int): Long =
+        dataSet.getOrNull(position)?.id?.hashCode()?.toLong() ?: position.toLong()
 
     private fun formatDuration(durationMs: Int): String {
         val totalSeconds = durationMs / 1000
