@@ -30,7 +30,6 @@ import com.mardous.booming.core.model.GridViewType
 import com.mardous.booming.extensions.isLandscape
 import com.mardous.booming.extensions.resources.tintMenuCheckedItems
 import com.mardous.booming.util.Preferences
-import kotlin.math.max
 
 abstract class AbsRecyclerViewCustomGridSizeFragment<Adt : RecyclerView.Adapter<*>, LM : RecyclerView.LayoutManager> :
     AbsRecyclerViewFragment<Adt, LM>() {
@@ -145,12 +144,23 @@ abstract class AbsRecyclerViewCustomGridSizeFragment<Adt : RecyclerView.Adapter<
 
     private fun setUpGridSizeMenu(gridSizeMenu: Menu) {
         // Check marks use the accent-colored drawable applied in
-        // onPrepareMenu; no per-item work needed here besides visibility.
-        val maxGridSize = max(this.maxGridSize, 1)
-        for (size in 1..8) {
-            gridSizeMenu.findItem(
-                resources.getIdentifier("action_grid_size_$size", "id", requireContext().packageName)
-            )?.isVisible = size <= maxGridSize
+        // onPrepareMenu; selection + visibility are managed here.
+        val allSizes = listOf(1, 2, 3, 4, 5, 6, 7, 8)
+        val selected = if (this.gridSize > 0) this.gridSize else 1
+        val visibleLimit = if (this.maxGridSize >= 2) this.maxGridSize else 8
+        allSizes@for (size in allSizes) {
+            val item = when (size) {
+                1 -> gridSizeMenu.findItem(R.id.action_grid_size_1)
+                2 -> gridSizeMenu.findItem(R.id.action_grid_size_2)
+                3 -> gridSizeMenu.findItem(R.id.action_grid_size_3)
+                4 -> gridSizeMenu.findItem(R.id.action_grid_size_4)
+                5 -> gridSizeMenu.findItem(R.id.action_grid_size_5)
+                6 -> gridSizeMenu.findItem(R.id.action_grid_size_6)
+                7 -> gridSizeMenu.findItem(R.id.action_grid_size_7)
+                else -> gridSizeMenu.findItem(R.id.action_grid_size_8)
+            } ?: continue@allSizes
+            item.isChecked = size == selected
+            item.isVisible = size <= visibleLimit
         }
     }
 
