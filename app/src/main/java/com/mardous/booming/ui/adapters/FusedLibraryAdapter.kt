@@ -51,21 +51,24 @@ class SpotifyShelfAdapter(
         override fun onBindViewHolder(holder: CardViewHolder, position: Int) {
             val item = items[position]
             val context = holder.itemView.context
-            when (item) {
+            val imageUrl = when (item) {
                 is SpotifyHomeItem.Playlist -> {
                     holder.title.text = item.name
                     holder.text.text = item.ownerName ?: "Playlist"
+                    item.imageUrl
                 }
                 is SpotifyHomeItem.Album -> {
                     holder.title.text = item.name
                     holder.text.text = item.artists.joinToString { it.name }.ifEmpty { "Album" }
+                    item.imageUrl
                 }
                 is SpotifyHomeItem.Artist -> {
                     holder.title.text = item.name
                     holder.text.text = "Artist"
+                    item.imageUrl
                 }
             }
-            holder.image.load(item.imageUrl) {
+            holder.image.load(imageUrl) {
                 placeholderDrawableRes(context, DEFAULT_PLAYLIST_IMAGE)
             }
             holder.itemView.setOnClickListener { onItemClickListener(item) }

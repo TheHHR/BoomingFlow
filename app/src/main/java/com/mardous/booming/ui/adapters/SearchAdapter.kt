@@ -266,7 +266,6 @@ class SearchAdapter(
         val text: TextView? = itemView.findViewById(R.id.text)
         val menu: View? = itemView.findViewById(R.id.menu)
         val badge: View? = itemView.findViewById(R.id.badge)
-        val index: TextView? = itemView.findViewById(R.id.index)
 
         init {
             itemView.setOnClickListener(this)

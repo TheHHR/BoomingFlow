@@ -41,8 +41,10 @@ import com.mardous.booming.ui.adapters.album.AlbumAdapter
 import com.mardous.booming.ui.component.base.AbsRecyclerViewCustomGridSizeFragment
 import com.mardous.booming.ui.component.menu.onAlbumMenu
 import com.mardous.booming.ui.component.menu.onAlbumsMenu
+import com.mardous.booming.extensions.launchAndRepeatWithViewLifecycle
 import com.mardous.booming.ui.screen.library.ReloadType
 import com.mardous.booming.util.Preferences
+import kotlinx.coroutines.launch
 
 class AlbumListFragment : AbsRecyclerViewCustomGridSizeFragment<FusedLibraryAdapter, GridLayoutManager>(),
     IAlbumCallback {
@@ -60,10 +62,14 @@ class AlbumListFragment : AbsRecyclerViewCustomGridSizeFragment<FusedLibraryAdap
         libraryViewModel.getAlbums().observe(viewLifecycleOwner) { albums ->
             (fusedAdapter.localAdapter as? AlbumAdapter)?.dataSet = albums
         }
-        sectionsViewModel.albums.observe(viewLifecycleOwner) { items ->
-            fusedAdapter.spotifyItems = items
-        }
         sectionsViewModel.load()
+        viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
+            launch {
+                sectionsViewModel.albums.collect { items ->
+                    fusedAdapter.spotifyItems = items
+                }
+            }
+        }
     }
 
     override fun onShuffleClicked() {
