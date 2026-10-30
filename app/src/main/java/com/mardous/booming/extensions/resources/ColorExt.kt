@@ -520,13 +520,19 @@ fun android.widget.SeekBar.applyPreferenceSeekBarAccent(@ColorInt accent: Int) {
 
 /**
  * Applies the player accent to the checked items of a native overflow /
- * popup menu: the checked row gets an accent check icon while keeping the
- * native menu structure. Unchecked rows are untouched. Must run wherever
- * the menu is (re)populated; passing accent == 0 restores the native
- * look.
+ * popup menu: the checked row gets an accent check icon from
+ * R.drawable.ic_check_24dp. Unchecked rows are untouched.
+ *
+ * Menus that hide optional icons need setOptionalIconsVisible first; the
+ * helper does that automatically when it finds at least one checkable
+ * entry. All checkable items are processed this way so a previously
+ * checked row never keeps a stale icon. Menus are rebuilt by the
+ * framework, so this must run wherever the menu is (re)populated; pass
+ * accent == 0 to restore the native look.
  */
 @SuppressLint("RestrictedApi")
 fun Context.tintMenuCheckedItems(menu: android.view.Menu, @ColorInt accent: Int) {
+    var needsOptionalIcons = false
     for (i in 0 until menu.size()) {
         val item = menu.getItem(i)
         if (item.hasSubMenu()) {
@@ -534,11 +540,7 @@ fun Context.tintMenuCheckedItems(menu: android.view.Menu, @ColorInt accent: Int)
             continue
         }
         if (!item.isCheckable) continue
-        // Overflow/popup menus hide item icons by default; enable them
-        // only on menus that actually carry checked entries, so unrelated
-        // icons (e.g. the Settings gear) stay hidden.
-        (menu as? androidx.appcompat.view.menu.MenuBuilder)
-            ?.setOptionalIconsVisible(true)
+        needsOptionalIcons = true
         if (accent != 0 && item.isChecked) {
             val check = ContextCompat.getDrawable(this, R.drawable.ic_check_24dp)?.mutate()
                 ?: continue
@@ -547,6 +549,9 @@ fun Context.tintMenuCheckedItems(menu: android.view.Menu, @ColorInt accent: Int)
         } else {
             item.icon = null
         }
+    }
+    if (needsOptionalIcons) {
+        (menu as? androidx.appcompat.view.menu.MenuBuilder)?.setOptionalIconsVisible(true)
     }
 }
 

@@ -30,6 +30,7 @@ import com.mardous.booming.core.model.GridViewType
 import com.mardous.booming.extensions.isLandscape
 import com.mardous.booming.extensions.resources.tintMenuCheckedItems
 import com.mardous.booming.util.Preferences
+import kotlin.math.max
 
 abstract class AbsRecyclerViewCustomGridSizeFragment<Adt : RecyclerView.Adapter<*>, LM : RecyclerView.LayoutManager> :
     AbsRecyclerViewFragment<Adt, LM>() {
@@ -143,34 +144,13 @@ abstract class AbsRecyclerViewCustomGridSizeFragment<Adt : RecyclerView.Adapter<
     protected abstract fun onGridSizeChanged(isLand: Boolean, gridColumns: Int)
 
     private fun setUpGridSizeMenu(gridSizeMenu: Menu) {
-        when (this.gridSize) {
-            1 -> gridSizeMenu.findItem(R.id.action_grid_size_1).isChecked = true
-            2 -> gridSizeMenu.findItem(R.id.action_grid_size_2).isChecked = true
-            3 -> gridSizeMenu.findItem(R.id.action_grid_size_3).isChecked = true
-            4 -> gridSizeMenu.findItem(R.id.action_grid_size_4).isChecked = true
-            5 -> gridSizeMenu.findItem(R.id.action_grid_size_5).isChecked = true
-            6 -> gridSizeMenu.findItem(R.id.action_grid_size_6).isChecked = true
-            7 -> gridSizeMenu.findItem(R.id.action_grid_size_7).isChecked = true
-            8 -> gridSizeMenu.findItem(R.id.action_grid_size_8).isChecked = true
-        }
-        val maxGridSize = this.maxGridSize
-        if (maxGridSize < 8) {
-            gridSizeMenu.findItem(R.id.action_grid_size_8).isVisible = false
-        }
-        if (maxGridSize < 7) {
-            gridSizeMenu.findItem(R.id.action_grid_size_7).isVisible = false
-        }
-        if (maxGridSize < 6) {
-            gridSizeMenu.findItem(R.id.action_grid_size_6).isVisible = false
-        }
-        if (maxGridSize < 5) {
-            gridSizeMenu.findItem(R.id.action_grid_size_5).isVisible = false
-        }
-        if (maxGridSize < 4) {
-            gridSizeMenu.findItem(R.id.action_grid_size_4).isVisible = false
-        }
-        if (maxGridSize < 3) {
-            gridSizeMenu.findItem(R.id.action_grid_size_3).isVisible = false
+        // Check marks use the accent-colored drawable applied in
+        // onPrepareMenu; no per-item work needed here besides visibility.
+        val maxGridSize = max(this.maxGridSize, 1)
+        for (size in 1..8) {
+            gridSizeMenu.findItem(
+                resources.getIdentifier("action_grid_size_$size", "id", requireContext().packageName)
+            )?.isVisible = size <= maxGridSize
         }
     }
 
