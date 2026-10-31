@@ -316,6 +316,10 @@ open class PreferenceScreenFragment : PreferenceFragmentCompat(),
         findPreference<ThemePreference>(GENERAL_THEME)?.apply {
             customCallback = object : ThemePreference.Callback {
                 override fun onThemeSelected(themeName: String) {
+                    // While Pure Black is on, Auto and Light are locked
+                    // (unclickable): ignore their taps so the stored
+                    // theme can't leave Dark underneath the overlay.
+                    if (Preferences.blackTheme && themeName != GeneralTheme.DARK) return
                     // Pure Black only exists under Dark: leaving Dark
                     // clears the stale flag so it can't linger into
                     // Light/Auto through getGeneralTheme().

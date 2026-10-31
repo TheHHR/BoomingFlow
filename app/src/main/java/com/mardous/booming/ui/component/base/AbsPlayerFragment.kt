@@ -69,6 +69,7 @@ import com.mardous.booming.extensions.currentFragment
 import com.mardous.booming.extensions.launchAndRepeatWithViewLifecycle
 import com.mardous.booming.extensions.media.albumArtistName
 import com.mardous.booming.extensions.media.displayArtistName
+import com.mardous.booming.extensions.media.gotoArtistNames
 import com.mardous.booming.extensions.media.isArtistNameUnknown
 import com.mardous.booming.extensions.navigation.albumDetailArgs
 import com.mardous.booming.extensions.navigation.artistDetailArgs
@@ -83,6 +84,7 @@ import com.mardous.booming.extensions.whichFragment
 import com.mardous.booming.ui.component.menu.newPopupMenu
 import com.mardous.booming.ui.component.menu.onSongMenu
 import com.mardous.booming.ui.dialogs.WebSearchDialog
+import com.mardous.booming.ui.dialogs.artists.GoToArtistDialog
 import com.mardous.booming.ui.dialogs.playlists.AddToPlaylistDialog
 import com.mardous.booming.ui.dialogs.songs.DeleteSongsDialog
 import com.mardous.booming.ui.screen.equalizer.EqualizerFragment
@@ -671,13 +673,31 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) : Fragment(layoutRes
 }
 
 fun goToArtist(activity: Activity, song: Song) {
-    goToDestination(
-        activity,
-        R.id.nav_artist_detail,
-        artistDetailArgs(song),
-        removeTransition = true,
-        singleTop = false
-    )
+    val names = song.gotoArtistNames()
+    if (names.size <= 1) {
+        goToDestination(
+            activity,
+            R.id.nav_artist_detail,
+            artistDetailArgs(song),
+            removeTransition = true,
+            singleTop = false
+        )
+        return
+    }
+    // Multi-artist song: let the user pick which split artist to open.
+    // The activity hosts dialogs, not fragments, so reuse the same
+    // name list contract the song menus use.
+    val mainFragment = (activity as? MainActivity)?.currentFragment(R.id.fragment_container)
+    if (mainFragment == null) return
+    GoToArtistDialog(names) { chosen ->
+        goToDestination(
+            activity,
+            R.id.nav_artist_detail,
+            artistDetailArgs(-1, chosen),
+            removeTransition = true,
+            singleTop = false
+        )
+    }.show(mainFragment.childFragmentManager, "GO_TO_ARTIST")
 }
 
 fun goToAlbum(activity: Activity, song: Song) {

@@ -101,11 +101,8 @@ class CoverPagerFragment : Fragment(R.layout.fragment_player_album_cover),
      */
     private var currentAdapterSongs: List<Song>? = null
 
-    /**
-     * True while [androidx.viewpager2.widget.ViewPager2.setCurrentItem] is
-     * replaying a playback-driven position change, so [onPageSelected]
-     * doesn't feed it back into the player as a user request.
-     */
+    private var isAnimatingTransition = false
+    private var pendingTransitionPosition = -1
     private var suppressOnPageSelectedPlayback = false
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -195,8 +192,14 @@ class CoverPagerFragment : Fragment(R.layout.fragment_player_album_cover),
                             }
                         }
                     } else if (pager.currentItem != playerViewModel.position.current) {
-                        // Same queue, different position - just scroll there.
-                        pager.setCurrentItem(playerViewModel.position.current, true)
+                        // Same queue, different position - just scroll there,
+                        // unless a tap seek is still settling.
+                        if (!isAnimatingTransition) {
+                            smoothScrollToPosition(pager, playerViewModel.position.current)
+                        } else {
+                            pendingTransitionPosition =
+                                playerViewModel.position.current
+                        }
                     }
                 }
             }
@@ -207,9 +210,17 @@ class CoverPagerFragment : Fragment(R.layout.fragment_player_album_cover),
                     if (pager.currentItem != position.current) {
                         // Playback-driven page change: suppress the redundant
                         // playSongAt round-trip from onPageSelected.
-                        suppressOnPageSelectedPlayback = true
-                        pager.setCurrentItem(position.current, true)
-                        suppressOnPageSelectedPlayback = false
+                        if (isAnimatingTransition) {
+                            // A tap/scroll seek is still settling: remember the
+                            // newest target and let it settle instead of
+                            // interrupting the in-flight fling, which is what
+                            // caused the visible jump on rapid skips.
+                            pendingTransitionPosition = position.current
+                        } else {
+                            suppressOnPageSelectedPlayback = true
+                            pager.setCurrentItem(position.current, true)
+                            suppressOnPageSelectedPlayback = false
+                        }
                     }
                 }
             }
@@ -236,13 +247,44 @@ class CoverPagerFragment : Fragment(R.layout.fragment_player_album_cover),
     }
 
     override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {}
-    override fun onPageScrollStateChanged(state: Int) {}
+    override fun onPageScrollStateChanged(state: Int) {
+        // The legacy ViewPager has no anim-end callback for programmatic
+        // smooth scrolls, so settle detection runs on the scroll state:
+        // a new SETTLING pass marks the transition in flight, IDLE marks
+        // it done and flushes any playback update that arrived mid-flight.
+        if (state == ViewPager.SCROLL_STATE_SETTLING) {
+            isAnimatingTransition = true
+        } else if (state == ViewPager.SCROLL_STATE_IDLE) {
+            isAnimatingTransition = false
+            val pending = pendingTransitionPosition
+            if (pending >= 0) {
+                pendingTransitionPosition = -1
+                _binding?.viewPager?.let { pager ->
+                    if (pending != pager.currentItem) {
+                        smoothScrollToPosition(pager, pending)
+                    }
+                }
+            }
+        }
+    }
     override fun onPageSelected(position: Int) {
         currentPosition = position
         requestColor(position)
         if (!suppressOnPageSelectedPlayback && position != playerViewModel.position.current) {
             playerViewModel.playSongAt(position)
         }
+    }
+
+    private fun smoothScrollToPosition(pager: androidx.viewpager.widget.ViewPager, position: Int) {
+        // Skip the scroll animation when the jump spans more than the
+        // visible window: the pager only holds offscreenPageLimit + 1
+        // pages per side, so scrolling across a long queue scrubs through
+        // unloaded pages and stutters. Snap directly instead.
+        val span = kotlin.math.abs(pager.currentItem - position)
+        val smooth = span <= (pager.offscreenPageLimit + 1)
+        suppressOnPageSelectedPlayback = true
+        pager.setCurrentItem(position, smooth)
+        suppressOnPageSelectedPlayback = false
     }
 
     override fun onDestroyView() {

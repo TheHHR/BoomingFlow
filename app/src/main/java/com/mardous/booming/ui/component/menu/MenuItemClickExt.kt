@@ -39,7 +39,9 @@ import com.mardous.booming.extensions.navigation.songDetailArgs
 import com.mardous.booming.extensions.showToast
 import com.mardous.booming.extensions.toChooser
 import com.mardous.booming.ui.component.base.AbsTagEditorActivity
+import com.mardous.booming.extensions.media.gotoArtistNames
 import com.mardous.booming.ui.dialogs.playlists.AddToPlaylistDialog
+import com.mardous.booming.ui.dialogs.artists.GoToArtistDialog
 import com.mardous.booming.ui.dialogs.playlists.DeletePlaylistDialog
 import com.mardous.booming.ui.dialogs.playlists.EditPlaylistDialog
 import com.mardous.booming.ui.dialogs.songs.DeleteSongsDialog
@@ -90,9 +92,20 @@ fun Song.onSongMenu(
         }
 
         R.id.action_go_to_artist -> {
+            val names = song.gotoArtistNames()
             val navController = fragment.findActivityNavController(R.id.fragment_container)
-            navController.navigate(R.id.nav_artist_detail, artistDetailArgs(this))
-            true
+            if (names.size <= 1) {
+                navController.navigate(R.id.nav_artist_detail, artistDetailArgs(song))
+                true
+            } else {
+                GoToArtistDialog(names) { chosen ->
+                    navController.navigate(
+                        R.id.nav_artist_detail,
+                        artistDetailArgs(-1, chosen)
+                    )
+                }.show(fragment.childFragmentManager, "GO_TO_ARTIST")
+                true
+            }
         }
 
         R.id.action_go_to_genre -> {

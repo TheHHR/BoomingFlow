@@ -27,6 +27,7 @@ import androidx.preference.PreferenceManager
 import com.google.android.material.color.DynamicColors
 import com.kyant.m3color.hct.Hct
 import com.kyant.m3color.scheme.SchemeContent
+import androidx.compose.ui.graphics.toArgb
 import com.mardous.booming.R
 import com.mardous.booming.core.model.PaletteColor
 import com.mardous.booming.extensions.isNightMode
@@ -127,8 +128,7 @@ data class PlayerColorScheme(
         }
     }
 
-    companion object {
-
+        companion object {
         val Unspecified = PlayerColorScheme(
             mode = Mode.SimpleColor,
             appThemeToken = AppThemeToken.None,
@@ -140,6 +140,33 @@ data class PlayerColorScheme(
             onSurfaceColor = Color.TRANSPARENT,
             onSurfaceVariantColor = Color.TRANSPARENT
         )
+
+        /**
+         * AppTheme mode under Follow player color: keep the app theme's
+         * surfaces and text, but tint primary + secondary container from
+         * the song's accent — the same derivation the app scheme uses
+         * (TonalSpot family when colorful, Neutral when not). Mirrors
+         * `BoomingMusicTheme`'s follow-player-color branch.
+         */
+        private fun appThemeFollowColorScheme(
+            context: Context,
+            color: PaletteColor
+        ): PlayerColorScheme {
+            val base = themeColorScheme(context)
+            val accent = color.primaryColor
+            if (!com.mardous.booming.util.Preferences.followPlayerColor || accent == 0) {
+                return base
+            }
+            val scheme = com.mardous.booming.ui.theme.schemeFromAccent(
+                accent = accent,
+                darkTheme = context.isNightMode,
+                contrastLevel = context.systemContrast.toDouble()
+            )
+            return base.copy(
+                primaryColor = scheme.primary.toArgb(),
+                secondaryContainerColor = scheme.secondaryContainer.toArgb()
+            )
+        }
 
         /**
          * Returns a default color scheme based on the current app theme.
@@ -261,7 +288,7 @@ data class PlayerColorScheme(
             mode: PlayerColorSchemeMode
         ): PlayerColorScheme {
             val colorScheme = when (mode) {
-                Mode.AppTheme -> themeColorScheme(context)
+                Mode.AppTheme -> appThemeFollowColorScheme(context, color)
                 Mode.SimpleColor -> simpleColorScheme(context, color)
                 Mode.VibrantColor -> vibrantColorScheme(color)
                 Mode.MaterialYou -> dynamicColorScheme(context, color.primaryColor)

@@ -133,6 +133,28 @@ fun dynamicColorScheme(
 @Suppress("NOTHING_TO_INLINE")
 private inline fun Int.toColor(): Color = Color(this)
 
+/**
+ * Non-Compose derivation of the follow-player-color scheme roles the
+ * player needs (primary + secondary container). Same family selection
+ * as [BoomingMusicTheme]: TonalSpot when the accent is colorful,
+ * Neutral otherwise.
+ */
+@Stable
+fun schemeFromAccent(
+    accent: Int,
+    darkTheme: Boolean,
+    contrastLevel: Double = 0.0
+): androidx.compose.ui.graphics.ColorScheme = dynamicColorScheme(
+    sourceHct = Hct.fromInt(accent),
+    isDark = darkTheme,
+    style = if (com.mardous.booming.core.model.theme.AccentSchemes.isColorful(accent)) {
+        PaletteStyle.TonalSpot
+    } else {
+        PaletteStyle.Neutral
+    },
+    contrastLevel = contrastLevel
+)
+
 enum class PaletteStyle {
     TonalSpot,
     Neutral,

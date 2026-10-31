@@ -106,6 +106,10 @@ class ImageFragment : Fragment() {
 
     private fun loadAlbumCover() {
         disposable?.dispose()
+        // Prime the memory cache from the artwork fetcher's disk entry:
+        // on a rapid next/previous the previous bitmap may already be
+        // decoded, which avoids the blank-then-pop the cut transition
+        // would otherwise show while the pager scrolls past.
         disposable = albumCover?.songImage(song) {
             crossfade(false)
             memoryCacheKey("nowplaying:song:${song.id}")

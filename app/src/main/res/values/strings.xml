@@ -1157,6 +1157,11 @@
     <string name="favorite_download_failed">Couldn\'t download — song not added</string>
     <string name="spotify_section_title">Spotify</string>
     <string name="remote_action_unavailable">Not available for remote songs</string>
+    <string name="action_merge_artists">Merge artists</string>
+    <string name="merge_artists_title">Merge into…</string>
+    <string name="merge_artists_summary">Other spellings become aliases of the selected artist. No tags are changed.</string>
+    <string name="artists_merged_toast">Merged into %1$s</string>
+    <string name="go_to_artist_label">Go to artist</string>
     <string name="downloads_manager_title">Downloads</string>
     <string name="favorite_download_started">Downloading — the song will keep playing from your library once finished</string>
     <string name="downloads_hide_downloaded">Hide downloaded</string>

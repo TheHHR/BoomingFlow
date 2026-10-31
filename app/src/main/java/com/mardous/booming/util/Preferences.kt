@@ -174,6 +174,52 @@ object Preferences : KoinComponent {
     fun isIgnoredArtist(name: String): Boolean =
         ignoredArtists.any { it.equals(name.trim(), ignoreCase = true) }
 
+    /**
+     * User-defined artist aliases: alias spelling (trimmed, lookup is
+     * case-insensitive) -> canonical display name. Merging "djali" into
+     * "DJ ALI" stores "djali" -> "DJ ALI"; the artists list, detail
+     * lookup and cover art then treat both spellings as the canonical
+     * entry, no tag edits involved.
+     */
+    var artistAliases: Map<String, String>
+        get() = preferences.nullString(ARTIST_ALIASES)
+            .deserialize(emptyMap<String, String>())
+            .mapNotNull { (alias, canonical) ->
+                val a = alias.trim()
+                val c = canonical.trim()
+                if (a.isNotEmpty() && c.isNotEmpty()) a to c else null
+            }.toMap()
+        set(value) = preferences.edit {
+            putString(ARTIST_ALIASES, value.serialize())
+        }
+
+    fun addArtistAlias(alias: String, canonical: String) {
+        val a = alias.trim()
+        val c = canonical.trim()
+        if (a.isEmpty() || c.isEmpty()) return
+        if (a.equals(c, ignoreCase = true)) {
+            removeArtistAlias(a)
+            return
+        }
+        artistAliases = artistAliases.filterKeys { !it.equals(a, ignoreCase = true) } + (a to c)
+    }
+
+    fun removeArtistAlias(alias: String) {
+        artistAliases = artistAliases.filterKeys { !it.equals(alias.trim(), ignoreCase = true) }
+    }
+
+    /**
+     * Canonical display name for a spelling: the alias target when the
+     * spelling is a known alias (case-insensitive), otherwise the
+     * spelling itself.
+     */
+    fun canonicalArtistName(name: String): String {
+        val trimmed = name.trim()
+        return artistAliases.entries.firstOrNull {
+            it.key.equals(trimmed, ignoreCase = true)
+        }?.value ?: trimmed
+    }
+
     var libraryCategories: List<CategoryInfo>
         get() {
             val stored: List<CategoryInfo> = preferences.nullString(LIBRARY_CATEGORIES)
@@ -596,6 +642,7 @@ const val BLACK_THEME = "black_theme"
 const val ARTIST_SEPARATORS = "artist_separators"
 const val ARTIST_SEPARATOR_EXCEPTIONS = "artist_separator_exceptions"
 const val IGNORED_ARTISTS = "ignored_artists"
+const val ARTIST_ALIASES = "artist_aliases"
 const val FOLLOW_PLAYER_COLOR = "follow_player_color"
 const val USE_CUSTOM_FONT = "use_custom_font"
 const val GENERAL_THEME = "general_theme"

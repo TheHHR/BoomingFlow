@@ -68,14 +68,26 @@ class ThemePreference @JvmOverloads constructor(
         // programmatic check isn't treated as a user tap (which would
         // rewrite the stored theme and restart the app).
         group.removeOnButtonCheckedListener(this@ThemePreference)
-        // The Pure Black preference itself is only enabled under Dark
-        // (see updateBlackThemeAvailability); the theme buttons stay
-        // interactive here so the user can always switch away.
-        group.isEnabled = true
-        // While Pure Black is active the stored selection stays
-        // checked (it is what returns when Black is disabled); the
-        // BLACK value itself has no button and maps to the Auto icon.
-        group.check(selectorIds[Preferences.storedGeneralTheme] ?: R.id.systemDefault)
+        if (Preferences.blackTheme) {
+            // Pure Black is on: lock Auto and Light so the theme can't
+            // leave Dark underneath the overlay. Dark stays tappable
+            // (it is already the stored value) and the group keeps its
+            // checked state; disabled buttons ignore taps, and the
+            // listener below guards anyway.
+            group.check(selectorIds[GeneralTheme.DARK] ?: R.id.darkTheme)
+            for ((theme, id) in selectorIds) {
+                group.findViewById<View>(id)?.isEnabled = theme == GeneralTheme.DARK
+            }
+        } else {
+            group.isEnabled = true
+            // While Pure Black is active the stored selection stays
+            // checked (it is what returns when Black is disabled); the
+            // BLACK value itself has no button and maps to the Auto icon.
+            group.check(selectorIds[Preferences.storedGeneralTheme] ?: R.id.systemDefault)
+            for ((_, id) in selectorIds) {
+                group.findViewById<View>(id)?.isEnabled = true
+            }
+        }
         group.addOnButtonCheckedListener(this@ThemePreference)
     }
 

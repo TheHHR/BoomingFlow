@@ -39,6 +39,7 @@ import com.mardous.booming.ui.adapters.artist.ArtistAdapter
 import com.mardous.booming.ui.component.base.AbsRecyclerViewCustomGridSizeFragment
 import com.mardous.booming.ui.component.menu.onArtistMenu
 import com.mardous.booming.ui.component.menu.onArtistsMenu
+import com.mardous.booming.ui.dialogs.artists.MergeArtistsDialog
 import com.mardous.booming.ui.screen.library.ReloadType
 import com.mardous.booming.util.Preferences
 
@@ -116,6 +117,21 @@ class ArtistListFragment : AbsRecyclerViewCustomGridSizeFragment<ArtistAdapter, 
             Preferences.addIgnoredArtists(artists.map { it.name })
             libraryViewModel.forceReload(ReloadType.Artists)
             showToast(getString(R.string.ignored_artists_toast, artists.size))
+            return
+        }
+        if (menuItem.itemId == R.id.action_merge_artists) {
+            if (artists.size < 2) return
+            val names = artists.map { it.name }.distinct()
+            if (names.size < 2) return
+            MergeArtistsDialog(names) { canonical ->
+                for (name in names) {
+                    if (!name.equals(canonical, ignoreCase = true)) {
+                        Preferences.addArtistAlias(name, canonical)
+                    }
+                }
+                libraryViewModel.forceReload(ReloadType.Artists)
+                showToast(getString(R.string.artists_merged_toast, canonical))
+            }.show(childFragmentManager, "MERGE_ARTISTS")
             return
         }
         artists.onArtistsMenu(this, menuItem)

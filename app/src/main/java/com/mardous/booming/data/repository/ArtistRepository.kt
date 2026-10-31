@@ -29,7 +29,9 @@ import com.mardous.booming.data.local.MediaQueryDispatcher
 import com.mardous.booming.data.model.Album
 import com.mardous.booming.data.model.Artist
 import com.mardous.booming.data.model.Song
+import com.mardous.booming.extensions.media.resolveArtistAlias
 import com.mardous.booming.extensions.media.splitArtistName
+import com.mardous.booming.extensions.media.splitCanonicalArtistNames
 import com.mardous.booming.extensions.utilities.collapseSpaces
 import com.mardous.booming.util.Preferences
 
@@ -89,7 +91,7 @@ class RealArtistRepository(
             )
             val artistSongs = songs.filter { song ->
                 val rawName = song.artistName.collapseSpaces()
-                val match = rawName.splitArtistName().firstOrNull {
+                val match = rawName.splitCanonicalArtistNames().firstOrNull {
                     syntheticArtistId(it.lowercase()) == artistId
                 }
                 if (match != null && resolvedName == null) resolvedName = match
@@ -153,7 +155,10 @@ class RealArtistRepository(
     }
 
     override fun albumArtist(artistName: String): Artist {
-        if (Artist.VARIOUS_ARTISTS_DISPLAY_NAME.equals(artistName, ignoreCase = true)) {
+        // Aliases resolve to the canonical entry up front, so opening a
+        // merged artist by any of its spellings lands on the same page.
+        val canonicalName = artistName.resolveArtistAlias()
+        if (Artist.VARIOUS_ARTISTS_DISPLAY_NAME.equals(canonicalName, ignoreCase = true)) {
             // Get Various Artists
             val songs = songRepository.songs(
                 songRepository.makeSongCursor(null, null, DEFAULT_SORT_ORDER)
@@ -178,13 +183,13 @@ class RealArtistRepository(
         val artistSongs = songs.filter { song ->
             val rawName = song.albumArtistName?.collapseSpaces()?.takeIf { it.isNotEmpty() }
                 ?: fallbackByAlbum[song.albumId]
-            rawName != null && rawName.splitArtistName().any { it.equals(artistName, ignoreCase = true) }
+            rawName != null && rawName.splitCanonicalArtistNames().any { it.equals(canonicalName, ignoreCase = true) }
         }
         val albums = with(AlbumSortMode.ArtistAlbums) {
             albumRepository.splitIntoAlbums(artistSongs).sorted()
         }
         return Artist(
-            artistName = artistName,
+            artistName = canonicalName,
             albums = albums,
             filterSingles = filterSingles
         )
@@ -244,7 +249,7 @@ class RealArtistRepository(
         for (song in songs) {
             val rawName = song.artistName.collapseSpaces()
             if (rawName.isEmpty()) continue
-            for (part in rawName.splitArtistName()) {
+            for (part in rawName.splitCanonicalArtistNames()) {
                 if (Preferences.isIgnoredArtist(part)) continue
                 val key = part.lowercase()
                 songsByArtistName.getOrPut(key) { mutableListOf() }.add(song)
@@ -280,7 +285,7 @@ class RealArtistRepository(
             val rawName = song.albumArtistName?.collapseSpaces()?.takeIf { it.isNotEmpty() }
                 ?: fallbackByAlbum[song.albumId]
                 ?: continue
-            for (part in rawName.splitArtistName()) {
+            for (part in rawName.splitCanonicalArtistNames()) {
                 if (Preferences.isIgnoredArtist(part)) continue
                 val key = part.lowercase()
                 songsByArtistName.getOrPut(key) { mutableListOf() }.add(song)

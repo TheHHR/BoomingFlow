@@ -39,7 +39,14 @@ class ArtistImageFetcher(
      */
     private suspend fun fetchSpotifyImageUrl(artistName: String): String? {
         val context = options.context
-        val cacheKey = artistName.trim().lowercase()
+        // Aliases resolve to the canonical name up front: merged
+        // spellings share one session entry, one persisted URL and one
+        // search query, so the wrongly-spelled entry inherits the
+        // canonical entry's cover art.
+        val canonicalName = artistName.trim().let {
+            com.mardous.booming.util.Preferences.canonicalArtistName(it)
+        }
+        val cacheKey = canonicalName.lowercase()
         spotifySearchCache.get(cacheKey)?.let { return it }
         // Persisted URL first: survives restarts, works offline (the image
         // itself then comes from the Coil disk cache).
@@ -49,14 +56,14 @@ class ArtistImageFetcher(
         }
 
         val candidates = runCatching {
-            SpotifyClient.searchArtists(artistName, limit = 5)
+            SpotifyClient.searchArtists(canonicalName, limit = 5)
         }.getOrDefault(emptyList())
 
         val best = candidates
             .filter { !it.imageUrl.isNullOrBlank() }
-            .maxByOrNull { nameSimilarity(it.name, artistName) }
+            .maxByOrNull { nameSimilarity(it.name, canonicalName) }
         val url = best?.takeIf {
-            nameSimilarity(it.name, artistName) >= MIN_NAME_SIMILARITY
+            nameSimilarity(it.name, canonicalName) >= MIN_NAME_SIMILARITY
         }?.imageUrl
 
         synchronized(spotifySearchCache) { spotifySearchCache.put(cacheKey, url) }

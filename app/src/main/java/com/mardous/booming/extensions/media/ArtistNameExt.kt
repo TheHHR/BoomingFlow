@@ -3,7 +3,11 @@ package com.mardous.booming.extensions.media
 import android.content.Context
 import com.mardous.booming.R
 import com.mardous.booming.data.model.Artist
+import com.mardous.booming.data.model.Song
+import com.mardous.booming.extensions.utilities.collapseSpaces
+import com.mardous.booming.extensions.utilities.deserialize
 import com.mardous.booming.util.Preferences
+import org.koin.core.context.GlobalContext
 import com.mardous.booming.extensions.utilities.deserialize
 import org.koin.core.context.GlobalContext
 import java.util.regex.Pattern
@@ -125,6 +129,40 @@ fun String.extractMainArtistName(): String {
     val parts = splitArtistName()
     if (parts.size <= 1) return trim()
     return parts.dropLast(1).joinToString(", ").trim()
+}
+
+/**
+ * Canonical artist spelling: resolves a user-defined alias
+ * ("djali" -> "DJ ALI") to its canonical display name, otherwise
+ * returns the trimmed name unchanged. Alias matching is exact and
+ * case-insensitive, never fuzzy.
+ */
+fun String.resolveArtistAlias(): String =
+    Preferences.canonicalArtistName(this)
+
+/**
+ * Split parts with aliases resolved to their canonical names, so
+ * merged spellings group into one artist entry. Ignored artists are
+ * NOT filtered here — callers keep their existing ignore checks on
+ * the resolved name.
+ */
+fun String.splitCanonicalArtistNames(): List<String> =
+    splitArtistName().map { it.resolveArtistAlias() }
+
+/**
+ * The names the Go To > Artist picker offers for a song: the song's
+ * split artist names with aliases resolved, minus ignored artists.
+ * Single-element (or empty) results mean "navigate directly".
+ */
+fun Song.gotoArtistNames(): List<String> {
+    val raw = if (Preferences.onlyAlbumArtists && !albumArtistName.isNullOrEmpty()) {
+        albumArtistName
+    } else {
+        artistName
+    }
+    return raw.splitCanonicalArtistNames()
+        .filter { !Preferences.isIgnoredArtist(it) }
+        .distinct()
 }
 
 fun String.displayArtistName(): String {
