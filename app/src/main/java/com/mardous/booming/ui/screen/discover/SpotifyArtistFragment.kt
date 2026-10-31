@@ -37,8 +37,10 @@ import com.mardous.booming.ui.adapters.SpotifyAlbumShelfCardAdapter
 import com.mardous.booming.ui.adapters.album.AlbumAdapter
 import com.mardous.booming.ui.adapters.song.SimpleSongAdapter
 import com.mardous.booming.ui.component.base.AbsMainActivityFragment
+import com.mardous.booming.ui.component.menu.onAlbumsMenu
 import com.mardous.booming.ui.component.menu.onSongMenu
 import com.mardous.booming.ui.component.menu.onSongsMenu
+import com.mardous.booming.extensions.navigation.asFragmentExtras
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -282,7 +284,7 @@ class SpotifyArtistFragment : AbsMainActivityFragment(R.layout.fragment_detail_l
             R.id.nav_album_detail,
             com.mardous.booming.extensions.navigation.albumDetailArgs(album.id),
             null,
-            sharedElements?.let { com.mardous.booming.extensions.navigation.asFragmentExtras(it) }
+            sharedElements?.let { asFragmentExtras(it) }
         )
     }
 

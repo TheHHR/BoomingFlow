@@ -35,7 +35,7 @@ import coil3.toBitmap
 import com.mardous.booming.extensions.launchAndRepeatWithViewLifecycle
 import com.mardous.booming.online.spotify.resolveBatchForPlayback
 import com.mardous.booming.online.spotify.resolveForPlayback
-import com.mardous.booming.core.model.shuffle.OpenShuffleModeimport com.google.android.material.transition.MaterialArcMotion
+import com.google.android.material.transition.MaterialArcMotion
 import com.google.android.material.transition.MaterialContainerTransform
 import com.mardous.booming.R
 import com.mardous.booming.coil.albumImage
@@ -66,7 +66,12 @@ import com.mardous.booming.extensions.resources.removeHorizontalMarginIfRequired
 import com.mardous.booming.extensions.resources.setupStatusBarForeground
 import com.mardous.booming.extensions.resources.surfaceColor
 import com.mardous.booming.extensions.setSupportActionBar
+import com.mardous.booming.extensions.showToast
 import com.mardous.booming.extensions.utilities.buildInfoString
+import com.mardous.booming.core.model.shuffle.OpenShuffleMode
+import com.mardous.booming.extensions.launchAndRepeatWithViewLifecycle
+import com.mardous.booming.online.spotify.resolveBatchForPlayback
+import com.mardous.booming.online.spotify.resolveForPlayback
 import com.mardous.booming.core.model.shuffle.OpenShuffleMode
 import com.mardous.booming.ui.IAlbumCallback
 import com.mardous.booming.ui.ISongCallback
@@ -83,6 +88,7 @@ import com.mardous.booming.ui.component.menu.onAlbumsMenu
 import com.mardous.booming.ui.component.menu.onSongMenu
 import com.mardous.booming.ui.component.menu.onSongsMenu
 import com.mardous.booming.util.Preferences
+import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
