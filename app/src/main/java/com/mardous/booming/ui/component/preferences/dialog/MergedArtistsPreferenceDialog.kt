@@ -124,7 +124,8 @@ class MergedArtistsPreferenceDialog : DialogFragment() {
                 if (checked) {
                     active[alias] = canonical
                 } else {
-                    active.removeAll { it.key.equals(alias, ignoreCase = true) }
+                    val toRemove = active.keys.filter { it.equals(alias, ignoreCase = true) }
+                    for (key in toRemove) active.remove(key)
                 }
                 rows.remove(key)
                 removeViewSelf()
