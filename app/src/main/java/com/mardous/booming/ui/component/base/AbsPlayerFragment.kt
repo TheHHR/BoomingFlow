@@ -84,7 +84,7 @@ import com.mardous.booming.extensions.whichFragment
 import com.mardous.booming.ui.component.menu.newPopupMenu
 import com.mardous.booming.ui.component.menu.onSongMenu
 import com.mardous.booming.ui.dialogs.WebSearchDialog
-import com.mardous.booming.ui.dialogs.artists.GoToArtistDialog
+import com.mardous.booming.ui.dialogs.artists.GoToMenuDialog
 import com.mardous.booming.ui.dialogs.playlists.AddToPlaylistDialog
 import com.mardous.booming.ui.dialogs.songs.DeleteSongsDialog
 import com.mardous.booming.ui.screen.equalizer.EqualizerFragment
@@ -249,20 +249,17 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) : Fragment(layoutRes
                 true
             }
 
-            R.id.action_go_to_album -> {
-                onQuickActionEvent(NowPlayingAction.OpenAlbum)
+            R.id.menu_go_to -> {
+                currentSong?.let { showPlayerGoToMenu(it) }
                 true
             }
 
-            R.id.action_go_to_artist -> {
-                onQuickActionEvent(NowPlayingAction.OpenArtist)
-                true
-            }
-
+            R.id.action_go_to_album,
+            R.id.action_go_to_artist,
             R.id.action_go_to_genre -> {
-                libraryViewModel.genreBySong(currentSong).observe(viewLifecycleOwner) { genre ->
-                    goToGenre(requireActivity(), genre)
-                }
+                // Reached only via defunct submenu entries kept for back
+                // compat: the combined menu is the single entry point.
+                currentSong?.let { showPlayerGoToMenu(it) }
                 true
             }
 
@@ -672,32 +669,42 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) : Fragment(layoutRes
     }
 }
 
-fun goToArtist(activity: Activity, song: Song) {
-    val names = song.gotoArtistNames()
-    if (names.size <= 1) {
-        goToDestination(
-            activity,
-            R.id.nav_artist_detail,
-            artistDetailArgs(song),
-            removeTransition = true,
-            singleTop = false
-        )
-        return
+    protected fun showPlayerGoToMenu(song: Song) {
+        if (song.id == Song.emptySong.id) return
+        val names = song.gotoArtistNames()
+        GoToMenuDialog(
+            artistNames = names,
+            showAlbumRow = true,
+            showGenreRow = true,
+            onArtistSelected = { chosen ->
+                goToDestination(
+                    requireActivity(),
+                    R.id.nav_artist_detail,
+                    artistDetailArgs(-1, chosen),
+                    removeTransition = true,
+                    singleTop = false
+                )
+            },
+            onAlbumSelected = {
+                goToAlbum(requireActivity(), song)
+            },
+            onGenreSelected = {
+                libraryViewModel.genreBySong(song).observe(viewLifecycleOwner) { genre ->
+                    goToGenre(requireActivity(), genre)
+                }
+            }
+        ).show(childFragmentManager, "GO_TO_MENU")
     }
-    // Multi-artist song: let the user pick which split artist to open.
-    // The activity hosts dialogs, not fragments, so reuse the same
-    // name list contract the song menus use.
-    val mainFragment = (activity as? MainActivity)?.currentFragment(R.id.fragment_container)
-    if (mainFragment == null) return
-    GoToArtistDialog(names) { chosen ->
-        goToDestination(
-            activity,
-            R.id.nav_artist_detail,
-            artistDetailArgs(-1, chosen),
-            removeTransition = true,
-            singleTop = false
-        )
-    }.show(mainFragment.childFragmentManager, "GO_TO_ARTIST")
+}
+
+fun goToArtist(activity: Activity, song: Song) {
+    goToDestination(
+        activity,
+        R.id.nav_artist_detail,
+        artistDetailArgs(song),
+        removeTransition = true,
+        singleTop = false
+    )
 }
 
 fun goToAlbum(activity: Activity, song: Song) {

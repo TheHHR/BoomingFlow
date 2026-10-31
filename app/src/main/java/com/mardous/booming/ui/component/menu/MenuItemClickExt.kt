@@ -41,7 +41,7 @@ import com.mardous.booming.extensions.toChooser
 import com.mardous.booming.ui.component.base.AbsTagEditorActivity
 import com.mardous.booming.extensions.media.gotoArtistNames
 import com.mardous.booming.ui.dialogs.playlists.AddToPlaylistDialog
-import com.mardous.booming.ui.dialogs.artists.GoToArtistDialog
+import com.mardous.booming.ui.dialogs.artists.GoToMenuDialog
 import com.mardous.booming.ui.dialogs.playlists.DeletePlaylistDialog
 import com.mardous.booming.ui.dialogs.playlists.EditPlaylistDialog
 import com.mardous.booming.ui.dialogs.songs.DeleteSongsDialog
@@ -91,21 +91,14 @@ fun Song.onSongMenu(
             true
         }
 
+        R.id.menu_go_to -> {
+            showGoToMenu(fragment)
+        }
+
         R.id.action_go_to_artist -> {
-            val names = gotoArtistNames()
             val navController = fragment.findActivityNavController(R.id.fragment_container)
-            if (names.size <= 1) {
-                navController.navigate(R.id.nav_artist_detail, artistDetailArgs(this))
-                true
-            } else {
-                GoToArtistDialog(names) { chosen ->
-                    navController.navigate(
-                        R.id.nav_artist_detail,
-                        artistDetailArgs(-1, chosen)
-                    )
-                }.show(fragment.childFragmentManager, "GO_TO_ARTIST")
-                true
-            }
+            navController.navigate(R.id.nav_artist_detail, artistDetailArgs(this))
+            true
         }
 
         R.id.action_go_to_genre -> {
@@ -147,6 +140,35 @@ fun Song.onSongMenu(
 
         else -> false
     }
+}
+
+/**
+ * One-tap Go To menu for a song: artist rows (alias-resolved splits,
+ * ignored artists excluded), then Album and Genre rows, then Close.
+ * Opened directly when "Go to" is tapped - no submenu in between.
+ */
+fun Song.showGoToMenu(fragment: Fragment): Boolean {
+    if (id == -1L) return false
+    val names = gotoArtistNames()
+    val navController = fragment.findActivityNavController(R.id.fragment_container)
+    val libraryViewModel = fragment.getActivityViewModel<LibraryViewModel>()
+    GoToMenuDialog(
+        artistNames = names,
+        showAlbumRow = true,
+        showGenreRow = true,
+        onArtistSelected = { chosen ->
+            navController.navigate(R.id.nav_artist_detail, artistDetailArgs(-1, chosen))
+        },
+        onAlbumSelected = {
+            navController.navigate(R.id.nav_album_detail, albumDetailArgs(albumId))
+        },
+        onGenreSelected = {
+            libraryViewModel.genreBySong(this).observe(fragment.viewLifecycleOwner) { genre ->
+                navController.navigate(R.id.nav_genre_detail, genreDetailArgs(genre))
+            }
+        }
+    ).show(fragment.childFragmentManager, "GO_TO_MENU")
+    return true
 }
 
 fun List<Song>.onSongsMenu(fragment: Fragment, menuItem: MenuItem): Boolean {
