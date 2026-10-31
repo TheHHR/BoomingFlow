@@ -41,6 +41,7 @@ import com.mardous.booming.extensions.files.getCanonicalPathSafe
 import com.mardous.booming.extensions.hasQ
 import com.mardous.booming.extensions.intRes
 import com.mardous.booming.extensions.utilities.calendarSingleton
+import com.mardous.booming.extensions.utilities.collapseSpaces
 import com.mardous.booming.extensions.utilities.deserialize
 import com.mardous.booming.extensions.utilities.getCutoffTimeMillis
 import com.mardous.booming.extensions.utilities.serialize
@@ -130,10 +131,15 @@ object Preferences : KoinComponent {
      * literal separator. Default mirrors the historic built-in behavior.
      */
     val defaultArtistSeparators: List<String>
-        get() = listOf(",", "/", ";", "feat", "ft", "with", "x")
+        get() = listOf(",", "/", ";", "feat", "ft", "with", " x ")
 
     var artistSeparators: List<String>
-        get() = preferences.nullString(ARTIST_SEPARATORS).deserialize(defaultArtistSeparators)
+        get() = preferences.nullString(ARTIST_SEPARATORS)
+            .deserialize(defaultArtistSeparators)
+            // Stored lists from before the spaced-token support keep the
+            // bare "x" token; surface it as " x " so the dialog and
+            // summary show the explicit form (split behavior identical).
+            .map { if (it.equals("x", ignoreCase = true)) " x " else it }
         set(value) = preferences.edit {
             putString(ARTIST_SEPARATORS, value.serialize())
         }
@@ -178,7 +184,10 @@ object Preferences : KoinComponent {
         ignoredArtists.any { it.equals(name.trim(), ignoreCase = true) }
 
     private fun normalizeArtistAliasName(name: String): String =
-        name.trim().replace("\\s+".toRegex(), " ")
+        // collapseSpaces() uses the app-wide precompiled whitespace regex;
+        // a fresh toRegex() per call compiled thousands of times per
+        // artists-list build and was the merge-feature slowdown.
+        name.collapseSpaces()
 
     private fun normalizeArtistAliases(raw: Map<String, String>): Map<String, String> {
         val cleaned = raw.mapNotNull { (alias, canonical) ->

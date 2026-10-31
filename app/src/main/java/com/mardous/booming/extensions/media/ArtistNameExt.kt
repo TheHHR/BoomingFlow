@@ -140,12 +140,28 @@ fun String.resolveArtistAlias(): String =
 
 /**
  * Split parts with aliases resolved to their canonical names, so
- * merged spellings group into one artist entry. Ignored artists are
- * NOT filtered here — callers keep their existing ignore checks on
- * the resolved name.
+ * merged spellings group into one artist entry. A song tagged with
+ * BOTH spellings of a merge ("Eminem x martial matters") yields the
+ * canonical name once, not twice - otherwise the artists list counts
+ * that song twice while the detail page counts it once. Ignored
+ * artists are NOT filtered here - callers keep their existing ignore
+ * checks on the resolved name.
  */
-fun String.splitCanonicalArtistNames(): List<String> =
-    splitArtistName().map { it.resolveArtistAlias() }
+fun String.splitCanonicalArtistNames(): List<String> {
+    val parts = splitArtistName()
+    // No merges defined: identical to the pre-merge split, zero extra
+    // cost on the artists list.
+    if (Preferences.artistAliases.isEmpty()) return parts
+    val resolved = ArrayList<String>(parts.size)
+    val seen = HashSet<String>(parts.size)
+    for (part in parts) {
+        val canonical = part.resolveArtistAlias()
+        if (seen.add(canonical.lowercase())) {
+            resolved.add(canonical)
+        }
+    }
+    return resolved
+}
 
 /**
  * The names the Go To > Artist picker offers for a song: the song's

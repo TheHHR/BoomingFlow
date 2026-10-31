@@ -46,7 +46,7 @@ class ArtistSeparatorsPreferenceDialog : DialogFragment() {
             orientation = LinearLayout.VERTICAL
         }
 
-        val presets = listOf(",", "&", "@", "ft", "/", ";", "feat", "with", "x")
+        val presets = listOf(",", "&", "@", "ft", "/", ";", "feat", "with", " x ")
         val allTokens = LinkedHashSet<String>().apply {
             addAll(presets)
             addAll(active)
@@ -64,8 +64,11 @@ class ArtistSeparatorsPreferenceDialog : DialogFragment() {
 
         input = addInput(context, R.string.artist_separators_hint)
         exceptionInput = addInput(context, R.string.artist_separators_exception_hint)
-        val separatorInputRow = inputRow(context, input, R.string.artist_separators_add) { token ->
-            if (token.isNotEmpty() && !tokenRows.containsKey(token) && !active.contains(token)) {
+        // Separator tokens keep their typed spaces (" x " stays " x "),
+        // so a space can be part of the separator; exception entries
+        // are name fragments and stay trimmed.
+        val separatorInputRow = inputRow(context, input, R.string.artist_separators_add, preserveSpaces = true) { token ->
+            if (token.isNotBlank() && !tokenRows.containsKey(token) && !active.contains(token)) {
                 active.add(token)
                 tokenContainer.addView(tokenRow(context, token))
             }
@@ -161,6 +164,7 @@ class ArtistSeparatorsPreferenceDialog : DialogFragment() {
         context: android.content.Context,
         field: EditText,
         buttonLabelRes: Int,
+        preserveSpaces: Boolean = false,
         onCommit: (String) -> Unit
     ): LinearLayout {
         val addButton = MaterialButton(context, null, android.R.attr.borderlessButtonStyle).apply {
@@ -170,8 +174,11 @@ class ArtistSeparatorsPreferenceDialog : DialogFragment() {
                 ViewGroup.LayoutParams.WRAP_CONTENT
             )
             setOnClickListener {
-                val value = field.text?.toString()?.trim().orEmpty()
-                if (value.isNotEmpty()) onCommit(value)
+                val raw = field.text?.toString().orEmpty()
+                val value = if (preserveSpaces) raw else raw.trim()
+                // isNotBlank rejects whitespace-only tokens while
+                // keeping meaningful leading/trailing spaces.
+                if (value.isNotBlank()) onCommit(value)
                 field.setText("")
             }
         }
