@@ -667,7 +667,6 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) : Fragment(layoutRes
             getString(R.string.list_end)
         }
     }
-}
 
     protected fun showPlayerGoToMenu(song: Song) {
         if (song.id == Song.emptySong.id) return
