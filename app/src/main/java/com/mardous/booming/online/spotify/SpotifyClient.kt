@@ -978,43 +978,6 @@ object SpotifyClient {
             }
         }.getOrDefault(emptyList())
 
-    /**
-     * An artist's albums via the REST API (albums + singles, most
-     * recent first). Used by the fused artist page's Spotify Albums
-     * section.
-     */
-    suspend fun artistAlbums(artistId: String, limit: Int = 20): List<SpotifyAlbum> =
-        runCatching {
-            val token = getEffectiveToken() ?: return@runCatching emptyList()
-            val response = restClient.get("https://api.spotify.com/v1/artists/$artistId/albums") {
-                header("Authorization", "Bearer $token")
-                parameter("include_groups", "album,single")
-                parameter("limit", limit.coerceIn(1, 50).toString())
-                parameter("market", "from_token")
-            }
-            if (response.status != HttpStatusCode.OK) return@runCatching emptyList()
-            val parsed = json.parseToJsonElement(response.bodyAsText()).jsonObject
-            val items = parsed.arr("items") ?: return@runCatching emptyList()
-            items.mapNotNull { parseRestAlbum(it.jsonObject) }
-        }.getOrDefault(emptyList())
-
-    private fun parseRestAlbum(obj: JsonObject): SpotifyAlbum? {
-        val id = obj.str("id") ?: return null
-        val name = obj.str("name") ?: return null
-        val artistName = obj.arr("artists")?.firstOrNull()?.jsonObject?.str("name").orEmpty()
-        val year = obj.str("release_date")?.take(4)?.toIntOrNull()
-        val imageUrl = obj.arr("images")?.maxByOrNull {
-            it.jsonObject.int("width") ?: 0
-        }?.jsonObject?.str("url")
-        return SpotifyAlbum(
-            id = id,
-            name = name,
-            artistName = artistName,
-            year = year,
-            imageUrl = imageUrl
-        )
-    }
-
     private fun parseSearchPlaylist(source: JsonObject): SpotifyPlaylist? {
         val data = source.obj("data") ?: source
         val uri = data.str("uri") ?: return null

@@ -9,12 +9,9 @@ import androidx.core.view.isVisible
 import androidx.core.view.updatePadding
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.mardous.booming.R
-import com.mardous.booming.core.sort.SongSortMode
 import com.mardous.booming.data.model.Song
-import com.mardous.booming.data.repository.Repository
 import com.mardous.booming.databinding.FragmentDetailListBinding
 import com.mardous.booming.extensions.collectPlayerAccent
 import com.mardous.booming.extensions.launchAndRepeatWithViewLifecycle
@@ -27,12 +24,7 @@ import com.mardous.booming.online.download.DownloadRegistry
 import com.mardous.booming.online.download.SongDownloader
 import com.mardous.booming.online.spotify.resolveBatchForPlayback
 import com.mardous.booming.online.spotify.resolveForPlayback
-import com.mardous.booming.ui.ISongCallback
-import com.mardous.booming.ui.adapters.PlayableSectionHeaderAdapter
-import com.mardous.booming.ui.adapters.song.SimpleSongAdapter
 import com.mardous.booming.ui.component.base.AbsMainActivityFragment
-import com.mardous.booming.ui.component.menu.onSongMenu
-import com.mardous.booming.ui.component.menu.onSongsMenu
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -44,14 +36,13 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
  * by name) above the Spotify track list. Either section hides when it
  * has nothing to show.
  */
-class SpotifyAlbumFragment : AbsMainActivityFragment(R.layout.fragment_detail_list), ISongCallback {
+class SpotifyAlbumFragment : AbsMainActivityFragment(R.layout.fragment_detail_list) {
 
     private var _binding: FragmentDetailListBinding? = null
     private val binding get() = _binding!!
 
     private val viewModel: SpotifyAlbumViewModel by viewModel()
     private val songDownloader: SongDownloader by inject()
-    private val repository: Repository by inject()
 
     private val album: SpotifyAlbum?
         get() = arguments?.let {
@@ -65,13 +56,7 @@ class SpotifyAlbumFragment : AbsMainActivityFragment(R.layout.fragment_detail_li
             )
         }
 
-    private lateinit var localHeaderAdapter: PlayableSectionHeaderAdapter
-    private lateinit var localSongAdapter: SimpleSongAdapter
-    private lateinit var spotifyHeaderAdapter: PlayableSectionHeaderAdapter
     private lateinit var trackAdapter: SpotifyTrackAdapter
-
-    private var localSongs: List<Song> = emptyList()
-    private var remoteTracks: List<SpotifyTrack> = emptyList()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -96,23 +81,6 @@ class SpotifyAlbumFragment : AbsMainActivityFragment(R.layout.fragment_detail_li
             binding.recyclerView.updatePadding(bottom = it.getWithSpace())
         }
 
-        localHeaderAdapter = PlayableSectionHeaderAdapter(
-            title = getString(R.string.your_songs_label),
-            onPlayClick = { playLocalSongs(shuffle = false) },
-            onShuffleClick = { playLocalSongs(shuffle = true) }
-        )
-        localSongAdapter = SimpleSongAdapter(
-            context = requireActivity(),
-            songs = emptyList(),
-            layoutRes = R.layout.item_list,
-            sortMode = SongSortMode.AlbumSongs,
-            callback = this
-        )
-        spotifyHeaderAdapter = PlayableSectionHeaderAdapter(
-            title = getString(R.string.spotify_section_title),
-            onPlayClick = { playSpotifyTracks(shuffle = false) },
-            onShuffleClick = { playSpotifyTracks(shuffle = true) }
-        )
         trackAdapter = SpotifyTrackAdapter(
             requireActivity(),
             onTrackClick = { index -> playTrackAt(index) },
@@ -123,12 +91,7 @@ class SpotifyAlbumFragment : AbsMainActivityFragment(R.layout.fragment_detail_li
                 handleOnlineSongsMenu(menuItem, songs)
             }
         )
-        binding.recyclerView.adapter = ConcatAdapter(
-            ConcatAdapter.Config.Builder()
-                .setStableIdMode(ConcatAdapter.Config.StableIdMode.ISOLATED_STABLE_IDS)
-                .build(),
-            localHeaderAdapter, localSongAdapter, spotifyHeaderAdapter, trackAdapter
-        )
+        binding.recyclerView.adapter = trackAdapter
 
         binding.playAction.setOnClickListener { playAll(shuffle = false) }
         binding.shuffleAction.setOnClickListener { playAll(shuffle = true) }
@@ -140,37 +103,20 @@ class SpotifyAlbumFragment : AbsMainActivityFragment(R.layout.fragment_detail_li
             trackAdapter.notifyDataSetChanged()
         }
 
-        // Unified detail: match the album against the local library by
-        // name; its songs render above the Spotify tracks.
-        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
-            val matched = runCatching { repository.allAlbums() }.getOrDefault(emptyList())
-                .firstOrNull { it.name.equals(name, ignoreCase = true) }
-            val songs = matched?.sortedSongs.orEmpty()
-            withContext(Dispatchers.Main) {
-                if (songs != localSongs) {
-                    localSongs = songs
-                    localSongAdapter.dataSet = songs
-                }
-                localHeaderAdapter.setVisible(songs.isNotEmpty())
-                applyTracks()
-            }
-        }
-
         album?.let { viewModel.load(it.id) }
 
         viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
             launch {
                 viewModel.tracks.collect { tracks ->
+                    trackAdapter.dataSet = tracks
                     trackAdapter.downloadedTrackIds = songDownloader.downloadedSpotifyTrackIds()
-                    if (tracks != remoteTracks) {
-                        remoteTracks = tracks
-                        applyTracks()
-                    }
                 }
             }
             launch {
                 viewModel.loading.collect { loading ->
-                    applyTracks()
+                    binding.progressIndicator.isVisible = loading
+                    binding.recyclerView.isVisible = !loading && trackAdapter.itemCount > 0
+                    binding.empty.isVisible = !loading && trackAdapter.itemCount == 0
                 }
             }
             launch {
@@ -184,19 +130,6 @@ class SpotifyAlbumFragment : AbsMainActivityFragment(R.layout.fragment_detail_li
                 }
             }
         }
-    }
-
-    private fun applyTracks() {
-        val tracks = remoteTracks
-        val loading = viewModel.loading.value
-        spotifyHeaderAdapter.setVisible(tracks.isNotEmpty())
-        if (trackAdapter.dataSet != tracks) {
-            trackAdapter.dataSet = tracks
-        }
-        val total = localSongs.size + tracks.size
-        binding.progressIndicator.isVisible = loading && total == 0
-        binding.recyclerView.isVisible = !binding.progressIndicator.isVisible && total > 0
-        binding.empty.isVisible = !binding.progressIndicator.isVisible && total == 0
     }
 
     private fun handleOnlineSongsMenu(menuItem: android.view.MenuItem, songs: List<Song>) {
@@ -290,20 +223,8 @@ class SpotifyAlbumFragment : AbsMainActivityFragment(R.layout.fragment_detail_li
         showToast(getString(R.string.download_queued_toast, 1))
     }
 
-    private fun playLocalSongs(shuffle: Boolean) {
-        if (localSongs.isEmpty()) return
-        if (shuffle) {
-            playerViewModel.openAndShuffleQueue(localSongs)
-        } else {
-            playerViewModel.openQueue(
-                localSongs,
-                shuffleMode = com.mardous.booming.core.model.shuffle.OpenShuffleMode.Off
-            )
-        }
-    }
-
-    private fun playSpotifyTracks(shuffle: Boolean) {
-        val tracks = remoteTracks
+    private fun playAll(shuffle: Boolean) {
+        val tracks = viewModel.tracks.value
         if (tracks.isEmpty()) return
         val ordered = if (shuffle) tracks.shuffled() else tracks
         viewLifecycleOwner.lifecycleScope.launch {
@@ -317,28 +238,6 @@ class SpotifyAlbumFragment : AbsMainActivityFragment(R.layout.fragment_detail_li
                 playerViewModel.addOnlineQueue(ordered.drop(1).resolveBatchForPlayback(20))
             }
         }
-    }
-
-    private fun playAll(shuffle: Boolean) {
-        // Main buttons keep the fused behavior: local songs first,
-        // Spotify tracks when nothing is local.
-        if (localSongs.isNotEmpty()) {
-            playLocalSongs(shuffle)
-            return
-        }
-        playSpotifyTracks(shuffle)
-    }
-
-    override fun songMenuItemClick(
-        song: Song,
-        menuItem: MenuItem,
-        sharedElements: Array<Pair<View, String>>?
-    ): Boolean {
-        return song.onSongMenu(this, menuItem)
-    }
-
-    override fun songsMenuItemClick(songs: List<Song>, menuItem: MenuItem) {
-        songs.onSongsMenu(this, menuItem)
     }
 
     override fun onCreateMenu(menu: Menu, inflater: MenuInflater) = Unit

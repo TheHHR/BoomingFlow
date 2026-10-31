@@ -110,49 +110,6 @@ class SpotifyShelfAdapter(
 }
 
 /**
- * Horizontally scrolling row of full Spotify album cards, used by the
- * fused artist page's Spotify Albums section. The cards navigate with
- * the full album payload, same shape as the fused library shelves.
- */
-class SpotifyAlbumShelfCardAdapter(
-    context: android.content.Context,
-    private val onAlbumClick: (SpotifyHomeItem.Album) -> Unit
-) : RecyclerView.Adapter<SpotifyAlbumShelfCardAdapter.CardViewHolder>() {
-
-    var dataSet: List<SpotifyHomeItem.Album> = emptyList()
-        set(value) {
-            if (field != value) {
-                field = value
-                notifyDataSetChanged()
-            }
-        }
-
-    class CardViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val image: ShapeableImageView = itemView.findViewById(R.id.image)
-        val title: TextView = itemView.findViewById(R.id.title)
-        val text: TextView = itemView.findViewById(R.id.text)
-    }
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CardViewHolder =
-        CardViewHolder(
-            LayoutInflater.from(parent.context)
-                .inflate(R.layout.item_spotify_card, parent, false)
-        )
-
-    override fun onBindViewHolder(holder: CardViewHolder, position: Int) {
-        val item = dataSet[position]
-        holder.title.text = item.name
-        holder.text.text = item.artists.joinToString { it.name }.ifEmpty { "Album" }
-        holder.image.load(item.imageUrl) {
-            placeholderDrawableRes(holder.itemView.context, DEFAULT_PLAYLIST_IMAGE)
-        }
-        holder.itemView.setOnClickListener { onAlbumClick(item) }
-    }
-
-    override fun getItemCount(): Int = dataSet.size
-}
-
-/**
  * Fused library page adapter: the local grid adapter first, then a
  * "Spotify" section header and a horizontally scrolling card shelf.
  * The header row is hidden while the shelf has no items, so logged-out

@@ -1157,11 +1157,6 @@
     <string name="favorite_download_failed">Couldn\'t download — song not added</string>
     <string name="spotify_section_title">Spotify</string>
     <string name="remote_action_unavailable">Not available for remote songs</string>
-    <string name="section_play">Play this section</string>
-    <string name="section_shuffle">Shuffle this section</string>
-    <string name="your_albums_label">Your Albums</string>
-    <string name="spotify_albums_label">Spotify Albums</string>
-    <string name="your_songs_label">Your Songs</string>
     <string name="downloads_manager_title">Downloads</string>
     <string name="favorite_download_started">Downloading — the song will keep playing from your library once finished</string>
     <string name="downloads_hide_downloaded">Hide downloaded</string>
