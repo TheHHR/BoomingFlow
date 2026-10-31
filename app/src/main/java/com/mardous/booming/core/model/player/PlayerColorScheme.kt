@@ -118,9 +118,26 @@ data class PlayerColorScheme(
         }
     }
 
-    class AppThemeToken(private val isDark: Boolean, private val isDynamic: Boolean) {
-        fun isValid(context: Context): Boolean {
-            return context.isNightMode == isDark && DynamicColors.isDynamicColorAvailable() == isDynamic
+    class AppThemeToken(
+        private val isDark: Boolean,
+        private val isDynamic: Boolean,
+        private val accent: Int = 0,
+        private val followEnabled: Boolean = false
+    ) {
+        /**
+         * True when the scheme this token was stamped on no longer matches
+         * the environment: night mode or dynamic-color availability
+         * flipped, the follow-player-color toggle flipped, or (with
+         * follow on) the song's accent changed. Without the accent in
+         * the token, AppTheme schemes were never regenerated on song
+         * change and the player kept stale colors until an app reload.
+         */
+        fun isStale(context: Context, currentAccent: Int, followNow: Boolean): Boolean {
+            if (context.isNightMode != isDark) return true
+            if (DynamicColors.isDynamicColorAvailable() != isDynamic) return true
+            if (followNow != followEnabled) return true
+            if (followNow && currentAccent != accent) return true
+            return false
         }
 
         companion object {
@@ -154,8 +171,18 @@ data class PlayerColorScheme(
         ): PlayerColorScheme {
             val base = themeColorScheme(context)
             val accent = color.primaryColor
-            if (!com.mardous.booming.util.Preferences.followPlayerColor || accent == 0) {
-                return base
+            val follow = com.mardous.booming.util.Preferences.followPlayerColor
+            if (!follow || accent == 0) {
+                // Stamp the follow-off state so toggling the preference
+                // later invalidates this scheme and regenerates it.
+                return base.copy(
+                    appThemeToken = AppThemeToken(
+                        isDark = context.isNightMode,
+                        isDynamic = DynamicColors.isDynamicColorAvailable(),
+                        accent = 0,
+                        followEnabled = false
+                    )
+                )
             }
             val scheme = com.mardous.booming.ui.theme.schemeFromAccent(
                 accent = accent,
@@ -164,7 +191,13 @@ data class PlayerColorScheme(
             )
             return base.copy(
                 primaryColor = scheme.primary.toArgb(),
-                secondaryContainerColor = scheme.secondaryContainer.toArgb()
+                secondaryContainerColor = scheme.secondaryContainer.toArgb(),
+                appThemeToken = AppThemeToken(
+                    isDark = context.isNightMode,
+                    isDynamic = DynamicColors.isDynamicColorAvailable(),
+                    accent = accent,
+                    followEnabled = true
+                )
             )
         }
 
@@ -273,7 +306,11 @@ data class PlayerColorScheme(
             val blurRadius = PreferenceManager.getDefaultSharedPreferences(context)
                 .getInt(PLAYER_BLUR_RADIUS, context.resources.getInteger(R.integer.max_player_blur))
                 .toFloat()
-            return dynamicColorScheme(context, color.backgroundColor).copy(
+            // Seeded from the cover's accent (not the dominant background
+            // swatch) so every player mode shares the same hue family as
+            // the app chrome; the blurred backdrop image itself is still
+            // the cover.
+            return dynamicColorScheme(context, color.primaryColor).copy(
                 mode = PlayerColorSchemeMode.Blur,
                 blurToken = BlurToken(
                     isBlur = true,

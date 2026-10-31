@@ -64,6 +64,7 @@ import com.mardous.booming.extensions.resources.surfaceColor
 import com.mardous.booming.extensions.setSupportActionBar
 import com.mardous.booming.extensions.showToast
 import com.mardous.booming.core.model.shuffle.OpenShuffleMode
+import com.mardous.booming.online.spotify.PlaylistAccentCache
 import com.mardous.booming.ui.ISongCallback
 import com.mardous.booming.ui.adapters.song.PlaylistSongAdapter
 import com.mardous.booming.ui.component.base.AbsMainActivityFragment
@@ -91,6 +92,13 @@ class PlaylistDetailFragment : AbsMainActivityFragment(R.layout.fragment_playlis
 
     private var playlist: PlaylistWithSongs = PlaylistWithSongs.Empty
 
+    /**
+     * Accent extracted from the playlist cover (null until the art
+     * resolves). Mirrors the remote playlist pages: the cover accent
+     * wins over the player accent while set.
+     */
+    private var headerAccent: Int? = null
+
     private var playlistSongAdapter: PlaylistSongAdapter? = null
     private var wrappedAdapter: RecyclerView.Adapter<*>? = null
     private var recyclerViewDragDropManager: RecyclerViewDragDropManager? = null
@@ -112,15 +120,12 @@ class PlaylistDetailFragment : AbsMainActivityFragment(R.layout.fragment_playlis
         setupButtons()
         setupRecyclerView()
         collectPlayerAccent { accent ->
-            // playAction is a MorphicIconButton in portrait but a plain
-            // MaterialButton in the landscape header variant, so the binding
-            // types it as their common ancestor - branch on the runtime type.
-            when (val playButton = binding.header.playAction) {
-                is MorphicIconButton -> playButton.applyPlayerAccent(accent)
-                is MaterialButton -> playButton.applyPlayerAccent(accent)
+            // Cover accent wins once the playlist art has been resolved
+            // (mirrors the remote playlist pages); until then the player
+            // accent keeps the buttons from flashing the theme color.
+            if (headerAccent == null) {
+                applyHeaderAccent(accent)
             }
-            binding.header.shuffleAction.applyPlayerAccent(accent, tonal = true)
-            binding.header.searchAction?.applyPlayerAccent(accent)
             // Checked (selected) rows tint at bind time; rebind so they
             // don't keep the previous accent.
             playlistSongAdapter?.refreshCheckedRows()
@@ -130,6 +135,15 @@ class PlaylistDetailFragment : AbsMainActivityFragment(R.layout.fragment_playlis
         view.applyHorizontalWindowInsets()
 
         binding.header.image.removeHorizontalMarginIfRequired()
+
+        // Instant prefill from the cached cover accent (same pattern as
+        // the remote playlist pages): no theme-color flash on reopen,
+        // and the player accent never gets a chance to claim the
+        // buttons first.
+        PlaylistAccentCache.get(requireContext(), localAccentKey(arguments.playlistId))?.let { cached ->
+            headerAccent = cached
+            applyHeaderAccent(cached)
+        }
 
         setSupportActionBar(binding.toolbar)
         //binding.collapsingAppBarLayout.setupStatusBarScrim(requireContext())
@@ -155,7 +169,14 @@ class PlaylistDetailFragment : AbsMainActivityFragment(R.layout.fragment_playlis
                 crossfade(false)
                 listener(
                     onSuccess = { _, result ->
-                        binding.header.applyHeaderAccentFromArt(result.image.toBitmap())
+                        binding.header.applyHeaderAccentFromArt(result.image.toBitmap()) { accent ->
+                            headerAccent = accent
+                            PlaylistAccentCache.put(
+                                requireContext(),
+                                localAccentKey(playlist.playlistEntity.playListId),
+                                accent
+                            )
+                        }
                     }
                 )
             }
@@ -174,6 +195,20 @@ class PlaylistDetailFragment : AbsMainActivityFragment(R.layout.fragment_playlis
     private fun checkIsEmpty() {
         binding.empty.isVisible = playlistSongAdapter?.isNullOrEmpty == true
     }
+
+    private fun applyHeaderAccent(accent: Int) {
+        // playAction is a MorphicIconButton in portrait but a plain
+        // MaterialButton in the landscape header variant, so the binding
+        // types it as their common ancestor - branch on the runtime type.
+        when (val playButton = binding.header.playAction) {
+            is MorphicIconButton -> playButton.applyPlayerAccent(accent)
+            is MaterialButton -> playButton.applyPlayerAccent(accent)
+        }
+        binding.header.shuffleAction.applyPlayerAccent(accent, tonal = true)
+        binding.header.searchAction?.applyPlayerAccent(accent)
+    }
+
+    private fun localAccentKey(playlistId: Long): String = "local:$playlistId"
 
     private fun setupButtons() {
         binding.header.playAction.setOnClickListener {

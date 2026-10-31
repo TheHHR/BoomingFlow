@@ -105,6 +105,9 @@ fun BoomingMusicTheme(
     content: @Composable () -> Unit
 ) {
     val accent by PlayerAccentState.accentColor.collectAsState()
+    // Same contrast level the player's schemeFromAccent passes, so the
+    // app chrome and the player's AppTheme primary compute identically.
+    val contrastLevel = getSystemContrast()
 
     var colorScheme = when {
         // "Follow player color": when enabled and the current song yielded a
@@ -118,7 +121,8 @@ fun BoomingMusicTheme(
                 // Colorful songs shift the app to the song's color family;
                 // grayscale/coverless playback uses the neutral scheme for a
                 // clean gray look instead of reverting to Material You.
-                if (AccentSchemes.isColorful(accent)) PaletteStyle.TonalSpot else PaletteStyle.Neutral
+                if (AccentSchemes.isColorful(accent)) PaletteStyle.TonalSpot else PaletteStyle.Neutral,
+                contrastLevel = contrastLevel
             )
 
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {

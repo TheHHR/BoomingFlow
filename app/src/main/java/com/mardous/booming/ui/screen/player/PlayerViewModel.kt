@@ -623,8 +623,15 @@ class PlayerViewModel(
         }
 
         val currentScheme = colorScheme.mode.takeIf { it == PlayerColorSchemeMode.AppTheme }
-        if (currentScheme == mode && colorScheme.appThemeToken.isValid(context))
+        if (currentScheme == mode &&
+            !colorScheme.appThemeToken.isStale(
+                context,
+                color.primaryColor,
+                com.mardous.booming.util.Preferences.followPlayerColor
+            )
+        ) {
             return@launch
+        }
 
         val result = runCatching {
             PlayerColorScheme.autoColorScheme(context, color, mode)
