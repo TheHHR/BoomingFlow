@@ -106,7 +106,7 @@ abstract class AbsRecyclerViewCustomGridSizeFragment<Adt : RecyclerView.Adapter<
             if (resources.isLandscape) {
                 this.setTitle(R.string.action_grid_size_land)
             }
-            this.subMenu?.let { setUpGridSizeMenu(it) }
+            this.subMenu?.let { checkGridSizeItem(it) }
         }
     }
 
@@ -114,15 +114,7 @@ abstract class AbsRecyclerViewCustomGridSizeFragment<Adt : RecyclerView.Adapter<
         super.onPrepareMenu(menu)
         // Re-apply the saved grid size on every menu display so the
         // checked state survives any menu (re)creation path.
-        menu.findItem(R.id.action_grid_size)?.subMenu?.let { setUpGridSizeMenu(it) }
-    }
-
-    override fun onMenuClosed(menu: Menu) {
-        super.onMenuClosed(menu)
-        // Normalize the checked state right after any menu close, so
-        // the next open shows the saved size even when the framework
-        // rebuilds the submenu without a prepare pass.
-        menu.findItem(R.id.action_grid_size)?.subMenu?.let { setUpGridSizeMenu(it) }
+        menu.findItem(R.id.action_grid_size)?.subMenu?.let { checkGridSizeItem(it) }
     }
 
     override fun onMenuItemSelected(item: MenuItem): Boolean {
@@ -144,9 +136,12 @@ abstract class AbsRecyclerViewCustomGridSizeFragment<Adt : RecyclerView.Adapter<
     protected abstract fun saveGridSize(newGridSize: Int)
     protected abstract fun onGridSizeChanged(isLand: Boolean, gridColumns: Int)
 
-    private fun setUpGridSizeMenu(gridSizeMenu: Menu) {
-        // Selection + visibility are managed here; re-applied from the
-        // saved value on menu create, prepare, close and after a tap.
+    private fun checkGridSizeItem(gridSizeMenu: Menu) {
+        // Mirror the view-type menu: set ONLY the saved item checked and
+        // let the exclusive group (checkableBehavior="single") clear the
+        // rest. Writing isChecked=false across the whole group - the old
+        // re-apply loop - kept corrupting the selection when the menu
+        // closed, which is why the check never stuck.
         val allSizes = listOf(1, 2, 3, 4, 5, 6, 7, 8)
         val selected = if (this.gridSize > 0) this.gridSize else 1
         val visibleLimit = if (this.maxGridSize >= 2) this.maxGridSize else 8
@@ -161,8 +156,10 @@ abstract class AbsRecyclerViewCustomGridSizeFragment<Adt : RecyclerView.Adapter<
                 7 -> gridSizeMenu.findItem(R.id.action_grid_size_7)
                 else -> gridSizeMenu.findItem(R.id.action_grid_size_8)
             } ?: continue@allSizes
-            item.isChecked = size == selected
             item.isVisible = size <= visibleLimit
+            if (size == selected) {
+                item.isChecked = true
+            }
         }
     }
 
@@ -184,11 +181,11 @@ abstract class AbsRecyclerViewCustomGridSizeFragment<Adt : RecyclerView.Adapter<
             this.toolbar.menu
                 .findItem(R.id.action_view_type)
                 ?.isEnabled = this.isGridMode
-            // Normalize every grid-size item against the saved value so
-            // the exclusive group never keeps a stale selection.
+            // Exclusive group already cleared the old selection; just
+            // re-confirm the new one against the saved value.
             this.toolbar.menu
                 .findItem(R.id.action_grid_size)
-                ?.subMenu?.let { setUpGridSizeMenu(it) }
+                ?.subMenu?.let { checkGridSizeItem(it) }
             return true
         }
         return false

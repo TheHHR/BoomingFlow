@@ -212,26 +212,37 @@ object Preferences : KoinComponent {
      * collapsed) so case drift ("DJ ALI" vs "Dj Ali") can't split the
      * entry, and aliases pointing at another alias follow the chain to
      * the final canonical name.
+     *
+     * Parsed once per stored-string change and cached in memory: the
+     * artists list resolves an alias per song part, so re-reading and
+     * re-parsing the JSON map on every call is what made the page slow.
      */
     var artistAliases: Map<String, String>
-        get() = normalizeArtistAliases(
-            preferences.nullString(ARTIST_ALIASES).deserialize(emptyMap<String, String>())
-        ).also { normalized ->
-            val raw = preferences.nullString(ARTIST_ALIASES).deserialize(emptyMap<String, String>())
-            if (normalized.size != raw.size ||
-                normalized.any { (alias, canonical) ->
-                    raw.entries.none {
-                        it.key.equals(alias, ignoreCase = true) &&
-                            normalizeArtistAliasName(it.value) == canonical
-                    }
-                }
-            ) {
-                preferences.edit { putString(ARTIST_ALIASES, normalized.serialize()) }
+        get() {
+            val raw = preferences.nullString(ARTIST_ALIASES)
+            artistAliasesCache?.let { (cachedRaw, map) ->
+                if (cachedRaw == raw) return map
             }
+            val parsed = raw.deserialize(emptyMap<String, String>())
+            val normalized = normalizeArtistAliases(parsed)
+            artistAliasesCache = raw to normalized
+            if (normalized != parsed && parsed.isNotEmpty()) {
+                // One-time migration: persist the normalized shape so
+                // future reads skip this pass entirely.
+                val serialized = normalized.serialize()
+                preferences.edit { putString(ARTIST_ALIASES, serialized) }
+                artistAliasesCache = serialized to normalized
+            }
+            return normalized
         }
-        set(value) = preferences.edit {
-            putString(ARTIST_ALIASES, normalizeArtistAliases(value).serialize())
+        set(value) {
+            val normalized = normalizeArtistAliases(value)
+            val serialized = normalized.serialize()
+            preferences.edit { putString(ARTIST_ALIASES, serialized) }
+            artistAliasesCache = serialized to normalized
         }
+
+    private var artistAliasesCache: Pair<String?, Map<String, String>>? = null
 
     fun addArtistAlias(alias: String, canonical: String) {
         val a = normalizeArtistAliasName(alias)

@@ -118,29 +118,32 @@ class RealArtistRepository(
         // A player's "open artist" lands here with the MediaStore id,
         // which knows nothing about merges. When any of these songs
         // carries an alias spelling, rebuild through the canonical
-        // entry so the page matches the artists list exactly.
-        val aliased = songs.any { song ->
-            song.artistName.splitArtistName().any { part ->
-                !part.equals(part.resolveArtistAlias(), ignoreCase = true)
+        // entry so the page matches the artists list exactly. Skipped
+        // entirely when no aliases exist: zero cost for everyone else.
+        if (Preferences.artistAliases.isNotEmpty()) {
+            val aliased = songs.any { song ->
+                song.artistName.splitArtistName().any { part ->
+                    !part.equals(part.resolveArtistAlias(), ignoreCase = true)
+                }
             }
-        }
-        if (aliased) {
-            val dominant = songs
-                .flatMap { it.artistName.splitCanonicalArtistNames() }
-                .groupingBy { it.lowercase() }
-                .eachCount()
-                .maxByOrNull { it.value }
-                ?.key
-                ?.let { lower -> songs.flatMap { it.artistName.splitCanonicalArtistNames() }.firstOrNull { it.lowercase() == lower } }
-                ?: return Artist(
-                    id = artistId,
-                    albums = albumRepository.splitIntoAlbums(
-                        songs = songs,
-                        sortMode = AlbumSortMode.ArtistAlbums
-                    ),
-                    filterSingles = filterSingles
-                )
-            return albumArtist(dominant)
+            if (aliased) {
+                val dominant = songs
+                    .flatMap { it.artistName.splitCanonicalArtistNames() }
+                    .groupingBy { it.lowercase() }
+                    .eachCount()
+                    .maxByOrNull { it.value }
+                    ?.key
+                    ?.let { lower -> songs.flatMap { it.artistName.splitCanonicalArtistNames() }.firstOrNull { it.lowercase() == lower } }
+                    ?: return Artist(
+                        id = artistId,
+                        albums = albumRepository.splitIntoAlbums(
+                            songs = songs,
+                            sortMode = AlbumSortMode.ArtistAlbums
+                        ),
+                        filterSingles = filterSingles
+                    )
+                return albumArtist(dominant)
+            }
         }
         return Artist(
             id = artistId,
@@ -204,14 +207,23 @@ class RealArtistRepository(
         // match. Build the artist from all songs with the same song-level
         // assignment the artists list uses - keeping only the songs that
         // actually name this artist - so list and detail always agree.
+        // A song counts when EITHER its album-artist tag OR its own
+        // artist tag names the canonical entry (both alias-resolved):
+        // merged spellings usually live in the artist tag, and the
+        // name-based navigation (Go To menu) must land on the same
+        // song set the artists list shows.
         val songs = songRepository.songs(
             songRepository.makeSongCursor(null, null, DEFAULT_SORT_ORDER)
         )
         val fallbackByAlbum = albumFallbackNames(songs)
         val artistSongs = songs.filter { song ->
-            val rawName = song.albumArtistName?.collapseSpaces()?.takeIf { it.isNotEmpty() }
+            val rawAlbumArtist = song.albumArtistName?.collapseSpaces()?.takeIf { it.isNotEmpty() }
                 ?: fallbackByAlbum[song.albumId]
-            rawName != null && rawName.splitCanonicalArtistNames().any { it.equals(canonicalName, ignoreCase = true) }
+            val albumArtistMatch = rawAlbumArtist != null &&
+                rawAlbumArtist.splitCanonicalArtistNames().any { it.equals(canonicalName, ignoreCase = true) }
+            val songArtistMatch = song.artistName.collapseSpaces()
+                .splitCanonicalArtistNames().any { it.equals(canonicalName, ignoreCase = true) }
+            albumArtistMatch || songArtistMatch
         }
         val albums = with(AlbumSortMode.ArtistAlbums) {
             albumRepository.splitIntoAlbums(artistSongs).sorted()
