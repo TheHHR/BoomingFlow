@@ -2,11 +2,11 @@ package com.mardous.booming.ui.theme
 
 import android.app.UiModeManager
 import android.os.Build
-import androidx.compose.material3.ColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.material3.ColorScheme
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.getSystemService
 import com.kyant.m3color.hct.Hct
@@ -144,7 +144,7 @@ fun schemeFromAccent(
     accent: Int,
     darkTheme: Boolean,
     contrastLevel: Double = 0.0
-): androidx.compose.ui.graphics.ColorScheme = dynamicColorScheme(
+): androidx.compose.material3.ColorScheme = dynamicColorScheme(
     sourceHct = Hct.fromInt(accent),
     isDark = darkTheme,
     style = if (com.mardous.booming.core.model.theme.AccentSchemes.isColorful(accent)) {

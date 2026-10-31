@@ -92,10 +92,10 @@ fun Song.onSongMenu(
         }
 
         R.id.action_go_to_artist -> {
-            val names = song.gotoArtistNames()
+            val names = gotoArtistNames()
             val navController = fragment.findActivityNavController(R.id.fragment_container)
             if (names.size <= 1) {
-                navController.navigate(R.id.nav_artist_detail, artistDetailArgs(song))
+                navController.navigate(R.id.nav_artist_detail, artistDetailArgs(this))
                 true
             } else {
                 GoToArtistDialog(names) { chosen ->

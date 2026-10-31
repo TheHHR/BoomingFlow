@@ -8,8 +8,6 @@ import com.mardous.booming.extensions.utilities.collapseSpaces
 import com.mardous.booming.extensions.utilities.deserialize
 import com.mardous.booming.util.Preferences
 import org.koin.core.context.GlobalContext
-import com.mardous.booming.extensions.utilities.deserialize
-import org.koin.core.context.GlobalContext
 import java.util.regex.Pattern
 
 /**
@@ -155,12 +153,12 @@ fun String.splitCanonicalArtistNames(): List<String> =
  * Single-element (or empty) results mean "navigate directly".
  */
 fun Song.gotoArtistNames(): List<String> {
-    val raw = if (Preferences.onlyAlbumArtists && !albumArtistName.isNullOrEmpty()) {
+    val raw: String? = if (Preferences.onlyAlbumArtists && !albumArtistName.isNullOrEmpty()) {
         albumArtistName
     } else {
         artistName
     }
-    return raw.splitCanonicalArtistNames()
+    return raw?.splitCanonicalArtistNames().orEmpty()
         .filter { !Preferences.isIgnoredArtist(it) }
         .distinct()
 }
