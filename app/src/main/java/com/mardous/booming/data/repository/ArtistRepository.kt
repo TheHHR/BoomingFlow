@@ -115,6 +115,33 @@ class RealArtistRepository(
                 DEFAULT_SORT_ORDER
             )
         )
+        // A player's "open artist" lands here with the MediaStore id,
+        // which knows nothing about merges. When any of these songs
+        // carries an alias spelling, rebuild through the canonical
+        // entry so the page matches the artists list exactly.
+        val aliased = songs.any { song ->
+            song.artistName.splitArtistName().any { part ->
+                !part.equals(part.resolveArtistAlias(), ignoreCase = true)
+            }
+        }
+        if (aliased) {
+            val dominant = songs
+                .flatMap { it.artistName.splitCanonicalArtistNames() }
+                .groupingBy { it.lowercase() }
+                .eachCount()
+                .maxByOrNull { it.value }
+                ?.key
+                ?.let { lower -> songs.flatMap { it.artistName.splitCanonicalArtistNames() }.firstOrNull { it.lowercase() == lower } }
+                ?: return Artist(
+                    id = artistId,
+                    albums = albumRepository.splitIntoAlbums(
+                        songs = songs,
+                        sortMode = AlbumSortMode.ArtistAlbums
+                    ),
+                    filterSingles = filterSingles
+                )
+            return albumArtist(dominant)
+        }
         return Artist(
             id = artistId,
             albums = albumRepository.splitIntoAlbums(

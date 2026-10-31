@@ -113,6 +113,7 @@ class ArtistDetailFragment : AbsMainActivityFragment(R.layout.fragment_artist_de
 
     private var lang: String? = null
     private var biography: String? = null
+    private var mergeNote: String? = null
 
     private val isAlbumArtist: Boolean
         get() = !arguments.artistName.isNullOrEmpty()
@@ -305,6 +306,19 @@ class ArtistDetailFragment : AbsMainActivityFragment(R.layout.fragment_artist_de
         headerAdapter.notifyItemChanged(0)
         loadBiography(artist.name)
 
+        // Merged spellings share this page: remember which ones so the
+        // biography row can say so below. Without this the page can
+        // look like a wrong-artist landing.
+        val merges = com.mardous.booming.util.Preferences.artistAliases.entries
+            .filter { it.value.equals(artist.name, ignoreCase = true) }
+            .map { it.key }
+            .filter { !it.equals(artist.name, ignoreCase = true) }
+        mergeNote = if (merges.isEmpty()) null
+        else getString(R.string.merged_aliases_body, merges.joinToString(", "))
+        if (mergeNote != null) {
+            wikiAdapter.update(getString(R.string.about_x_title, artist.name), mergeNote)
+        }
+
         songHeaderAdapter.updateTitle(songText)
         songAdapter.dataSet = artist.sortedSongs
 
@@ -329,8 +343,7 @@ class ArtistDetailFragment : AbsMainActivityFragment(R.layout.fragment_artist_de
 
     private fun loadBiography(name: String, lang: String? = Locale.getDefault().language) {
         this.biography = null
-        this.lang = lang
-        detailViewModel.getArtistBio(name, lang, null).observe(viewLifecycleOwner) { lastFmArtist ->
+        this.lang = lang        detailViewModel.getArtistBio(name, lang, null).observe(viewLifecycleOwner) { lastFmArtist ->
             if (lastFmArtist != null) {
                 artistInfo(lastFmArtist)
             }
@@ -342,7 +355,10 @@ class ArtistDetailFragment : AbsMainActivityFragment(R.layout.fragment_artist_de
             val bioContent = lastFmArtist.artist.bio.content
             if (bioContent != null && bioContent.trim().isNotEmpty()) {
                 biography = bioContent
-                wikiAdapter.update(getString(R.string.about_x_title, getArtist().name), biography)
+                wikiAdapter.update(
+                    getString(R.string.about_x_title, getArtist().name),
+                    listOfNotNull(mergeNote, biography).joinToString("\n\n")
+                )
             }
         }
 

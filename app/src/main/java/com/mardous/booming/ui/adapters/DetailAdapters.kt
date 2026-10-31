@@ -114,6 +114,7 @@ class WikiAdapter : RecyclerView.Adapter<WikiAdapter.ViewHolder>() {
 
     @SuppressLint("NotifyDataSetChanged")
     fun update(title: String?, content: String?) {
+        if (content == null) return
         this.title = title
         this.content = content
         notifyDataSetChanged()
