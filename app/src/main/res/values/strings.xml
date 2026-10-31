@@ -1162,6 +1162,10 @@
     <string name="merge_artists_summary">Other spellings become aliases of the selected artist. No tags are changed.</string>
     <string name="artists_merged_toast">Merged into %1$s</string>
     <string name="go_to_artist_label">Go to artist</string>
+    <string name="merged_artists_title">Merged artists</string>
+    <string name="merged_artists_summary">Alias spellings redirect to their canonical artist</string>
+    <string name="merged_artists_hint">alias - canonical, e.g. djali - DJ ALI</string>
+    <string name="merged_artists_empty">No merged artists</string>
     <string name="downloads_manager_title">Downloads</string>
     <string name="favorite_download_started">Downloading — the song will keep playing from your library once finished</string>
     <string name="downloads_hide_downloaded">Hide downloaded</string>

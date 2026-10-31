@@ -38,19 +38,7 @@
 	<item
 		android:id="@+id/menu_go_to"
 		android:title="@string/go_to_label"
-		app:showAsAction="never">
-		<menu>
-			<item
-				android:id="@+id/action_go_to_album"
-				android:title="@string/album"/>
-			<item
-				android:id="@+id/action_go_to_artist"
-				android:title="@string/artist"/>
-			<item
-				android:id="@+id/action_go_to_genre"
-				android:title="@string/genre"/>
-		</menu>
-	</item>
+		app:showAsAction="never"/>
 	<item
 		android:id="@+id/action_tag_editor"
 		android:title="@string/action_tag_editor"

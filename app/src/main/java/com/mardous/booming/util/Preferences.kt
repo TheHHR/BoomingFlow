@@ -56,6 +56,9 @@ import java.io.File
 object Preferences : KoinComponent {
 
     private val preferences: SharedPreferences by inject()
+    private val context: android.content.Context by inject()
+
+    private fun appContext(): android.content.Context = context.applicationContext
 
     fun registerOnSharedPreferenceChangeListener(listener: OnSharedPreferenceChangeListener) {
         preferences.registerOnSharedPreferenceChangeListener(listener)
@@ -174,50 +177,107 @@ object Preferences : KoinComponent {
     fun isIgnoredArtist(name: String): Boolean =
         ignoredArtists.any { it.equals(name.trim(), ignoreCase = true) }
 
+    private fun normalizeArtistAliasName(name: String): String =
+        name.trim().replace("\\s+".toRegex(), " ")
+
+    private fun normalizeArtistAliases(raw: Map<String, String>): Map<String, String> {
+        val cleaned = raw.mapNotNull { (alias, canonical) ->
+            val a = normalizeArtistAliasName(alias)
+            val c = normalizeArtistAliasName(canonical)
+            if (a.isEmpty() || c.isEmpty() || a.equals(c, ignoreCase = true)) null
+            else a to c
+        }.toMap()
+        // Follow chains at read time, but drop pure cycles so lookups
+        // always terminate on the first repeated name.
+        return cleaned.filterKeys { alias ->
+            var current: String? = alias
+            val seen = HashSet<String>()
+            while (current != null && seen.add(current.lowercase())) {
+                current = cleaned.entries.firstOrNull {
+                    it.key.equals(current, ignoreCase = true)
+                }?.value
+                if (current != null && current.equals(alias, ignoreCase = true)) return@filterKeys false
+            }
+            true
+        }
+    }
+
     /**
-     * User-defined artist aliases: alias spelling (trimmed, lookup is
-     * case-insensitive) -> canonical display name. Merging "djali" into
-     * "DJ ALI" stores "djali" -> "DJ ALI"; the artists list, detail
-     * lookup and cover art then treat both spellings as the canonical
-     * entry, no tag edits involved.
+     * User-defined artist aliases: alias spelling -> canonical display
+     * name. Merging "djali" into "DJ ALI" stores "djali" -> "DJ ALI";
+     * the artists list, detail lookup and cover art then treat both
+     * spellings as the canonical entry, no tag edits involved.
+     *
+     * Both sides are normalized on the way in (trimmed, inner spaces
+     * collapsed) so case drift ("DJ ALI" vs "Dj Ali") can't split the
+     * entry, and aliases pointing at another alias follow the chain to
+     * the final canonical name.
      */
     var artistAliases: Map<String, String>
-        get() = preferences.nullString(ARTIST_ALIASES)
-            .deserialize(emptyMap<String, String>())
-            .mapNotNull { (alias, canonical) ->
-                val a = alias.trim()
-                val c = canonical.trim()
-                if (a.isNotEmpty() && c.isNotEmpty()) a to c else null
-            }.toMap()
+        get() = normalizeArtistAliases(
+            preferences.nullString(ARTIST_ALIASES).deserialize(emptyMap<String, String>())
+        ).also { normalized ->
+            val raw = preferences.nullString(ARTIST_ALIASES).deserialize(emptyMap<String, String>())
+            if (normalized.size != raw.size ||
+                normalized.any { (alias, canonical) ->
+                    raw.entries.none {
+                        it.key.equals(alias, ignoreCase = true) &&
+                            normalizeArtistAliasName(it.value) == canonical
+                    }
+                }
+            ) {
+                preferences.edit { putString(ARTIST_ALIASES, normalized.serialize()) }
+            }
+        }
         set(value) = preferences.edit {
-            putString(ARTIST_ALIASES, value.serialize())
+            putString(ARTIST_ALIASES, normalizeArtistAliases(value).serialize())
         }
 
     fun addArtistAlias(alias: String, canonical: String) {
-        val a = alias.trim()
-        val c = canonical.trim()
+        val a = normalizeArtistAliasName(alias)
+        val c = normalizeArtistAliasName(canonical)
         if (a.isEmpty() || c.isEmpty()) return
         if (a.equals(c, ignoreCase = true)) {
             removeArtistAlias(a)
             return
         }
-        artistAliases = artistAliases.filterKeys { !it.equals(a, ignoreCase = true) } + (a to c)
+        // Pointing an existing canonical at another entry would orphan
+        // its aliases: re-point them at the new target instead.
+        val repointed = artistAliases.mapValues { (_, target) ->
+            if (target.equals(a, ignoreCase = true)) c else target
+        }
+        artistAliases = repointed.filterKeys { !it.equals(a, ignoreCase = true) } + (a to c)
     }
 
     fun removeArtistAlias(alias: String) {
-        artistAliases = artistAliases.filterKeys { !it.equals(alias.trim(), ignoreCase = true) }
+        val normalized = normalizeArtistAliasName(alias)
+        val before = artistAliases
+        artistAliases = before.filterKeys { it.lowercase() != normalized.lowercase() }
+        // Evict the persisted cover-art URL keyed under the alias so a
+        // stale picture can't outlive the unmerge.
+        if (before.keys.any { it.lowercase() == normalized.lowercase() }) {
+            com.mardous.booming.online.data.spotify.SpotifyPrefs.removeArtistImageUrl(
+                appContext(), normalized.lowercase()
+            )
+        }
     }
 
     /**
      * Canonical display name for a spelling: the alias target when the
-     * spelling is a known alias (case-insensitive), otherwise the
-     * spelling itself.
+     * spelling is a known alias (case-insensitive, chains followed),
+     * otherwise the normalized spelling itself.
      */
     fun canonicalArtistName(name: String): String {
-        val trimmed = name.trim()
-        return artistAliases.entries.firstOrNull {
-            it.key.equals(trimmed, ignoreCase = true)
-        }?.value ?: trimmed
+        val normalized = normalizeArtistAliasName(name)
+        var current = normalized
+        repeat(ARTIST_ALIAS_MAX_CHAIN) {
+            val next = artistAliases.entries.firstOrNull {
+                it.key.equals(current, ignoreCase = true)
+            }?.value ?: return current
+            if (next.equals(current, ignoreCase = true)) return current
+            current = next
+        }
+        return current
     }
 
     var libraryCategories: List<CategoryInfo>
@@ -642,7 +702,9 @@ const val BLACK_THEME = "black_theme"
 const val ARTIST_SEPARATORS = "artist_separators"
 const val ARTIST_SEPARATOR_EXCEPTIONS = "artist_separator_exceptions"
 const val IGNORED_ARTISTS = "ignored_artists"
+const val MERGED_ARTISTS = "merged_artists"
 const val ARTIST_ALIASES = "artist_aliases"
+private const val ARTIST_ALIAS_MAX_CHAIN = 10
 const val FOLLOW_PLAYER_COLOR = "follow_player_color"
 const val USE_CUSTOM_FONT = "use_custom_font"
 const val GENERAL_THEME = "general_theme"

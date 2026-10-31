@@ -35,6 +35,13 @@
         app:layout="@layout/list_item_view"
         app:key="ignored_artists"/>
 
+    <com.mardous.booming.ui.component.preferences.CustomDialogPreference
+        app:iconSpaceReserved="true"
+        app:title="@string/merged_artists_title"
+        app:summary="@string/merged_artists_summary"
+        app:layout="@layout/list_item_view"
+        app:key="merged_artists"/>
+
     <PreferenceCategory
         app:title="@string/playlists_label"
         app:layout="@layout/preference_category_title">

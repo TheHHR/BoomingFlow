@@ -156,7 +156,8 @@ class RealArtistRepository(
 
     override fun albumArtist(artistName: String): Artist {
         // Aliases resolve to the canonical entry up front, so opening a
-        // merged artist by any of its spellings lands on the same page.
+        // merged artist by any of its spellings rebuilds from the same
+        // merged song set every time: no cached entry can go stale.
         val canonicalName = artistName.resolveArtistAlias()
         if (Artist.VARIOUS_ARTISTS_DISPLAY_NAME.equals(canonicalName, ignoreCase = true)) {
             // Get Various Artists

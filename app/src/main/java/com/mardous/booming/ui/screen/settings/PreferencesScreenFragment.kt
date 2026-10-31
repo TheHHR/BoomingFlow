@@ -61,6 +61,7 @@ import com.mardous.booming.ui.component.preferences.dialog.ActionOnCoverPreferen
 import com.mardous.booming.ui.component.preferences.dialog.ArtistSeparatorsPreferenceDialog
 import com.mardous.booming.ui.component.preferences.dialog.CategoriesPreferenceDialog
 import com.mardous.booming.ui.component.preferences.dialog.IgnoredArtistsPreferenceDialog
+import com.mardous.booming.ui.component.preferences.dialog.MergedArtistsPreferenceDialog
 import com.mardous.booming.ui.component.preferences.dialog.ClearQueueActionPreferenceDialog
 import com.mardous.booming.ui.component.preferences.dialog.ExtraInfoPreferenceDialog
 import com.mardous.booming.ui.component.preferences.dialog.LanguageSelectionDialog
@@ -98,6 +99,7 @@ import com.mardous.booming.util.LANGUAGE_NAME
 import com.mardous.booming.util.LASTFM_LOGIN
 import com.mardous.booming.util.ARTIST_SEPARATORS
 import com.mardous.booming.util.IGNORED_ARTISTS
+import com.mardous.booming.util.MERGED_ARTISTS
 import com.mardous.booming.util.LIBRARY_CATEGORIES
 import com.mardous.booming.util.LISTENBRAINZ_LOGIN
 import com.mardous.booming.util.FOLLOW_PLAYER_COLOR
@@ -174,6 +176,18 @@ class LibraryPreferencesFragment : PreferenceScreenFragment() {
                 }
             }
         }
+        findPreference<Preference>(MERGED_ARTISTS)?.apply {
+            summaryProvider = Preference.SummaryProvider<Preference> {
+                val merges = Preferences.artistAliases
+                if (merges.isEmpty()) {
+                    context?.getString(R.string.merged_artists_summary)
+                } else {
+                    merges.entries.joinToString(separator = ", ") { (alias, canonical) ->
+                        "$alias → $canonical"
+                    }
+                }
+            }
+        }
     }
 
     override fun onDisplayPreferenceDialog(preference: Preference) {
@@ -183,6 +197,9 @@ class LibraryPreferencesFragment : PreferenceScreenFragment() {
                     .show(childFragmentManager, "androidx.preference.PreferenceFragment.DIALOG")
             IGNORED_ARTISTS ->
                 IgnoredArtistsPreferenceDialog()
+                    .show(childFragmentManager, "androidx.preference.PreferenceFragment.DIALOG")
+            MERGED_ARTISTS ->
+                MergedArtistsPreferenceDialog()
                     .show(childFragmentManager, "androidx.preference.PreferenceFragment.DIALOG")
             else -> super.onDisplayPreferenceDialog(preference)
         }

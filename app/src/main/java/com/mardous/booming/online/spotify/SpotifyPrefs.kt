@@ -147,6 +147,22 @@ object SpotifyPrefs {
         prefs(context).edit { putString(KEY_ARTIST_IMAGE_URLS, json.toString()) }
     }
 
+    /**
+     * Drops the persisted cover-art URL for a name key. Called when an
+     * alias is removed so a stale picture from the merged entry can't
+     * outlive the unmerge (the next lookup re-searches fresh).
+     */
+    fun removeArtistImageUrl(context: Context, nameKey: String) {
+        val map = readArtistImageUrls(context)
+        if (!map.containsKey(nameKey)) return
+        val updated = map.toMutableMap()
+        updated.remove(nameKey)
+        val json = buildJsonObject {
+            for ((name, imageUrl) in updated) put(name, imageUrl)
+        }
+        prefs(context).edit { putString(KEY_ARTIST_IMAGE_URLS, json.toString()) }
+    }
+
     private fun readArtistImageUrls(context: Context): Map<String, String> {
         val stored = prefs(context).getString(KEY_ARTIST_IMAGE_URLS, null) ?: return emptyMap()
         return runCatching {
