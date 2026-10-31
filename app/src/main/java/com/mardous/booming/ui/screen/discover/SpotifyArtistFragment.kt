@@ -284,7 +284,7 @@ class SpotifyArtistFragment : AbsMainActivityFragment(R.layout.fragment_detail_l
             R.id.nav_album_detail,
             com.mardous.booming.extensions.navigation.albumDetailArgs(album.id),
             null,
-            sharedElements?.let { asFragmentExtras(it) }
+            sharedElements?.let { extras: Array<Pair<View, String>> -> asFragmentExtras(extras) }
         )
     }
 
