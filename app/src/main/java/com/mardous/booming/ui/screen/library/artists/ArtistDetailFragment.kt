@@ -343,7 +343,8 @@ class ArtistDetailFragment : AbsMainActivityFragment(R.layout.fragment_artist_de
 
     private fun loadBiography(name: String, lang: String? = Locale.getDefault().language) {
         this.biography = null
-        this.lang = lang        detailViewModel.getArtistBio(name, lang, null).observe(viewLifecycleOwner) { lastFmArtist ->
+        this.lang = lang
+        detailViewModel.getArtistBio(name, lang, null).observe(viewLifecycleOwner) { lastFmArtist ->
             if (lastFmArtist != null) {
                 artistInfo(lastFmArtist)
             }
