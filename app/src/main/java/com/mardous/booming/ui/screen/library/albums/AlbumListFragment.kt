@@ -140,7 +140,7 @@ class AlbumListFragment : AbsRecyclerViewCustomGridSizeFragment<AlbumAdapter, Gr
 
     override fun onGridSizeChanged(isLand: Boolean, gridColumns: Int) {
         layoutManager?.spanCount = gridColumns
-        fusedAdapter.notifyDataSetChanged()
+        adapter?.notifyDataSetChanged()
     }
 
     override fun onCreateMenu(menu: Menu, inflater: MenuInflater) {
