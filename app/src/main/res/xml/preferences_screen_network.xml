@@ -242,6 +242,114 @@
             app:widgetLayout="@layout/preference_switch"
             app:key="paxsenix_netease_enabled"/>
 
+        <SwitchPreferenceCompat
+            app:iconSpaceReserved="true"
+            app:title="@string/use_portato_provider_title"
+            app:summary="@string/use_portato_provider_summary"
+            app:defaultValue="false"
+            app:layout="@layout/list_item_view"
+            app:widgetLayout="@layout/preference_switch"
+            app:key="portato_enabled"/>
+
+        <SwitchPreferenceCompat
+            app:iconSpaceReserved="true"
+            app:title="@string/use_musixmatch_provider_title"
+            app:summary="@string/use_musixmatch_provider_summary"
+            app:defaultValue="false"
+            app:layout="@layout/list_item_view"
+            app:widgetLayout="@layout/preference_switch"
+            app:key="musixmatch_enabled"/>
+
+        <SwitchPreferenceCompat
+            app:iconSpaceReserved="true"
+            app:title="@string/use_unified_ttml_provider_title"
+            app:summary="@string/use_unified_ttml_provider_summary"
+            app:defaultValue="false"
+            app:layout="@layout/list_item_view"
+            app:widgetLayout="@layout/preference_switch"
+            app:key="unified_ttml_enabled"/>
+
+        <SwitchPreferenceCompat
+            app:iconSpaceReserved="true"
+            app:title="@string/use_unified_kugou_provider_title"
+            app:summary="@string/use_unified_kugou_provider_summary"
+            app:defaultValue="false"
+            app:layout="@layout/list_item_view"
+            app:widgetLayout="@layout/preference_switch"
+            app:key="unified_kugou_enabled"/>
+
+        <SwitchPreferenceCompat
+            app:iconSpaceReserved="true"
+            app:title="@string/use_unison_provider_title"
+            app:summary="@string/use_unison_provider_summary"
+            app:defaultValue="false"
+            app:layout="@layout/list_item_view"
+            app:widgetLayout="@layout/preference_switch"
+            app:key="unison_enabled"/>
+
+        <SwitchPreferenceCompat
+            app:iconSpaceReserved="true"
+            app:title="@string/use_kouzu_provider_title"
+            app:summary="@string/use_kouzu_provider_summary"
+            app:defaultValue="false"
+            app:layout="@layout/list_item_view"
+            app:widgetLayout="@layout/preference_switch"
+            app:key="kouzu_enabled"/>
+
+        <SwitchPreferenceCompat
+            app:iconSpaceReserved="true"
+            app:title="@string/use_apple_music_provider_title"
+            app:summary="@string/use_apple_music_provider_summary"
+            app:defaultValue="false"
+            app:layout="@layout/list_item_view"
+            app:widgetLayout="@layout/preference_switch"
+            app:key="apple_music_enabled"/>
+
+        <SwitchPreferenceCompat
+            app:iconSpaceReserved="true"
+            app:title="@string/use_spotify_provider_title"
+            app:summary="@string/use_spotify_provider_summary"
+            app:defaultValue="false"
+            app:layout="@layout/list_item_view"
+            app:widgetLayout="@layout/preference_switch"
+            app:key="spotify_enabled"/>
+
+        <SwitchPreferenceCompat
+            app:iconSpaceReserved="true"
+            app:title="@string/use_youtube_captions_provider_title"
+            app:summary="@string/use_youtube_captions_provider_summary"
+            app:defaultValue="false"
+            app:layout="@layout/list_item_view"
+            app:widgetLayout="@layout/preference_switch"
+            app:key="youtube_captions_enabled"/>
+
+        <SwitchPreferenceCompat
+            app:iconSpaceReserved="true"
+            app:title="@string/use_kugou_provider_title"
+            app:summary="@string/use_kugou_provider_summary"
+            app:defaultValue="false"
+            app:layout="@layout/list_item_view"
+            app:widgetLayout="@layout/preference_switch"
+            app:key="kugou_enabled"/>
+
+        <SwitchPreferenceCompat
+            app:iconSpaceReserved="true"
+            app:title="@string/use_simpmusic_provider_title"
+            app:summary="@string/use_simpmusic_provider_summary"
+            app:defaultValue="false"
+            app:layout="@layout/list_item_view"
+            app:widgetLayout="@layout/preference_switch"
+            app:key="simpmusic_enabled"/>
+
+        <SwitchPreferenceCompat
+            app:iconSpaceReserved="true"
+            app:title="@string/use_youtube_music_provider_title"
+            app:summary="@string/use_youtube_music_provider_summary"
+            app:defaultValue="false"
+            app:layout="@layout/list_item_view"
+            app:widgetLayout="@layout/preference_switch"
+            app:key="youtube_music_enabled"/>
+
         <Preference
             app:icon="@drawable/ic_delete_24dp"
             app:title="@string/delete_downloaded_lyrics_title"

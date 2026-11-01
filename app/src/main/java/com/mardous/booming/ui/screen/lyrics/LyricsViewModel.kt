@@ -54,7 +54,8 @@ import com.mardous.booming.core.model.lyrics.LyricsViewSettings.Mode as LyricsVi
 class LyricsViewModel(
     application: Application,
     private val preferences: SharedPreferences,
-    private val repository: LyricsRepository
+    private val repository: LyricsRepository,
+    private val downloadService: com.mardous.booming.data.remote.lyrics.LyricsDownloadService
 ) : AndroidViewModel(application), OnSharedPreferenceChangeListener {
 
     private val _lyricsUiState = MutableStateFlow<LyricsUiState>(LyricsUiState.Empty(-1))
@@ -243,6 +244,43 @@ class LyricsViewModel(
 
     private val _providerSwitchState = MutableStateFlow(ProviderSwitchState())
     val providerSwitchState = _providerSwitchState.asStateFlow()
+
+    val providerLiveResults = downloadService.liveResults
+
+    /**
+     * Per-song manual timing correction, in milliseconds. Positive shifts
+     * the display later. The provider sheet's sync row adjusts this; the
+     * viewer subtracts it before updating the playback cursor.
+     */
+    private val _lyricsSyncOffsetMs = MutableStateFlow(0L)
+    val lyricsSyncOffsetMs = _lyricsSyncOffsetMs.asStateFlow()
+
+    fun adjustLyricsSyncOffset(deltaMs: Long) {
+        _lyricsSyncOffsetMs.value = _lyricsSyncOffsetMs.value + deltaMs
+    }
+
+    fun resetLyricsSyncOffset() {
+        _lyricsSyncOffsetMs.value = 0L
+    }
+
+    private var refreshJob: Job? = null
+
+    /**
+     * Runs a background sweep for the provider sheet without persisting
+     * anything: [LyricsDownloadService.liveResults] updates each row
+     * live mid-race so the sheet reflects reality instead of spinning
+     * forever when the song already had stored lyrics.
+     */
+    fun refreshProviderResults(song: Song) {
+        if (song == Song.emptySong) return
+        refreshJob?.cancel()
+        refreshJob = viewModelScope.launch(IO) {
+            try {
+                downloadService.remoteLyrics(song)
+            } catch (_: Exception) {
+            }
+        }
+    }
 
     /**
      * Small cache of provider-switch results per song, so re-tapping a

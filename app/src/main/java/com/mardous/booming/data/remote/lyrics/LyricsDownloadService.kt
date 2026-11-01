@@ -17,30 +17,44 @@
 
 package com.mardous.booming.data.remote.lyrics
 
+import android.content.Context
 import android.util.Log
 import com.mardous.booming.data.model.Song
 import com.mardous.booming.data.model.lyrics.RawLyrics
 import com.mardous.booming.data.model.network.NetworkFeature
+import com.mardous.booming.data.remote.lyrics.api.LyricsApi
 import com.mardous.booming.data.remote.lyrics.api.LyricsProvider
 import com.mardous.booming.data.remote.lyrics.api.betterlyrics.BetterLyricsApi
 import com.mardous.booming.data.remote.lyrics.api.binilyrics.BiniLyricsApi
+import com.mardous.booming.data.remote.lyrics.api.kouzu.KouzuApi
+import com.mardous.booming.data.remote.lyrics.api.kugou.KugouApi
 import com.mardous.booming.data.remote.lyrics.api.lrclib.LrcLibApi
 import com.mardous.booming.data.remote.lyrics.api.lyrically.LyricallyApi
+import com.mardous.booming.data.remote.lyrics.api.paxsenix.PaxsenixAppleMusicApi
 import com.mardous.booming.data.remote.lyrics.api.paxsenix.PaxsenixNeteaseApi
+import com.mardous.booming.data.remote.lyrics.api.paxsenix.PaxsenixSpotifyApi
+import com.mardous.booming.data.remote.lyrics.api.paxsenix.PaxsenixYouTubeApi
+import com.mardous.booming.data.remote.lyrics.api.simpmusic.SimpMusicApi
 import com.mardous.booming.data.remote.lyrics.api.synclrc.SyncLrcApi
+import com.mardous.booming.data.remote.lyrics.api.unified.MusixmatchApi
+import com.mardous.booming.data.remote.lyrics.api.unified.PortatoApi
+import com.mardous.booming.data.remote.lyrics.api.unified.UnifiedKugouApi
+import com.mardous.booming.data.remote.lyrics.api.unified.UnifiedLyricsBundleClient
+import com.mardous.booming.data.remote.lyrics.api.unified.UnifiedTtmlApi
+import com.mardous.booming.data.remote.lyrics.api.unison.UnisonApi
 import com.mardous.booming.data.remote.lyrics.api.youlyplus.YouLyPlusApi
+import com.mardous.booming.data.remote.lyrics.api.ytmusic.YouTubeMusicLyricsApi
+import com.mardous.booming.data.remote.lyrics.spatial.ConfidenceScorer
+import com.mardous.booming.data.remote.lyrics.spatial.MetadataRepair
+import com.mardous.booming.data.remote.lyrics.spatial.ProviderRouter
+import com.mardous.booming.data.remote.lyrics.spatial.TrackMetadata
 import com.mardous.booming.extensions.media.albumArtistName
 import com.mardous.booming.extensions.media.extractMainArtistName
 import io.ktor.client.HttpClient
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.selects.select
-import kotlinx.coroutines.selects.onTimeout
-import kotlinx.coroutines.withTimeoutOrNull
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import java.io.IOException
 
 class LyricsProviderParams(
@@ -59,17 +73,49 @@ class SweepResult(
     val sweptAll: Boolean
 )
 
-class LyricsDownloadService(client: HttpClient) {
+class LyricsDownloadService(
+    private val context: Context,
+    client: HttpClient
+) {
 
-    private val apiByProvider = mapOf(
-        LyricsProvider.BiniLyrics to BiniLyricsApi(client),
-        LyricsProvider.YouLyPlus to YouLyPlusApi(client),
-        LyricsProvider.LRCLib to LrcLibApi(client),
-        LyricsProvider.BetterLyrics to BetterLyricsApi(client),
-        LyricsProvider.Lyrically to LyricallyApi(client),
-        LyricsProvider.SyncLRC to SyncLrcApi(client),
-        LyricsProvider.Netease to PaxsenixNeteaseApi(client)
-    )
+    private val scorer = ConfidenceScorer()
+    private val repair = MetadataRepair()
+
+    private val unifiedBundleClient = UnifiedLyricsBundleClient(context, client)
+
+    private val apis: Map<String, LyricsApi> = buildMap {
+        fun put(api: LyricsApi) = put(api.provider.displayName, api)
+        put(BiniLyricsApi(client))
+        put(YouLyPlusApi(client))
+        put(LrcLibApi(client))
+        put(BetterLyricsApi(client))
+        put(LyricallyApi(client))
+        put(SyncLrcApi(client))
+        put(PaxsenixNeteaseApi(client))
+        put(PaxsenixAppleMusicApi(client))
+        put(PaxsenixSpotifyApi(client))
+        put(PaxsenixYouTubeApi(client))
+        put(KouzuApi(client))
+        put(KugouApi(client))
+        put(SimpMusicApi(client))
+        put(UnisonApi(context, client))
+        put(PortatoApi(unifiedBundleClient))
+        put(MusixmatchApi(unifiedBundleClient))
+        put(UnifiedTtmlApi(unifiedBundleClient))
+        put(UnifiedKugouApi(unifiedBundleClient))
+        put(YouTubeMusicLyricsApi())
+    }
+
+    private val router = ProviderRouter(apis = apis, scorer = scorer)
+
+    /**
+     * Live per-provider results of the latest sweep, keyed by provider
+     * display name. The provider sheet collects this to update rows
+     * mid-race (searching -> result / no lyrics). Null means the provider
+     * has not finished yet.
+     */
+    private val _liveResults = MutableStateFlow<Map<String, RawLyrics.Remote?>>(emptyMap())
+    val liveResults: StateFlow<Map<String, RawLyrics.Remote?>> = _liveResults.asStateFlow()
 
     @Throws(IOException::class)
     suspend fun remoteLyrics(
@@ -98,17 +144,29 @@ class LyricsDownloadService(client: HttpClient) {
         if (song == Song.emptySong || !NetworkFeature.isOnline(ignoreWifiSetting = providerParams.ignoreWifiSetting))
             return offline
 
-        val cleanedTitle = cleanTitle(title)
-        val cleanedArtist = artist.extractMainArtistName()
         val providers = providerParams.providers.filter { provider ->
             provider.isAvailableForCurrentPolicy &&
                     (provider.isEnabled || providerParams.ignoreProviderSetting) &&
-                    apiByProvider.containsKey(provider)
+                    apis.containsKey(provider.displayName)
         }
         if (providers.isEmpty()) return offline
 
+        // SpatialFlow metadata repair: clean title/artist, detect version
+        // and language before any provider is queried.
+        val track = repair.repair(
+            rawTitle = title,
+            rawArtist = artist,
+            album = song.albumName,
+            durationMs = song.duration,
+            filePath = song.data,
+            videoId = onlineVideoId(song)
+        )
+        val cleanedTitle = track.cleanedTitle
+        val cleanedArtist = track.cleanedArtist.ifBlank { artist.extractMainArtistName() }
+
+        _liveResults.value = emptyMap()
         val outcome = try {
-            raceProviders(song, cleanedTitle, cleanedArtist, providers)
+            raceProviders(song, cleanedTitle, cleanedArtist, providers, track)
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
@@ -120,7 +178,7 @@ class LyricsDownloadService(client: HttpClient) {
             val fallbackArtist = song.artistName.extractMainArtistName()
             if (fallbackArtist.isNotBlank() && !fallbackArtist.equals(cleanedArtist, ignoreCase = true)) {
                 val fallbackOutcome = try {
-                    raceProviders(song, cleanedTitle, fallbackArtist, providers)
+                    raceProviders(song, cleanedTitle, fallbackArtist, providers, track)
                 } catch (e: CancellationException) {
                     throw e
                 } catch (e: Exception) {
@@ -140,132 +198,37 @@ class LyricsDownloadService(client: HttpClient) {
         return SweepResult(outcome.remote, outcome.sweptAll)
     }
 
+    private fun onlineVideoId(song: Song): String? {
+        val uri = song.uri
+        uri?.host?.takeIf { it.isNotBlank() }?.let { return it }
+        return song.data.removePrefix("yt:")
+            .takeIf { song.data.startsWith("yt:") && it.isNotBlank() }
+    }
+
     /**
-     * Queries every provider in parallel and merges results as they arrive,
-     * so the pipeline latency is the fastest provider rather than the sum
-     * of all of them. Word-by-word content always wins: when the first
-     * line-synced result arrives it is kept as a provisional merge and the
-     * race keeps running for [WORD_SYNCED_GRACE_MILLIS] in case a
-     * word-by-word result is still on the way; plain results never stop
-     * the race. The whole race is capped at [RACE_TIMEOUT_MILLIS]; on
-     * timeout the partial merge still wins.
+     * SpatialFlow's 12s parallel race with per-provider live results,
+     * 4s word-sync grace window and confidence-scored merging. The
+     * latency is the fastest provider rather than the sum of all of them.
      */
-    @OptIn(ExperimentalCoroutinesApi::class)
     private suspend fun raceProviders(
         song: Song,
         title: String,
         artist: String,
-        providers: List<LyricsProvider>
+        providers: List<LyricsProvider>,
+        track: TrackMetadata
     ): RaceOutcome {
-        val outcome = RaceOutcome()
-        val timedOut: Boolean = try {
-            withTimeoutOrNull(RACE_TIMEOUT_MILLIS) {
-                coroutineScope {
-                    val pending = providers.map { provider ->
-                        async(Dispatchers.IO) {
-                            try {
-                                apiByProvider.getValue(provider).downloadLyrics(song, title, artist)
-                            } catch (e: CancellationException) {
-                                throw e
-                            } catch (e: Exception) {
-                                Log.e(TAG, "Error during lyrics request (${provider.displayName})", e)
-                                null
-                            }
-                        }
-                    }.toMutableSet()
-
-                    try {
-                        var firstSyncedAtNanos: Long? = null
-                        while (pending.isNotEmpty()) {
-                            // A line-synced merge is provisional: keep the
-                            // grace window open for a word-by-word arrival.
-                            val graceRemainingNanos = firstSyncedAtNanos?.let { start ->
-                                WORD_SYNCED_GRACE_NANOS - (System.nanoTime() - start)
-                            }
-                            if (graceRemainingNanos != null && graceRemainingNanos <= 0) break
-                            val completed = select<Pair<Deferred<RawLyrics.Remote?>, RawLyrics.Remote?>?> {
-                                for (candidate in pending) {
-                                    candidate.onAwait { response -> candidate to response }
-                                }
-                                graceRemainingNanos?.let { remaining ->
-                                    onTimeout(remaining / 1_000_000L + 1) { null }
-                                }
-                            } ?: break
-                            val (deferred, response) = completed
-                            pending.remove(deferred)
-
-                            if (response != null) {
-                                outcome.remote = outcome.remote.accept(response)
-                                if (outcome.remote.hasWordSynced) break
-                                if (outcome.remote.hasSynced && firstSyncedAtNanos == null) {
-                                    firstSyncedAtNanos = System.nanoTime()
-                                }
-                            }
-                        }
-                    } finally {
-                        pending.forEach { it.cancel() }
-                    }
-                }
-            } == null
-        } catch (e: CancellationException) {
-            throw e
+        val result = router.raceAll(song, title, artist, providers, track) { name, remote ->
+            _liveResults.value = _liveResults.value + (name to remote)
         }
-
-        outcome.sweptAll = !timedOut && !outcome.remote.hasSynced &&
-                !outcome.remote.hasWordSynced && !outcome.remote.hasPlain
-        return outcome
+        return RaceOutcome(remote = result.merged, sweptAll = result.sweptAll)
     }
 
-    private class RaceOutcome {
-        var remote: RawLyrics.Remote = RawLyrics.Remote()
+    private class RaceOutcome(
+        var remote: RawLyrics.Remote = RawLyrics.Remote(),
         var sweptAll: Boolean = false
-    }
-
-    /**
-     * Taken from [Metrolist](https://github.com/MetrolistGroup/Metrolist).
-     */
-    private fun cleanTitle(title: String): String {
-        var cleaned = title.trim()
-        for (pattern in TITLE_CLEANUP_PATTERNS) {
-            cleaned = cleaned.replace(pattern, "")
-        }
-        return cleaned.trim()
-    }
+    )
 
     companion object {
         private const val TAG = "LyricsDownloadService"
-
-        /**
-         * Upper bound for the whole provider race. Per-provider request
-         * timeouts are 5-15s, but providers like Lyrically chain several
-         * sequential requests, so a global cap keeps the worst case sane.
-         * The first-synced early exit means this cap only binds when
-         * nothing was found, where letting slow providers finish reduces
-         * false "no lyrics" results.
-         */
-        private const val RACE_TIMEOUT_MILLIS = 20_000L
-
-        /**
-         * Grace window after the first line-synced result arrives: the race
-         * keeps running this long hoping for a word-by-word result before
-         * settling for the line-synced merge.
-         */
-        private const val WORD_SYNCED_GRACE_MILLIS = 4_000L
-        private val WORD_SYNCED_GRACE_NANOS = WORD_SYNCED_GRACE_MILLIS * 1_000_000L
-
-        private const val KEYWORDS = "official|video|audio|lyrics|lyric|visualizer|hd|hq|4k|remaster|remix|live|acoustic|version|edit|extended|radio|clean|explicit"
-
-        private val TITLE_CLEANUP_PATTERNS = listOf(
-            Regex("""\s*\((?>[^)]*?(?:$KEYWORDS)[^)]*?)\)""", RegexOption.IGNORE_CASE),
-            Regex("""\s*\[(?>[^\]]*?(?:$KEYWORDS)[^\]]*?)\]""", RegexOption.IGNORE_CASE),
-            Regex("""\s*【(?>[^】]*?)】"""),
-            Regex("""\s*\|.*$"""),
-            Regex("""\s*-\s*(?:official|video|audio|lyrics|lyric|visualizer).*$""", RegexOption.IGNORE_CASE),
-            Regex("""\s*\((?>feat\.[^)]*?)\)""", RegexOption.IGNORE_CASE),
-            Regex("""\s*\((?>ft\.[^)]*?)\)""", RegexOption.IGNORE_CASE),
-            Regex("""\s*feat\..*$""", RegexOption.IGNORE_CASE),
-            Regex("""\s*ft\..*$""", RegexOption.IGNORE_CASE),
-            Regex("""\s*\((?>[^)]*?\d{4}[^)]*?)\)""", RegexOption.IGNORE_CASE),
-        )
     }
 }

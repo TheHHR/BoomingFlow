@@ -7,13 +7,17 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.add
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -25,12 +29,17 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularWavyProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledIconButton
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.LinearWavyProgressIndicator
+import androidx.compose.material3.ListItemDefaults
+import androidx.compose.material3.SegmentedListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -47,6 +56,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
@@ -59,6 +69,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -74,12 +85,12 @@ import com.mardous.booming.core.model.lyrics.LyricsViewSettings.BackgroundEffect
 import com.mardous.booming.core.model.lyrics.LyricsViewState
 import com.mardous.booming.core.model.player.PlayerColorScheme
 import com.mardous.booming.data.model.Song
+import com.mardous.booming.data.model.lyrics.RawLyrics
 import com.mardous.booming.data.model.lyrics.SyncedLyrics
 import com.mardous.booming.data.remote.lyrics.api.LyricsProvider
 import com.mardous.booming.extensions.isPowerSaveMode
 import com.mardous.booming.extensions.resolveColor
 import com.mardous.booming.ui.component.compose.AnimatedEqBars
-import com.mardous.booming.ui.component.compose.DialogListItemWithRadio
 import com.mardous.booming.ui.component.compose.color.extractGradientColors
 import com.mardous.booming.ui.component.compose.decoration.FadingEdges
 import com.mardous.booming.ui.component.compose.decoration.animatedGradient
@@ -148,6 +159,7 @@ fun LyricsScreen(
 
     val lyricsViewSettings by lyricsViewModel.fullLyricsViewSettings.collectAsState()
     val uiState by lyricsViewModel.lyricsUiState.collectAsState()
+    val syncOffsetMs by lyricsViewModel.lyricsSyncOffsetMs.collectAsStateWithLifecycle()
 
     val song by playerViewModel.currentSongFlow.collectAsStateWithLifecycle()
     val isPlaying by playerViewModel.isPlayingFlow.collectAsStateWithLifecycle()
@@ -290,6 +302,7 @@ fun LyricsScreen(
 
             LyricsSurface(
                 playerViewModel = playerViewModel,
+                syncOffsetMs = syncOffsetMs,
                 uiState = uiState,
                 settings = lyricsViewSettings,
                 contentPadding = PaddingValues(vertical = 96.dp, horizontal = 16.dp),
@@ -312,7 +325,12 @@ fun LyricsScreen(
     }
 
     if (showProviderDialog) {
-        val switchState by lyricsViewModel.providerSwitchState.collectAsState()
+        val switchState by lyricsViewModel.providerSwitchState.collectAsStateWithLifecycle()
+        val liveResults by lyricsViewModel.providerLiveResults.collectAsStateWithLifecycle()
+        val syncOffsetMs by lyricsViewModel.lyricsSyncOffsetMs.collectAsStateWithLifecycle()
+        LaunchedEffect(song.id) {
+            lyricsViewModel.refreshProviderResults(song)
+        }
         val activeProvider = when (val state = uiState) {
             is LyricsUiState.Synced -> state.syncedLyrics.provider
             is LyricsUiState.Plain -> state.provider
@@ -321,7 +339,11 @@ fun LyricsScreen(
         ProviderSwitchDialog(
             activeProvider = activeProvider,
             switchState = switchState,
+            liveResults = liveResults,
+            syncOffsetMs = syncOffsetMs,
             onSwitch = { provider -> lyricsViewModel.switchToProvider(song, provider) },
+            onSyncOffset = { delta -> lyricsViewModel.adjustLyricsSyncOffset(delta) },
+            onResetSyncOffset = { lyricsViewModel.resetLyricsSyncOffset() },
             onDismiss = { showProviderDialog = false }
         )
     }
@@ -341,6 +363,7 @@ fun CoverLyricsScreen(
 
     val lyricsViewSettings by lyricsViewModel.playerLyricsViewSettings.collectAsState()
     val uiState by lyricsViewModel.lyricsUiState.collectAsState()
+    val syncOffsetMs by lyricsViewModel.lyricsSyncOffsetMs.collectAsState()
 
     val playerColorScheme by playerViewModel.colorSchemeFlow.collectAsState(
         initial = PlayerColorScheme.themeColorScheme(context)
@@ -351,6 +374,7 @@ fun CoverLyricsScreen(
             LyricsSurface(
                 uiState = uiState,
                 playerViewModel = playerViewModel,
+                syncOffsetMs = syncOffsetMs,
                 settings = lyricsViewSettings,
                 contentPadding = PaddingValues(vertical = 72.dp, horizontal = 12.dp),
                 fadingEdges = FadingEdges(top = 72.dp, bottom = 64.dp),
@@ -391,6 +415,7 @@ fun CoverLyricsScreen(
 @Composable
 private fun LyricsSurface(
     playerViewModel: PlayerViewModel,
+    syncOffsetMs: Long,
     uiState: LyricsUiState,
     settings: LyricsViewSettings,
     contentPadding: PaddingValues,
@@ -495,9 +520,10 @@ private fun LyricsSurface(
 
                 // Keyed on the frame-smoothed position so the karaoke word
                 // fill advances at display frame rate instead of the 100ms
-                // progress-tick rate.
-                LaunchedEffect(smoothProgress) {
-                    lyricsViewState.updatePosition(smoothProgress)
+                // progress-tick rate. The manual sync offset shifts the
+                // cursor so lines land earlier or later as requested.
+                LaunchedEffect(smoothProgress, syncOffsetMs) {
+                    lyricsViewState.updatePosition(smoothProgress - syncOffsetMs)
                 }
 
                 LyricsView(
@@ -519,33 +545,122 @@ private fun LyricsSurface(
 private fun ProviderSwitchDialog(
     activeProvider: String?,
     switchState: LyricsViewModel.ProviderSwitchState,
+    liveResults: Map<String, RawLyrics.Remote?>,
+    syncOffsetMs: Long,
     onSwitch: (LyricsProvider) -> Unit,
+    onSyncOffset: (Long) -> Unit,
+    onResetSyncOffset: () -> Unit,
     onDismiss: () -> Unit
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.switch_lyrics_provider_title)) },
         text = {
-            LazyColumn(modifier = Modifier.fillMaxWidth()) {
-                items(LyricsProvider.entries, key = { it.name }) { provider ->
-                    val subtitle = when {
-                        switchState.loadingProvider == provider ->
-                            stringResource(R.string.searching_lyrics_provider)
-                        switchState.failureProvider == provider ->
-                            stringResource(R.string.no_lyrics_found)
-                        else -> null
-                    }
-                    DialogListItemWithRadio(
-                        title = provider.displayName,
-                        isSelected = provider.displayName == activeProvider,
-                        subtitle = subtitle,
-                        onClick = { onSwitch(provider) },
-                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 12.dp),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(8.dp))
+            Column(modifier = Modifier.fillMaxWidth()) {
+                val isSearchingAny = liveResults.size < LyricsProvider.entries.size
+                val searchingLabel = stringResource(R.string.searching_lyrics_provider)
+                val noLyricsLabel = stringResource(R.string.no_lyrics_found)
+                val wordSyncedLabel = stringResource(R.string.word_by_word_lyrics_provider_status)
+                val lineSyncedLabel = stringResource(R.string.line_synced_lyrics_provider_status)
+                val plainLabel = stringResource(R.string.plain_text_lyrics_provider_status)
+                val rows = remember(activeProvider, switchState, liveResults) {
+                    sortedProviderRows(
+                        activeProvider = activeProvider,
+                        switchState = switchState,
+                        liveResults = liveResults,
+                        searchingLabel = searchingLabel,
+                        noLyricsLabel = noLyricsLabel,
+                        wordSyncedLabel = wordSyncedLabel,
+                        lineSyncedLabel = lineSyncedLabel,
+                        plainLabel = plainLabel
                     )
                 }
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(max = 340.dp),
+                    verticalArrangement = Arrangement.spacedBy(2.dp)
+                ) {
+                    items(rows, key = { it.provider.name }) { row ->
+                        val itemBgColor = when {
+                            row.isSelected -> MaterialTheme.colorScheme.primaryContainer
+                            row.hasLyrics -> MaterialTheme.colorScheme.surfaceContainer
+                            row.isPending -> MaterialTheme.colorScheme.surfaceContainerLow
+                            else -> MaterialTheme.colorScheme.surfaceContainerLowest
+                        }
+                        SegmentedListItem(
+                            onClick = { onSwitch(row.provider) },
+                            shapes = ListItemDefaults.segmentedShapes(row.index, rows.size),
+                            supportingContent = {
+                                Text(text = row.subtitle)
+                            },
+                            leadingContent = {
+                                Icon(
+                                    painter = painterResource(R.drawable.ic_lyrics_24dp),
+                                    contentDescription = row.provider.displayName,
+                                    modifier = Modifier.size(24.dp)
+                                )
+                            },
+                            trailingContent = {
+                                when {
+                                    row.isSelected -> {
+                                        Icon(
+                                            painter = painterResource(R.drawable.ic_check_24dp),
+                                            contentDescription = null,
+                                            modifier = Modifier.size(20.dp)
+                                        )
+                                    }
+                                    row.isLoading -> {
+                                        CircularWavyProgressIndicator(
+                                            color = MaterialTheme.colorScheme.primary,
+                                            modifier = Modifier.size(18.dp)
+                                        )
+                                    }
+                                }
+                            },
+                            colors = if (row.isSelected) {
+                                ListItemDefaults.segmentedColors(
+                                    containerColor = itemBgColor,
+                                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                                    supportingContentColor = MaterialTheme.colorScheme.onPrimaryContainer.copy(
+                                        alpha = 0.85f
+                                    )
+                                )
+                            } else {
+                                ListItemDefaults.segmentedColors(
+                                    containerColor = itemBgColor
+                                )
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .alpha(
+                                    if (!row.hasLyrics && !row.isPending) 0.6f else 1f
+                                )
+                        ) {
+                            Text(
+                                text = row.provider.displayName,
+                                fontWeight = if (row.isSelected) FontWeight.Bold else FontWeight.Medium
+                            )
+                        }
+                    }
+                }
+
+                if (isSearchingAny) {
+                    LinearWavyProgressIndicator(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(6.dp)
+                            .padding(top = 8.dp),
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+
+                SyncOffsetRow(
+                    syncOffsetMs = syncOffsetMs,
+                    onSyncOffset = onSyncOffset,
+                    onResetSyncOffset = onResetSyncOffset,
+                    modifier = Modifier.padding(top = 12.dp)
+                )
             }
         },
         confirmButton = {
@@ -554,4 +669,139 @@ private fun ProviderSwitchDialog(
             }
         }
     )
+}
+
+private data class ProviderRow(
+    val provider: LyricsProvider,
+    val subtitle: String,
+    val isSelected: Boolean,
+    val hasLyrics: Boolean,
+    val isPending: Boolean,
+    val isLoading: Boolean,
+    val index: Int
+)
+
+private fun sortedProviderRows(
+    activeProvider: String?,
+    switchState: LyricsViewModel.ProviderSwitchState,
+    liveResults: Map<String, RawLyrics.Remote?>,
+    searchingLabel: String,
+    noLyricsLabel: String,
+    wordSyncedLabel: String,
+    lineSyncedLabel: String,
+    plainLabel: String
+): List<ProviderRow> {
+    val all = LyricsProvider.entries
+    val rows = all.map { provider ->
+        val remote = liveResults[provider.displayName]
+        val hasLyrics = remote != null &&
+                (remote.hasWordSynced || remote.hasSynced || remote.hasPlain)
+        val isWordSynced = remote?.hasWordSynced == true
+        val isSynced = remote?.hasSynced == true
+        val isPending = !liveResults.containsKey(provider.displayName)
+        val isLoading = switchState.loadingProvider == provider
+        val subtitle = when {
+            switchState.failureProvider == provider -> noLyricsLabel
+            isLoading -> searchingLabel
+            isPending -> searchingLabel
+            !hasLyrics -> noLyricsLabel
+            isWordSynced -> wordSyncedLabel
+            isSynced -> lineSyncedLabel
+            else -> plainLabel
+        }
+        Triple(
+            provider,
+            ProviderRow(
+                provider = provider,
+                subtitle = subtitle,
+                isSelected = provider.displayName == activeProvider,
+                hasLyrics = hasLyrics,
+                isPending = isPending || isLoading,
+                isLoading = isPending || isLoading,
+                index = 0
+            ),
+            if (provider.displayName == activeProvider) 2
+            else if (hasLyrics) 1 else 0
+        )
+    }
+    return rows.sortedByDescending { it.third }.mapIndexed { index, (_, row, _) ->
+        row.copy(index = index)
+    }
+}
+
+@Composable
+private fun SyncOffsetRow(
+    syncOffsetMs: Long,
+    onSyncOffset: (Long) -> Unit,
+    onResetSyncOffset: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val presetValues = remember {
+        listOf(
+            -500L to "-0.5s",
+            -100L to "-0.1s",
+            0L to "0.0s",
+            100L to "+0.1s",
+            500L to "+0.5s"
+        )
+    }
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(3.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        presetValues.forEachIndexed { index, (delta, label) ->
+            val isReset = delta == 0L
+            val buttonShape = when (index) {
+                0 -> RoundedCornerShape(
+                    topStart = 20.dp, bottomStart = 20.dp, topEnd = 6.dp, bottomEnd = 6.dp
+                )
+                4 -> RoundedCornerShape(
+                    topEnd = 20.dp, bottomEnd = 20.dp, topStart = 6.dp, bottomStart = 6.dp
+                )
+                else -> RoundedCornerShape(6.dp)
+            }
+            val containerColor = when {
+                isReset && syncOffsetMs != 0L -> MaterialTheme.colorScheme.primaryContainer
+                else -> MaterialTheme.colorScheme.surfaceContainer
+            }
+            val itemContentColor = when {
+                isReset && syncOffsetMs != 0L -> MaterialTheme.colorScheme.onPrimaryContainer
+                else -> MaterialTheme.colorScheme.onSurface
+            }
+            FilledTonalButton(
+                onClick = {
+                    if (isReset) onResetSyncOffset() else onSyncOffset(delta)
+                },
+                shape = buttonShape,
+                colors = ButtonDefaults.filledTonalButtonColors(
+                    containerColor = containerColor,
+                    contentColor = itemContentColor
+                ),
+                contentPadding = PaddingValues(horizontal = 4.dp, vertical = 8.dp),
+                modifier = Modifier
+                    .weight(1f)
+                    .height(44.dp)
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    if (isReset) {
+                        Icon(
+                            painter = painterResource(R.drawable.ic_refresh_24dp),
+                            contentDescription = null,
+                            tint = itemContentColor,
+                            modifier = Modifier.size(14.dp)
+                        )
+                    }
+                    Text(
+                        text = label,
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = if (isReset && syncOffsetMs != 0L) FontWeight.ExtraBold else FontWeight.Bold
+                    )
+                }
+            }
+        }
+    }
 }
