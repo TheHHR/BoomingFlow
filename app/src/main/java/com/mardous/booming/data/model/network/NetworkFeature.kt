@@ -55,18 +55,6 @@ sealed class NetworkFeature(
         }
         object SyncLRC : Lyrics(SYNCLRC_ENABLED_KEY, false)
         object PaxsenixNetease : Lyrics(PAXSENIX_NETEASE_ENABLED_KEY, false)
-        object Portato : Lyrics(PORTATO_ENABLED_KEY, false)
-        object Musixmatch : Lyrics(MUSIXMATCH_ENABLED_KEY, false)
-        object UnifiedTTML : Lyrics(UNIFIED_TTML_ENABLED_KEY, false)
-        object UnifiedKugou : Lyrics(UNIFIED_KUGOU_ENABLED_KEY, false)
-        object Unison : Lyrics(UNISON_ENABLED_KEY, false)
-        object Kouzu : Lyrics(KOUZU_ENABLED_KEY, false)
-        object AppleMusic : Lyrics(APPLE_MUSIC_ENABLED_KEY, false)
-        object Spotify : Lyrics(SPOTIFY_ENABLED_KEY, false)
-        object YouTubeCaptions : Lyrics(YOUTUBE_CAPTIONS_ENABLED_KEY, false)
-        object KuGou : Lyrics(KUGOU_ENABLED_KEY, false)
-        object SimpMusic : Lyrics(SIMPMUSIC_ENABLED_KEY, false)
-        object YouTubeMusic : Lyrics(YOUTUBE_MUSIC_ENABLED_KEY, false)
     }
 
     sealed class Lastfm(preferenceKey: String, isOnByDefault: Boolean) :
@@ -119,18 +107,6 @@ sealed class NetworkFeature(
         const val YOULYPLUS_ENABLED_KEY = "youlyplus_enabled"
         const val SYNCLRC_ENABLED_KEY = "synclrc_enabled"
         const val PAXSENIX_NETEASE_ENABLED_KEY = "paxsenix_netease_enabled"
-        const val PORTATO_ENABLED_KEY = "portato_enabled"
-        const val MUSIXMATCH_ENABLED_KEY = "musixmatch_enabled"
-        const val UNIFIED_TTML_ENABLED_KEY = "unified_ttml_enabled"
-        const val UNIFIED_KUGOU_ENABLED_KEY = "unified_kugou_enabled"
-        const val UNISON_ENABLED_KEY = "unison_enabled"
-        const val KOUZU_ENABLED_KEY = "kouzu_enabled"
-        const val APPLE_MUSIC_ENABLED_KEY = "apple_music_enabled"
-        const val SPOTIFY_ENABLED_KEY = "spotify_enabled"
-        const val YOUTUBE_CAPTIONS_ENABLED_KEY = "youtube_captions_enabled"
-        const val KUGOU_ENABLED_KEY = "kugou_enabled"
-        const val SIMPMUSIC_ENABLED_KEY = "simpmusic_enabled"
-        const val YOUTUBE_MUSIC_ENABLED_KEY = "youtube_music_enabled"
         const val LASTFM_SCROBBLING_ENABLED_KEY = "lastfm_scrobbling_enabled"
         const val LASTFM_NOW_PLAYING_ENABLED_KEY = "lastfm_now_playing_enabled"
         const val LASTFM_INFO_ENABLED_KEY = "lastfm_info_enabled"

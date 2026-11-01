@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.add
 import androidx.compose.foundation.layout.fillMaxSize
@@ -21,6 +22,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
@@ -39,9 +41,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.LinearWavyProgressIndicator
 import androidx.compose.material3.ListItemDefaults
-import androidx.compose.material3.SegmentedListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SegmentedListItem
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -87,6 +89,7 @@ import com.mardous.booming.core.model.player.PlayerColorScheme
 import com.mardous.booming.data.model.Song
 import com.mardous.booming.data.model.lyrics.RawLyrics
 import com.mardous.booming.data.model.lyrics.SyncedLyrics
+import com.mardous.booming.data.model.lyrics.isWordLevel
 import com.mardous.booming.data.remote.lyrics.api.LyricsProvider
 import com.mardous.booming.extensions.isPowerSaveMode
 import com.mardous.booming.extensions.resolveColor
@@ -105,6 +108,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withContext
 import org.koin.compose.viewmodel.koinActivityViewModel
+import java.util.Locale
 
 sealed class LyricsUiState(open val id: Long) {
     data class Loading(override val id: Long) : LyricsUiState(id)
@@ -325,9 +329,8 @@ fun LyricsScreen(
     }
 
     if (showProviderDialog) {
-        val switchState by lyricsViewModel.providerSwitchState.collectAsStateWithLifecycle()
-        val liveResults by lyricsViewModel.providerLiveResults.collectAsStateWithLifecycle()
-        val syncOffsetMs by lyricsViewModel.lyricsSyncOffsetMs.collectAsStateWithLifecycle()
+        val switchState by lyricsViewModel.providerSwitchState.collectAsState()
+        val liveResults by lyricsViewModel.providerLiveResults.collectAsState()
         LaunchedEffect(song.id) {
             lyricsViewModel.refreshProviderResults(song)
         }
@@ -342,6 +345,7 @@ fun LyricsScreen(
             liveResults = liveResults,
             syncOffsetMs = syncOffsetMs,
             onSwitch = { provider -> lyricsViewModel.switchToProvider(song, provider) },
+            onClear = { lyricsViewModel.clearLyricsForSong(song) },
             onSyncOffset = { delta -> lyricsViewModel.adjustLyricsSyncOffset(delta) },
             onResetSyncOffset = { lyricsViewModel.resetLyricsSyncOffset() },
             onDismiss = { showProviderDialog = false }
@@ -548,6 +552,7 @@ private fun ProviderSwitchDialog(
     liveResults: Map<String, RawLyrics.Remote?>,
     syncOffsetMs: Long,
     onSwitch: (LyricsProvider) -> Unit,
+    onClear: () -> Unit,
     onSyncOffset: (Long) -> Unit,
     onResetSyncOffset: () -> Unit,
     onDismiss: () -> Unit
@@ -557,17 +562,27 @@ private fun ProviderSwitchDialog(
         title = { Text(stringResource(R.string.switch_lyrics_provider_title)) },
         text = {
             Column(modifier = Modifier.fillMaxWidth()) {
-                val isSearchingAny = liveResults.size < LyricsProvider.entries.size
+                // Only providers enabled in the network settings take part
+                // in the race, so only those get rows.
+                val visibleProviders = remember {
+                    LyricsProvider.entries.filter {
+                        it.isAvailableForCurrentPolicy && it.isEnabled
+                    }
+                }
+                val isSearchingAny = liveResults.size < visibleProviders.size
                 val searchingLabel = stringResource(R.string.searching_lyrics_provider)
                 val noLyricsLabel = stringResource(R.string.no_lyrics_found)
                 val wordSyncedLabel = stringResource(R.string.word_by_word_lyrics_provider_status)
                 val lineSyncedLabel = stringResource(R.string.line_synced_lyrics_provider_status)
                 val plainLabel = stringResource(R.string.plain_text_lyrics_provider_status)
-                val rows = remember(activeProvider, switchState, liveResults) {
+                val rows = remember(
+                    activeProvider, switchState, liveResults, visibleProviders
+                ) {
                     sortedProviderRows(
                         activeProvider = activeProvider,
                         switchState = switchState,
                         liveResults = liveResults,
+                        visibleProviders = visibleProviders,
                         searchingLabel = searchingLabel,
                         noLyricsLabel = noLyricsLabel,
                         wordSyncedLabel = wordSyncedLabel,
@@ -633,9 +648,7 @@ private fun ProviderSwitchDialog(
                             },
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .alpha(
-                                    if (!row.hasLyrics && !row.isPending) 0.6f else 1f
-                                )
+                                .alpha(if (!row.hasLyrics && !row.isPending) 0.6f else 1f)
                         ) {
                             Text(
                                 text = row.provider.displayName,
@@ -663,6 +676,17 @@ private fun ProviderSwitchDialog(
                 )
             }
         },
+        dismissButton = {
+            TextButton(onClick = onClear) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_delete_24dp),
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp)
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(stringResource(R.string.clear_lyrics))
+            }
+        },
         confirmButton = {
             TextButton(onClick = onDismiss) {
                 Text(stringResource(android.R.string.cancel))
@@ -685,19 +709,22 @@ private fun sortedProviderRows(
     activeProvider: String?,
     switchState: LyricsViewModel.ProviderSwitchState,
     liveResults: Map<String, RawLyrics.Remote?>,
+    visibleProviders: List<LyricsProvider>,
     searchingLabel: String,
     noLyricsLabel: String,
     wordSyncedLabel: String,
     lineSyncedLabel: String,
     plainLabel: String
 ): List<ProviderRow> {
-    val all = LyricsProvider.entries
-    val rows = all.map { provider ->
+    val rows = visibleProviders.map { provider ->
         val remote = liveResults[provider.displayName]
-        val hasLyrics = remote != null &&
-                (remote.hasWordSynced || remote.hasSynced || remote.hasPlain)
-        val isWordSynced = remote?.hasWordSynced == true
-        val isSynced = remote?.hasSynced == true
+        // Providers deliver word-level content through the synced slot
+        // (YouLyPlus/BetterLyrics TTML, Netease klyric); detect it for the
+        // row badge with the same heuristic the merge uses.
+        val isWordSynced = remote?.hasWordSynced == true ||
+                remote?.synced?.isWordLevel() == true
+        val isSynced = remote?.hasSynced == true || isWordSynced
+        val hasLyrics = remote != null && (isSynced || remote.hasPlain)
         val isPending = !liveResults.containsKey(provider.displayName)
         val isLoading = switchState.loadingProvider == provider
         val subtitle = when {
@@ -736,27 +763,32 @@ private fun SyncOffsetRow(
     onResetSyncOffset: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    // The center preset doubles as the live readout: it shows the current
+    // offset (+0.5s, -0.3s...) and settles back to 0.0s once reset.
+    val resetLabel = remember(syncOffsetMs) {
+        if (syncOffsetMs == 0L) "0.0s"
+        else String.format(Locale.US, "%+.1fs", syncOffsetMs / 1000f)
+    }
     val presetValues = remember {
-        listOf(
-            -500L to "-0.5s",
-            -100L to "-0.1s",
-            0L to "0.0s",
-            100L to "+0.1s",
-            500L to "+0.5s"
-        )
+        listOf(-500L, -100L, 0L, 100L, 500L)
     }
     Row(
         modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(3.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        presetValues.forEachIndexed { index, (delta, label) ->
+        presetValues.forEachIndexed { index, delta ->
             val isReset = delta == 0L
+            val label = when {
+                isReset -> resetLabel
+                delta < 0 -> String.format(Locale.US, "-%.1fs", kotlin.math.abs(delta) / 1000f)
+                else -> String.format(Locale.US, "+%.1fs", delta / 1000f)
+            }
             val buttonShape = when (index) {
                 0 -> RoundedCornerShape(
                     topStart = 20.dp, bottomStart = 20.dp, topEnd = 6.dp, bottomEnd = 6.dp
                 )
-                4 -> RoundedCornerShape(
+                presetValues.size - 1 -> RoundedCornerShape(
                     topEnd = 20.dp, bottomEnd = 20.dp, topStart = 6.dp, bottomStart = 6.dp
                 )
                 else -> RoundedCornerShape(6.dp)

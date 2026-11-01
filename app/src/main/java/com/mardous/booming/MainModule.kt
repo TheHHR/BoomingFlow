@@ -95,7 +95,7 @@ val networkModule = module {
     single { LastFmService(client = get()) }
     single { ListenBrainzService(client = get()) }
     single { MusicBrainzService(client = get()) }
-    single { LyricsDownloadService(context = androidContext(), client = get()) }
+    single { LyricsDownloadService(client = get()) }
     single { QueueStateHolder() }
     single { com.mardous.booming.online.download.SongDownloader(androidContext(), get(), get()) }
 }
@@ -360,12 +360,7 @@ private val viewModule = module {
     }
 
     viewModel {
-        LyricsViewModel(
-            application = androidApplication(),
-            preferences = get(),
-            repository = get(),
-            downloadService = get()
-        )
+        LyricsViewModel(application = androidApplication(), preferences = get(), repository = get())
     }
 
     viewModel {

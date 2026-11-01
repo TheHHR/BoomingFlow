@@ -54,8 +54,7 @@ import com.mardous.booming.core.model.lyrics.LyricsViewSettings.Mode as LyricsVi
 class LyricsViewModel(
     application: Application,
     private val preferences: SharedPreferences,
-    private val repository: LyricsRepository,
-    private val downloadService: com.mardous.booming.data.remote.lyrics.LyricsDownloadService
+    private val repository: LyricsRepository
 ) : AndroidViewModel(application), OnSharedPreferenceChangeListener {
 
     private val _lyricsUiState = MutableStateFlow<LyricsUiState>(LyricsUiState.Empty(-1))
@@ -245,12 +244,13 @@ class LyricsViewModel(
     private val _providerSwitchState = MutableStateFlow(ProviderSwitchState())
     val providerSwitchState = _providerSwitchState.asStateFlow()
 
-    val providerLiveResults = downloadService.liveResults
+    /** Live per-provider results for the fullscreen provider sheet rows. */
+    val providerLiveResults = repository.providerLiveResults
 
     /**
      * Per-song manual timing correction, in milliseconds. Positive shifts
      * the display later. The provider sheet's sync row adjusts this; the
-     * viewer subtracts it before updating the playback cursor.
+     * viewers subtract it before updating the playback cursor.
      */
     private val _lyricsSyncOffsetMs = MutableStateFlow(0L)
     val lyricsSyncOffsetMs = _lyricsSyncOffsetMs.asStateFlow()
@@ -267,18 +267,36 @@ class LyricsViewModel(
 
     /**
      * Runs a background sweep for the provider sheet without persisting
-     * anything: [LyricsDownloadService.liveResults] updates each row
-     * live mid-race so the sheet reflects reality instead of spinning
-     * forever when the song already had stored lyrics.
+     * anything: [providerLiveResults] updates each row live mid-race so
+     * the sheet reflects reality instead of spinning forever when the
+     * song already had stored lyrics.
      */
     fun refreshProviderResults(song: Song) {
         if (song == Song.emptySong) return
+        if (_lyricsUiState.value is LyricsUiState.Loading) return
         refreshJob?.cancel()
         refreshJob = viewModelScope.launch(IO) {
             try {
-                downloadService.remoteLyrics(song)
+                repository.refreshProviderResults(song)
             } catch (_: Exception) {
             }
+        }
+    }
+
+    /**
+     * Clears the stored lyrics for one song (provider sheet's Clear
+     * action): the row and every cache go away, the word-by-word upgrade
+     * sweep becomes eligible again, and the song re-downloads from
+     * scratch.
+     */
+    fun clearLyricsForSong(song: Song) = viewModelScope.launch(IO) {
+        repository.deleteLyrics(song)
+        synchronized(wordUpgradeAttempted) { wordUpgradeAttempted.remove(song.id) }
+        synchronized(providerSwitchResults) {
+            providerSwitchResults.keys.removeAll { it.first == song.id }
+        }
+        if (song.id == _lyricsUiState.value.id) {
+            updateSong(song)
         }
     }
 

@@ -31,6 +31,7 @@ import com.mardous.booming.extensions.media.isArtistNameUnknown
 import com.mardous.booming.util.MARK_INSTRUMENTAL_TRACKS_BY_TITLE
 import com.mardous.booming.util.Preferences.requireString
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.flow.StateFlow
 import org.mozilla.universalchardet.UniversalDetector
 import java.io.BufferedInputStream
 import java.io.File
@@ -70,6 +71,26 @@ interface LyricsRepository {
 
     suspend fun writableUris(song: Song): List<Uri>
     suspend fun deleteAllLyrics()
+
+    /**
+     * Live per-provider results of the latest download sweep, keyed by
+     * provider display name. Collected by the fullscreen provider sheet
+     * to update its rows mid-race.
+     */
+    val providerLiveResults: StateFlow<Map<String, RawLyrics.Remote?>>
+
+    /**
+     * Deletes the stored (downloaded) lyrics row for one song and evicts
+     * every cache for it, so the next playback re-downloads from scratch.
+     * Used by the provider sheet's clear action.
+     */
+    suspend fun deleteLyrics(song: Song)
+
+    /**
+     * Runs a provider sweep for the provider sheet's live rows without
+     * persisting anything; the sheet observes [providerLiveResults].
+     */
+    suspend fun refreshProviderResults(song: Song): RawLyrics.Remote?
 }
 
 class RealLyricsRepository(
@@ -537,6 +558,29 @@ class RealLyricsRepository(
         lyricsDao.removeLyrics()
         memoryCache.evictAll()
         synchronized(negativeCache) { negativeCache.clear() }
+    }
+
+    override val providerLiveResults: StateFlow<Map<String, RawLyrics.Remote?>>
+        get() = lyricsDownloadService.liveResults
+
+    override suspend fun deleteLyrics(song: Song) {
+        if (song.id == Song.emptySong.id) return
+        val lyricsId = lyricsIdFor(song)
+        lyricsDao.removeLyrics(lyricsId)
+        memoryCache.remove(song.id)
+        memoryCache.remove(lyricsId)
+        clearNegativeCache(lyricsId)
+    }
+
+    override suspend fun refreshProviderResults(song: Song): RawLyrics.Remote? {
+        if (song.id == Song.emptySong.id) return null
+        return try {
+            lyricsDownloadService.remoteLyrics(song, providerParams = LyricsProviderParams())
+        } catch (e: CancellationException) {
+            throw e
+        } catch (_: Exception) {
+            null
+        }
     }
 
     private fun isRecentlyMissed(songId: Long): Boolean {

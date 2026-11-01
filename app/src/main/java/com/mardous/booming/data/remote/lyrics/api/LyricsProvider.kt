@@ -26,22 +26,10 @@ enum class LyricsProvider(
     BiniLyrics("BiniLyrics", NetworkFeature.Lyrics.BiniLyrics),
     YouLyPlus("YouLyPlus", NetworkFeature.Lyrics.YouLyPlus),
     LRCLib("LRCLib", NetworkFeature.Lyrics.LRCLib),
-    BetterLyrics("Unified Lyrics", NetworkFeature.Lyrics.BetterLyrics),
+    BetterLyrics("BetterLyrics", NetworkFeature.Lyrics.BetterLyrics),
     Lyrically("Lyrically", NetworkFeature.Lyrics.Lyrically),
     SyncLRC("SyncLRC", NetworkFeature.Lyrics.SyncLRC),
-    Netease("Netease", NetworkFeature.Lyrics.PaxsenixNetease),
-    Portato("Portato (QQ)", NetworkFeature.Lyrics.Portato),
-    Musixmatch("Musixmatch", NetworkFeature.Lyrics.Musixmatch),
-    UnifiedTTML("Unified TTML", NetworkFeature.Lyrics.UnifiedTTML),
-    UnifiedKugou("Unified Kugou", NetworkFeature.Lyrics.UnifiedKugou),
-    Unison("Unison (Community)", NetworkFeature.Lyrics.Unison),
-    Kouzu("Kouzu MLC (Karaoke)", NetworkFeature.Lyrics.Kouzu),
-    AppleMusic("Apple Music", NetworkFeature.Lyrics.AppleMusic),
-    Spotify("Spotify", NetworkFeature.Lyrics.Spotify),
-    YouTubeCaptions("YouTube Captions", NetworkFeature.Lyrics.YouTubeCaptions),
-    KuGou("KuGou", NetworkFeature.Lyrics.KuGou),
-    SimpMusic("SimpMusic", NetworkFeature.Lyrics.SimpMusic),
-    YouTubeMusic("YouTube Music", NetworkFeature.Lyrics.YouTubeMusic);
+    Netease("Netease", NetworkFeature.Lyrics.PaxsenixNetease);
 
     val isAvailableForCurrentPolicy get() = networkFeature.isAvailableForCurrentPolicy
     val isEnabled get() = networkFeature.isEnabled
