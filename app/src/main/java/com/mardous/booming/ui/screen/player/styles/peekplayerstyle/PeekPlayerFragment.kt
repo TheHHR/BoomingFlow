@@ -62,7 +62,7 @@ class PeekPlayerFragment : AbsPlayerFragment(R.layout.fragment_peek_player) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentPeekPlayerBinding.bind(view)
-        playerControlsFragment.bindGoToMenuOn(_binding.title, _binding.text)
+        playerControlsFragment.bindGoToMenuOn(binding.title, binding.text)
         setupToolbar()
         inflateMenuInView(playerToolbar)
         ViewCompat.setOnApplyWindowInsetsListener(view) { v: View, insets: WindowInsetsCompat ->

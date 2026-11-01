@@ -148,7 +148,7 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) : Fragment(layoutRes
     }
 
     /** Non-empty current track, or null while nothing / an empty song is loaded. */
-    protected fun currentSongOrNull(): Song? =
+    fun currentSongOrNull(): Song? =
         playerViewModel.currentSong.takeIf { it.id != Song.emptySong.id }
 
     protected val mediaEventBus: MediaEventBus by inject()

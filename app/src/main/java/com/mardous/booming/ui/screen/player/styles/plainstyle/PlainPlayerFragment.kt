@@ -67,7 +67,7 @@ class PlainPlayerFragment : AbsPlayerFragment(R.layout.fragment_plain_player) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentPlainPlayerBinding.bind(view)
-        playerControlsFragment.bindGoToMenuOn(_binding.title, _binding.text)
+        playerControlsFragment.bindGoToMenuOn(binding.title, binding.text)
         setupToolbar()
         inflateMenuInView(playerToolbar)
         ViewCompat.setOnApplyWindowInsetsListener(view) { v: View, insets: WindowInsetsCompat ->
