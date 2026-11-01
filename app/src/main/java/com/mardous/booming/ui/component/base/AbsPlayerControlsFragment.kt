@@ -104,10 +104,10 @@ abstract class AbsPlayerControlsFragment(@LayoutRes layoutRes: Int) : Fragment(l
     fun bindGoToMenuOn(vararg views: View?) {
         val player = playerFragment ?: return
         for (view in views) {
-            view ?: continue
-            view.isFocusable = true
-            view.isClickable = true
-            view.setOnClickListener {
+            // Clickability is implied by the listener; keep focusable
+            // flags off so the first tap is never swallowed as a
+            // focus request (see setMarquee).
+            view?.setOnClickListener {
                 player.currentSongOrNull()?.let(player::showPlayerGoToMenu)
             }
         }

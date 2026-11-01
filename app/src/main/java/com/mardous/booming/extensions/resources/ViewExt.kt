@@ -300,8 +300,10 @@ fun ImageView.removeHorizontalMarginIfRequired() {
 }
 
 fun TextView.setMarquee(marquee: Boolean) {
-    isFocusable = marquee
-    isFocusableInTouchMode = marquee
+    // NOTE: no focusable/focusableInTouchMode here. Those flags make the
+    // first tap on a view get swallowed as a focus request, so click
+    // handlers on these TextViews would silently miss one tap per page
+    // open. Marquee animation is driven by isSelected alone.
     setHorizontallyScrolling(marquee)
     if (marquee) {
         ellipsize = TextUtils.TruncateAt.MARQUEE
