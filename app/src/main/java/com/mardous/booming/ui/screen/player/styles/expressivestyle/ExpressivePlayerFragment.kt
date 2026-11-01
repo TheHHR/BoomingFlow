@@ -124,6 +124,7 @@ class ExpressivePlayerFragment : AbsPlayerFragment(R.layout.fragment_expressive_
 
     private fun setupActions() {
         popupMenu = inflateMenuInView(binding.moreButton)
+        playerControlsFragment.bindGoToMenuOn(binding.title, binding.text, binding.songInfo)
         binding.songInfo.setOnLongClickListener(this)
         binding.repeatButton.setOnClickListener(this)
         binding.shuffleButton.setOnClickListener(this)

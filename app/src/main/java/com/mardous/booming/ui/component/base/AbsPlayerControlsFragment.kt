@@ -92,6 +92,27 @@ abstract class AbsPlayerControlsFragment(@LayoutRes layoutRes: Int) : Fragment(l
     protected open val songArtistView: TextView? = null
     protected open val songInfoView: TextView? = null
 
+    /**
+     * Tapping the song title block opens the Go To menu for the current
+     * track — same entry point as the toolbar overflow. Resolves the
+     * track at tap time so queue advances never point at stale rows.
+     * Song-areas are looked up per style (title/artist live in the
+     * controls fragment for some, in the player fragment for others),
+     * so styles register their own blocks. Long-press behaviors
+     * (e.g. Expressive songInfo) stay untouched.
+     */
+    fun bindGoToMenuOn(vararg views: View?) {
+        val player = playerFragment ?: return
+        for (view in views) {
+            view ?: continue
+            view.isFocusable = true
+            view.isClickable = true
+            view.setOnClickListener {
+                player.currentSongOrNull()?.let(player::showPlayerGoToMenu)
+            }
+        }
+    }
+
     protected var isControlAnimationEnabled: Boolean = false
         private set
 

@@ -77,6 +77,7 @@ class GradientPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragme
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentGradientPlayerPlaybackControlsBinding.bind(view)
+        bindGoToMenuOn(binding.title, binding.text, binding.songInfo)
         setupListeners()
         setViewAction(binding.favorite, NowPlayingAction.ToggleFavoriteState)
         popupMenu = playerFragment?.inflateMenuInView(binding.menu)

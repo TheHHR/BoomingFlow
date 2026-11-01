@@ -16,18 +16,27 @@ import com.mardous.booming.R
 import com.mardous.booming.coil.CoverProvider
 import com.mardous.booming.core.appwidgets.WidgetColors
 
-/** URI artwork avoids resending bitmaps */
+/**
+ * URI artwork avoids resending bitmaps.
+ *
+ * Remote (streamed) tracks pass their artwork URL — served through the
+ * provider's remote path so the widget shows the streamed cover exactly
+ * like a local song's.
+ */
 @Composable
 fun WidgetArtwork(
     songId: Long?,
     colors: WidgetColors,
     modifier: GlanceModifier,
     shape: WidgetShape = WidgetShape.Card,
-    contentDescription: String? = null
+    contentDescription: String? = null,
+    artworkUrl: String? = null
 ) {
     // The scallop is cut into the image the provider serves
     val baked = shape == WidgetShape.Scallop
-    val uri = songId?.let {
+    val uri = artworkUrl?.let {
+        CoverProvider.getRemoteCoverUri(it, if (baked) CoverProvider.SHAPE_COOKIE else null)
+    } ?: songId?.let {
         CoverProvider.getImageUri(
             CoverProvider.SONG_COVER_PATH, it, if (baked) CoverProvider.SHAPE_COOKIE else null
         )

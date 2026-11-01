@@ -1056,18 +1056,33 @@ class PlaybackService :
 
     /** Only the fields that genuinely come from the player; the rest is [WidgetDataSource]'s. */
     private suspend fun buildPlaybackState(needs: Set<WidgetData>): PlaybackState {
-        val id = player.currentMediaItem?.mediaId?.toLongOrNull()
-            ?: return PlaybackState()
+        val mediaItem = player.currentMediaItem ?: return PlaybackState()
+        // Local-id lookup (`mediaId.toLongOrNull()`) blanks remote tracks: resolve the
+        // queued song instead so streamed (yt:) songs show like local ones.
+        val song = queueStateHolder.currentSong.first()
+        if (song == Song.emptySong) return PlaybackState()
+        val isRemote = song.data.startsWith("yt:")
 
         val base = PlaybackState(
             isPlaying = player.isPlaying,
-            songId = id,
+            songId = song.id,
+            // Remote songs resolve nothing from the library: carry the
+            // queued title/artist/artwork directly from MediaMetadata.
+            currentTitle = song.title.takeIf { isRemote },
+            currentArtist = song.artistName.takeIf { isRemote },
+            currentArtworkUrl = if (isRemote) {
+                mediaItem.mediaMetadata.artworkUri?.toString()
+            } else {
+                null
+            },
             positionMs = currentPositionMs,
             durationMs = currentDurationMs,
             isShuffleMode = player.shuffleModeEnabled,
             repeatMode = player.repeatMode
         )
-        return withContext(IO) { WidgetDataSource.enrich(this@PlaybackService, base, needs) }
+        return withContext(IO) {
+            WidgetDataSource.enrich(this@PlaybackService, base, needs, song.takeIf { isRemote })
+        }
     }
 
     private fun dispatchPlayQueue(player: Player) {

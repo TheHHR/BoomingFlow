@@ -83,7 +83,12 @@ class CardWidget : BoomingWidget() {
                 .padding(GAP),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            WidgetArtwork(playbackState.songId, colors, GlanceModifier.size(min(ROW_ART, content)))
+            WidgetArtwork(
+                songId = playbackState.songId,
+                colors = colors,
+                modifier = GlanceModifier.size(min(ROW_ART, content)),
+                artworkUrl = playbackState.currentArtworkUrl
+            )
             Details(playbackState, colors)
             if (config.showControls) {
                 val button = min(ROW_BUTTON, content)
@@ -107,7 +112,12 @@ class CardWidget : BoomingWidget() {
                 .padding(GAP),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            WidgetArtwork(playbackState.songId, colors, GlanceModifier.fillMaxWidth().defaultWeight())
+            WidgetArtwork(
+                songId = playbackState.songId,
+                colors = colors,
+                modifier = GlanceModifier.fillMaxWidth().defaultWeight(),
+                artworkUrl = playbackState.currentArtworkUrl
+            )
             Spacer(GlanceModifier.height(GAP))
             TrackText(playbackState, colors, 16.sp, 13.sp, align = TextAlign.Center)
             if (config.showProgress) {
@@ -141,7 +151,12 @@ class CardWidget : BoomingWidget() {
                 modifier = GlanceModifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                WidgetArtwork(playbackState.songId, colors, GlanceModifier.size(ROW_ART))
+                WidgetArtwork(
+                    songId = playbackState.songId,
+                    colors = colors,
+                    modifier = GlanceModifier.size(ROW_ART),
+                    artworkUrl = playbackState.currentArtworkUrl
+                )
                 Details(playbackState, colors)
             }
             if (timeline) {

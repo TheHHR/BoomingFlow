@@ -13,6 +13,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -20,21 +21,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.DialogFragment
 import com.mardous.booming.R
-import com.mardous.booming.ui.component.compose.DialogListItemWithRadio
+import com.mardous.booming.ui.component.compose.DialogListItemWithIcon
 import com.mardous.booming.ui.theme.BoomingMusicTheme
 
 /**
- * One-tap Go To menu: artist rows first (alias-resolved split names),
- * then Album and Genre rows, then Close.
- *
- * A Compose dialog wrapped in [BoomingMusicTheme] so rows and buttons
- * follow follow-player-color like the rest of the app. Row taps
- * navigate directly (dialog dismisses first) instead of going through
- * the system list callback that occasionally dropped taps.
+ * One-tap Go To menu: artist rows first, then Album and Genre rows, then
+ * Close. Flat icon rows (musician, album, genre, close icons) instead of
+ * radio dots, inside [BoomingMusicTheme] so rows and icons follow
+ * follow-player-color like the rest of the app. Row taps navigate
+ * directly (dialog dismisses first) instead of going through the
+ * system list callback that occasionally dropped taps.
  */
 class GoToMenuDialog(
     private val artistNames: List<String> = emptyList(),
@@ -94,6 +95,15 @@ class GoToMenuDialog(
     }
 }
 
+@Composable
+private fun GoToIcon(@androidx.annotation.DrawableRes resId: Int) {
+    Icon(
+        painter = painterResource(resId),
+        contentDescription = null,
+        tint = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant
+    )
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun GoToMenuContent(
@@ -112,9 +122,9 @@ private fun GoToMenuContent(
             Column(modifier = Modifier.fillMaxWidth()) {
                 LazyColumn(modifier = Modifier.fillMaxWidth()) {
                     items(artistNames, key = { it }) { name ->
-                        DialogListItemWithRadio(
+                        DialogListItemWithIcon(
                             title = name,
-                            isSelected = false,
+                            icon = { GoToIcon(R.drawable.ic_person_24dp) },
                             onClick = { onArtistSelected(name) },
                             contentPadding = PaddingValues(horizontal = 8.dp, vertical = 12.dp),
                             modifier = Modifier
@@ -126,9 +136,9 @@ private fun GoToMenuContent(
                 if (showAlbumRow || showGenreRow) {
                     HorizontalDivider()
                     if (showAlbumRow) {
-                        DialogListItemWithRadio(
+                        DialogListItemWithIcon(
                             title = stringResource(R.string.album),
-                            isSelected = false,
+                            icon = { GoToIcon(R.drawable.ic_album_24dp) },
                             onClick = onAlbumSelected,
                             contentPadding = PaddingValues(horizontal = 8.dp, vertical = 12.dp),
                             modifier = Modifier
@@ -137,9 +147,9 @@ private fun GoToMenuContent(
                         )
                     }
                     if (showGenreRow) {
-                        DialogListItemWithRadio(
+                        DialogListItemWithIcon(
                             title = stringResource(R.string.genre),
-                            isSelected = false,
+                            icon = { GoToIcon(R.drawable.ic_music_note_24dp) },
                             onClick = onGenreSelected,
                             contentPadding = PaddingValues(horizontal = 8.dp, vertical = 12.dp),
                             modifier = Modifier

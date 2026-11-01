@@ -137,7 +137,8 @@ class GridWidget : BoomingWidget() {
             songId = playbackState.songId,
             colors = colors,
             modifier = modifier.openApp(),
-            shape = WidgetShape.Button
+            shape = WidgetShape.Button,
+            artworkUrl = playbackState.currentArtworkUrl
         )
     }
 

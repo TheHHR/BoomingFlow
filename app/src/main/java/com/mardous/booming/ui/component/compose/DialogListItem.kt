@@ -43,6 +43,25 @@ fun DialogListItemWithRadio(
 }
 
 @Composable
+fun DialogListItemWithIcon(
+    title: String,
+    icon: @Composable () -> Unit,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    subtitle: String? = null,
+    contentPadding: PaddingValues? = null
+) {
+    DialogListItem(
+        title = title,
+        leadingComposable = { icon() },
+        subtitle = subtitle,
+        contentPadding = contentPadding,
+        onClick = onClick,
+        modifier = modifier
+    )
+}
+
+@Composable
 fun DialogListItemWithCheckBox(
     title: String,
     onClick: () -> Unit,

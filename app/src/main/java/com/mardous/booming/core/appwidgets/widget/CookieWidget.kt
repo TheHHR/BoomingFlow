@@ -40,7 +40,8 @@ class CookieWidget : BoomingWidget() {
                 songId = playbackState.songId,
                 colors = colors,
                 modifier = GlanceModifier.fillMaxSize().openApp(),
-                shape = WidgetShape.Scallop
+                shape = WidgetShape.Scallop,
+                artworkUrl = playbackState.currentArtworkUrl
             )
         }
     }

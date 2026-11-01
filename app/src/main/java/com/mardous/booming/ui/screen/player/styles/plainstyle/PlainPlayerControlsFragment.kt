@@ -75,6 +75,9 @@ class PlainPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragment_
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentPlainPlayerPlaybackControlsBinding.bind(view)
+        // Plain's song row lives here; its title/artist are in the
+        // parent player fragment and get wired there.
+        bindGoToMenuOn(binding.songInfo)
         binding.playPauseButton.setOnClickListener(this)
         binding.shuffleButton.setOnClickListener(this)
         binding.repeatButton.setOnClickListener(this)

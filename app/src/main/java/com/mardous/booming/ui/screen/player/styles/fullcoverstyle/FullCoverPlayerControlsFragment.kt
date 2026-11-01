@@ -92,6 +92,7 @@ class FullCoverPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragm
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentFullCoverPlayerPlaybackControlsBinding.bind(view)
+        bindGoToMenuOn(binding.title, binding.text, binding.songInfo)
 
         binding.playPauseButton.setOnClickListener(this)
         binding.shuffleButton.setOnClickListener(this)

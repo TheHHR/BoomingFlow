@@ -10,6 +10,8 @@ data class PlaybackState(
     val currentArtist: String? = null,
     /** id avoids resending a bitmap in every RemoteViews update */
     val songId: Long? = null,
+    /** Remote artwork URL (streams); local songs keep using the CoverProvider song-id lookup. */
+    val currentArtworkUrl: String? = null,
     val positionMs: Long = 0L,
     val durationMs: Long = 0L,
     val seedColor: Int? = null,

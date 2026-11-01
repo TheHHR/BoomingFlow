@@ -115,6 +115,42 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) : Fragment(layoutRes
     val playerViewModel: PlayerViewModel by activityViewModel()
     val libraryViewModel: LibraryViewModel by activityViewModel()
 
+    /**
+     * Opens the Go To menu for a song. Public so both the player
+     * fragments and their child controls fragments can trigger it
+     * from the title block in every style.
+     */
+    fun showPlayerGoToMenu(song: Song) {
+        if (song.id == Song.emptySong.id) return
+        val names = song.gotoArtistNames()
+        GoToMenuDialog(
+            artistNames = names,
+            showAlbumRow = true,
+            showGenreRow = true,
+            onArtistSelected = { chosen ->
+                goToDestination(
+                    requireActivity(),
+                    R.id.nav_artist_detail,
+                    artistDetailArgs(-1, chosen),
+                    removeTransition = true,
+                    singleTop = false
+                )
+            },
+            onAlbumSelected = {
+                goToAlbum(requireActivity(), song)
+            },
+            onGenreSelected = {
+                libraryViewModel.genreBySong(song).observe(viewLifecycleOwner) { genre ->
+                    goToGenre(requireActivity(), genre)
+                }
+            }
+        ).show(childFragmentManager, "GO_TO_MENU")
+    }
+
+    /** Non-empty current track, or null while nothing / an empty song is loaded. */
+    protected fun currentSongOrNull(): Song? =
+        playerViewModel.currentSong.takeIf { it.id != Song.emptySong.id }
+
     protected val mediaEventBus: MediaEventBus by inject()
 
     private var gesturesController: PlayerGesturesController? = null
@@ -666,33 +702,6 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) : Fragment(layoutRes
         } else {
             getString(R.string.list_end)
         }
-    }
-
-    protected fun showPlayerGoToMenu(song: Song) {
-        if (song.id == Song.emptySong.id) return
-        val names = song.gotoArtistNames()
-        GoToMenuDialog(
-            artistNames = names,
-            showAlbumRow = true,
-            showGenreRow = true,
-            onArtistSelected = { chosen ->
-                goToDestination(
-                    requireActivity(),
-                    R.id.nav_artist_detail,
-                    artistDetailArgs(-1, chosen),
-                    removeTransition = true,
-                    singleTop = false
-                )
-            },
-            onAlbumSelected = {
-                goToAlbum(requireActivity(), song)
-            },
-            onGenreSelected = {
-                libraryViewModel.genreBySong(song).observe(viewLifecycleOwner) { genre ->
-                    goToGenre(requireActivity(), genre)
-                }
-            }
-        ).show(childFragmentManager, "GO_TO_MENU")
     }
 }
 
