@@ -502,8 +502,7 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) : Fragment(layoutRes
                         backgroundColor = backgroundColor,
                         vibrant = vibrant,
                         darkVibrant = darkVibrant,
-                        darkMuted = darkMuted,
-                        isAnimated = true
+                        darkMuted = darkMuted
                     )
             )
         }

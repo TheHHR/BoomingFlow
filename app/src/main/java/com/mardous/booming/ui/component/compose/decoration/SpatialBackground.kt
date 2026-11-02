@@ -33,8 +33,6 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.drawWithCache
@@ -104,15 +102,16 @@ private fun isReducedMotionEnabled(): Boolean = LocalContext.current.let { conte
  * GPU-accelerated dynamic fluid shader background ("Spatial"). Uses an AGSL
  * RuntimeShader on Android 13+ (API 33+); earlier versions get a Canvas
  * fallback that replicates the same three drifting color blobs. Renders in
- * the draw phase, so frames never trigger recomposition.
+ * the draw phase, so frames never trigger recomposition. The motion loop
+ * always runs (60s cycle, exactly like SpatialFlow) - no pause-linked
+ * animation switching.
  */
 @Composable
 fun Modifier.spatialBackground(
     backgroundColor: Color,
     vibrant: Color,
     darkVibrant: Color,
-    darkMuted: Color,
-    isAnimated: Boolean = true
+    darkMuted: Color
 ): Modifier {
     if (isReducedMotionEnabled()) {
         return this.background(
@@ -156,19 +155,15 @@ fun Modifier.spatialBackground(
     )
 
     val infiniteTransition = rememberInfiniteTransition(label = "spatial_shader_time")
-    val time by if (isAnimated) {
-        infiniteTransition.animateFloat(
-            initialValue = 0f,
-            targetValue = (2f * PI).toFloat() * 10f,
-            animationSpec = infiniteRepeatable(
-                animation = tween(durationMillis = 60000, easing = LinearEasing),
-                repeatMode = RepeatMode.Restart
-            ),
-            label = "spatial_time"
-        )
-    } else {
-        remember { mutableStateOf(0f) }
-    }
+    val time by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = (2f * PI).toFloat() * 10f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 60000, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart
+        ),
+        label = "spatial_time"
+    )
 
     return this
         .graphicsLayer()

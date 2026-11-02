@@ -298,8 +298,7 @@ fun LyricsScreen(
                                     backgroundColor = spatialColors[0],
                                     vibrant = spatialColors.getOrElse(1) { spatialColors[0] },
                                     darkVibrant = spatialColors.getOrElse(2) { spatialColors[1] },
-                                    darkMuted = spatialColors.getOrElse(3) { spatialColors[0] },
-                                    isAnimated = isPlaying
+                                    darkMuted = spatialColors.getOrElse(3) { spatialColors[0] }
                                 )
                         )
                         hasBackgroundEffects = true
