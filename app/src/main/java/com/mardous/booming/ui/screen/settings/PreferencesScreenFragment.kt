@@ -104,7 +104,7 @@ import com.mardous.booming.util.LIBRARY_CATEGORIES
 import com.mardous.booming.util.LISTENBRAINZ_LOGIN
 import com.mardous.booming.util.FOLLOW_PLAYER_COLOR
 import com.mardous.booming.util.NOW_PLAYING_EXTRA_INFO
-import com.mardous.booming.util.NOW_PLAYING_SCREEN
+import com.mardous.booming.util.PLAYER_COLOR_SCHEME
 import com.mardous.booming.util.ON_CLEAR_QUEUE_ACTION
 import com.mardous.booming.util.ON_SONG_CLICK_ACTION
 import com.mardous.booming.util.GeneralTheme
@@ -579,7 +579,7 @@ open class PreferenceScreenFragment : PreferenceFragmentCompat(),
                 findPreference<ThemePreference>(GENERAL_THEME)?.syncRow()
                 updateBlackThemeAvailability()
             }
-            NOW_PLAYING_SCREEN -> onUpdateNowPlayingBackground()
+            PLAYER_COLOR_SCHEME -> onUpdateNowPlayingBackground()
             COVER_DOUBLE_TAP_ACTION,
             COVER_LEFT_DOUBLE_TAP_ACTION,
             COVER_RIGHT_DOUBLE_TAP_ACTION,

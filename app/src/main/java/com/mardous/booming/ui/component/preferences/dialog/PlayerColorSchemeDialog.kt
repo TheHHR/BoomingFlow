@@ -19,8 +19,6 @@ package com.mardous.booming.ui.component.preferences.dialog
 
 import android.app.Dialog
 import android.os.Bundle
-import android.view.View
-import androidx.appcompat.app.AlertDialog
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -30,12 +28,17 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.preference.PreferenceDialogFragmentCompat
+import androidx.fragment.app.DialogFragment
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.mardous.booming.core.model.player.PlayerColorSchemeMode
 import com.mardous.booming.ui.component.compose.DialogListItemWithRadio
 import com.mardous.booming.ui.theme.BoomingMusicTheme
@@ -46,61 +49,50 @@ import com.mardous.booming.util.Preferences
  * Replaces the old style/transition picker: the only style left is
  * Expressive, so this dialog offers just the background modes.
  */
-class PlayerColorSchemeDialog : PreferenceDialogFragmentCompat() {
+class PlayerColorSchemeDialog : DialogFragment() {
 
-    private var selectedMode: PlayerColorSchemeMode = Preferences.nowPlayingColorSchemeMode
-
-    override fun onCreateDialogView(context: android.content.Context): View {
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        // Matches the sibling preference dialogs: no Material title/buttons
+        // (the dialog window background would otherwise sandwich the Compose
+        // content), uniform surfaceContainerHigh, selection persists and
+        // dismisses immediately.
         val modes = listOf(
             PlayerColorSchemeMode.AppTheme,
             PlayerColorSchemeMode.MaterialYou,
             PlayerColorSchemeMode.Blur
         )
-        selectedMode = Preferences.nowPlayingColorSchemeMode
-        return ComposeView(context).apply {
-            setViewCompositionStrategy(
-                ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed
-            )
-            setContent {
-                BoomingMusicTheme {
-                    DialogView(
-                        modes = modes,
-                        selected = selectedMode,
-                        onSelection = ::selectMode
+        return MaterialAlertDialogBuilder(requireContext())
+            .setView(
+                ComposeView(requireContext()).apply {
+                    setViewCompositionStrategy(
+                        ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed
                     )
+                    setContent {
+                        BoomingMusicTheme {
+                            var selectedMode by remember {
+                                mutableStateOf(Preferences.nowPlayingColorSchemeMode)
+                            }
+                            DialogScreen(
+                                modes = modes,
+                                selected = selectedMode,
+                                onModeClick = { mode ->
+                                    selectedMode = mode
+                                    Preferences.setNowPlayingColorSchemeMode(mode)
+                                    dialog?.dismiss()
+                                }
+                            )
+                        }
+                    }
                 }
-            }
-        }
-    }
-
-    private fun selectMode(mode: PlayerColorSchemeMode) {
-        selectedMode = mode
-        dialog?.let {
-            onClick(it, AlertDialog.BUTTON_POSITIVE)
-            it.dismiss()
-        }
-    }
-
-    override fun onBindDialogView(view: View) {}
-
-    override fun onPrepareDialogBuilder(builder: AlertDialog.Builder) {
-        super.onPrepareDialogBuilder(builder)
-        builder.setTitle(null)
-        builder.setPositiveButton(null, null)
-        builder.setNegativeButton(null, null)
-    }
-
-    override fun onDialogClosed(positiveResult: Boolean) {
-        if (positiveResult) {
-            Preferences.setNowPlayingColorSchemeMode(selectedMode)
-        }
+            )
+            .create()
     }
 
     @Composable
-    private fun DialogView(
+    private fun DialogScreen(
         modes: List<PlayerColorSchemeMode>,
         selected: PlayerColorSchemeMode,
-        onSelection: (PlayerColorSchemeMode) -> Unit
+        onModeClick: (PlayerColorSchemeMode) -> Unit
     ) {
         Surface(
             color = MaterialTheme.colorScheme.surfaceContainerHigh,
@@ -118,7 +110,7 @@ class PlayerColorSchemeDialog : PreferenceDialogFragmentCompat() {
                         title = stringResource(mode.titleRes),
                         subtitle = stringResource(mode.descriptionRes),
                         isSelected = mode == selected,
-                        onClick = { onSelection(mode) }
+                        onClick = { onModeClick(mode) }
                     )
                 }
             }
