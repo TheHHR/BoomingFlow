@@ -160,7 +160,7 @@ data class LrcNode(
                 block == Character.UnicodeBlock.HANGUL_SYLLABLES ||
                 block == Character.UnicodeBlock.HANGUL_JAMO ||
                 block == Character.UnicodeBlock.CJK_SYMBOLS_AND_PUNCTUATION ||
-                block == Character.UnicodeBlock.FULLWIDTH_FORMS
+                block == Character.UnicodeBlock.HALFWIDTH_AND_FULLWIDTH_FORMS
     }
 
     private fun getLineSyncedTextContent() = SyncedLyrics.TextContent(
