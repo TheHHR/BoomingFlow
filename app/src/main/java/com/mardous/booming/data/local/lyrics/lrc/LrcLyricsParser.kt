@@ -152,12 +152,45 @@ class LrcLyricsParser : LyricsParser {
                                 .takeIf { it.isNotEmpty() }
 
                             var foundAny = false
-                            // Extract all timestamps from the line (LRC allows multiple timestamps for one line)
-                            LINE_TIME_PATTERN.findAll(base).forEach { match ->
-                                val timeMs = parseTime(match)
-                                if (timeMs > LrcNode.INVALID_DURATION) {
-                                    rawLines.add(LrcNode(timeMs, text, bgText, line))
-                                    foundAny = true
+                            // Some providers (A2-style enhanced LRC) embed the
+                            // NEXT line's timestamp mid-text, right after the
+                            // last word tag: "...blue<00:11.64>[00:11.64]<00:11.64>These...".
+                            // Splitting on those mid-line timestamps restores the
+                            // real line breaks and keeps the timestamp from
+                            // leaking in as a fake word. Only word-tagged lines
+                            // are split - plain multi-timestamp lines
+                            // ([t1][t2]text) are left intact.
+                            val segments = if (LINE_WORD_PATTERN.containsMatchIn(text)) {
+                                splitMidLineTimestamps(text)
+                            } else {
+                                emptyList()
+                            }
+                            if (segments.isEmpty()) {
+                                // Extract all timestamps from the line (LRC allows multiple timestamps for one line)
+                                LINE_TIME_PATTERN.findAll(base).forEach { match ->
+                                    val timeMs = parseTime(match)
+                                    if (timeMs > LrcNode.INVALID_DURATION) {
+                                        rawLines.add(LrcNode(timeMs, text, bgText, line))
+                                        foundAny = true
+                                    }
+                                }
+                            } else {
+                                LINE_TIME_PATTERN.findAll(base).forEach { match ->
+                                    val timeMs = parseTime(match)
+                                    if (timeMs > LrcNode.INVALID_DURATION) {
+                                        val leadText = segments.first().second
+                                        if (leadText.isNotBlank()) {
+                                            rawLines.add(LrcNode(timeMs, leadText, bgText, line))
+                                            foundAny = true
+                                        }
+                                    }
+                                }
+                                // Mid-line segments each carry their own timestamp.
+                                segments.drop(1).forEach { (timeMs, segmentText) ->
+                                    if (timeMs > LrcNode.INVALID_DURATION && segmentText.isNotBlank()) {
+                                        rawLines.add(LrcNode(timeMs, segmentText, bgText, line))
+                                        foundAny = true
+                                    }
                                 }
                             }
 
@@ -396,6 +429,29 @@ class LrcLyricsParser : LyricsParser {
 
         /** A line that starts with an enhanced-LRC word tag: `<mm:ss.xx>word...`. */
         private val WORD_ONLY_LINE_PATTERN = Regex("^\\s*<\\d{1,3}:\\d{2}")
+
+        /**
+         * Splits word-tagged line text at mid-line `[mm:ss.xx]` timestamps.
+         * Returns a list of (timeMs, text) pairs: the first pair carries the
+         * text before the first mid-line timestamp (its timeMs is unused -
+         * the lead line's time comes from the leading [..] run), each later
+         * pair carries the timestamp it was split at plus the text after it.
+         * Returns an empty list when the text has no mid-line timestamps.
+         */
+        fun splitMidLineTimestamps(text: String): List<Pair<Long, String>> {
+            val matches = LINE_TIME_PATTERN.findAll(text).toList()
+            if (matches.isEmpty()) return emptyList()
+
+            val segments = mutableListOf<Pair<Long, String>>()
+            val lead = text.substring(0, matches.first().range.first)
+            segments.add(LrcNode.INVALID_DURATION to lead)
+            for ((index, match) in matches.withIndex()) {
+                val segmentStart = match.range.last + 1
+                val segmentEnd = matches.getOrNull(index + 1)?.range?.first ?: text.length
+                segments.add(parseTime(match) to text.substring(segmentStart, segmentEnd))
+            }
+            return segments
+        }
 
         /** A full Netease klyric line: one or more `[startMs](durMs)word` entries. */
         private val KLYRIC_LINE_PATTERN = Regex("^(?:\\[\\d+\\]\\(\\d+\\)[^\\[]*)+$")

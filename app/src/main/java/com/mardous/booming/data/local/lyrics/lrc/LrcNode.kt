@@ -104,6 +104,20 @@ data class LrcNode(
                 nextText.isNullOrBlank() || nextText.startsWith(" ")
             }
 
+            // Glued-word repair: providers like A2 emit word tags with no
+            // whitespace between them ("<00:08.15>Your<00:08.61>lips"),
+            // which renders as "Yourlips" and merges every syllable into
+            // one unbreakable wrap group. When neither side carries the
+            // space, add one to the previous word. CJK scripts have no
+            // inter-word spaces and must stay glued.
+            if (words.isNotEmpty() && trimEnd && !child.text.isNullOrBlank()) {
+                val previous = words.last()
+                if (needsGlueSeparator(previous.content, child.text!!)) {
+                    words[words.lastIndex] = previous.copy(content = previous.content + " ")
+                    nextWordStartIndex++
+                }
+            }
+
             val word = child.toWord(nextWordStartIndex, trimEnd = trimEnd)
             if (words.add(word)) {
                 nextWordStartIndex += word.content.length
@@ -126,6 +140,27 @@ data class LrcNode(
         }
         if (durations.isEmpty()) return 0L
         return durations.sorted()[durations.size / 2]
+    }
+
+    private fun needsGlueSeparator(previous: String, next: String): Boolean {
+        if (previous.isEmpty() || next.isEmpty()) return false
+        if (previous.last().isWhitespace() || next.first().isWhitespace()) return false
+        // CJK scripts carry no inter-word spaces; a gap there looks wrong.
+        return !(isCjk(previous.last()) || isCjk(next.first()))
+    }
+
+    private fun isCjk(char: Char): Boolean {
+        val block = Character.UnicodeBlock.of(char) ?: return false
+        return block == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS ||
+                block == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_A ||
+                block == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_B ||
+                block == Character.UnicodeBlock.CJK_COMPATIBILITY_IDEOGRAPHS ||
+                block == Character.UnicodeBlock.HIRAGANA ||
+                block == Character.UnicodeBlock.KATAKANA ||
+                block == Character.UnicodeBlock.HANGUL_SYLLABLES ||
+                block == Character.UnicodeBlock.HANGUL_JAMO ||
+                block == Character.UnicodeBlock.CJK_SYMBOLS_AND_PUNCTUATION ||
+                block == Character.UnicodeBlock.FULLWIDTH_FORMS
     }
 
     private fun getLineSyncedTextContent() = SyncedLyrics.TextContent(
