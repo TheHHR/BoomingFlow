@@ -30,5 +30,7 @@ class LyricsEntity(
     val lyrics: String? = null,
     val provider: String? = null,
     @ColumnInfo(name = "is_instrumental")
-    val instrumental: Boolean = false
+    val instrumental: Boolean = false,
+    @ColumnInfo(name = "sync_offset_ms", defaultValue = "0")
+    val syncOffsetMs: Long = 0
 )

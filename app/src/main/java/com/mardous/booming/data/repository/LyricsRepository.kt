@@ -91,6 +91,19 @@ interface LyricsRepository {
      * persisting anything; the sheet observes [providerLiveResults].
      */
     suspend fun refreshProviderResults(song: Song): RawLyrics.Remote?
+
+    /**
+     * Per-song manual sync offset (milliseconds) persisted on the song's
+     * lyrics row. Only meaningful when a lyrics row exists; returns 0
+     * otherwise.
+     */
+    suspend fun getSyncOffset(song: Song): Long
+
+    /**
+     * Persists the per-song sync offset. A no-op when the song has no
+     * lyrics row yet (offset-only rows are never created).
+     */
+    suspend fun saveSyncOffset(song: Song, offsetMs: Long)
 }
 
 class RealLyricsRepository(
@@ -410,7 +423,12 @@ class RealLyricsRepository(
             ignoreProviderSetting = true
         )
         val remote = try {
-            lyricsDownloadService.remoteLyrics(song, song.title, song.artistName, params)
+            // updateLiveResults = false: a manual provider switch must not
+            // wipe the other rows' live results mid-search.
+            lyricsDownloadService.remoteLyrics(
+                song, song.title, song.artistName, params,
+                updateLiveResults = false
+            )
         } catch (e: CancellationException) {
             throw e
         } catch (_: Exception) {
@@ -580,6 +598,30 @@ class RealLyricsRepository(
             throw e
         } catch (_: Exception) {
             null
+        }
+    }
+
+    override suspend fun getSyncOffset(song: Song): Long {
+        if (song.id == Song.emptySong.id) return 0
+        return try {
+            lyricsDao.getLyrics(lyricsIdFor(song))?.syncOffsetMs ?: 0L
+        } catch (e: CancellationException) {
+            throw e
+        } catch (_: Exception) {
+            0L
+        }
+    }
+
+    override suspend fun saveSyncOffset(song: Song, offsetMs: Long) {
+        if (song.id == Song.emptySong.id) return
+        try {
+            // UPDATE only: never create an offset-only row, because a
+            // row with null lyrics would look like stored lyrics to
+            // storedLyrics() and break the download pipeline.
+            lyricsDao.updateSyncOffset(lyricsIdFor(song), offsetMs)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (_: Exception) {
         }
     }
 

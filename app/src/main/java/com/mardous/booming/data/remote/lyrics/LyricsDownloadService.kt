@@ -88,8 +88,11 @@ class LyricsDownloadService(client: HttpClient) {
         song: Song,
         title: String = song.title,
         artist: String = song.albumArtistName(),
-        providerParams: LyricsProviderParams = LyricsProviderParams()
-    ): RawLyrics.Remote = remoteLyricsDetailed(song, title, artist, providerParams).remote
+        providerParams: LyricsProviderParams = LyricsProviderParams(),
+        updateLiveResults: Boolean = true
+    ): RawLyrics.Remote = remoteLyricsDetailed(
+        song, title, artist, providerParams, updateLiveResults
+    ).remote
 
     /**
      * Runs the provider race and, when the album-artist query finds nothing,
@@ -102,13 +105,18 @@ class LyricsDownloadService(client: HttpClient) {
         song: Song,
         title: String = song.title,
         artist: String = song.albumArtistName(),
-        providerParams: LyricsProviderParams = LyricsProviderParams()
+        providerParams: LyricsProviderParams = LyricsProviderParams(),
+        updateLiveResults: Boolean = true
     ): SweepResult {
         check(providerParams.providers.isNotEmpty()) { "No providers configured" }
 
         val offline = SweepResult(RawLyrics.Remote(), sweptAll = false)
-        if (song == Song.emptySong || !NetworkFeature.isOnline(ignoreWifiSetting = providerParams.ignoreWifiSetting))
+        if (song == Song.emptySong || !NetworkFeature.isOnline(ignoreWifiSetting = providerParams.ignoreWifiSetting)) {
+            if (updateLiveResults) {
+                _liveResults.value = providerParams.providers.associate { it.displayName to null }
+            }
             return offline
+        }
 
         val cleanedTitle = cleanTitle(title)
         val cleanedArtist = artist.extractMainArtistName()
@@ -117,11 +125,18 @@ class LyricsDownloadService(client: HttpClient) {
                     (provider.isEnabled || providerParams.ignoreProviderSetting) &&
                     apiByProvider.containsKey(provider)
         }
-        if (providers.isEmpty()) return offline
+        if (providers.isEmpty()) {
+            if (updateLiveResults) {
+                _liveResults.value = emptyMap()
+            }
+            return offline
+        }
 
-        _liveResults.value = emptyMap()
+        if (updateLiveResults) {
+            _liveResults.value = emptyMap()
+        }
         val outcome = try {
-            raceProviders(song, cleanedTitle, cleanedArtist, providers)
+            raceProviders(song, cleanedTitle, cleanedArtist, providers, updateLiveResults)
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
@@ -133,7 +148,7 @@ class LyricsDownloadService(client: HttpClient) {
             val fallbackArtist = song.artistName.extractMainArtistName()
             if (fallbackArtist.isNotBlank() && !fallbackArtist.equals(cleanedArtist, ignoreCase = true)) {
                 val fallbackOutcome = try {
-                    raceProviders(song, cleanedTitle, fallbackArtist, providers)
+                    raceProviders(song, cleanedTitle, fallbackArtist, providers, updateLiveResults)
                 } catch (e: CancellationException) {
                     throw e
                 } catch (e: Exception) {
@@ -168,7 +183,8 @@ class LyricsDownloadService(client: HttpClient) {
         song: Song,
         title: String,
         artist: String,
-        providers: List<LyricsProvider>
+        providers: List<LyricsProvider>,
+        updateLiveResults: Boolean = true
     ): RaceOutcome {
         val outcome = RaceOutcome()
         val timedOut: Boolean = try {
@@ -220,6 +236,23 @@ class LyricsDownloadService(client: HttpClient) {
                             }
                         }
                     } finally {
+                        // Settle every still-pending row: cancelled or
+                        // timed-out providers must not spin forever in
+                        // the provider sheet.
+                        if (updateLiveResults) {
+                            val settled = _liveResults.value.toMutableMap()
+                            var changed = false
+                            pending.forEach { candidate ->
+                                val name = candidate.first.displayName
+                                if (!settled.containsKey(name)) {
+                                    settled[name] = null
+                                    changed = true
+                                }
+                            }
+                            if (changed) {
+                                _liveResults.value = settled
+                            }
+                        }
                         pending.forEach { it.second.cancel() }
                     }
                 }

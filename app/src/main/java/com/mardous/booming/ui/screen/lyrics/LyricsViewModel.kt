@@ -38,6 +38,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -250,17 +251,63 @@ class LyricsViewModel(
     /**
      * Per-song manual timing correction, in milliseconds. Positive shifts
      * the display later. The provider sheet's sync row adjusts this; the
-     * viewers subtract it before updating the playback cursor.
+     * viewers subtract it before updating the playback cursor. Persisted
+     * per song on the song's lyrics row.
      */
     private val _lyricsSyncOffsetMs = MutableStateFlow(0L)
     val lyricsSyncOffsetMs = _lyricsSyncOffsetMs.asStateFlow()
 
+    private var syncOffsetSaveJob: Job? = null
+    private var syncOffsetLoadJob: Job? = null
+
+    /**
+     * Loads the stored offset for [song] into the live state. Runs in its
+     * own job (not the cancellable lyrics load) so a provider switch can't
+     * leave the offset unset.
+     */
+    fun loadLyricsSyncOffset(song: Song) {
+        // Don't cancel a pending save: it captured its own song and must
+        // still land even when the user skips to the next track fast.
+        if (song == Song.emptySong) {
+            _lyricsSyncOffsetMs.value = 0L
+            return
+        }
+        syncOffsetLoadJob?.cancel()
+        syncOffsetLoadJob = viewModelScope.launch {
+            val offset = withContext(IO) {
+                runCatching { repository.getSyncOffset(song) }.getOrDefault(0L)
+            }
+            _lyricsSyncOffsetMs.value = offset
+        }
+    }
+
     fun adjustLyricsSyncOffset(deltaMs: Long) {
-        _lyricsSyncOffsetMs.value = _lyricsSyncOffsetMs.value + deltaMs
+        _lyricsSyncOffsetMs.value += deltaMs
+        persistLyricsSyncOffset(debounced = true)
     }
 
     fun resetLyricsSyncOffset() {
         _lyricsSyncOffsetMs.value = 0L
+        persistLyricsSyncOffset(debounced = false)
+    }
+
+    private fun persistLyricsSyncOffset(debounced: Boolean) {
+        syncOffsetSaveJob?.cancel()
+        val song = currentLyricsSong ?: return
+        if (debounced) {
+            syncOffsetSaveJob = viewModelScope.launch {
+                // Debounce: each tap writes at most once, 500ms after the
+                // last adjustment.
+                delay(500)
+                withContext(IO) {
+                    runCatching { repository.saveSyncOffset(song, _lyricsSyncOffsetMs.value) }
+                }
+            }
+        } else {
+            syncOffsetSaveJob = viewModelScope.launch(IO) {
+                runCatching { repository.saveSyncOffset(song, _lyricsSyncOffsetMs.value) }
+            }
+        }
     }
 
     private var refreshJob: Job? = null
@@ -273,30 +320,12 @@ class LyricsViewModel(
      */
     fun refreshProviderResults(song: Song) {
         if (song == Song.emptySong) return
-        if (_lyricsUiState.value is LyricsUiState.Loading) return
         refreshJob?.cancel()
         refreshJob = viewModelScope.launch(IO) {
             try {
                 repository.refreshProviderResults(song)
             } catch (_: Exception) {
             }
-        }
-    }
-
-    /**
-     * Clears the stored lyrics for one song (provider sheet's Clear
-     * action): the row and every cache go away, the word-by-word upgrade
-     * sweep becomes eligible again, and the song re-downloads from
-     * scratch.
-     */
-    fun clearLyricsForSong(song: Song) = viewModelScope.launch(IO) {
-        repository.deleteLyrics(song)
-        synchronized(wordUpgradeAttempted) { wordUpgradeAttempted.remove(song.id) }
-        synchronized(providerSwitchResults) {
-            providerSwitchResults.keys.removeAll { it.first == song.id }
-        }
-        if (song.id == _lyricsUiState.value.id) {
-            updateSong(song)
         }
     }
 
@@ -350,6 +379,7 @@ class LyricsViewModel(
 
     fun updateSong(song: Song) {
         currentLyricsSong = song
+        loadLyricsSyncOffset(song)
         lyricsJob?.cancel()
         lyricsJob = viewModelScope.launch {
             if (song == Song.emptySong) {

@@ -40,4 +40,7 @@ interface LyricsDao {
 
     @Query("SELECT * FROM LyricsEntity WHERE id = :songId")
     suspend fun getLyrics(songId: Long): LyricsEntity?
+
+    @Query("UPDATE LyricsEntity SET sync_offset_ms = :offsetMs WHERE id = :songId")
+    suspend fun updateSyncOffset(songId: Long, offsetMs: Long)
 }

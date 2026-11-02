@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.add
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,7 +21,6 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
@@ -345,7 +343,6 @@ fun LyricsScreen(
             liveResults = liveResults,
             syncOffsetMs = syncOffsetMs,
             onSwitch = { provider -> lyricsViewModel.switchToProvider(song, provider) },
-            onClear = { lyricsViewModel.clearLyricsForSong(song) },
             onSyncOffset = { delta -> lyricsViewModel.adjustLyricsSyncOffset(delta) },
             onResetSyncOffset = { lyricsViewModel.resetLyricsSyncOffset() },
             onDismiss = { showProviderDialog = false }
@@ -552,7 +549,6 @@ private fun ProviderSwitchDialog(
     liveResults: Map<String, RawLyrics.Remote?>,
     syncOffsetMs: Long,
     onSwitch: (LyricsProvider) -> Unit,
-    onClear: () -> Unit,
     onSyncOffset: (Long) -> Unit,
     onResetSyncOffset: () -> Unit,
     onDismiss: () -> Unit
@@ -674,17 +670,6 @@ private fun ProviderSwitchDialog(
                     onResetSyncOffset = onResetSyncOffset,
                     modifier = Modifier.padding(top = 12.dp)
                 )
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onClear) {
-                Icon(
-                    painter = painterResource(R.drawable.ic_delete_24dp),
-                    contentDescription = null,
-                    modifier = Modifier.size(18.dp)
-                )
-                Spacer(modifier = Modifier.width(4.dp))
-                Text(stringResource(R.string.clear_lyrics))
             }
         },
         confirmButton = {
@@ -819,14 +804,6 @@ private fun SyncOffsetRow(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    if (isReset) {
-                        Icon(
-                            painter = painterResource(R.drawable.ic_refresh_24dp),
-                            contentDescription = null,
-                            tint = itemContentColor,
-                            modifier = Modifier.size(14.dp)
-                        )
-                    }
                     Text(
                         text = label,
                         style = MaterialTheme.typography.labelMedium,
