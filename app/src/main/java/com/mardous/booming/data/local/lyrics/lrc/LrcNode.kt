@@ -93,6 +93,16 @@ data class LrcNode(
             if (lastWord.end < lastWord.start) lastWord.end = lastWord.start
         }
 
+        // Glued-word repair, decided per LINE not per pair: some providers
+        // tag words with no whitespace ("<I>was<drowning>"), others tag
+        // syllables of one word but mark real word boundaries with spaces
+        // ("par" + "ty" vs "And " + "we "). If ANY boundary in the line
+        // already carries whitespace, spacing is intentional - trust it.
+        // Only fully-glued lines get one space inserted between every pair.
+        val lineUsesSpaces = validChildren.zipWithNext().any { (a, b) ->
+            (a.text?.endsWith(" ") == true) || (b.text?.startsWith(" ") == true)
+        }
+
         var nextWordStartIndex = 0
         val words = mutableListOf<SyncedLyrics.Word>()
         for ((index, child) in validChildren.withIndex()) {
@@ -104,13 +114,7 @@ data class LrcNode(
                 nextText.isNullOrBlank() || nextText.startsWith(" ")
             }
 
-            // Glued-word repair: providers like A2 emit word tags with no
-            // whitespace between them ("<00:08.15>Your<00:08.61>lips"),
-            // which renders as "Yourlips" and merges every syllable into
-            // one unbreakable wrap group. When neither side carries the
-            // space, add one to the previous word. CJK scripts have no
-            // inter-word spaces and must stay glued.
-            if (words.isNotEmpty() && trimEnd && !child.text.isNullOrBlank()) {
+            if (!lineUsesSpaces && words.isNotEmpty() && !child.text.isNullOrBlank()) {
                 val previous = words.last()
                 if (needsGlueSeparator(previous.content, child.text!!)) {
                     words[words.lastIndex] = previous.copy(content = previous.content + " ")

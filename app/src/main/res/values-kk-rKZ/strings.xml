@@ -1,9 +1,9 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="action_play">ÐžÐ¹Ð½Ð°Ñ‚Ñƒ</string>
-    <string name="action_play_all">Ð‘Ó™Ñ€Ñ–Ð½ Ð¾Ð¹Ð½Ð°Ñ‚Ñƒ</string>
-    <string name="action_shuffle_play">ÐšÐµÐ·Ð´ÐµÐ¹ÑÐ¾Ò› Ñ€ÐµÑ‚Ð¿ÐµÐ½ Ð¾Ð¹Ð½Ð°Ñ‚Ñƒ</string>
-    <string name="action_queue_next">ÐšÐµÐ»ÐµÑÑ– Ð±Ð¾Ð»Ñ‹Ð¿ ÐºÐµÐ·ÐµÐºÐºÐµ Ò›Ð¾ÑÑƒ</string>
+    <string name="action_play">Ойнату</string>
+    <string name="action_play_all">Бәрін ойнату</string>
+    <string name="action_shuffle_play">Кездейсоқ ретпен ойнату</string>
+    <string name="action_queue_next">Келесі болып кезекке қосу</string>
     <string name="shuffle_all_label">Shuffle all</string>
     <string name="shuffle_mode">Shuffle mode</string>
     <string name="repeat_mode">Repeat mode</string>
@@ -22,7 +22,7 @@
     <string name="import_action">Import</string>
     <string name="create_action">Create</string>
     <string name="search_label">Search</string>
-    <string name="search_hint">Search your libraryâ€¦</string>
+    <string name="search_hint">Search your library…</string>
     <string name="action_voice_search">Voice search</string>
     <string name="speech_not_supported">Your device doesn\'t support speech input</string>
     <string name="search_artist_x_label">Search artist: %s</string>
@@ -46,7 +46,7 @@
     <string name="select_all_title">Select all</string>
     <string name="x_selected">%d selected</string>
     <string name="preparing_playback_title">Preparing</string>
-    <string name="restoring_playback_state">Restoring playback state and queueâ€¦</string>
+    <string name="restoring_playback_state">Restoring playback state and queue…</string>
     <string name="playback_stopped_title">Playback stopped</string>
     <string name="playing_notification_description">The playing notification provides actions for play/pause etc.</string>
     <string name="playing_notification_name">Playing notification</string>
@@ -59,7 +59,7 @@
     <string name="could_not_import_the_playlist_x">Couldn\'t import the playlist \"%s\"</string>
     <string name="there_are_no_importable_playlists">There are no importable playlists.</string>
     <string name="playlist_x_not_imported">Playlist %s not imported.</string>
-    <string name="action_import_playlist">Import playlistâ€¦</string>
+    <string name="action_import_playlist">Import playlist…</string>
     <string name="new_playlist_title">New playlist</string>
     <string name="add_playlist_title">Add to playlist</string>
     <string name="rename_playlist_title">Rename playlist</string>
@@ -112,8 +112,8 @@
     <string name="delete_songs_title">Delete songs</string>
     <string name="delete_x_songs">Delete %d songs?</string>
     <string name="delete_the_song_x">Delete the song %s?</string>
-    <string name="deleting_songs">Deleting songs, waitâ€¦</string>
-    <string name="song_x_of_x">%1$d of %2$d â€¢ %3$s</string>
+    <string name="deleting_songs">Deleting songs, wait…</string>
+    <string name="song_x_of_x">%1$d of %2$d • %3$s</string>
     <string name="no_equalizer">No equalizer found.</string>
     <string name="audio_focus_denied">Audio focus denied.</string>
     <string name="no_audio_ID">Bad audio ID.</string>
@@ -162,8 +162,8 @@
     <string name="added_title_to_playing_queue">Added 1 title to the playing queue.</string>
     <string name="added_x_titles_to_playing_queue">Added %1$d titles to the playing queue.</string>
     <string name="next_song_label">Next Song</string>
-    <string name="next_song_x">Next â€¢ %1$s</string>
-    <string name="next_song_x_by_artist_x">Next â€¢ %1$s by %2$s</string>
+    <string name="next_song_x">Next • %1$s</string>
+    <string name="next_song_x_by_artist_x">Next • %1$s by %2$s</string>
     <string name="similar_artists">Similar artists</string>
     <string name="label_more_from_artist">More from artist</string>
     <string name="label_more_from_x">More from %s</string>
@@ -237,7 +237,7 @@
     <string name="update_image">Update image</string>
     <string name="restore_default">Restore default</string>
     <string name="remove_cover">Remove cover</string>
-    <string name="could_not_download_album_cover">Couldnâ€™t download a matching album cover.</string>
+    <string name="could_not_download_album_cover">Couldn’t download a matching album cover.</string>
     <string name="download_image">Download image</string>
     <string name="pick_from_local_storage">Pick from local storage</string>
     <string name="about_x_title">About %s</string>
@@ -433,7 +433,7 @@
     <string name="enable_audio_offload_title">Audio Offload</string>
     <string name="enable_audio_offload_description">Allows the device to process audio directly through its hardware, reducing CPU usage and saving battery. This feature is only supported on certain devices. Some effects or features may not work while its enabled. A restart is required for changes to take effect.</string>
     <string name="enable_audio_float_output_title">High-Precision Audio Output</string>
-    <string name="enable_audio_float_output_description">Enables 32-bit floating-point audio for better sound quality. Keep in mind this will turn off features like ReplayGain, skip silence, and volume balance. It might use a bit more battery, and youâ€™ll need to restart the app for it to take effect.</string>
+    <string name="enable_audio_float_output_description">Enables 32-bit floating-point audio for better sound quality. Keep in mind this will turn off features like ReplayGain, skip silence, and volume balance. It might use a bit more battery, and you’ll need to restart the app for it to take effect.</string>
     <string name="skip_silence_title">Skip Silence</string>
     <string name="skip_silence_description">Automatically skip silent sections during playback. Ideal for podcasts and recordings.</string>
     <!-- Lyrics viewer -->
@@ -684,13 +684,13 @@
     <string name="online_artist_images_title">Download artist images</string>
     <string name="preferred_image_size_title">Preferred image size</string>
     <string name="online_album_covers_title">Download missing album covers</string>
-    <string name="online_album_covers_summary">Downloaded images arenâ€™t embedded into audio files; theyâ€™re only visible within the app. This depends on your metadata download policy.</string>
+    <string name="online_album_covers_summary">Downloaded images aren’t embedded into audio files; they’re only visible within the app. This depends on your metadata download policy.</string>
     <string name="delete_downloaded_lyrics_title">Delete downloaded lyrics</string>
     <string name="delete_downloaded_lyrics_summary">Only lyrics downloaded by Booming Music. Does not affect lyrics embedded in ID3v2 tags or LRC files.</string>
     <string name="lyrics_cleared">Lyrics cleared.</string>
     <!-- Library preferences -->
     <string name="ignore_articles_when_sorting_title">Ignore articles when sorting</string>
-    <string name="ignore_articles_when_sorting_summary">Skip leading articles (â€œtheâ€, â€œaâ€, â€œanâ€) when ordering items.</string>
+    <string name="ignore_articles_when_sorting_summary">Skip leading articles (“the”, “a”, “an”) when ordering items.</string>
     <string name="trash_music_title">Send to trash</string>
     <string name="trash_music_summary">Send deleted files to trash.</string>
     <string name="recursive_folder_actions_title">Actions affecting subfolders</string>
@@ -768,7 +768,7 @@
     <string name="receive_experimental_updates_summary">Please note that these updates are often very unstable and are intended for experienced users.</string>
     <string name="search_for_update_title">Search for update</string>
     <string name="last_update_search_x">Last check: %s</string>
-    <string name="checking_please_wait">Checking, please waitâ€¦</string>
+    <string name="checking_please_wait">Checking, please wait…</string>
     <string name="could_not_check_for_updates">Could not check for updates.</string>
     <string name="the_app_is_up_to_date">The app is up-to-date</string>
     <string name="update_available_title">Update available</string>
@@ -782,6 +782,6 @@
     <string name="uncaught_error_restart_app">Restart app</string>
     <string name="uncaught_error_github">Open issue on GitHub</string>
     <string name="uncaught_error_send">Send report</string>
-    <string name="app_widget_card">ÐšÐ°Ñ€Ñ‚Ð°</string>
-    <string name="app_widget_card_desc">ÐœÐ¸Ð½Ð¸Ð¼Ð°Ð»Ð¸ÑÑ‚Ñ–Ðº Ó™Ñ€Ñ– Ñ‹Ò›ÑˆÐ°Ð¼ ÑÑ‚Ð¸Ð»ÑŒ</string>
+    <string name="app_widget_card">Карта</string>
+    <string name="app_widget_card_desc">Минималистік әрі ықшам стиль</string>
 </resources>
