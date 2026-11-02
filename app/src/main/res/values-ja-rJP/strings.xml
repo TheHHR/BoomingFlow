@@ -161,9 +161,6 @@
     <string name="action_go_to_genre">ジャンルに移動</string>
     <string name="added_title_to_playing_queue">1曲がキューに追加されました。</string>
     <string name="added_x_titles_to_playing_queue">%1$d 曲がキューに追加されました。</string>
-    <string name="next_song_label">次の曲</string>
-    <string name="next_song_x">次の• %1$s</string>
-    <string name="next_song_x_by_artist_x">次の• %1$s by %2$s</string>
     <string name="similar_artists">似ているアーティスト</string>
     <string name="label_more_from_artist">アーティストの詳細</string>
     <string name="label_more_from_x">%s の詳細</string>
@@ -537,8 +534,6 @@
     <string name="tab_mode_title">タブのタイトルモード</string>
     <string name="hold_tab_to_search_title">タブを長押しして検索</string>
     <string name="hold_tab_to_search_summary">ナビゲーションバーのいずれかのタブを長押しすると、検索画面が開きます。</string>
-    <string name="larger_header_image_title">大きいヘッダー画像</string>
-    <string name="larger_header_image_summary">アルバム、アーティスト、およびプレイリストの詳細で大きなカバー画像を表示します。</string>
     <string name="lyrics_center_current_line_title">現在の行を中央に合わせる</string>
     <string name="lyrics_center_current_line_summary">現在の歌詞の行は画面上部に揃えずに、画面中央に配置します。</string>
     <string name="lyrics_custom_font_title">カスタムフォント</string>
@@ -578,8 +573,6 @@
     <string name="treat_all_lyrics_files_as_utf8_summary">すべてのファイルが UTF-8 エンコーディングを使用していると仮定します。 これにより、ファイル解析プロセスが最適化されますが、場合によっては、曲の歌詞に異常な文字が含まれる可能性があります。 これにはアプリの再起動が必要になる場合があります</string>
     <!-- Now playing preferences -->
     <string name="now_playing_screen_title">スタイル</string>
-    <string name="open_on_play_title">再生中に開く</string>
-    <string name="open_on_play_summary">曲の再生を開始した後、自動的に「再生中」パネルを展開します。</string>
     <string name="squiggly_seek_bar_title">Squiglyシークバー</string>
     <string name="squiggly_seek_bar_summary">デフォルトのスライダーの代わりにウェーブシークバーを有効にします。</string>
     <string name="scrolling_text_title">スクロールテキストを有効化</string>
@@ -590,7 +583,6 @@
     <string name="adaptive_controls_summary">ミニプレーヤーの操作は、現在のプレーヤーのスタイルに合わせて変更されます。</string>
     <string name="swipe_to_dismiss_title">下にスワイプして閉じる</string>
     <string name="swipe_to_dismiss_summary">ミニプレーヤーを下にスワイプして再生を停止し、キューをクリアすることができるようになります</string>
-    <string name="circle_button_title">丸い再生ボタン</string>
     <string name="swipe_album_cover_title">アルバムカバーのスワイプ</string>
     <string name="swipe_album_cover_summary">アルバムカバーを左右にスワイプして曲間をスキップできるようになります</string>
     <string name="single_tap_on_album_cover_title">カバーをシングルタップ</string>
@@ -598,23 +590,17 @@
     <string name="double_tap_on_left_album_cover_title">アルバムカバーの左端をダブルタップ</string>
     <string name="double_tap_on_right_album_cover_title">アルバムカバーの右端をダブルタップ</string>
     <string name="long_press_on_album_cover_title">カバーを長押しする</string>
-    <string name="small_image_title">小さい画像</string>
-    <string name="small_image_summary">サポートされているスタイルのカバーサイズが小さくなります</string>
     <string name="now_playing_corner_radius_title">画像の角の丸み</string>
     <string name="now_playing_corner_radius_summary">アルバムカバーの角の丸みを調整する。</string>
     <string name="carousel_effect_title">カルーセル効果</string>
     <string name="album_cover_effect_title">アルバムカバー効果</string>
     <string name="animate_controls_title">アニメーションコントロール</string>
     <string name="animate_controls_summary">プレーヤーパネルを開くときに再生されます。</string>
-    <string name="swipe_anywhere_title">スワイプして曲を変更</string>
-    <string name="swipe_anywhere_summary">再生中の画面の何もない領域を左右にスワイプして曲を切り替えます</string>
     <string name="swipe_up_queue_title">上へスワイプしてキューを開く</string>
     <string name="swipe_up_queue_summary">再生中の画面の何もない領域を上にスワイプして、再生キューを開くことができるようになります</string>
     <string name="display_album_name_title">アルバム名を表示</string>
     <string name="display_extra_info_title">追加情報を表示</string>
     <string name="display_extra_info_summary">ビットレート、フォーマット、サンプリングレートなど、曲に関する追加情報を表示する。</string>
-    <string name="display_next_song_title">次の曲を表示</string>
-    <string name="display_next_song_summary">プレーヤーの一番下のキューに次の曲を表示します。</string>
     <string name="select_extra_info_title">追加の情報</string>
     <string name="select_extra_info_summary">プレイヤーパネルに表示する追加情報を選択します。</string>
     <string name="prefer_remaining_time_title">残り時間を優先</string>
@@ -716,7 +702,6 @@
     <string name="selected">選択済み</string>
     <string name="compact">コンパクト</string>
     <string name="expanded">拡張</string>
-    <string name="expressive_style">エクスプレッシブ</string>
     <string name="simple">シンプル</string>
     <string name="add_after_playing_track">トラックを再生した後に追加</string>
     <string name="add_tracks_sequentially">トラックを順番に追加</string>

@@ -39,7 +39,6 @@ import com.mardous.booming.extensions.dip
 import com.mardous.booming.extensions.isLandscape
 import com.mardous.booming.ui.screen.library.LibraryViewModel
 import com.mardous.booming.ui.screen.player.PlayerViewModel
-import com.mardous.booming.util.OPEN_ON_PLAY
 import com.mardous.booming.util.PLAY_ON_STARTUP_MODE
 import com.mardous.booming.util.PlayOnStartupMode
 import com.mardous.booming.util.PlayOnStartupMode.Companion.WITH_EXPANDED_PLAYER
@@ -75,11 +74,6 @@ abstract class AbsMainActivityFragment @JvmOverloads constructor(@LayoutRes layo
                         MediaEvent.PlaybackRestored -> {
                             val mode = preferences.requireString(PLAY_ON_STARTUP_MODE, PlayOnStartupMode.NEVER)
                             if (mode == WITH_EXPANDED_PLAYER) {
-                                mainActivity.expandPanel()
-                            }
-                        }
-                        MediaEvent.PlaybackStarted -> {
-                            if (preferences.getBoolean(OPEN_ON_PLAY, false)) {
                                 mainActivity.expandPanel()
                             }
                         }

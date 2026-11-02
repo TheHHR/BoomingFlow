@@ -59,7 +59,6 @@ import com.mardous.booming.extensions.media.isFavorites
 import com.mardous.booming.extensions.media.playlistInfo
 import com.mardous.booming.extensions.navigation.searchArgs
 import com.mardous.booming.extensions.resources.createFastScroller
-import com.mardous.booming.extensions.resources.removeHorizontalMarginIfRequired
 import com.mardous.booming.extensions.resources.surfaceColor
 import com.mardous.booming.extensions.setSupportActionBar
 import com.mardous.booming.extensions.showToast
@@ -134,7 +133,6 @@ class PlaylistDetailFragment : AbsMainActivityFragment(R.layout.fragment_playlis
         materialSharedAxis(view)
         view.applyHorizontalWindowInsets()
 
-        binding.header.image.removeHorizontalMarginIfRequired()
 
         // Instant prefill from the cached cover accent (same pattern as
         // the remote playlist pages): no theme-color flash on reopen,

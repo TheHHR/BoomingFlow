@@ -159,9 +159,6 @@
     <string name="action_go_to_genre">Gå till Genre</string>
     <string name="added_title_to_playing_queue">Lade till 1 titel till spelkön.</string>
     <string name="added_x_titles_to_playing_queue">Lade till %1$d titlar i uppspelningskön.</string>
-    <string name="next_song_label">Nästa låt</string>
-    <string name="next_song_x">Nästa • %1$s</string>
-    <string name="next_song_x_by_artist_x">Nästa • %1$s av %2$s</string>
     <string name="similar_artists">Liknande artister</string>
     <string name="label_more_from_artist">Mer från artist</string>
     <string name="label_more_from_x">Mer från %s</string>
@@ -542,8 +539,6 @@
     <string name="tab_mode_title">Fliken titlar läge</string>
     <string name="hold_tab_to_search_title">Håll fliken för att söka</string>
     <string name="hold_tab_to_search_summary">Tryck länge på en flik i navigationsfältet för att öppna sökskärmen.</string>
-    <string name="larger_header_image_title">Större sidhuvudsbild</string>
-    <string name="larger_header_image_summary">Visa en större omslagsbild i album, artist och spellistedetaljer.</string>
     <string name="lyrics_center_current_line_title">Centrera nuvarande rad</string>
     <string name="lyrics_center_current_line_summary">Håll den aktuella textlinjen centrerad på skärmen istället för att anpassas till toppen.</string>
     <string name="lyrics_custom_font_title">Anpassat typsnitt</string>
@@ -579,8 +574,6 @@
     <string name="treat_all_lyrics_files_as_utf8_summary">Utgå från att alla filer använder UTF-8-kodning. Detta optimerar filanalysen men kan i vissa fall leda till att ovanliga tecken visas i låttexterna. Det kan kräva att appen startas om</string>
     <!-- Now playing preferences -->
     <string name="now_playing_screen_title">Stil</string>
-    <string name="open_on_play_title">Öppna vid uppspelning</string>
-    <string name="open_on_play_summary">Expandera panelen Nu Spelas automatiskt efter att ha påbörjat en låt.</string>
     <string name="squiggly_seek_bar_title">Snirkligt sökfält</string>
     <string name="squiggly_seek_bar_summary">Aktiverar ett vågigt sökfält istället för det förvalda reglaget.</string>
     <string name="scrolling_text_title">Aktivera rullande text</string>
@@ -591,7 +584,6 @@
     <string name="adaptive_controls_summary">Kontrollerna på minispelaren ändras för att passa den nuvarande spelarens stil.</string>
     <string name="swipe_to_dismiss_title">Svep nedåt för att avfärda</string>
     <string name="swipe_to_dismiss_summary">Svep nedåt på minispelaren för att stoppa uppspelning och rensa spelköen.</string>
-    <string name="circle_button_title">Cirkulär uppspelningsknapp</string>
     <string name="swipe_album_cover_title">Svep på skivomslaget</string>
     <string name="swipe_album_cover_summary">Svep åt vänster eller höger på skivomslaget för att hoppa mellan låtarna.</string>
     <string name="single_tap_on_album_cover_title">Enkeltryck på omslaget</string>
@@ -599,23 +591,17 @@
     <string name="double_tap_on_left_album_cover_title">Vänster album-täckkant dubbeltryck</string>
     <string name="double_tap_on_right_album_cover_title">Höger album-cover kant dubbeltryck</string>
     <string name="long_press_on_album_cover_title">Långtryck på omslaget</string>
-    <string name="small_image_title">Liten bild</string>
-    <string name="small_image_summary">Minskar omslagsstorleken med stödda stilar.</string>
     <string name="now_playing_corner_radius_title">Bild hörnradie</string>
     <string name="now_playing_corner_radius_summary">Definierar hur rundade hörnen på skivomslaget ska se ut.</string>
     <string name="carousel_effect_title">Karusell effekt</string>
     <string name="album_cover_effect_title">Omslagseffekt för album</string>
     <string name="animate_controls_title">Animera kontroller</string>
     <string name="animate_controls_summary">Det spelas när du öppnar spelarpanelen.</string>
-    <string name="swipe_anywhere_title">Svep var som helst för att byta låt</string>
-    <string name="swipe_anywhere_summary">Svep åt vänster eller höger på någon tom del av den nu uppspelningsskärmen för att växla mellan låtar.</string>
     <string name="swipe_up_queue_title">Svep uppåt för att öppna kön</string>
     <string name="swipe_up_queue_summary">Svep uppåt på en tom del av den nu uppspelande skärmen för att öppna uppspelningskön.</string>
     <string name="display_album_name_title">Visa albumnamn</string>
     <string name="display_extra_info_title">Visa extra information</string>
     <string name="display_extra_info_summary">Visa extra info om låten, som bitrate, format, samplingshastighet, etc.</string>
-    <string name="display_next_song_title">Visa nästa låt</string>
-    <string name="display_next_song_summary">Visa nästa låt i stilarna Normal och Full Cover. Om du inaktiverar detta kommer uppspelningskön endast att vara tillgänglig via spelarens trepunktsmeny.</string>
     <string name="select_extra_info_title">Extra info</string>
     <string name="select_extra_info_summary">Välj den extra information som ska visas i spelarpanelen.</string>
     <string name="prefer_remaining_time_title">Föredrar återstående tid</string>
@@ -717,7 +703,6 @@
     <string name="selected">Vald</string>
     <string name="compact">Kompakt</string>
     <string name="expanded">Utökat</string>
-    <string name="expressive_style">Uttrycksfullt</string>
     <string name="simple">Enkel</string>
     <string name="add_after_playing_track">Lägg till efter att spåret har spelats</string>
     <string name="add_tracks_sequentially">Lägg till spår sekventiellt</string>

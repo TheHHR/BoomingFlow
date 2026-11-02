@@ -46,11 +46,9 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.getSystemService
 import androidx.core.graphics.drawable.toDrawable
 import androidx.core.graphics.toColorInt
-import androidx.core.view.doOnLayout
 import androidx.core.view.drawToBitmap
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
-import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePaddingRelative
 import androidx.core.widget.ImageViewCompat
 import androidx.lifecycle.DefaultLifecycleObserver
@@ -287,14 +285,6 @@ fun View.animateTintColor(
                 is MorphicIconButton -> applyColor(animatedColor)
                 else -> backgroundTintList = colorStateList
             }
-        }
-    }
-}
-
-fun ImageView.removeHorizontalMarginIfRequired() {
-    if (Preferences.largerHeaderImage) {
-        doOnLayout {
-            updateLayoutParams<ViewGroup.MarginLayoutParams> { marginStart = 0; marginEnd = 0; }
         }
     }
 }

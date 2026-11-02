@@ -43,7 +43,6 @@ import com.mardous.booming.core.model.player.PlayerColorScheme
 import com.mardous.booming.core.model.player.PlayerTintTarget
 import com.mardous.booming.core.model.player.ProgressState
 import com.mardous.booming.data.model.Song
-import com.mardous.booming.extensions.getShapeAppearanceModel
 import com.mardous.booming.extensions.launchAndRepeatWithViewLifecycle
 import com.mardous.booming.extensions.media.asReadableDuration
 import com.mardous.booming.extensions.resources.applyColor
@@ -197,12 +196,6 @@ abstract class AbsPlayerControlsFragment(@LayoutRes layoutRes: Int) : Fragment(l
     override fun onStart() {
         super.onStart()
         playerAnimator = onCreatePlayerAnimator()
-        if (Preferences.circularPlayButton) {
-            playPauseFab?.shapeAppearanceModel = requireContext().getShapeAppearanceModel(
-                com.google.android.material.R.style.ShapeAppearance_Material3_Corner_Large,
-                R.style.CircularShapeAppearance
-            )
-        }
         songTotalTime?.setOnClickListener(this)
         songInfoView?.setOnLongClickListener(this)
         setUpProgressSlider()
@@ -287,7 +280,7 @@ abstract class AbsPlayerControlsFragment(@LayoutRes layoutRes: Int) : Fragment(l
 
     protected open fun onCreatePlayerAnimator(): PlayerAnimator? = null
 
-    protected abstract fun onSongInfoChanged(currentSong: Song, nextSong: Song)
+    protected open fun onSongInfoChanged(currentSong: Song, nextSong: Song) {}
 
     protected abstract fun onExtraInfoChanged(extraInfo: String?)
 
@@ -345,9 +338,6 @@ abstract class AbsPlayerControlsFragment(@LayoutRes layoutRes: Int) : Fragment(l
 
     protected fun getSongArtist(song: Song) =
         playerFragment?.getSongArtist(song)
-
-    protected fun getNextSongInfo(nextSong: Song) =
-        playerFragment?.getNextSongInfo(nextSong)
 
     protected fun isExtraInfoEnabled() =
         playerFragment?.isExtraInfoEnabled() ?: false

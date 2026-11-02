@@ -161,9 +161,6 @@
     <string name="action_go_to_genre">Μετάβαση στο είδος</string>
     <string name="added_title_to_playing_queue">Προστέθηκε ένας τίτλος στην ουρά αναπαραγωγής.</string>
     <string name="added_x_titles_to_playing_queue">Προστέθηκε %1$d τίτλοι στην ουρά αναπαραγωγής.</string>
-    <string name="next_song_label">Επόμενο Τραγούδι</string>
-    <string name="next_song_x">Επόμενο • %1$s</string>
-    <string name="next_song_x_by_artist_x">Επόμενο • %1$s από %2$s</string>
     <string name="similar_artists">Παρόμοιοι καλλιτέχνες</string>
     <string name="label_more_from_artist">Περισσότερα από τον καλλιτέχνη</string>
     <string name="label_more_from_x">Περισσότερα από %s</string>
@@ -545,8 +542,6 @@
     <string name="tab_mode_title">Λειτουργία τίτλων καρτέλας</string>
     <string name="hold_tab_to_search_title">Hold tab to Search</string>
     <string name="hold_tab_to_search_summary">Long-press any navigation bar tab to open the search screen.</string>
-    <string name="larger_header_image_title">Larger header image</string>
-    <string name="larger_header_image_summary">Show a bigger cover image in album, artist, and playlist details.</string>
     <string name="lyrics_center_current_line_title">Center current line</string>
     <string name="lyrics_center_current_line_summary">Keep the current lyric line centered on screen instead of aligned to the top.</string>
     <string name="lyrics_custom_font_title">Custom font</string>
@@ -586,8 +581,6 @@
     <string name="treat_all_lyrics_files_as_utf8_summary">Assume that all files use UTF-8 encoding. This optimizes the file parsing process but in some cases could result in unusual characters in song lyrics. It might require an app restart</string>
     <!-- Now playing preferences -->
     <string name="now_playing_screen_title">Στυλ</string>
-    <string name="open_on_play_title">Άνοιγμα κατά την αναπαραγωγή</string>
-    <string name="open_on_play_summary">Επέκταση του πίνακα Τώρα Αναπαραγωγή αυτόματα μετά την έναρξη αναπαραγωγής ενός τραγουδιού.</string>
     <string name="squiggly_seek_bar_title">Squiggly seek bar</string>
     <string name="squiggly_seek_bar_summary">Enable a wavy seek bar instead of the default slider.</string>
     <string name="scrolling_text_title">Enable scrolling text</string>
@@ -598,7 +591,6 @@
     <string name="adaptive_controls_summary">The controls on the mini player change to suit the current player style.</string>
     <string name="swipe_to_dismiss_title">Swipe down to dismiss</string>
     <string name="swipe_to_dismiss_summary">Swipe down on the mini player to stop playback and clear the playing queue.</string>
-    <string name="circle_button_title">Κυκλικό κουμπί αναπαραγωγής</string>
     <string name="swipe_album_cover_title">Swipe on album cover</string>
     <string name="swipe_album_cover_summary">Swipe left or right on the album cover to skip between songs.</string>
     <string name="single_tap_on_album_cover_title">Single tap on cover</string>
@@ -606,23 +598,17 @@
     <string name="double_tap_on_left_album_cover_title">Left album-cover edge double-tap</string>
     <string name="double_tap_on_right_album_cover_title">Right album-cover edge double-tap</string>
     <string name="long_press_on_album_cover_title">Παρατεταμένο πάτημα στο εξώφυλλο</string>
-    <string name="small_image_title">Small image</string>
-    <string name="small_image_summary">Reduces the cover size in supported styles.</string>
     <string name="now_playing_corner_radius_title">Image corner radius</string>
     <string name="now_playing_corner_radius_summary">Defines how rounded the corners of the album art should appear.</string>
     <string name="carousel_effect_title">Carousel effect</string>
     <string name="album_cover_effect_title">Εφέ εξώφυλλου άλμπουμ</string>
     <string name="animate_controls_title">Εφέ κίνησης ελέγχων</string>
     <string name="animate_controls_summary">Παίζεται όταν ανοίγετε τον πίνακα του παίκτη.</string>
-    <string name="swipe_anywhere_title">Swipe anywhere to change song</string>
-    <string name="swipe_anywhere_summary">Swipe left or right on any empty area of the now playing screen to switch between songs.</string>
     <string name="swipe_up_queue_title">Swipe upwards to open queue</string>
     <string name="swipe_up_queue_summary">Swipe upwards on any empty area of the now playing screen to open the playing queue.</string>
     <string name="display_album_name_title">Εμφάνιση ονόματος άλμπουμ</string>
     <string name="display_extra_info_title">Εμφάνιση επιπλέον πληροφοριών</string>
     <string name="display_extra_info_summary">Εμφάνιση επιπλέον πληροφοριών σχετικά με το τραγούδι, όπως bitate, μορφή, ποσοστό δειγματοληψίας, κλπ.</string>
-    <string name="display_next_song_title">Display next song</string>
-    <string name="display_next_song_summary">Display the next song in the queue at the bottom of the player.</string>
     <string name="select_extra_info_title">Extra info</string>
     <string name="select_extra_info_summary">Επιλέξτε τις επιπλέον πληροφορίες που θα εμφανίζονται στον πίνακα του παίκτη.</string>
     <string name="prefer_remaining_time_title">Προτίμηση χρόνου που απομένει</string>
@@ -724,7 +710,6 @@
     <string name="selected">Επιλεγμένο</string>
     <string name="compact">Συμπαγής</string>
     <string name="expanded">Επεκταμένη</string>
-    <string name="expressive_style">Expressive</string>
     <string name="simple">Απλό</string>
     <string name="add_after_playing_track">Προσθήκη μετά το κομμάτι αναπαραγωγής</string>
     <string name="add_tracks_sequentially">Προσθήκη κομματιών διαδοχικά</string>

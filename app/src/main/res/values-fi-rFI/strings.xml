@@ -159,9 +159,6 @@
     <string name="action_go_to_genre">Siirry tyyliin</string>
     <string name="added_title_to_playing_queue">Lisätty 1 otsikko soittojonoon.</string>
     <string name="added_x_titles_to_playing_queue">Lisätty %1$d otsikkoa soittojonoon.</string>
-    <string name="next_song_label">Seuraava Kappale</string>
-    <string name="next_song_x">Seuraava • %1$s</string>
-    <string name="next_song_x_by_artist_x">Seuraava • %1$s tekijä %2$s</string>
     <string name="similar_artists">Samankaltaisia artisteja</string>
     <string name="label_more_from_artist">Lisää esittäjältä</string>
     <string name="label_more_from_x">Enemmän %s</string>
@@ -543,8 +540,6 @@
     <string name="tab_mode_title">Välilehden otsikot tila</string>
     <string name="hold_tab_to_search_title">Pidä välilehti pohjassa etsiäksesi</string>
     <string name="hold_tab_to_search_summary">Paina mitä tahansa navigointipalkkia pitkään avataksesi hakunäytön.</string>
-    <string name="larger_header_image_title">Suurempi ylätunnisteen kuva</string>
-    <string name="larger_header_image_summary">Näytä isompi kansikuva albumissa, esittäjässä ja soittolistan yksityiskohdissa.</string>
     <string name="lyrics_center_current_line_title">Keskitä nykyinen rivi</string>
     <string name="lyrics_center_current_line_summary">Pidä nykyinen lyyrinen viiva keskitettynä ruudulle sen sijaan, että se olisi linjattu yläreunaan.</string>
     <string name="lyrics_custom_font_title">Custom font</string>
@@ -584,8 +579,6 @@
     <string name="treat_all_lyrics_files_as_utf8_summary">Assume that all files use UTF-8 encoding. This optimizes the file parsing process but in some cases could result in unusual characters in song lyrics. It might require an app restart</string>
     <!-- Now playing preferences -->
     <string name="now_playing_screen_title">Tyyli</string>
-    <string name="open_on_play_title">Avaa toiston aikana</string>
-    <string name="open_on_play_summary">Laajenna nyt -soittopaneeli automaattisesti, kun olet aloittanut kappaleen soittamisen.</string>
     <string name="squiggly_seek_bar_title">Etsii hiljaisesti palkkia</string>
     <string name="squiggly_seek_bar_summary">Ota käyttöön aaltoileva hakupalkki oletusliukusäätimen sijaan.</string>
     <string name="scrolling_text_title">Ota vieritysteksti käyttöön</string>
@@ -596,7 +589,6 @@
     <string name="adaptive_controls_summary">Minipeliä koskevat kontrollit muuttuvat nykyiseen pelaajan tyyliin sopivaksi.</string>
     <string name="swipe_to_dismiss_title">Ohita pyyhkäisemällä alas</string>
     <string name="swipe_to_dismiss_summary">Pyyhkäise alas minipelaajan pysäyttääksesi toiston ja tyhjentääksesi soittojonon.</string>
-    <string name="circle_button_title">Pyöreä toistopainike</string>
     <string name="swipe_album_cover_title">Pyyhkäise albumin kannessa</string>
     <string name="swipe_album_cover_summary">Pyyhkäise albumin kansiosassa vasemmalle tai oikealle ohittaaksesi kappaleiden välillä.</string>
     <string name="single_tap_on_album_cover_title">Yksi napautus kannessa</string>
@@ -604,23 +596,17 @@
     <string name="double_tap_on_left_album_cover_title">Albumikansi reuna kaksinkertainen napautus</string>
     <string name="double_tap_on_right_album_cover_title">Albumipeitteen oikea reuna kaksinkertainen napautus</string>
     <string name="long_press_on_album_cover_title">Paina pitkään kannella</string>
-    <string name="small_image_title">Pieni kuva</string>
-    <string name="small_image_summary">Pienentää kansi kokoa tuetuissa tyyleissä.</string>
     <string name="now_playing_corner_radius_title">Kuvan kulman säde</string>
     <string name="now_playing_corner_radius_summary">Määrittelee kuinka levyn kulmien tulisi olla pyöristettyjä.</string>
     <string name="carousel_effect_title">Karusellin vaikutus</string>
     <string name="album_cover_effect_title">Albumin kansiefekti</string>
     <string name="animate_controls_title">Animoi kontrollit</string>
     <string name="animate_controls_summary">Se on pelattu, kun avataan pelaajapaneeli.</string>
-    <string name="swipe_anywhere_title">Pyyhkäise mistä tahansa vaihtaaksesi kappaletta</string>
-    <string name="swipe_anywhere_summary">Pyyhkäise vasemmalle tai oikealle millä tahansa tyhjän alueen nyt soittonäyttö vaihtaaksesi kappaleiden välillä.</string>
     <string name="swipe_up_queue_title">Pyyhkäise ylöspäin avataksesi jonon</string>
     <string name="swipe_up_queue_summary">Avaa soittojono pyyhkäisemällä ylöspäin millä tahansa nyt soitettavan näytön tyhjällä alueella.</string>
     <string name="display_album_name_title">Näytä albumin nimi</string>
     <string name="display_extra_info_title">Näytä lisätiedot</string>
     <string name="display_extra_info_summary">Näytä lisätiedot kappaleesta, kuten bitrate, formaatti, näytteenottotaajuus jne.</string>
-    <string name="display_next_song_title">Näytä seuraava kappale</string>
-    <string name="display_next_song_summary">Näytä seuraava kappale Tavallisessa ja Täydessä Kansikuvatyylissä. Jos sammutat tämän, soittojono näkyy vain soittajan kolmen pisteen valikosta.</string>
     <string name="select_extra_info_title">Extra info</string>
     <string name="select_extra_info_summary">Valitse lisätiedot, jotka näytetään soittimen paneelissa.</string>
     <string name="prefer_remaining_time_title">Suosi jäljellä olevaa aikaa</string>
@@ -722,7 +708,6 @@
     <string name="selected">Valittu</string>
     <string name="compact">Kompakti</string>
     <string name="expanded">Laajennettu</string>
-    <string name="expressive_style">Expressive</string>
     <string name="simple">Yksinkertainen</string>
     <string name="add_after_playing_track">Lisää soivan kappaleen jälkeen</string>
     <string name="add_tracks_sequentially">Lisää kappaleita peräkkäin</string>

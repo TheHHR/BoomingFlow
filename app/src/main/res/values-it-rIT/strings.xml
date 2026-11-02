@@ -161,9 +161,6 @@
     <string name="action_go_to_genre">Vai al genere</string>
     <string name="added_title_to_playing_queue">Aggiunto 1 titolo alla coda di riproduzione.</string>
     <string name="added_x_titles_to_playing_queue">Aggiunti %1$d titoli alla coda di riproduzione.</string>
-    <string name="next_song_label">Canzone Successiva</string>
-    <string name="next_song_x">Successivo • %1$s</string>
-    <string name="next_song_x_by_artist_x">Successivo • %1$s di %2$s</string>
     <string name="similar_artists">Artisti simili</string>
     <string name="label_more_from_artist">Altro dall\'artista</string>
     <string name="label_more_from_x">Altro da %s</string>
@@ -544,8 +541,6 @@
     <string name="tab_mode_title">Modalità titoli scheda</string>
     <string name="hold_tab_to_search_title">Tieni premuto tab per cercare</string>
     <string name="hold_tab_to_search_summary">Tieni premuta una qualsiasi scheda della barra di navigazione per aprire la schermata di ricerca.</string>
-    <string name="larger_header_image_title">Immagine di intestazione più grande</string>
-    <string name="larger_header_image_summary">Mostra immagine di copertina, artista e dettagli della playlist più grandi.</string>
     <string name="lyrics_center_current_line_title">Centra la linea corrente</string>
     <string name="lyrics_center_current_line_summary">Mantieni la riga del testo corrente centrata sullo schermo invece che allineata in alto.</string>
     <string name="lyrics_custom_font_title">Font personalizzato</string>
@@ -585,8 +580,6 @@
     <string name="treat_all_lyrics_files_as_utf8_summary">Presume che tutti i file utilizzino la codifica UTF-8. Questo ottimizza il processo di analisi dei file ma, in alcuni casi, potrebbe mostrare caratteri insoliti nei testi dei brani. Potrebbe essere necessario riavviare l\'app.</string>
     <!-- Now playing preferences -->
     <string name="now_playing_screen_title">Stile</string>
-    <string name="open_on_play_title">Apri in riproduzione</string>
-    <string name="open_on_play_summary">Espandi automaticamente il pannello di riproduzione dopo aver iniziato a riprodurre una canzone.</string>
     <string name="squiggly_seek_bar_title">Barra di riproduzione a onda</string>
     <string name="squiggly_seek_bar_summary">Abilita una barra di riproduzione a onda invece del cursore predefinito.</string>
     <string name="scrolling_text_title">Abilita lo scorrimento del testo</string>
@@ -597,7 +590,6 @@
     <string name="adaptive_controls_summary">I controlli sul mini player cambiano per adattarsi allo stile del lettore corrente.</string>
     <string name="swipe_to_dismiss_title">Scorri verso il basso per chiudere</string>
     <string name="swipe_to_dismiss_summary">Scorri verso il basso sul mini player per interrompere la riproduzione e svuotare la coda di riproduzione.</string>
-    <string name="circle_button_title">Pulsante di riproduzione tondo</string>
     <string name="swipe_album_cover_title">Scorri nella copertina dell\'album</string>
     <string name="swipe_album_cover_summary">Scorri verso sinistra o destra nella copertina dell\'album per passare da un brano all\'altro.</string>
     <string name="single_tap_on_album_cover_title">Singolo tocco sulla copertina</string>
@@ -605,23 +597,17 @@
     <string name="double_tap_on_left_album_cover_title">Doppio tocco dell\'angolo della cover dell\'album</string>
     <string name="double_tap_on_right_album_cover_title">Doppio tocco dell\'angolo della cover Album</string>
     <string name="long_press_on_album_cover_title">Pressione prolungata sulla copertina</string>
-    <string name="small_image_title">Piccola immagine</string>
-    <string name="small_image_summary">Riduce la grandezza della copertina in stili supportati.</string>
     <string name="now_playing_corner_radius_title">Raggio dell\'angolo dell\'immagine</string>
     <string name="now_playing_corner_radius_summary">Definisce quanto vengono arrotondati gli angoli delle copertine degli album.</string>
     <string name="carousel_effect_title">Effetto a carosello</string>
     <string name="album_cover_effect_title">Effetto copertina album</string>
     <string name="animate_controls_title">Anima i controlli</string>
     <string name="animate_controls_summary">Viene riprodotto quando si apre il pannello di riproduzione.</string>
-    <string name="swipe_anywhere_title">Scorri ovunque per cambiare brano</string>
-    <string name="swipe_anywhere_summary">Scorri a destra o a sinistra su qualsiasi area vuota della schermata di riproduzione per cambiare canzone.</string>
     <string name="swipe_up_queue_title">Scorri verso l\'alto per aprire la coda</string>
     <string name="swipe_up_queue_summary">Scorri verso l\'alto in qualsiasi area vuota della schermata di riproduzione per aprire la coda di riproduzione.</string>
     <string name="display_album_name_title">Mostra nome album</string>
     <string name="display_extra_info_title">Mostra informazioni aggiuntive</string>
     <string name="display_extra_info_summary">Visualizza informazioni aggiuntive sul brano, come bitrate, formato, frequenza di campionamento, ecc.</string>
-    <string name="display_next_song_title">Visualizza il prossimo brano</string>
-    <string name="display_next_song_summary">Visualizza il prossimo brano negli stili Normale e Copertina Completa. Se disabiliti questo, la coda di riproduzione sarà disponibile soltanto dal menu a tre punti del riproduttore.</string>
     <string name="select_extra_info_title">Informazioni aggiuntive</string>
     <string name="select_extra_info_summary">Selezionare le informazioni aggiuntive da visualizzare nel pannello di riproduzione.</string>
     <string name="prefer_remaining_time_title">Preferisci tempo rimanente</string>
@@ -723,7 +709,6 @@
     <string name="selected">Selezionato</string>
     <string name="compact">Compatto</string>
     <string name="expanded">Espanso</string>
-    <string name="expressive_style">Espressivo</string>
     <string name="simple">Semplice</string>
     <string name="add_after_playing_track">Aggiungi dopo la traccia in riproduzione</string>
     <string name="add_tracks_sequentially">Aggiungi tracce sequenzialmente</string>

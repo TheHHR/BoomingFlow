@@ -161,9 +161,6 @@
     <string name="action_go_to_genre">Přejít do žánru</string>
     <string name="added_title_to_playing_queue">Přidán 1 titulek do fronty.</string>
     <string name="added_x_titles_to_playing_queue">%1$d názvy byly přidány do fronty.</string>
-    <string name="next_song_label">Další skladba</string>
-    <string name="next_song_x">Další • %1$s</string>
-    <string name="next_song_x_by_artist_x">Další • %1$s od %2$s</string>
     <string name="similar_artists">Podobní umělci</string>
     <string name="label_more_from_artist">Více od umělce</string>
     <string name="label_more_from_x">Více z %s</string>
@@ -561,8 +558,6 @@
     <string name="tab_mode_title">Režim názvů karet</string>
     <string name="hold_tab_to_search_title">Podržte kartu pro hledání</string>
     <string name="hold_tab_to_search_summary">Dlouhým stiskem na kterékoli navigační liště otevřete obrazovku vyhledávání.</string>
-    <string name="larger_header_image_title">Větší obrázek záhlaví</string>
-    <string name="larger_header_image_summary">Zobrazit větší obrázek obalu v albu, umělci a v detailech seznamu skladeb.</string>
     <string name="lyrics_center_current_line_title">Vycentrovat aktuální řádek</string>
     <string name="lyrics_center_current_line_summary">Ponechat aktuální lyrický řádek soustředěný na obrazovce místo zarovnaný k hornímu okraji.</string>
     <string name="lyrics_custom_font_title">Custom font</string>
@@ -602,8 +597,6 @@
     <string name="treat_all_lyrics_files_as_utf8_summary">Assume that all files use UTF-8 encoding. This optimizes the file parsing process but in some cases could result in unusual characters in song lyrics. It might require an app restart</string>
     <!-- Now playing preferences -->
     <string name="now_playing_screen_title">Styl</string>
-    <string name="open_on_play_title">Otevřít při přehrávání</string>
-    <string name="open_on_play_summary">Po spuštění přehrávání skladby automaticky rozbalte panel Nyní.</string>
     <string name="squiggly_seek_bar_title">Čtvereční vyhledávací lišta</string>
     <string name="squiggly_seek_bar_summary">Povolit wavy seek bar namísto výchozího posuvníku.</string>
     <string name="scrolling_text_title">Povolit posouvání textu</string>
@@ -614,7 +607,6 @@
     <string name="adaptive_controls_summary">Ovládací prvky mini přehrávače změní tak, aby vyhovovaly aktuálnímu stylu hráče.</string>
     <string name="swipe_to_dismiss_title">Přejeďte dolů pro zamítnutí</string>
     <string name="swipe_to_dismiss_summary">Přejeďte prstem dolů po mini přehrávači pro zastavení přehrávání a vymazání fronty.</string>
-    <string name="circle_button_title">Kruhové tlačítko přehrávání</string>
     <string name="swipe_album_cover_title">Přejeďte přes obal alba</string>
     <string name="swipe_album_cover_summary">Přejeďte prstem vlevo nebo vpravo na obal alba pro přeskočení mezi skladbami.</string>
     <string name="single_tap_on_album_cover_title">Jedním klepnutím na úvodní fotku</string>
@@ -622,23 +614,17 @@
     <string name="double_tap_on_left_album_cover_title">Dvojitým klepnutím na levý albový kryt</string>
     <string name="double_tap_on_right_album_cover_title">Dvojité klepnutí na pravý albový kryt</string>
     <string name="long_press_on_album_cover_title">Dlouhým stiskem na obalu</string>
-    <string name="small_image_title">Malý obrázek</string>
-    <string name="small_image_summary">Snižuje velikost obalu v podporovaných stylech.</string>
     <string name="now_playing_corner_radius_title">Poloměr rohů obrázku</string>
     <string name="now_playing_corner_radius_summary">Určuje, jak by se měly objevit zaoblené rohy obalu alba.</string>
     <string name="carousel_effect_title">Kolotoč efekt</string>
     <string name="album_cover_effect_title">Efekt obalu alba</string>
     <string name="animate_controls_title">Animovat kontroly</string>
     <string name="animate_controls_summary">Přehrává se při otevírání panelu hráčů.</string>
-    <string name="swipe_anywhere_title">Přejeďte kdekoliv pro změnu skladby</string>
-    <string name="swipe_anywhere_summary">Přejeďte prstem vlevo nebo vpravo na libovolné prázdné ploše nyní přehrávané obrazovky pro přepnutí mezi skladbami.</string>
     <string name="swipe_up_queue_title">Přejetím nahoru otevřete frontu</string>
     <string name="swipe_up_queue_summary">Přejetím nahoru na libovolné prázdné ploše obrazovky přehrávání otevřete frontu přehrávání.</string>
     <string name="display_album_name_title">Zobrazit název alba</string>
     <string name="display_extra_info_title">Zobrazit další informace</string>
     <string name="display_extra_info_summary">Zobrazit další informace o skladbě, jako je bitrate, formát, vzorkovací rychlost, atd.</string>
-    <string name="display_next_song_title">Zobrazit další skladbu</string>
-    <string name="display_next_song_summary">Zobrazit další skladbu ve frontě v dolní části hráče.</string>
     <string name="select_extra_info_title">Extra info</string>
     <string name="select_extra_info_summary">Vyberte další informace k zobrazení v panelu přehrávače.</string>
     <string name="prefer_remaining_time_title">Preferovat zbývající čas</string>
@@ -740,7 +726,6 @@
     <string name="selected">Vybrané</string>
     <string name="compact">Kompaktní</string>
     <string name="expanded">Rozšířené</string>
-    <string name="expressive_style">Expressive</string>
     <string name="simple">Jednoduchý</string>
     <string name="add_after_playing_track">Přidat po přehrávání skladby</string>
     <string name="add_tracks_sequentially">Přidat postupně skladby</string>

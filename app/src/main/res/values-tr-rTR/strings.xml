@@ -161,9 +161,6 @@
     <string name="action_go_to_genre">Türe Git</string>
     <string name="added_title_to_playing_queue">Çalma sırasına 1 parça eklendi.</string>
     <string name="added_x_titles_to_playing_queue">Çalma sırasına %1$d parça eklendi.</string>
-    <string name="next_song_label">Sıradaki Şarkı</string>
-    <string name="next_song_x">Sıradaki • %1$s</string>
-    <string name="next_song_x_by_artist_x">Sıradaki • %1$s - %2$s</string>
     <string name="similar_artists">Benzer sanatçılar</string>
     <string name="label_more_from_artist">Sanatçının diğer eserleri</string>
     <string name="label_more_from_x">%s adlı sanatçının diğer eserleri</string>
@@ -545,8 +542,6 @@
     <string name="tab_mode_title">Sekme başlıkları modu</string>
     <string name="hold_tab_to_search_title">Aramak için sekmeye basılı tutun</string>
     <string name="hold_tab_to_search_summary">Arama ekranını açmak için herhangi bir gezinme çubuğu sekmesine uzun basın.</string>
-    <string name="larger_header_image_title">Daha büyük başlık görseli</string>
-    <string name="larger_header_image_summary">Albüm, sanatçı ve çalma listesi detaylarında daha büyük bir kapak görseli göster.</string>
     <string name="lyrics_center_current_line_title">Geçerli satırı ortala</string>
     <string name="lyrics_center_current_line_summary">Ekranda mevcut şarkı sözleri satırı üstte hizalanmak yerine ortada kalsın.</string>
     <string name="lyrics_custom_font_title">Özel yazı tipi</string>
@@ -586,8 +581,6 @@
     <string name="treat_all_lyrics_files_as_utf8_summary">Assume that all files use UTF-8 encoding. This optimizes the file parsing process but in some cases could result in unusual characters in song lyrics. It might require an app restart</string>
     <!-- Now playing preferences -->
     <string name="now_playing_screen_title">Stil</string>
-    <string name="open_on_play_title">Çalmaya başlayınca aç</string>
-    <string name="open_on_play_summary">Bir şarkı çalmaya başladıktan sonra Şimdi Çalıyor panelini otomatik olarak genişletin.</string>
     <string name="squiggly_seek_bar_title">Dalgalı ilerleme çubuğu</string>
     <string name="squiggly_seek_bar_summary">Varsayılan kaydırıcı yerine dalgalı bir ilerleme çubuğunu etkinleştir.</string>
     <string name="scrolling_text_title">Kayan yazıyı etkinleştir</string>
@@ -598,7 +591,6 @@
     <string name="adaptive_controls_summary">Mini oynatıcının üzerindeki kontroller mevcut oynatıcı stiline uyacak şekilde değişir.</string>
     <string name="swipe_to_dismiss_title">Kapatmak için aşağı kaydırın</string>
     <string name="swipe_to_dismiss_summary">Çalmayı durdurmak ve çalma sırasını temizlemek için mini çaları aşağı kaydırın.</string>
-    <string name="circle_button_title">Dairesel oynatma düğmesi</string>
     <string name="swipe_album_cover_title">Albüm kapağında kaydırın</string>
     <string name="swipe_album_cover_summary">Şarkılar arasında geçiş yapmak için albüm kapağını sola veya sağa kaydırın.</string>
     <string name="single_tap_on_album_cover_title">Kapağa tek dokun</string>
@@ -606,23 +598,17 @@
     <string name="double_tap_on_left_album_cover_title">Albüm kapağının sol kenarına çift dokunma</string>
     <string name="double_tap_on_right_album_cover_title">Albüm kapağının sağ kenarına çift dokunma</string>
     <string name="long_press_on_album_cover_title">Kapağa uzun basın</string>
-    <string name="small_image_title">Küçük görsel</string>
-    <string name="small_image_summary">Desteklenen stillerde kapak boyutunu küçültür.</string>
     <string name="now_playing_corner_radius_title">Görsel köşe yarıçapı</string>
     <string name="now_playing_corner_radius_summary">Albüm kapağı köşelerinin ne kadar yuvarlak görüneceğini tanımlar.</string>
     <string name="carousel_effect_title">Atlıkarınca efekti</string>
     <string name="album_cover_effect_title">Albüm kapağı efekti</string>
     <string name="animate_controls_title">Kontrolleri canlandır</string>
     <string name="animate_controls_summary">Çalar panelini açarken oynatılır.</string>
-    <string name="swipe_anywhere_title">Şarkı değiştirmek için herhangi bir yere kaydırın</string>
-    <string name="swipe_anywhere_summary">Şarkılar arasında geçiş yapmak için şimdi çalıyor ekranındaki herhangi bir boş alana sola veya sağa kaydırın.</string>
     <string name="swipe_up_queue_title">Sırayı açmak için yukarı kaydırın</string>
     <string name="swipe_up_queue_summary">Çalma sırasını açmak için şimdi çalıyor ekranındaki herhangi bir boş alana yukarı doğru kaydırın.</string>
     <string name="display_album_name_title">Albüm adını göster</string>
     <string name="display_extra_info_title">Ek bilgileri göster</string>
     <string name="display_extra_info_summary">Bit hızı, biçim, örnekleme hızı gibi şarkı hakkında ek bilgileri gösterin.</string>
-    <string name="display_next_song_title">Sonraki şarkıyı göster</string>
-    <string name="display_next_song_summary">Sıradaki şarkıyı oynatıcı ekranının altında göster.</string>
     <string name="select_extra_info_title">Ek bilgi</string>
     <string name="select_extra_info_summary">Çalar panelinde görüntülenecek ek bilgileri seçin.</string>
     <string name="prefer_remaining_time_title">Kalan süreyi tercih et</string>
@@ -724,7 +710,6 @@
     <string name="selected">Seçili</string>
     <string name="compact">Kompakt</string>
     <string name="expanded">Genişletilmiş</string>
-    <string name="expressive_style">Expressive</string>
     <string name="simple">Basit</string>
     <string name="add_after_playing_track">Çalan parçadan sonra ekle</string>
     <string name="add_tracks_sequentially">Parçaları sırayla ekle</string>

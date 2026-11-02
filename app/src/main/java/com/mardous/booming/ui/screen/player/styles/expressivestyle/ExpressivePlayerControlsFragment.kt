@@ -56,8 +56,6 @@ class ExpressivePlayerControlsFragment : AbsPlayerControlsFragment(R.layout.frag
         _binding?.playPauseButton?.isRotating = playerViewModel.isPlaying && isControlAnimationEnabled
     }
 
-    override fun onSongInfoChanged(currentSong: Song, nextSong: Song) {}
-
     override fun onExtraInfoChanged(extraInfo: String?) {}
 
     override fun onUpdatePlayPause(isPlaying: Boolean) {

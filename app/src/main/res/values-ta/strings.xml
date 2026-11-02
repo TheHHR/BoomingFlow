@@ -169,9 +169,6 @@
     <string name="action_go_to_genre">வகைக்குச் செல்லவும்</string>
     <string name="added_title_to_playing_queue">விளையாடும் வரிசையில் 1 தலைப்பு சேர்க்கப்பட்டது.</string>
     <string name="added_x_titles_to_playing_queue">விளையாடும் வரிசையில் %1$d தலைப்புகள் சேர்க்கப்பட்டன.</string>
-    <string name="next_song_label">அடுத்த பாடல்</string>
-    <string name="next_song_x">அடுத்தது • %1$s</string>
-    <string name="next_song_x_by_artist_x">அடுத்தது • %1$s - %2$s</string>
     <string name="similar_artists">இதே போன்ற கலைஞர்கள்</string>
     <string name="label_more_from_artist">கலைஞரிடமிருந்து மேலும்</string>
     <string name="label_more_from_x">%s இலிருந்து மேலும்</string>
@@ -608,8 +605,6 @@
     <string name="tab_mode_title">தாவல் தலைப்புகள் பயன்முறை</string>
     <string name="hold_tab_to_search_title">தேட தாவலை அழுத்திப் பிடிக்கவும்</string>
     <string name="hold_tab_to_search_summary">தேடல் திரையைத் திறக்க, எந்த வழிசெலுத்தல் பட்டி தாவலையும் நீண்ட நேரம் அழுத்தவும்.</string>
-    <string name="larger_header_image_title">பெரிய தலைப்பு படம்</string>
-    <string name="larger_header_image_summary">ஆல்பம், கலைஞர் மற்றும் பிளேலிச்ட் விவரங்களில் பெரிய அட்டைப் படத்தைக் காட்டு.</string>
     <string name="widget_dynamic_colors_title">மாறும் நிறங்கள்</string>
     <string name="widget_dynamic_colors_summary">தற்போதைய டிராக் கலைப்படைப்புக்கு விட்செட் வண்ணங்களை மாற்றியமைக்கவும்.</string>
     <string name="lyrics_center_current_line_title">மைய நடப்பு வரி</string>
@@ -658,8 +653,6 @@
     <string name="treat_all_lyrics_files_as_utf8_title">அனைத்து பாடல் வரிக் கோப்புகளையும் UTF-8 ஆகக் கையாளவும்</string>
     <string name="treat_all_lyrics_files_as_utf8_summary">எல்லா கோப்புகளும் UTF-8 குறியாக்கத்தைப் பயன்படுத்துகின்றன என்று வைத்துக்கொள்வோம். இது கோப்பு பாகுபடுத்தும் செயல்முறையை மேம்படுத்துகிறது, ஆனால் சில சந்தர்ப்பங்களில் பாடல் வரிகளில் அசாதாரண எழுத்துக்களை ஏற்படுத்தலாம். இதற்கு ஆப்சை மறுதொடக்கம் செய்ய வேண்டியிருக்கலாம்</string>
     <string name="now_playing_screen_title">சூல் தண்டு</string>
-    <string name="open_on_play_title">விளையாடும்போது திறக்கவும்</string>
-    <string name="open_on_play_summary">பாடலைப் பாடத் தொடங்கிய பிறகு, இப்போது இயங்கும் பேனலைத் தானாக விரிவாக்கவும்.</string>
     <string name="squiggly_seek_bar_title">Squiggly சீக் பார்</string>
     <string name="squiggly_seek_bar_summary">இயல்புநிலை ச்லைடருக்குப் பதிலாக அலை அலையான தேடல் பட்டியை இயக்கவும்.</string>
     <string name="scrolling_text_title">ச்க்ரோலிங் உரையை இயக்கவும்</string>
@@ -670,7 +663,6 @@
     <string name="adaptive_controls_summary">மினி பிளேயரில் உள்ள கட்டுப்பாடுகள் தற்போதைய பிளேயர் ச்டைலுக்கு ஏற்றவாறு மாறுகின்றன.</string>
     <string name="swipe_to_dismiss_title">நிராகரிக்க கீழே ச்வைப் செய்யவும்</string>
     <string name="swipe_to_dismiss_summary">பிளேபேக்கை நிறுத்தவும், விளையாடும் வரிசையை அழிக்கவும் மினி பிளேயரில் கீழே ச்வைப் செய்யவும்.</string>
-    <string name="circle_button_title">வட்ட இயக்க பொத்தான்</string>
     <string name="swipe_album_cover_title">ஆல்பத்தின் அட்டையில் ச்வைப் செய்யவும்</string>
     <string name="swipe_album_cover_summary">பாடல்களுக்கு இடையில் தவிர்க்க ஆல்பத்தின் அட்டையில் இடது அல்லது வலதுபுறமாக ச்வைப் செய்யவும்.</string>
     <string name="mini_player_swipe_to_skip_title">தவிர்க்க மினி பிளேயரை ச்வைப் செய்யவும்</string>
@@ -680,23 +672,17 @@
     <string name="double_tap_on_left_album_cover_title">இடது ஆல்பம்-கவர் விளிம்பில் இருமுறை தட்டவும்</string>
     <string name="double_tap_on_right_album_cover_title">வலது ஆல்பம்-கவர் எட்ச் இருமுறை தட்டவும்</string>
     <string name="long_press_on_album_cover_title">அட்டையில் நீண்ட நேரம் அழுத்தவும்</string>
-    <string name="small_image_title">சிறிய படம்</string>
-    <string name="small_image_summary">ஆதரிக்கப்படும் பாணிகளில் அட்டையின் அளவைக் குறைக்கிறது.</string>
     <string name="now_playing_corner_radius_title">படத்தின் மூலையின் ஆரம்</string>
     <string name="now_playing_corner_radius_summary">ஆல்பம் கலையின் மூலைகள் எப்படி வட்டமாகத் தோன்ற வேண்டும் என்பதை வரையறுக்கிறது.</string>
     <string name="carousel_effect_title">கொணர்வி விளைவு</string>
     <string name="album_cover_effect_title">ஆல்பம் கவர் விளைவு</string>
     <string name="animate_controls_title">அனிமேட் கட்டுப்பாடுகள்</string>
     <string name="animate_controls_summary">பிளேயர் பேனலைத் திறக்கும்போது இது இயக்கப்பட்டது.</string>
-    <string name="swipe_anywhere_title">பாடலை மாற்ற எங்கும் ச்வைப் செய்யவும்</string>
-    <string name="swipe_anywhere_summary">பாடல்களுக்கு இடையில் மாற, இப்போது இயங்கும் திரையின் ஏதேனும் காலியான பகுதியில் இடது அல்லது வலதுபுறமாக ச்வைப் செய்யவும்.</string>
     <string name="swipe_up_queue_title">வரிசையைத் திறக்க மேல்நோக்கி ச்வைப் செய்யவும்</string>
     <string name="swipe_up_queue_summary">விளையாடும் வரிசையைத் திறக்க, இப்போது இயங்கும் திரையின் எந்த வெற்றுப் பகுதியிலும் மேல்நோக்கி ச்வைப் செய்யவும்.</string>
     <string name="display_album_name_title">ஆல்பத்தின் பெயரைக் காட்டு</string>
     <string name="display_extra_info_title">கூடுதல் தகவலைக் காட்டு</string>
     <string name="display_extra_info_summary">பாடலைப் பற்றிய பிட்ரேட், வடிவம், மாதிரி வீதம் போன்ற கூடுதல் தகவலைக் காட்டவும்.</string>
-    <string name="display_next_song_title">அடுத்த பாடலைக் காட்டு</string>
-    <string name="display_next_song_summary">அடுத்த பாடலை இயல்பான மற்றும் முழு அட்டைப் பாணியில் காட்டு. நீங்கள் இதை முடக்கினால், பிளேபேக் வரிசையை பிளேயரின் மூன்று-புள்ளி மெனுவிலிருந்து மட்டுமே அணுக முடியும்.</string>
     <string name="select_extra_info_title">கூடுதல் செய்தி</string>
     <string name="select_extra_info_summary">பிளேயர் பேனலில் காண்பிக்க கூடுதல் தகவலைத் தேர்ந்தெடுக்கவும்.</string>
     <string name="prefer_remaining_time_title">மீதமுள்ள நேரத்தை விரும்புங்கள்</string>
@@ -818,7 +804,6 @@
     <string name="selected">தேர்ந்தெடுக்கப்பட்டது</string>
     <string name="compact">கச்சிதமான</string>
     <string name="expanded">விரிவாக்கப்பட்டது</string>
-    <string name="expressive_style">வெளிப்படுத்தும்</string>
     <string name="simple">எளிமையானது</string>
     <string name="add_after_playing_track">டிராக்கை விளையாடிய பிறகு சேர்க்கவும்</string>
     <string name="add_tracks_sequentially">தடங்களை வரிசையாகச் சேர்க்கவும்</string>

@@ -161,9 +161,6 @@
     <string name="action_go_to_genre">Перейти до жанру</string>
     <string name="added_title_to_playing_queue">Додано 1 трек до черги відтворення.</string>
     <string name="added_x_titles_to_playing_queue">Додано %1$d треків до черги відтворення.</string>
-    <string name="next_song_label">Наступна пісня</string>
-    <string name="next_song_x">Наступна • %1$s</string>
-    <string name="next_song_x_by_artist_x">Наступна • %1$s від %2$s</string>
     <string name="similar_artists">Схожі виконавці</string>
     <string name="label_more_from_artist">Більше від виконавця</string>
     <string name="label_more_from_x">Більше від %s</string>
@@ -560,8 +557,6 @@
     <string name="tab_mode_title">Режим заголовків вкладок</string>
     <string name="hold_tab_to_search_title">Для пошуку втримувати вкладку</string>
     <string name="hold_tab_to_search_summary">Утримуйте будь-яку вкладку з панелі навігації для відкриття екрана пошуку.</string>
-    <string name="larger_header_image_title">Більше зображення заголовка</string>
-    <string name="larger_header_image_summary">Показувати більше зображення обкладинки в деталях альбому, виконавця та списку відтворення.</string>
     <string name="lyrics_center_current_line_title">Центрувати поточний рядок</string>
     <string name="lyrics_center_current_line_summary">Тримати поточний рядок пісні по центру екрана замість вирівнювання по верхньому краю.</string>
     <string name="lyrics_custom_font_title">Власний шрифт</string>
@@ -601,8 +596,6 @@
     <string name="treat_all_lyrics_files_as_utf8_summary">Припускається, що всі файли використовують кодування UTF-8. Це оптимізує процес парсингу файлів, але в деяких випадках може призвести до появи незвичних символів у текстах пісень. Може знадобитися перезапуск застосунку.</string>
     <!-- Now playing preferences -->
     <string name="now_playing_screen_title">Стиль</string>
-    <string name="open_on_play_title">Відкривати під час відтворення</string>
-    <string name="open_on_play_summary">Автоматично розгортати панель «Зараз грає» після початку відтворення пісні.</string>
     <string name="squiggly_seek_bar_title">Хвиляста смуга гортання</string>
     <string name="squiggly_seek_bar_summary">Увімкнути хвилясту смугу гортання замість стандартного повзунка.</string>
     <string name="scrolling_text_title">Увімкнути рухомий рядок</string>
@@ -613,7 +606,6 @@
     <string name="adaptive_controls_summary">Елементи керування на мініпрогравачі змінюються відповідно до його поточного стилю.</string>
     <string name="swipe_to_dismiss_title">Проведіть униз, аби закрити</string>
     <string name="swipe_to_dismiss_summary">Проведіть униз по мініпрогравачу, щоб зупинити відтворення та очистити чергу.</string>
-    <string name="circle_button_title">Кругла кнопка відтворення</string>
     <string name="swipe_album_cover_title">Провести пальцем по обкладинці альбому</string>
     <string name="swipe_album_cover_summary">Гортайте обкладинку альбому вліво або вправо, щоби перемикати пісні.</string>
     <string name="single_tap_on_album_cover_title">Один дотик на обкладинку</string>
@@ -621,23 +613,17 @@
     <string name="double_tap_on_left_album_cover_title">Подвійний дотик на лівий край обкладинки альбому</string>
     <string name="double_tap_on_right_album_cover_title">Подвійний дотик на правий край обкладинки альбому</string>
     <string name="long_press_on_album_cover_title">Тривале натискання на обкладинку</string>
-    <string name="small_image_title">Мале зображення</string>
-    <string name="small_image_summary">Зменшує розмір обкладинки в підтримуваних стилях.</string>
     <string name="now_playing_corner_radius_title">Радіус заокруглення зображення</string>
     <string name="now_playing_corner_radius_summary">Визначає ступінь закруглення кутів обкладинки альбому.</string>
     <string name="carousel_effect_title">Ефект каруселі</string>
     <string name="album_cover_effect_title">Ефект обкладинки альбому</string>
     <string name="animate_controls_title">Анімувати елементи керування</string>
     <string name="animate_controls_summary">Анімація під час відкриття панелі плеєра.</string>
-    <string name="swipe_anywhere_title">Провести пальцем у будь-якому місці, щоб змінити пісню</string>
-    <string name="swipe_anywhere_summary">Провести пальцем вліво або вправо на будь-якій вільній ділянці екрана відтворення, аби перемикатися між піснями.</string>
     <string name="swipe_up_queue_title">Проведіть вгору, щоби відкрити чергу</string>
     <string name="swipe_up_queue_summary">Провести альцем вгору по будь-якій порожній ділянці екрана відтворення для відкриття черги відтворення.</string>
     <string name="display_album_name_title">Відображати назву альбому</string>
     <string name="display_extra_info_title">Показувати дод. інформацію</string>
     <string name="display_extra_info_summary">Показувати додаткову інформацію про пісню, таку як бітрейт, формат, частота дискретизації тощо.</string>
-    <string name="display_next_song_title">Показати наступну пісню</string>
-    <string name="display_next_song_summary">Показувати наступну пісню у звичайному стилі та в стилі з повною обкладинкою. Якщо вимкнути цю функцію, доступ до черги відтворення буде можливий лише через меню «три крапки» у програвачі.</string>
     <string name="select_extra_info_title">Додаткова інформація</string>
     <string name="select_extra_info_summary">Виберіть додаткову інформацію для відображення на панелі плеєра.</string>
     <string name="prefer_remaining_time_title">Надавати перевагу залишковому часу</string>
@@ -739,7 +725,6 @@
     <string name="selected">Вибрано</string>
     <string name="compact">Компактний</string>
     <string name="expanded">Розгорнуто</string>
-    <string name="expressive_style">Виразний</string>
     <string name="simple">Простий</string>
     <string name="add_after_playing_track">Додати після поточного треку</string>
     <string name="add_tracks_sequentially">Додати треки послідовно</string>

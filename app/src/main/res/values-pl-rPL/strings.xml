@@ -161,9 +161,6 @@
     <string name="action_go_to_genre">Przejdź do gatunku</string>
     <string name="added_title_to_playing_queue">Dodano 1 utwór do kolejki odtwarzania.</string>
     <string name="added_x_titles_to_playing_queue">Dodano %1$d utwory do kolejki odtwarzania.</string>
-    <string name="next_song_label">Następny utwór</string>
-    <string name="next_song_x">Następnie • %1$s</string>
-    <string name="next_song_x_by_artist_x">Następnie • %1$s • %2$s</string>
     <string name="similar_artists">Podobni wykonawcy</string>
     <string name="label_more_from_artist">Więcej od artysty</string>
     <string name="label_more_from_x">Więcej od %s</string>
@@ -560,8 +557,6 @@
     <string name="tab_mode_title">Tryb tytułów kart</string>
     <string name="hold_tab_to_search_title">Przytrzymaj kartę, aby wyszukać</string>
     <string name="hold_tab_to_search_summary">Przytrzymaj kartę w pasku nawigacyjnym, aby przywołać ekran wyszukiwania.</string>
-    <string name="larger_header_image_title">Większy obraz nagłówka</string>
-    <string name="larger_header_image_summary">Pokaż większą okładkę w szczegółach albumu, wykonawcy i playlisty.</string>
     <string name="lyrics_center_current_line_title">Wyśrodkuj bieżący wers</string>
     <string name="lyrics_center_current_line_summary">Utrzymuj bieżący wers tekstu na środku ekranu zamiast wyrównania do góry.</string>
     <string name="lyrics_custom_font_title">Własna czcionka</string>
@@ -601,8 +596,6 @@
     <string name="treat_all_lyrics_files_as_utf8_summary">Zakłada, że wszystkie pliki używają kodowania UTF-8. Optymalizuje to proces przetwarzania plików, ale może prowadzić do wyświetlania błędnych znaków w tekście utworu. Może wymagać restartu aplikacji</string>
     <!-- Now playing preferences -->
     <string name="now_playing_screen_title">Styl odtwarzacza</string>
-    <string name="open_on_play_title">Otwórz przy odtwarzaniu</string>
-    <string name="open_on_play_summary">Automatycznie rozwiń panel Teraz Odtwarzane po odtworzeniu utworu.</string>
     <string name="squiggly_seek_bar_title">Falisty pasek postępu</string>
     <string name="squiggly_seek_bar_summary">Włącz falisty pasek postępu zamiast domyślnego suwaka.</string>
     <string name="scrolling_text_title">Przewijanie tekstu</string>
@@ -613,7 +606,6 @@
     <string name="adaptive_controls_summary">Miniodtwarzacz dostosuje się do wybranego stylu.</string>
     <string name="swipe_to_dismiss_title">Przesuń w dół, aby odrzucić</string>
     <string name="swipe_to_dismiss_summary">Przeciągnij miniodtwarzacz w dół, aby zatrzymać odtwarzanie i wyczyścić kolejkę.</string>
-    <string name="circle_button_title">Okrągły przycisk odtwarzania</string>
     <string name="swipe_album_cover_title">Zmiana utworu gestem</string>
     <string name="swipe_album_cover_summary">Przesuń w lewo lub w prawo na okładce albumu, aby zmieniać utwory.</string>
     <string name="single_tap_on_album_cover_title">Pojedyncze naciśnięcie okładki albumu</string>
@@ -621,23 +613,17 @@
     <string name="double_tap_on_left_album_cover_title">Dwukrotne naciśnięcie na lewą krawędź okładki</string>
     <string name="double_tap_on_right_album_cover_title">Dwukrotne naciśnięcie na prawą krawędź okładki</string>
     <string name="long_press_on_album_cover_title">Długie przytrzymanie na okładce</string>
-    <string name="small_image_title">Mniejsza okładka</string>
-    <string name="small_image_summary">Zmniejsza rozmiar okładki w wybranych stylach odtwarzacza.</string>
     <string name="now_playing_corner_radius_title">Zaokrąglenie okładki</string>
     <string name="now_playing_corner_radius_summary">Określa, jak bardzo zaokrąglone mają być rogi okładki albumu.</string>
     <string name="carousel_effect_title">Efekt karuzeli</string>
     <string name="album_cover_effect_title">Efekt okładki albumu</string>
     <string name="animate_controls_title">Animuj elementy sterowania</string>
     <string name="animate_controls_summary">Wyświetla się przy otwarciu panelu odtwarzacza.</string>
-    <string name="swipe_anywhere_title">Przesuń gdziekolwiek by zmienić utwór</string>
-    <string name="swipe_anywhere_summary">Umożliwia zmianę utworu poprzez przesunięcie w lewo bądź prawo.</string>
     <string name="swipe_up_queue_title">Przesuń w górę, aby otworzyć kolejkę</string>
     <string name="swipe_up_queue_summary">Przesuń palcem w górę w na ekranie odtwarzania, aby otworzyć kolejkę odtwarzania.</string>
     <string name="display_album_name_title">Wyświetl nazwę albumu</string>
     <string name="display_extra_info_title">Wyświetlaj dodatkowe informacje</string>
     <string name="display_extra_info_summary">Wyświetl dodatkowe informacje o piosence, takie jak bitrate, format, częstotliwość próbkowania itp.</string>
-    <string name="display_next_song_title">Pokazuj następny utwór</string>
-    <string name="display_next_song_summary">Pokazuje następny utwór w stylach Standardowym i Wypełnionym. Jeśli wyłączysz tę opcję, kolejka odtwarzania będzie dostępna tylko z poziomu menu trzech kropek odtwarzacza.</string>
     <string name="select_extra_info_title">Dodatkowe informacje</string>
     <string name="select_extra_info_summary">Wybierz dodatkowe informacje do wyświetlenia w panelu odtwarzacza.</string>
     <string name="prefer_remaining_time_title">Pokazuj pozostały czas</string>
@@ -739,7 +725,6 @@
     <string name="selected">Tylko wybrana</string>
     <string name="compact">Kompaktowy</string>
     <string name="expanded">Rozszerzony</string>
-    <string name="expressive_style">Ekspresyjny</string>
     <string name="simple">Prosty</string>
     <string name="add_after_playing_track">Dodaj po bieżącym utworze</string>
     <string name="add_tracks_sequentially">Dodawaj utwory jeden po drugim</string>

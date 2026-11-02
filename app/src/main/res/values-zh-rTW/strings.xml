@@ -161,9 +161,6 @@
     <string name="action_go_to_genre">前往曲風</string>
     <string name="added_title_to_playing_queue">已新增 1 首歌到播放佇列。</string>
     <string name="added_x_titles_to_playing_queue">已新增 %1$d 首歌到播放佇列。</string>
-    <string name="next_song_label">下一首歌曲</string>
-    <string name="next_song_x">下一首・%1$s</string>
-    <string name="next_song_x_by_artist_x">下一首・%1$s - %2$s</string>
     <string name="similar_artists">相似藝人</string>
     <string name="label_more_from_artist">此藝人的更多作品</string>
     <string name="label_more_from_x">更多 %s 的專輯</string>
@@ -536,8 +533,6 @@
     <string name="tab_mode_title">底部導覽列分頁標題</string>
     <string name="hold_tab_to_search_title">按住分頁以搜尋</string>
     <string name="hold_tab_to_search_summary">按住任何導覽列分頁以開啟搜尋畫面。</string>
-    <string name="larger_header_image_title">較大的封面圖片</string>
-    <string name="larger_header_image_summary">在專輯、藝人和播放清單詳細資訊中顯示較大的封面圖片。</string>
     <string name="lyrics_center_current_line_title">目前歌詞行置中</string>
     <string name="lyrics_center_current_line_summary">將目前歌詞行置中顯示，而不是靠上顯示。</string>
     <string name="lyrics_custom_font_title">自訂歌詞字型</string>
@@ -577,8 +572,6 @@
     <string name="treat_all_lyrics_files_as_utf8_summary">強制以 UTF-8 編碼讀取歌詞。這可最佳化解析流程，但在某些情況下可能會出現異常字元。可能需要重新啟動應用程式。</string>
     <!-- Now playing preferences -->
     <string name="now_playing_screen_title">樣式</string>
-    <string name="open_on_play_title">播放時開啟</string>
-    <string name="open_on_play_summary">開始播放歌曲後自動展開播放面板。</string>
     <string name="squiggly_seek_bar_title">波浪形進度條</string>
     <string name="squiggly_seek_bar_summary">使用波浪進度條而非直線型滑塊。</string>
     <string name="scrolling_text_title">捲動顯示歌名</string>
@@ -589,7 +582,6 @@
     <string name="adaptive_controls_summary">迷你播放器上的控制項會依目前播放器樣式調整。</string>
     <string name="swipe_to_dismiss_title">向下滑動以關閉</string>
     <string name="swipe_to_dismiss_summary">向下滑動迷你播放器，即可停止播放並清除播放佇列。</string>
-    <string name="circle_button_title">圓形播放按鈕</string>
     <string name="swipe_album_cover_title">滑動專輯封面</string>
     <string name="swipe_album_cover_summary">在專輯封面上向左或向右滑動以切換歌曲。</string>
     <string name="single_tap_on_album_cover_title">點一下封面</string>
@@ -597,23 +589,17 @@
     <string name="double_tap_on_left_album_cover_title">點兩下專輯封面左側</string>
     <string name="double_tap_on_right_album_cover_title">點兩下專輯封面右側</string>
     <string name="long_press_on_album_cover_title">按住封面</string>
-    <string name="small_image_title">小圖片模式</string>
-    <string name="small_image_summary">在支援的主題樣式下縮小封面。</string>
     <string name="now_playing_corner_radius_title">圖片圓角半徑</string>
     <string name="now_playing_corner_radius_summary">定義專輯封面的圓角。</string>
     <string name="carousel_effect_title">輪播效果</string>
     <string name="album_cover_effect_title">專輯封面效果</string>
     <string name="animate_controls_title">控制項動畫</string>
     <string name="animate_controls_summary">開啟播放器面板時顯示控制項動畫。</string>
-    <string name="swipe_anywhere_title">在任意處滑動以切換歌曲</string>
-    <string name="swipe_anywhere_summary">在播放畫面的空白處向左或向右滑動以切換歌曲。</string>
     <string name="swipe_up_queue_title">向上滑動以開啟播放佇列</string>
     <string name="swipe_up_queue_summary">在播放畫面的空白處向上滑動以開啟目前播放佇列。</string>
     <string name="display_album_name_title">顯示專輯名稱</string>
     <string name="display_extra_info_title">顯示額外資訊</string>
     <string name="display_extra_info_summary">顯示歌曲的額外資訊，例如位元率、格式、取樣率等。</string>
-    <string name="display_next_song_title">顯示下一首</string>
-    <string name="display_next_song_summary">在「普通」與「全版面封面」樣式中顯示下一首歌曲。停用後，播放佇列只能從播放器的三點選單開啟。</string>
     <string name="select_extra_info_title">額外資訊</string>
     <string name="select_extra_info_summary">選擇要在播放器面板中顯示的額外資訊。</string>
     <string name="prefer_remaining_time_title">優先顯示剩餘時間</string>
@@ -715,7 +701,6 @@
     <string name="selected">僅顯示選取項</string>
     <string name="compact">緊湊</string>
     <string name="expanded">可展開</string>
-    <string name="expressive_style">表現力</string>
     <string name="simple">簡單</string>
     <string name="add_after_playing_track">目前播放曲目之後</string>
     <string name="add_tracks_sequentially">目前播放曲目加所有以此法插入的曲目之後</string>

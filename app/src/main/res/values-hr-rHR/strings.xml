@@ -161,9 +161,6 @@
     <string name="action_go_to_genre">Go to Genre</string>
     <string name="added_title_to_playing_queue">Added 1 title to the playing queue.</string>
     <string name="added_x_titles_to_playing_queue">Added %1$d titles to the playing queue.</string>
-    <string name="next_song_label">Next Song</string>
-    <string name="next_song_x">Next • %1$s</string>
-    <string name="next_song_x_by_artist_x">Next • %1$s by %2$s</string>
     <string name="similar_artists">Similar artists</string>
     <string name="label_more_from_artist">More from artist</string>
     <string name="label_more_from_x">More from %s</string>
@@ -553,8 +550,6 @@
     <string name="tab_mode_title">Tab titles mode</string>
     <string name="hold_tab_to_search_title">Hold tab to Search</string>
     <string name="hold_tab_to_search_summary">Long-press any navigation bar tab to open the search screen.</string>
-    <string name="larger_header_image_title">Larger header image</string>
-    <string name="larger_header_image_summary">Show a bigger cover image in album, artist, and playlist details.</string>
     <string name="lyrics_center_current_line_title">Center current line</string>
     <string name="lyrics_center_current_line_summary">Keep the current lyric line centered on screen instead of aligned to the top.</string>
     <string name="lyrics_custom_font_title">Custom font</string>
@@ -594,8 +589,6 @@
     <string name="treat_all_lyrics_files_as_utf8_summary">Assume that all files use UTF-8 encoding. This optimizes the file parsing process but in some cases could result in unusual characters in song lyrics. It might require an app restart</string>
     <!-- Now playing preferences -->
     <string name="now_playing_screen_title">Style</string>
-    <string name="open_on_play_title">Open on play</string>
-    <string name="open_on_play_summary">Expand the Now Playing panel automatically after start playing a song.</string>
     <string name="squiggly_seek_bar_title">Squiggly seek bar</string>
     <string name="squiggly_seek_bar_summary">Enable a wavy seek bar instead of the default slider.</string>
     <string name="scrolling_text_title">Enable scrolling text</string>
@@ -606,7 +599,6 @@
     <string name="adaptive_controls_summary">The controls on the mini player change to suit the current player style.</string>
     <string name="swipe_to_dismiss_title">Swipe down to dismiss</string>
     <string name="swipe_to_dismiss_summary">Swipe down on the mini player to stop playback and clear the playing queue.</string>
-    <string name="circle_button_title">Circular play button</string>
     <string name="swipe_album_cover_title">Swipe on album cover</string>
     <string name="swipe_album_cover_summary">Swipe left or right on the album cover to skip between songs.</string>
     <string name="single_tap_on_album_cover_title">Single tap on cover</string>
@@ -614,23 +606,17 @@
     <string name="double_tap_on_left_album_cover_title">Left album-cover edge double-tap</string>
     <string name="double_tap_on_right_album_cover_title">Right album-cover edge double-tap</string>
     <string name="long_press_on_album_cover_title">Long press on cover</string>
-    <string name="small_image_title">Small image</string>
-    <string name="small_image_summary">Reduces the cover size in supported styles.</string>
     <string name="now_playing_corner_radius_title">Image corner radius</string>
     <string name="now_playing_corner_radius_summary">Defines how rounded the corners of the album art should appear.</string>
     <string name="carousel_effect_title">Carousel effect</string>
     <string name="album_cover_effect_title">Album cover effect</string>
     <string name="animate_controls_title">Animate controls</string>
     <string name="animate_controls_summary">It\'s played when opening the player panel.</string>
-    <string name="swipe_anywhere_title">Swipe anywhere to change song</string>
-    <string name="swipe_anywhere_summary">Swipe left or right on any empty area of the now playing screen to switch between songs.</string>
     <string name="swipe_up_queue_title">Swipe upwards to open queue</string>
     <string name="swipe_up_queue_summary">Swipe upwards on any empty area of the now playing screen to open the playing queue.</string>
     <string name="display_album_name_title">Display album name</string>
     <string name="display_extra_info_title">Display extra info</string>
     <string name="display_extra_info_summary">Display extra info about the song, like bitrate, format, sampling rate, etc.</string>
-    <string name="display_next_song_title">Display next song</string>
-    <string name="display_next_song_summary">Display the next song in the queue at the bottom of the player.</string>
     <string name="select_extra_info_title">Extra info</string>
     <string name="select_extra_info_summary">Select the extra info to display in the player panel.</string>
     <string name="prefer_remaining_time_title">Prefer remaining time</string>
@@ -732,7 +718,6 @@
     <string name="selected">Selected</string>
     <string name="compact">Compact</string>
     <string name="expanded">Expanded</string>
-    <string name="expressive_style">Expressive</string>
     <string name="simple">Simple</string>
     <string name="add_after_playing_track">Add after playing track</string>
     <string name="add_tracks_sequentially">Add tracks sequentially</string>

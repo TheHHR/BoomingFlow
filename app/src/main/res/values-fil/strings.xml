@@ -172,8 +172,5 @@
     <string name="action_go_to_genre">Pumunta sa Genre</string>
     <string name="added_title_to_playing_queue">Nagdagdag ng 1 pamagat sa pila ng pagpapatugtog.</string>
     <string name="added_x_titles_to_playing_queue">Nagdagdag ng %1$d na pamagat sa pila ng pagpapatugtog.</string>
-    <string name="next_song_label">Susunod na Kanta</string>
-    <string name="next_song_x">Susunod • %1$s</string>
-    <string name="next_song_x_by_artist_x">Susunod • %1$s ni %2$s</string>
     <string name="similar_artists">Mga katulad na artist</string>
 </resources>

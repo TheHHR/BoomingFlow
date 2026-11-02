@@ -159,9 +159,6 @@
     <string name="action_go_to_genre">Gehe zu Genre</string>
     <string name="added_title_to_playing_queue">Einen Titel zur Warteschlange hinzugefügt.</string>
     <string name="added_x_titles_to_playing_queue">%1$d Titel zur Warteschlange hinzugefügt.</string>
-    <string name="next_song_label">Nächster Titel</string>
-    <string name="next_song_x">Nächster • %1$s</string>
-    <string name="next_song_x_by_artist_x">Nächster • %1$s von %2$s</string>
     <string name="similar_artists">Ähnliche Interpreten</string>
     <string name="label_more_from_artist">Mehr vom Interpreten</string>
     <string name="label_more_from_x">Mehr von %s</string>
@@ -542,8 +539,6 @@
     <string name="tab_mode_title">Navigationsleisten-Beschriftung</string>
     <string name="hold_tab_to_search_title">Schaltfläche zum Suchen halten</string>
     <string name="hold_tab_to_search_summary">Eine beliebige Schaltfläche der Navigationsleiste lange drücken, um den Suchbildschirm aufzurufen.</string>
-    <string name="larger_header_image_title">Größeres Titelbild</string>
-    <string name="larger_header_image_summary">Zeige ein größeres Coverbild in der Detailansicht von Alben, Interpreten und Wiedergabelisten.</string>
     <string name="lyrics_center_current_line_title">Zentriere aktuelle Zeile</string>
     <string name="lyrics_center_current_line_summary">Die aktuelle Liedzeile zentriert anstatt oben anzeigen.</string>
     <string name="lyrics_custom_font_title">Eigene Schriftart</string>
@@ -583,8 +578,6 @@
     <string name="treat_all_lyrics_files_as_utf8_summary">Davon ausgehen, dass alle Dateien die UTF-8-Kodierung verwenden. Dies optimiert die Dateiverarbeitung, kann jedoch in einigen Fällen zu ungewöhnlichen Zeichen in den Songtexten führen. Möglicherweise muss die App neu gestartet werden</string>
     <!-- Now playing preferences -->
     <string name="now_playing_screen_title">Stil</string>
-    <string name="open_on_play_title">Bei Wiedergabe öffnen</string>
-    <string name="open_on_play_summary">Die Wiedergabe-Ansicht nach Wiedergabe-Start automatisch erweitern.</string>
     <string name="squiggly_seek_bar_title">Wellenförmiger Fortschrittsbalken</string>
     <string name="squiggly_seek_bar_summary">Wellenförmigen Suchbalken statt Standardregler verwenden.</string>
     <string name="scrolling_text_title">Lauftext aktivieren</string>
@@ -595,7 +588,6 @@
     <string name="adaptive_controls_summary">Die Steuerelemente des Mini-Players passen sich dem aktuellen Player-Stil an.</string>
     <string name="swipe_to_dismiss_title">Zum Schließen nach unten wischen</string>
     <string name="swipe_to_dismiss_summary">Wische auf dem Mini-Player nach unten, um die Wiedergabe zu beenden und die Wiedergabeliste zu löschen.</string>
-    <string name="circle_button_title">Runde Wiedergabetaste</string>
     <string name="swipe_album_cover_title">Auf dem Albumcover wischen</string>
     <string name="swipe_album_cover_summary">Wischen Sie auf dem Albumcover nach links oder rechts, um zwischen den Songs zu wechseln.</string>
     <string name="single_tap_on_album_cover_title">Auf Albumcover einzeltippen</string>
@@ -603,23 +595,17 @@
     <string name="double_tap_on_left_album_cover_title">Doppeltippen auf den linken Rand des Albumcovers</string>
     <string name="double_tap_on_right_album_cover_title">Doppeltippen auf den rechten Rand des Albumcovers</string>
     <string name="long_press_on_album_cover_title">Albumcover gedrückt halten</string>
-    <string name="small_image_title">Kleineres Cover</string>
-    <string name="small_image_summary">Reduziert die Covergröße in unterstützten Stilen.</string>
     <string name="now_playing_corner_radius_title">Bild-Eckenradius</string>
     <string name="now_playing_corner_radius_summary">Definiert die Rundung der Album-Cover-Ecken.</string>
     <string name="carousel_effect_title">Karussell-Effekt</string>
     <string name="album_cover_effect_title">Albumcover-Übergangseffekt</string>
     <string name="animate_controls_title">Steuerelemente animieren</string>
     <string name="animate_controls_summary">Startet beim Öffnen der Wiedergabe-Ansicht.</string>
-    <string name="swipe_anywhere_title">Titel durch Wischen an einer beliebigen Stelle wechseln</string>
-    <string name="swipe_anywhere_summary">Wischen Sie auf einer beliebigen freien Fläche des aktuellen Wiedergabebildschirms nach links oder rechts, um zwischen den Titeln zu wechseln.</string>
     <string name="swipe_up_queue_title">Nach oben wischen, um die Warteschlange zu öffnen</string>
     <string name="swipe_up_queue_summary">Wische auf einer beliebigen freien Fläche des aktuellen Wiedergabebildschirms nach oben, um die Warteschlange zu öffnen.</string>
     <string name="display_album_name_title">Album-Titel anzeigen</string>
     <string name="display_extra_info_title">Zusätzliche Informationen anzeigen</string>
     <string name="display_extra_info_summary">Zeigt zusätzliche Titel-Informationen an, wie Bitrate, Format, Abtastrate usw.</string>
-    <string name="display_next_song_title">Nächsten Titel anzeigen</string>
-    <string name="display_next_song_summary">Zeige den nächsten Titel im Normal- und Vollbildmodus an. Wenn du diese Option deaktivierst, ist die Wiedergabeliste nur über das Drei-Punkte-Menü des Players zugänglich.</string>
     <string name="select_extra_info_title">Zusätzliche Informationen</string>
     <string name="select_extra_info_summary">Wähle zusätzliche Informationen zur Anzeige in der Wiedergabe-Ansicht aus.</string>
     <string name="prefer_remaining_time_title">Verbleibende Wiedergabedauer bevorzugen</string>
@@ -721,7 +707,6 @@
     <string name="selected">Auswahl beschriftet</string>
     <string name="compact">Kompakt</string>
     <string name="expanded">Erweitert</string>
-    <string name="expressive_style">Expressiv</string>
     <string name="simple">Einfach</string>
     <string name="add_after_playing_track">Nach dem wiedergegebenen Titel einfügen</string>
     <string name="add_tracks_sequentially">Titel nacheinander hinzufügen</string>

@@ -108,12 +108,10 @@ import com.mardous.booming.ui.screen.player.styles.expressivestyle.ExpressivePla
 import com.mardous.booming.util.ADAPTIVE_CONTROLS
 import com.mardous.booming.util.ADD_EXTRA_CONTROLS
 import com.mardous.booming.util.CAROUSEL_EFFECT
-import com.mardous.booming.util.CIRCLE_PLAY_BUTTON
 import com.mardous.booming.util.ENABLE_ROTATION_LOCK
 import com.mardous.booming.util.HOLD_TAB_TO_SEARCH
 import com.mardous.booming.util.LIBRARY_CATEGORIES
 import com.mardous.booming.util.NOW_PLAYING_IMAGE_CORNER_RADIUS
-import com.mardous.booming.util.NOW_PLAYING_SMALL_IMAGE
 import com.mardous.booming.util.PLAYER_BLUR_RADIUS
 import com.mardous.booming.util.Preferences
 import com.mardous.booming.util.SQUIGGLY_SEEK_BAR
@@ -688,9 +686,7 @@ abstract class AbsSlidingMusicPanelActivity : AbsBaseActivity(),
             SQUIGGLY_SEEK_BAR -> miniPlayerFragment?.setUpProgressStyle()
 
             CAROUSEL_EFFECT,
-            NOW_PLAYING_SMALL_IMAGE,
-            PLAYER_BLUR_RADIUS,
-            CIRCLE_PLAY_BUTTON -> {
+            PLAYER_BLUR_RADIUS -> {
                 chooseFragmentForTheme()
             }
 

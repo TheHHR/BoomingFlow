@@ -6,8 +6,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.core.os.BundleCompat
-import androidx.core.view.updateLayoutParams
-import androidx.core.view.updateMarginsRelative
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import coil3.dispose
@@ -79,17 +77,6 @@ class ImageFragment : Fragment() {
                 val card = requestView { it.findViewById<View>(R.id.player_image_card) }
                 if (card is MaterialCardView) {
                     card.setCornerRadius(cornerRadius.toFloat())
-                }
-            }
-        }
-
-        if (Preferences.isSmallImage) {
-            val carouselCard = requestView { it.findViewById<View>(R.id.player_image_card) }
-            if (carouselCard == null) {
-                albumCover?.let { image ->
-                    image.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                        updateMarginsRelative(start = marginStart * 2, end = marginEnd * 2)
-                    }
                 }
             }
         }

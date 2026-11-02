@@ -172,9 +172,6 @@
     <string name="action_go_to_genre">Жанрга чыгарга</string>
     <string name="added_title_to_playing_queue">1 трек чиратка өстәлгән.</string>
     <string name="added_x_titles_to_playing_queue">%1$d трек чиратка өстәлгән.</string>
-    <string name="next_song_label">Киләсе җыр</string>
-    <string name="next_song_x">Киләсе • %1$s</string>
-    <string name="next_song_x_by_artist_x">Киләсе • %1$s - %2$s</string>
     <string name="similar_artists">Охшаш артистлар</string>
     <string name="label_more_from_artist">Артисттан күбрәк</string>
     <string name="label_more_from_x">%s күбрәк</string>
@@ -596,8 +593,6 @@
     <string name="tab_mode_title">Кертемнәрне баш исемнәре режимы</string>
     <string name="hold_tab_to_search_title">Эзләү өчен кертемнәрне тотыру</string>
     <string name="hold_tab_to_search_summary">Эзләнү ачу өчен навигация панеленең теләсә нинди кертемен тотып калыгыз.</string>
-    <string name="larger_header_image_title">Башта зурайтылган сурәт</string>
-    <string name="larger_header_image_summary">Альбом, артист һәм плейлисте турындагы белешмәләрдә зурайтылган тышлыкны күрсәтү.</string>
     <string name="widget_dynamic_colors_title">Хәрәкәтчел төс</string>
     <string name="widget_dynamic_colors_summary">Агымдагы трек тышлыгына төсләр схемасын яраклаштырырга.</string>
     <string name="lyrics_center_current_line_title">Агымдагы юлны бәяләргә</string>

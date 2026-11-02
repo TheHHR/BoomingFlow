@@ -161,9 +161,6 @@
     <string name="action_go_to_genre">Ir al Género</string>
     <string name="added_title_to_playing_queue">Agregada 1 canción a la cola.</string>
     <string name="added_x_titles_to_playing_queue">Agregadas %1$d canciones a la cola.</string>
-    <string name="next_song_label">Siguiente canción</string>
-    <string name="next_song_x">Sigue • %1$s</string>
-    <string name="next_song_x_by_artist_x">Sigue • %1$s de %2$s</string>
     <string name="similar_artists">Artistas similares</string>
     <string name="label_more_from_artist">Más del artista</string>
     <string name="label_more_from_x">Más de %s</string>
@@ -552,8 +549,6 @@
     <string name="tab_mode_title">Modo de títulos</string>
     <string name="hold_tab_to_search_title">Mantener pulsado para buscar</string>
     <string name="hold_tab_to_search_summary">Abre la pantalla de búsqueda al mantener presionada cualquier pestaña de la barra de navegación.</string>
-    <string name="larger_header_image_title">Imagen más grande en la cabecera</string>
-    <string name="larger_header_image_summary">Muestra una imagen de portada más grande en la vista de detalles de álbumes, artistas y playlists.</string>
     <string name="lyrics_center_current_line_title">Centrar línea actual</string>
     <string name="lyrics_center_current_line_summary">Mantiene la línea actual de la letra en el centro de la pantalla en lugar de la parte superior.</string>
     <string name="lyrics_custom_font_title">Fuente personalizada</string>
@@ -589,8 +584,6 @@
     <string name="treat_all_lyrics_files_as_utf8_summary">Asumir que todos los archivos usan codificación UTF-8. Esto optimiza el proceso de análisis de archivos, pero en algunos casos podría generar caracteres inusuales en las letras de las canciones. Podría ser necesario reiniciar la aplicación</string>
     <!-- Now playing preferences -->
     <string name="now_playing_screen_title">Estilo</string>
-    <string name="open_on_play_title">Abrir al reproducir</string>
-    <string name="open_on_play_summary">Abre el panel del reproductor automáticamente al empezar a reproducir una canción.</string>
     <string name="squiggly_seek_bar_title">Barra de progreso ondulada</string>
     <string name="squiggly_seek_bar_summary">Activa una barra de progreso ondulada en lugar del deslizador clásico.</string>
     <string name="scrolling_text_title">Habilitar texto deslizante</string>
@@ -601,7 +594,6 @@
     <string name="adaptive_controls_summary">Los controles del mini reproductor cambian para adaptarse al estilo general del reproductor.</string>
     <string name="swipe_to_dismiss_title">Deslizar hacia abajo para descartar</string>
     <string name="swipe_to_dismiss_summary">Deslice hacia abajo el mini reproductor para detener la reproducción y limpiar la cola.</string>
-    <string name="circle_button_title">Botón \"Reproducir\" circular</string>
     <string name="swipe_album_cover_title">Deslizamiento sobre la carátula</string>
     <string name="swipe_album_cover_summary">Deslice hacia la izquierda o la derecha sobre la carátula para saltar canciones.</string>
     <string name="single_tap_on_album_cover_title">Toque único en la carátula</string>
@@ -609,23 +601,17 @@
     <string name="double_tap_on_left_album_cover_title">Doble toque en el borde izquierdo de la carátula</string>
     <string name="double_tap_on_right_album_cover_title">Doble toque en el borde derecho de la carátula</string>
     <string name="long_press_on_album_cover_title">Presión larga en la carátula</string>
-    <string name="small_image_title">Imagen pequeña</string>
-    <string name="small_image_summary">Reduce el tamaño de la carátula en los estilos que lo soportan.</string>
     <string name="now_playing_corner_radius_title">Radio de esquinas de la imagen</string>
     <string name="now_playing_corner_radius_summary">Elija qué tan redondeadas deben verse las esquinas de la imagen del álbum.</string>
     <string name="carousel_effect_title">Efecto de carrusel</string>
     <string name="album_cover_effect_title">Efecto de deslizamiento de carátulas</string>
     <string name="animate_controls_title">Animación de los controles</string>
     <string name="animate_controls_summary">Se reproduce al expandir el panel del reproductor.</string>
-    <string name="swipe_anywhere_title">Deslizamiento en cualquier parte</string>
-    <string name="swipe_anywhere_summary">Deslice hacia la izquierda o la derecha en cualquier área vacía del reproductor para saltar canciones.</string>
     <string name="swipe_up_queue_title">Deslizar hacia arriba para abrir la cola</string>
     <string name="swipe_up_queue_summary">Desliza hacia arriba en cualquier área vacía del reproductor para mostrar la cola de reproducción.</string>
     <string name="display_album_name_title">Mostrar nombre del álbum</string>
     <string name="display_extra_info_title">Mostrar información adicional</string>
     <string name="display_extra_info_summary">Muestra información adicional sobre la canción en reproducción, como tasa de bits, formato, muestreo, etc.</string>
-    <string name="display_next_song_title">Mostrar siguiente canción</string>
-    <string name="display_next_song_summary">Muestra la siguiente canción en los estilos Normal y Carátula completa. Si desactivas esta opción, la cola de reproducción solo será accesible desde el menú de tres puntos del reproductor.</string>
     <string name="select_extra_info_title">Información adicional</string>
     <string name="select_extra_info_summary">Elija la información adicional a mostrar en el reproductor.</string>
     <string name="prefer_remaining_time_title">Preferir tiempo restante</string>
@@ -727,7 +713,6 @@
     <string name="selected">Solo selección</string>
     <string name="compact">Compacto</string>
     <string name="expanded">Expandido</string>
-    <string name="expressive_style">Expressive</string>
     <string name="simple">Simple</string>
     <string name="add_after_playing_track">Añadir después de la pista en reproducción</string>
     <string name="add_tracks_sequentially">Añadir pistas de forma secuencial</string>

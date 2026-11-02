@@ -161,9 +161,6 @@
     <string name="action_go_to_genre">Ga naar Genre</string>
     <string name="added_title_to_playing_queue">1 titel toegevoegd aan de afspeelwachtrij.</string>
     <string name="added_x_titles_to_playing_queue">%1$d titels toegevoegd aan de afspeelwachtrij.</string>
-    <string name="next_song_label">Volgende nummer</string>
-    <string name="next_song_x">Volgende • %1$s</string>
-    <string name="next_song_x_by_artist_x">Volgende • %1$s door %2$s</string>
     <string name="similar_artists">Vergelijkbare artiesten</string>
     <string name="label_more_from_artist">Meer van artiest</string>
     <string name="label_more_from_x">Meer van %s</string>
@@ -544,8 +541,6 @@
     <string name="tab_mode_title">Tabblad titelmodus</string>
     <string name="hold_tab_to_search_title">Tabblad vasthouden om te zoeken</string>
     <string name="hold_tab_to_search_summary">Druk lang op elk tabblad in de navigatiebalk om het zoekscherm te openen.</string>
-    <string name="larger_header_image_title">Grotere header afbeelding</string>
-    <string name="larger_header_image_summary">Toon een grotere omslagafbeelding in album, artiest en afspeellijst details.</string>
     <string name="lyrics_center_current_line_title">Huidige lijn centreren</string>
     <string name="lyrics_center_current_line_summary">Houd de huidige lyrische lijn gecentreerd op het scherm in plaats van uitgelijnd aan de bovenkant.</string>
     <string name="lyrics_custom_font_title">Aangepast lettertype</string>
@@ -585,8 +580,6 @@
     <string name="treat_all_lyrics_files_as_utf8_summary">Neem aan dat alle bestanden UTF-8 codering gebruiken. Dit optimalizeert het parseren van bestanden maar in enkele gevallen kan het leiden tot ongebruikelijke tekens in songteksten. Herstarten van de app is misschien nodig</string>
     <!-- Now playing preferences -->
     <string name="now_playing_screen_title">Stijl</string>
-    <string name="open_on_play_title">Openen bij afspelen</string>
-    <string name="open_on_play_summary">Uitvouwen van het Nu Afspelen paneel automatisch nadat u een nummer heeft afgespeeld.</string>
     <string name="squiggly_seek_bar_title">Kronkelige zoekbalk</string>
     <string name="squiggly_seek_bar_summary">Schakel in plaats van de standaard schuifregelaar een golvende zoekbalk in.</string>
     <string name="scrolling_text_title">Scrollende tekst inschakelen</string>
@@ -597,7 +590,6 @@
     <string name="adaptive_controls_summary">De besturingselementen op de verandering van de mini speler in overeenstemming met de huidige spelerstijl.</string>
     <string name="swipe_to_dismiss_title">Veeg omlaag om te sluiten</string>
     <string name="swipe_to_dismiss_summary">Swipe naar beneden over de mini speler om het afspelen te stoppen en de afspeelwachtrij te wissen.</string>
-    <string name="circle_button_title">Circulaire afspeelknop</string>
     <string name="swipe_album_cover_title">Veeg over de albumhoes</string>
     <string name="swipe_album_cover_summary">Veeg naar links of rechts over de albumhoes om tussen nummers over te slaan.</string>
     <string name="single_tap_on_album_cover_title">Enkele tik op cover</string>
@@ -605,23 +597,17 @@
     <string name="double_tap_on_left_album_cover_title">Album-omslagrand links dubbeltikken</string>
     <string name="double_tap_on_right_album_cover_title">Rechter album-cover rand dubbeltikken</string>
     <string name="long_press_on_album_cover_title">Lang drukken op omslag</string>
-    <string name="small_image_title">Kleine afbeelding</string>
-    <string name="small_image_summary">Vermindert de omslaggrootte in ondersteunde stijlen.</string>
     <string name="now_playing_corner_radius_title">Hoekradius van afbeelding</string>
     <string name="now_playing_corner_radius_summary">Definieert hoe de hoeken van de albumcover moeten verschijnen.</string>
     <string name="carousel_effect_title">Carrousel effect</string>
     <string name="album_cover_effect_title">Album omslageffect</string>
     <string name="animate_controls_title">Animeer bediening</string>
     <string name="animate_controls_summary">Wordt gespeeld bij het openen van het spelerspaneel.</string>
-    <string name="swipe_anywhere_title">Veeg overal om het nummer te wijzigen</string>
-    <string name="swipe_anywhere_summary">Veeg naar links of rechts op een leeg gebied van het nu speelscherm om te wisselen tussen nummers.</string>
     <string name="swipe_up_queue_title">Veeg omhoog om wachtrij te openen</string>
     <string name="swipe_up_queue_summary">Veeg naar boven op een leeg gebied van het nu afgespeelde scherm om de afspeelwachtrij te openen.</string>
     <string name="display_album_name_title">Toon albumnaam</string>
     <string name="display_extra_info_title">Extra info weergeven</string>
     <string name="display_extra_info_summary">Extra info over het nummer weergeven, zoals bitrate, formaat, sampling rate, enz.</string>
-    <string name="display_next_song_title">Volgende nummer weergeven</string>
-    <string name="display_next_song_summary">Toon het volgende liedje in Normal en Full Cover stijlen. Als u dit uitschakelt is de terugspeellijst alleen nog toegankelijk vanuit het drie-stippen menu van de speler.</string>
     <string name="select_extra_info_title">Extra info</string>
     <string name="select_extra_info_summary">Selecteer de extra info om weer te geven in het spelervenster.</string>
     <string name="prefer_remaining_time_title">Voorkeur resterende tijd</string>
@@ -723,7 +709,6 @@
     <string name="selected">Geselecteerd</string>
     <string name="compact">Compacte</string>
     <string name="expanded">Uitgebreid</string>
-    <string name="expressive_style">Expressief</string>
     <string name="simple">Eenvoudig</string>
     <string name="add_after_playing_track">Toevoegen na het afspelen van nummer</string>
     <string name="add_tracks_sequentially">Tracks automatisch toevoegen</string>

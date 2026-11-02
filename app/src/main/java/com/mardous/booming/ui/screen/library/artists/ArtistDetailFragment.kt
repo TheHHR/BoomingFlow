@@ -61,7 +61,6 @@ import com.mardous.booming.extensions.navigation.playInfoArgs
 import com.mardous.booming.extensions.navigation.searchArgs
 import com.mardous.booming.extensions.plurals
 import com.mardous.booming.extensions.resources.applyHeaderAccentFromArt
-import com.mardous.booming.extensions.resources.removeHorizontalMarginIfRequired
 import com.mardous.booming.extensions.resources.setupStatusBarForeground
 import com.mardous.booming.extensions.resources.surfaceColor
 import com.mardous.booming.extensions.setSupportActionBar
@@ -180,7 +179,6 @@ class ArtistDetailFragment : AbsMainActivityFragment(R.layout.fragment_artist_de
             } else {
                 arguments.artistId.toString()
             }
-            headerBinding.image.removeHorizontalMarginIfRequired()
             headerBinding.image.artistImage(getArtist()) {
                 crossfade(false)
                 listener(

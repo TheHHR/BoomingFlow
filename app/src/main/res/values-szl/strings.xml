@@ -73,13 +73,11 @@
     <string name="bassboost_label">Podbicie basōw</string>
     <string name="action_sleep_timer">Zygŏr spanio</string>
     <string name="app_shortcut_favorites_short">Nojrodsze</string>
-    <string name="larger_header_image_title">Wiynkszy ôbrŏzek nagłōwka</string>
     <string name="widget_leading_action_title">Lewy knefel</string>
     <string name="widget_trailing_action_title">Prawy knefel</string>
     <string name="widget_side_buttons_title">Boczne knefle</string>
     <string name="widget_side_buttons_skip">Nazŏd i dalij</string>
     <string name="now_playing_screen_title">Styl ôdtwŏrzŏcza</string>
-    <string name="circle_button_title">Krugelisty knefel do puszczania</string>
     <string name="action_share">Udostympnij</string>
     <string name="remove_action">Wyciepnij</string>
     <string name="preparing_playback_title">Rychtuja</string>
@@ -124,7 +122,6 @@
     <string name="display_header">Wyświytlanie</string>
     <string name="general_theme_title">Ôgōlny motyw</string>
     <string name="pure_black_theme_title">Cz┼Årny jak byk</string>
-    <string name="small_image_title">Mały ôbrŏzek</string>
     <string name="display_album_name_title">Pokŏż miano albumu</string>
     <string name="rotation_lock_title">Zablokuj ôriyntacyjo ekranu</string>
     <string name="initial_configuration_title">Poczōntkowo kōnfiguracyjo</string>
@@ -257,7 +254,6 @@
     <string name="add_to_label">Przidej do</string>
     <string name="go_to_label">Przejdź do</string>
     <string name="action_tag_editor">Edytōr tagów</string>
-    <string name="next_song_label">Nŏstympnŏ śpiywka</string>
     <string name="no_genres_label">Niy ma zortōw</string>
     <string name="no_playlists_label">Niy ma playlist</string>
     <string name="various_artists">Roztomajci wykonawcy</string>

@@ -228,9 +228,6 @@
     <string name="action_go_to_artist">Suundu esitaja juurde</string>
     <string name="action_go_to_genre">Suundu žanri juurde</string>
     <string name="now_playing">Hetkel esitamisel</string>
-    <string name="next_song_label">Järgmine lugu</string>
-    <string name="next_song_x">Järgmine • %1$s</string>
-    <string name="next_song_x_by_artist_x">Järgmine • %1$s esitajalt %2$s</string>
     <string name="album_artists_label">Albumi esitajad</string>
     <string name="last_added_label">Viimati lisatud</string>
     <string name="top_tracks_label">Populaarsed lood</string>
@@ -433,7 +430,6 @@
     <string name="balance_right">Parem</string>
     <string name="custom">Kohandatud</string>
     <string name="lyrics_background_gradient">Gradient</string>
-    <string name="expressive_style">Väljendusrikas</string>
     <string name="simple">Lihtne</string>
     <string name="today">Täna</string>
     <string name="yesterday">Eile</string>
@@ -529,8 +525,6 @@
     <string name="saf_show_files_button">Näita faile</string>
     <string name="saf_error_uri">SAF-i URI tuvastamine ei õnnestu</string>
     <string name="saf_access_required_message">Booming Music vajab õigust lugeda neid faile. Palun vali juurkaust, kuhu sinu muusika- ja helifailid on salvestatud.</string>
-    <string name="larger_header_image_title">Suurem päisepilt</string>
-    <string name="larger_header_image_summary">Näita albumi, esitaja ja esitusloendi üksikasjalikus vaates suurt kaanepilti.</string>
     <string name="action_move_to_current_track">Näita praegust lugu</string>
     <string name="action_add_to_favorites">Lisa lemmikuks</string>
     <string name="action_remove_from_favorites">Eemalda lemmikute seast</string>
@@ -687,7 +681,6 @@
     <string name="adaptive_controls_summary">Juhtnupud esituse minivaates kohanduvad pleieri stiilile antud olukorras.</string>
     <string name="swipe_to_dismiss_title">Loobumiseks viipa ülalt alla</string>
     <string name="swipe_to_dismiss_summary">Minivaates lõpeta esitus ja tühjenda esitusloend ülalt alla viipamisega.</string>
-    <string name="circle_button_title">Ümmargune „Esita“ nupp</string>
     <string name="swipe_album_cover_title">Esituse juhtimine kaanepildi viipamisega</string>
     <string name="swipe_album_cover_summary">Kaanepildi viipamisel saad esitada eelmist või järgmist lugu.</string>
     <string name="single_tap_on_album_cover_title">Üks klõps kaanepildil</string>
@@ -695,23 +688,17 @@
     <string name="double_tap_on_left_album_cover_title">Topeltklõps kaanepildi vasakul äärel</string>
     <string name="double_tap_on_right_album_cover_title">Topeltklõps kaanepildi paremal äärel</string>
     <string name="long_press_on_album_cover_title">Pikk vajutus kaanepildil</string>
-    <string name="small_image_title">Väike kaanepilt</string>
-    <string name="small_image_summary">Vähendab toetatud stiilide puhul kaanepildi suurust.</string>
     <string name="now_playing_corner_radius_title">Kaanepildi nurgaraadius</string>
     <string name="now_playing_corner_radius_summary">Saad määratleda kaanepiltide nurkade ümarust.</string>
     <string name="carousel_effect_title">Karusselliefekt</string>
     <string name="album_cover_effect_title">Kaanepiltide vahetamisel kasutatav efekt</string>
     <string name="animate_controls_title">Animeeritud juhtnupud</string>
     <string name="animate_controls_summary">Pleieririba avamisel on ta esitamisel.</string>
-    <string name="swipe_anywhere_title">Loo vahetamine tühjal pinnal viipamisega</string>
-    <string name="swipe_anywhere_summary">Esitusvaate tühjal pinnal vasakule või paremale viipamisega saad lugusid vahetada.</string>
     <string name="swipe_up_queue_title">Ülasuunas viipamine avab esitusjärjekorra</string>
     <string name="swipe_up_queue_summary">Esitusvaate tühjal pinnal ülespoole viipamisega saad avada esitusjärjekorra.</string>
     <string name="display_album_name_title">Näita albumi nime</string>
     <string name="display_extra_info_title">Näita lisateavet</string>
     <string name="display_extra_info_summary">Näita loo lisateavet, nagu bitikiirus, vorming, diskreetimissagedus jne.</string>
-    <string name="display_next_song_title">Näita järgmist lugu</string>
-    <string name="display_next_song_summary">Kaanepildi täisvaates ja tavavaates näita järgmiseks esitatava loo teavet. Kui lülitad selle eelistuse välja, siis näed pleierivaatest esitusjärjekorda vaid kolme punktiga ikoonist.</string>
     <string name="prefer_remaining_time_title">Eelista loo lõpuni jäänud aega</string>
     <string name="prefer_remaining_time_summary">Loo kestuse asemel näita loo lõpuni jäänud aega.</string>
     <string name="prefer_album_artist_name_title">Eelista albumi esitaja nime</string>
@@ -800,8 +787,6 @@
     <string name="ignore_blank_lines_title">Eira tühje ridu</string>
     <string name="ignore_blank_lines_summary">Animeeritud jutumullide asemel eira LRC-failides leiduvaid tühje ridu.</string>
     <string name="enable_audio_float_output_title">Kõrge täpsusega heliväljund</string>
-    <string name="open_on_play_summary">Peale loo esitamise alustamist laienda automaatselt „Hetkel esitamisel“ riba vaadet.</string>
-    <string name="open_on_play_title">Laiem vaade esitamisel</string>
     <string name="player_blur_intensity_title">Hägustamise intensiivsus</string>
     <string name="player_blur_intensity_summary">Saad seadistada, kui tugev on taustahägusus „Hägustatud kujunduses“. Madalamad väärtused võivad parandada jõudlust.</string>
     <string name="play_on_startup_title">Käivitamisel alusta esitust</string>

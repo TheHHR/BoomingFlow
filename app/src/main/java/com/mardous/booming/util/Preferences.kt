@@ -351,9 +351,6 @@ object Preferences : KoinComponent {
         get() = preferences.getBoolean(LOCKED_PLAYLISTS, false)
         set(value) = preferences.edit { putBoolean(LOCKED_PLAYLISTS, value) }
 
-    val largerHeaderImage: Boolean
-        get() = preferences.getBoolean(LARGER_HEADER_IMAGE, false)
-
     var horizontalArtistAlbums: Boolean
         get() = preferences.getBoolean(HORIZONTAL_ARTIST_ALBUMS, true)
         set(value) = preferences.edit { putBoolean(HORIZONTAL_ARTIST_ALBUMS, value) }
@@ -414,9 +411,6 @@ object Preferences : KoinComponent {
     val miniPlayerSwipeToSkip: Boolean
         get() = preferences.getBoolean(MINI_PLAYER_SWIPE_TO_SKIP, true)
 
-    val isSmallImage: Boolean
-        get() = preferences.getBoolean(NOW_PLAYING_SMALL_IMAGE, false)
-
     fun getNowPlayingImageCornerRadius(context: Context): Int =
         preferences.getInt(NOW_PLAYING_IMAGE_CORNER_RADIUS, context.intRes(R.integer.now_playing_corner_radius))
 
@@ -440,9 +434,6 @@ object Preferences : KoinComponent {
 
     val animateControls: Boolean
         get() = preferences.getBoolean(ANIMATE_PLAYER_CONTROL, true)
-
-    val circularPlayButton: Boolean
-        get() = preferences.getBoolean(CIRCLE_PLAY_BUTTON, false)
 
     val enableScrollingText: Boolean
         get() = preferences.getBoolean(ENABLE_SCROLLING_TEXT, false)
@@ -615,17 +606,9 @@ object Preferences : KoinComponent {
         get() = preferences.getBoolean(INITIALIZED_BLACKLIST, false)
         set(value) = preferences.edit { putBoolean(INITIALIZED_BLACKLIST, value) }
 
-    var isSwipeAnywhere: Boolean
-        get() = preferences.getBoolean(SWIPE_ANYWHERE, false)
-        set(value) = preferences.edit { putBoolean(SWIPE_ANYWHERE, value) }
-
     var isSwipeUpQueue: Boolean
         get() = preferences.getBoolean(SWIPE_UP_QUEUE, false)
         set(value) = preferences.edit { putBoolean(SWIPE_UP_QUEUE, value) }
-
-    var isShowNextSong: Boolean
-        get() = preferences.getBoolean(DISPLAY_NEXT_SONG, true)
-        set(value) = preferences.edit { putBoolean(DISPLAY_NEXT_SONG, value) }
 
     fun SharedPreferences.nullString(key: String): String? = getString(key, null)
 
@@ -711,14 +694,12 @@ const val TAB_TITLES_MODE = "tab_titles_mode"
 const val HOLD_TAB_TO_SEARCH = "hold_tab_to_search"
 const val IGNORE_ARTICLES_WHEN_SORTING = "ignore_articles_when_sorting"
 const val LAST_PAGE = "last_page"
-const val LARGER_HEADER_IMAGE = "larger_header_image"
 const val HORIZONTAL_ARTIST_ALBUMS = "horizontal_artist_albums"
 const val COMPACT_ALBUM_SONG_VIEW = "compact_album_song_view"
 const val COMPACT_ARTIST_SONG_VIEW = "compact_artist_song_view"
 const val NOW_PLAYING_SCREEN = "now_playing_screen"
 const val PLAYER_COLOR_SCHEME = "player_color_scheme"
 const val LEGACY_COLOR_SCHEME_KEY = "player_expressive_color_scheme"
-const val OPEN_ON_PLAY = "open_on_play"
 const val ADD_EXTRA_CONTROLS = "add_extra_controls"
 const val ADAPTIVE_CONTROLS = "adaptive_controls"
         const val SQUIGGLY_SEEK_BAR = "squiggly_seek_bar"
@@ -727,7 +708,6 @@ const val SWIPE_DOWN_TO_DISMISS = "swipe_down_to_dismiss"
 const val LYRICS_ON_COVER = "lyrics_on_cover"
 const val SWIPE_ON_COVER = "swipe_on_cover"
 const val MINI_PLAYER_SWIPE_TO_SKIP = "mini_player_swipe_to_skip"
-const val NOW_PLAYING_SMALL_IMAGE = "now_playing_small_image"
 const val NOW_PLAYING_IMAGE_CORNER_RADIUS = "now_playing_corner_radius"
 const val PLAYER_BLUR_RADIUS = "player_blur_radius"
 const val CAROUSEL_EFFECT = "carousel_effect"
@@ -737,7 +717,6 @@ const val COVER_LEFT_DOUBLE_TAP_ACTION = "cover_left_double_tap_action"
 const val COVER_RIGHT_DOUBLE_TAP_ACTION = "cover_right_double_tap_action"
 const val COVER_LONG_PRESS_ACTION = "cover_long_press_action"
 const val ANIMATE_PLAYER_CONTROL = "animate_player_control"
-const val CIRCLE_PLAY_BUTTON = "circle_play_button"
 const val ENABLE_SCROLLING_TEXT = "enable_scrolling_text"
 const val DISPLAY_ALBUM_TITLE = "display_album_title"
 const val DISPLAY_EXTRA_INFO = "display_extra_info"
@@ -788,9 +767,7 @@ const val LAST_UPDATE_ID = "last_update_id"
 const val START_DIRECTORY = "start_directory"
 const val INITIALIZED_BLACKLIST = "initialized_blacklist"
 const val HIERARCHY_FOLDER_VIEW = "hierarchy_folder_view"
-const val SWIPE_ANYWHERE = "swipe_anywhere"
 const val SWIPE_UP_QUEUE = "swipe_up_queue"
-const val DISPLAY_NEXT_SONG = "display_next_song"
 const val LOCKED_QUEUE = "locked_queue"
 const val LOCKED_PLAYLISTS = "locked_playlists"
 const val LASTFM_LOGIN = "lastfm_login"

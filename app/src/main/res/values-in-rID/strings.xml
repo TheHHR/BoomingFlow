@@ -161,9 +161,6 @@
     <string name="action_go_to_genre">Pergi ke Genre</string>
     <string name="added_title_to_playing_queue">1 judul ditambahkan ke antrean pemutaran.</string>
     <string name="added_x_titles_to_playing_queue">%1$d judul ditambahkan ke antrean pemutaran.</string>
-    <string name="next_song_label">Lagu Berikutnya</string>
-    <string name="next_song_x">Berikutnya • %1$s</string>
-    <string name="next_song_x_by_artist_x">Berikutnya • %1$s oleh %2$s</string>
     <string name="similar_artists">Artis serupa</string>
     <string name="label_more_from_artist">Lainnya dari artis</string>
     <string name="label_more_from_x">Lainnya dari %s</string>
@@ -536,8 +533,6 @@
     <string name="tab_mode_title">Mode judul tab</string>
     <string name="hold_tab_to_search_title">Tahan tab untuk Mencari</string>
     <string name="hold_tab_to_search_summary">Tekan lama tab bilah navigasi mana pun untuk membuka layar pencarian.</string>
-    <string name="larger_header_image_title">Gambar tajuk lebih besar</string>
-    <string name="larger_header_image_summary">Tampilkan gambar sampul yang lebih besar di detail album, artis, dan daftar putar.</string>
     <string name="lyrics_center_current_line_title">Pusatkan baris saat ini</string>
     <string name="lyrics_center_current_line_summary">Pertahankan baris lirik saat ini di tengah layar, bukan rata atas.</string>
     <string name="lyrics_custom_font_title">Font kustom</string>
@@ -577,8 +572,6 @@
     <string name="treat_all_lyrics_files_as_utf8_summary">Asumsikan bahwa semua file menggunakan pengkodean UTF-8. Ini mengoptimalkan proses penguraian file tetapi dalam beberapa kasus dapat menghasilkan karakter yang tidak biasa dalam lirik lagu. Mungkin memerlukan mulai ulang aplikasi</string>
     <!-- Now playing preferences -->
     <string name="now_playing_screen_title">Gaya</string>
-    <string name="open_on_play_title">Buka saat diputar</string>
-    <string name="open_on_play_summary">Perluas panel Sedang Diputar secara otomatis setelah mulai memutar lagu.</string>
     <string name="squiggly_seek_bar_title">Bilah pencari bergelombang</string>
     <string name="squiggly_seek_bar_summary">Aktifkan bilah pencari bergelombang sebagai pengganti slider default.</string>
     <string name="scrolling_text_title">Aktifkan teks bergulir</string>
@@ -589,7 +582,6 @@
     <string name="adaptive_controls_summary">Kontrol pada mini player berubah sesuai dengan gaya pemutar saat ini.</string>
     <string name="swipe_to_dismiss_title">Geser ke bawah untuk menutup</string>
     <string name="swipe_to_dismiss_summary">Geser ke bawah pada mini player untuk menghentikan pemutaran dan mengosongkan antrean putar.</string>
-    <string name="circle_button_title">Tombol putar melingkar</string>
     <string name="swipe_album_cover_title">Geser pada sampul album</string>
     <string name="swipe_album_cover_summary">Geser ke kiri atau kanan pada sampul album untuk berpindah antar lagu.</string>
     <string name="single_tap_on_album_cover_title">Ketuk sekali pada sampul</string>
@@ -597,23 +589,17 @@
     <string name="double_tap_on_left_album_cover_title">Ketuk dua kali tepi kiri sampul album</string>
     <string name="double_tap_on_right_album_cover_title">Ketuk dua kali tepi kanan sampul album</string>
     <string name="long_press_on_album_cover_title">Tekan lama pada sampul</string>
-    <string name="small_image_title">Gambar kecil</string>
-    <string name="small_image_summary">Memperkecil ukuran sampul pada gaya yang mendukungnya.</string>
     <string name="now_playing_corner_radius_title">Radius sudut gambar</string>
     <string name="now_playing_corner_radius_summary">Menentukan seberapa bulat sudut sampul album yang ditampilkan.</string>
     <string name="carousel_effect_title">Efek korsel</string>
     <string name="album_cover_effect_title">Efek sampul album</string>
     <string name="animate_controls_title">Animasikan kontrol</string>
     <string name="animate_controls_summary">Diputar saat membuka panel pemutar.</string>
-    <string name="swipe_anywhere_title">Geser di mana saja untuk mengganti lagu</string>
-    <string name="swipe_anywhere_summary">Geser ke kiri atau kanan pada area kosong di layar sedang diputar untuk berpindah antar lagu.</string>
     <string name="swipe_up_queue_title">Geser ke atas untuk membuka antrean</string>
     <string name="swipe_up_queue_summary">Geser ke atas pada area kosong di layar sedang diputar untuk membuka antrean pemutaran.</string>
     <string name="display_album_name_title">Tampilkan nama album</string>
     <string name="display_extra_info_title">Tampilkan info tambahan</string>
     <string name="display_extra_info_summary">Tampilkan info tambahan tentang lagu, seperti bitrate, format, frekuensi sampling, dll.</string>
-    <string name="display_next_song_title">Tampilkan lagu berikutnya</string>
-    <string name="display_next_song_summary">Tampilkan lagu berikutnya dalam gaya Normal dan Sampul Penuh. Jika Anda menonaktifkan ini, antrean pemutaran hanya dapat diakses dari menu tiga titik pemutar.</string>
     <string name="select_extra_info_title">Info tambahan</string>
     <string name="select_extra_info_summary">Pilih info tambahan yang ditampilkan di panel pemutar.</string>
     <string name="prefer_remaining_time_title">Tampilkan waktu tersisa</string>
@@ -715,7 +701,6 @@
     <string name="selected">Dipilih</string>
     <string name="compact">Ringkas</string>
     <string name="expanded">Diperluas</string>
-    <string name="expressive_style">Ekspresif</string>
     <string name="simple">Sederhana</string>
     <string name="add_after_playing_track">Tambah setelah lagu yang diputar</string>
     <string name="add_tracks_sequentially">Tambah lagu secara berurutan</string>

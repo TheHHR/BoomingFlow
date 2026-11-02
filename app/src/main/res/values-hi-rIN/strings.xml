@@ -161,9 +161,6 @@
     <string name="action_go_to_genre">श्रेणी पर जाएं</string>
     <string name="added_title_to_playing_queue">खेलने की कतार में 1 शीर्षक जोड़ा गया है।</string>
     <string name="added_x_titles_to_playing_queue">%1$d शीर्षक खेलने की कतार में जोड़े गए।</string>
-    <string name="next_song_label">अगला गाना</string>
-    <string name="next_song_x">अगला • %1$s</string>
-    <string name="next_song_x_by_artist_x">अगला • %1$s द्वारा %2$s</string>
     <string name="similar_artists">समान कलाकार</string>
     <string name="label_more_from_artist">कलाकार से और भी</string>
     <string name="label_more_from_x">%s से अधिक</string>
@@ -545,8 +542,6 @@
     <string name="tab_mode_title">टैब शीर्षक मोड</string>
     <string name="hold_tab_to_search_title">खोजने के लिए टैब दबाएं</string>
     <string name="hold_tab_to_search_summary">किसी भी नेविगेशन बार टैब को लंबे समय तक दबाने से खोज स्क्रीन खुल जाएगी।</string>
-    <string name="larger_header_image_title">Larger header image</string>
-    <string name="larger_header_image_summary">Show a bigger cover image in album, artist, and playlist details.</string>
     <string name="lyrics_center_current_line_title">Center current line</string>
     <string name="lyrics_center_current_line_summary">Keep the current lyric line centered on screen instead of aligned to the top.</string>
     <string name="lyrics_custom_font_title">Custom font</string>
@@ -586,8 +581,6 @@
     <string name="treat_all_lyrics_files_as_utf8_summary">Assume that all files use UTF-8 encoding. This optimizes the file parsing process but in some cases could result in unusual characters in song lyrics. It might require an app restart</string>
     <!-- Now playing preferences -->
     <string name="now_playing_screen_title">स्टाइल</string>
-    <string name="open_on_play_title">प्ले पर खोलें</string>
-    <string name="open_on_play_summary">गाना बजाना शुरू करने के बाद अब खेलने वाले पैनल को स्वचालित रूप से फैलाएं।</string>
     <string name="squiggly_seek_bar_title">Squiggly seek bar</string>
     <string name="squiggly_seek_bar_summary">Enable a wavy seek bar instead of the default slider.</string>
     <string name="scrolling_text_title">Enable scrolling text</string>
@@ -598,7 +591,6 @@
     <string name="adaptive_controls_summary">The controls on the mini player change to suit the current player style.</string>
     <string name="swipe_to_dismiss_title">Swipe down to dismiss</string>
     <string name="swipe_to_dismiss_summary">Swipe down on the mini player to stop playback and clear the playing queue.</string>
-    <string name="circle_button_title">गोल प्ले बटन</string>
     <string name="swipe_album_cover_title">Swipe on album cover</string>
     <string name="swipe_album_cover_summary">Swipe left or right on the album cover to skip between songs.</string>
     <string name="single_tap_on_album_cover_title">Single tap on cover</string>
@@ -606,23 +598,17 @@
     <string name="double_tap_on_left_album_cover_title">Left album-cover edge double-tap</string>
     <string name="double_tap_on_right_album_cover_title">Right album-cover edge double-tap</string>
     <string name="long_press_on_album_cover_title">कवर पर लंबे समय तक दबाएँ</string>
-    <string name="small_image_title">Small image</string>
-    <string name="small_image_summary">Reduces the cover size in supported styles.</string>
     <string name="now_playing_corner_radius_title">इमेज का कोना रेडियस</string>
     <string name="now_playing_corner_radius_summary">यह बताता है कि कैसे एल्बम की कला के कोनों को गोल होना चाहिए.</string>
     <string name="carousel_effect_title">कैरोसेल प्रभाव</string>
     <string name="album_cover_effect_title">एल्बम कवर इफेक्ट</string>
     <string name="animate_controls_title">एनिमेट कंट्रोल्स</string>
     <string name="animate_controls_summary">यह प्लेयर पैनल खोलना पर बजाय जाता है।</string>
-    <string name="swipe_anywhere_title">Swipe anywhere to change song</string>
-    <string name="swipe_anywhere_summary">Swipe left or right on any empty area of the now playing screen to switch between songs.</string>
     <string name="swipe_up_queue_title">Swipe upwards to open queue</string>
     <string name="swipe_up_queue_summary">Swipe upwards on any empty area of the now playing screen to open the playing queue.</string>
     <string name="display_album_name_title">एल्बम का नाम दिखाएँ</string>
     <string name="display_extra_info_title">अतिरिक्त जानकारी प्रदर्शित करें</string>
     <string name="display_extra_info_summary">गाने के बारे में अतिरिक्त जानकारी दिखाएँ, जैसे बिटरेट, फ़ॉर्मेट, सैंपलिंग दर, आदि।</string>
-    <string name="display_next_song_title">Display next song</string>
-    <string name="display_next_song_summary">Display the next song in the queue at the bottom of the player.</string>
     <string name="select_extra_info_title">अतिरिक्त जानकारी</string>
     <string name="select_extra_info_summary">खिलाड़ी पैनल में दिखाने के लिए अतिरिक्त जानकारी का चयन करें।</string>
     <string name="prefer_remaining_time_title">बची हुई समय को प्राथमिकता दें</string>
@@ -724,7 +710,6 @@
     <string name="selected">चुना हुआ</string>
     <string name="compact">कॉम्पैक्ट</string>
     <string name="expanded">बड़ा हुआ</string>
-    <string name="expressive_style">Expressive</string>
     <string name="simple">सरल</string>
     <string name="add_after_playing_track">ट्रैक खेलने के बाद जोड़ें</string>
     <string name="add_tracks_sequentially">पटरियों को क्रमशः जोड़ें</string>

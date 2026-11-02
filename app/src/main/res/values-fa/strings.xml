@@ -169,9 +169,6 @@
     <string name="action_go_to_genre">به ژانر بروید</string>
     <string name="added_title_to_playing_queue">1 عنوان به صف پخش اضافه شد.</string>
     <string name="added_x_titles_to_playing_queue">عناوین %1$d را به صف پخش اضافه کرد.</string>
-    <string name="next_song_label">آهنگ بعدی</string>
-    <string name="next_song_x">بعدی • %1$s</string>
-    <string name="next_song_x_by_artist_x">بعدی • %1$s توسط %2$s</string>
     <string name="similar_artists">هنرمندان مشابه</string>
     <string name="label_more_from_artist">بیشتر از هنرمند</string>
     <string name="label_more_from_x">موارد بیشتر از %s</string>
@@ -557,8 +554,6 @@
     <string name="tab_mode_title">حالت عنوان برگه ها</string>
     <string name="hold_tab_to_search_title">برگه را برای جستجو نگه دارید</string>
     <string name="hold_tab_to_search_summary">هر برگه نوار پیمایش را طولانی فشار دهید تا صفحه جستجو باز شود.</string>
-    <string name="larger_header_image_title">تصویر هدر بزرگتر</string>
-    <string name="larger_header_image_summary">تصویر جلد بزرگتر را در جزئیات آلبوم، هنرمند و لیست پخش نشان دهید.</string>
     <string name="widget_dynamic_colors_title">رنگ های پویا</string>
     <string name="widget_dynamic_colors_summary">رنگ‌های ویجت را با آثار هنری آهنگ فعلی تطبیق دهید.</string>
     <string name="lyrics_center_current_line_title">خط فعلی را در مرکز قرار دهید</string>
@@ -603,8 +598,6 @@
     <string name="treat_all_lyrics_files_as_utf8_title">تمام فایل های متن ترانه را به عنوان UTF-8 در نظر بگیرید</string>
     <string name="treat_all_lyrics_files_as_utf8_summary">فرض کنید همه فایل ها از رمزگذاری UTF-8 استفاده می کنند. این فرآیند تجزیه فایل را بهینه می‌کند، اما در برخی موارد می‌تواند منجر به شخصیت‌های غیرعادی در متن آهنگ شود. ممکن است نیاز به راه اندازی مجدد برنامه داشته باشد</string>
     <string name="now_playing_screen_title">سبک</string>
-    <string name="open_on_play_title">در پخش باز کنید</string>
-    <string name="open_on_play_summary">پس از شروع پخش آهنگ، پانل Now Playing را به طور خودکار گسترش دهید.</string>
     <string name="squiggly_seek_bar_title">نوار جست و جوی خمیده</string>
     <string name="squiggly_seek_bar_summary">به جای نوار لغزنده پیش فرض، نوار جستجوی موجی را فعال کنید.</string>
     <string name="scrolling_text_title">فعال کردن پیمایش متن</string>
@@ -615,7 +608,6 @@
     <string name="adaptive_controls_summary">کنترل‌های پخش‌کننده کوچک مطابق با سبک پخش فعلی تغییر می‌کنند.</string>
     <string name="swipe_to_dismiss_title">برای رد کردن، انگشت خود را به پایین بکشید</string>
     <string name="swipe_to_dismiss_summary">برای توقف پخش و پاک کردن صف پخش، روی پخش کننده کوچک انگشت خود را به پایین بکشید.</string>
-    <string name="circle_button_title">دکمه پخش دایره ای</string>
     <string name="swipe_album_cover_title">انگشت خود را روی جلد آلبوم بکشید</string>
     <string name="swipe_album_cover_summary">برای رد شدن از بین آهنگ ها، روی جلد آلبوم به چپ یا راست بکشید.</string>
     <string name="mini_player_swipe_to_skip_title">برای رد شدن، مینی پلیر را بکشید</string>
@@ -625,23 +617,17 @@
     <string name="double_tap_on_left_album_cover_title">لبه جلد آلبوم سمت چپ دو بار ضربه بزنید</string>
     <string name="double_tap_on_right_album_cover_title">لبه جلد سمت راست آلبوم دو بار ضربه بزنید</string>
     <string name="long_press_on_album_cover_title">فشار طولانی روی جلد</string>
-    <string name="small_image_title">تصویر کوچک</string>
-    <string name="small_image_summary">اندازه پوشش را در سبک های پشتیبانی شده کاهش می دهد.</string>
     <string name="now_playing_corner_radius_title">شعاع گوشه تصویر</string>
     <string name="now_playing_corner_radius_summary">مشخص می‌کند که گوشه‌های هنر آلبوم چقدر باید گرد ظاهر شوند.</string>
     <string name="carousel_effect_title">جلوه چرخ فلک</string>
     <string name="album_cover_effect_title">جلوه جلد آلبوم</string>
     <string name="animate_controls_title">کنترل های متحرک</string>
     <string name="animate_controls_summary">هنگام باز کردن پانل پخش کننده پخش می شود.</string>
-    <string name="swipe_anywhere_title">برای تغییر آهنگ، انگشت خود را به هر جایی بکشید</string>
-    <string name="swipe_anywhere_summary">برای جابه‌جایی بین آهنگ‌ها، روی هر ناحیه خالی از صفحه در حال پخش، انگشت خود را به چپ یا راست بکشید.</string>
     <string name="swipe_up_queue_title">برای باز کردن صف، انگشت خود را به سمت بالا بکشید</string>
     <string name="swipe_up_queue_summary">برای باز کردن صف پخش، روی هر ناحیه خالی از صفحه در حال پخش به سمت بالا بکشید.</string>
     <string name="display_album_name_title">نمایش نام آلبوم</string>
     <string name="display_extra_info_title">نمایش اطلاعات اضافی</string>
     <string name="display_extra_info_summary">نمایش اطلاعات اضافی درباره آهنگ، مانند میزان بیت، فرمت، سرعت نمونه برداری و غیره.</string>
-    <string name="display_next_song_title">نمایش آهنگ بعدی</string>
-    <string name="display_next_song_summary">نمایش آهنگ بعدی در سبک های Normal و Full Cover. اگر این را غیرفعال کنید، صف پخش فقط از منوی سه نقطه پخش کننده قابل دسترسی خواهد بود.</string>
     <string name="select_extra_info_title">اطلاعات اضافی</string>
     <string name="select_extra_info_summary">اطلاعات اضافی را برای نمایش در پانل پخش انتخاب کنید.</string>
     <string name="prefer_remaining_time_title">زمان باقی مانده را ترجیح دهید</string>
@@ -763,7 +749,6 @@
     <string name="selected">انتخاب شده است</string>
     <string name="compact">فشرده</string>
     <string name="expanded">گسترش یافته است</string>
-    <string name="expressive_style">رسا</string>
     <string name="simple">ساده</string>
     <string name="add_after_playing_track">بعد از پخش آهنگ اضافه کنید</string>
     <string name="add_tracks_sequentially">آهنگ ها را به صورت متوالی اضافه کنید</string>

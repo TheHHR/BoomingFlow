@@ -210,9 +210,7 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) : Fragment(layoutRes
         gesturesController = PlayerGesturesController(
             context = view.context,
             acceptedGestures = setOf(
-                GestureType.Fling(GestureType.Fling.DIRECTION_UP),
-                GestureType.Fling(GestureType.Fling.DIRECTION_LEFT),
-                GestureType.Fling(GestureType.Fling.DIRECTION_RIGHT)
+                GestureType.Fling(GestureType.Fling.DIRECTION_UP)
             ),
             listener = this
         )
@@ -360,20 +358,6 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) : Fragment(layoutRes
             }
             is GestureType.Fling -> {
                 when (gestureType.direction) {
-                    GestureType.Fling.DIRECTION_LEFT -> {
-                        if (Preferences.isSwipeAnywhere) {
-                            playerViewModel.seekToNext()
-                            true
-                        } else false
-                    }
-
-                    GestureType.Fling.DIRECTION_RIGHT -> {
-                        if (Preferences.isSwipeAnywhere) {
-                            playerViewModel.seekToPrevious()
-                            true
-                        } else false
-                    }
-
                     GestureType.Fling.DIRECTION_UP -> {
                         if (Preferences.isSwipeUpQueue && currentDestinationAllowsQueueOpen()) {
                             findNavController().navigate(R.id.nav_queue)
@@ -691,18 +675,6 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) : Fragment(layoutRes
             NOW_PLAYING_EXTRA_INFO,
             Preferences.getDefaultNowPlayingInfo()
         ).any { it.isEnabled }
-
-    fun getNextSongInfo(nextSong: Song): String {
-        return if (nextSong != Song.emptySong) {
-            if (!nextSong.isArtistNameUnknown()) {
-                getString(R.string.next_song_x_by_artist_x, nextSong.title, nextSong.displayArtistName())
-            } else {
-                getString(R.string.next_song_x, nextSong.title)
-            }
-        } else {
-            getString(R.string.list_end)
-        }
-    }
 }
 
 fun goToArtist(activity: Activity, song: Song) {

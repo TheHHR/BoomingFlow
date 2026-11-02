@@ -161,9 +161,6 @@
     <string name="action_go_to_genre">الانتقال إلى النوع الموسيقي</string>
     <string name="added_title_to_playing_queue">تمت إضافة عنوان واحد إلى قائمة انتظار التشغيل.</string>
     <string name="added_x_titles_to_playing_queue">تمت إضافة %1$d عنوان إلى قائمة انتظار التشغيل.</string>
-    <string name="next_song_label">الأغنية التالية</string>
-    <string name="next_song_x">التالي • %1$s</string>
-    <string name="next_song_x_by_artist_x">التالي • %1$s بصوت %2$s</string>
     <string name="similar_artists">فنانون مشابهون</string>
     <string name="label_more_from_artist">المزيد من الفنان</string>
     <string name="label_more_from_x">المزيد من %s</string>
@@ -577,8 +574,6 @@
     <string name="tab_mode_title">نمط عناوين التبويبات</string>
     <string name="hold_tab_to_search_title">الضغط المطوّل على تبويب للبحث</string>
     <string name="hold_tab_to_search_summary">اضغط مطولًا على أي تبويب في شريط التنقل لفتح شاشة البحث.</string>
-    <string name="larger_header_image_title">صورة رأسية أكبر</string>
-    <string name="larger_header_image_summary">إظهار صورة غلاف أكبر في تفاصيل الألبومات والفنانين وقوائم التشغيل.</string>
     <string name="lyrics_center_current_line_title">توسيط السطر الحالي</string>
     <string name="lyrics_center_current_line_summary">إبقاء سطر الكلمات الحالي متوسِّطًا على الشاشة بدلًا من محاذاته للأعلى.</string>
     <string name="lyrics_custom_font_title">خط مخصص</string>
@@ -618,8 +613,6 @@
     <string name="treat_all_lyrics_files_as_utf8_summary">افتراض أن جميع الملفات تستخدم ترميز UTF-8. يُحسِّن هذا عملية تحليل الملفات، لكنه قد يؤدي في بعض الحالات إلى ظهور رموز غير مألوفة في كلمات الأغاني. قد يتطلب إعادة تشغيل التطبيق</string>
     <!-- Now playing preferences -->
     <string name="now_playing_screen_title">النمط</string>
-    <string name="open_on_play_title">فتح عند التشغيل</string>
-    <string name="open_on_play_summary">توسيع لوحة التشغيل الحالي تلقائيًا بعد بدء تشغيل أغنية.</string>
     <string name="squiggly_seek_bar_title">شريط تقديم متموّج</string>
     <string name="squiggly_seek_bar_summary">تفعيل شريط تقديم متموّج بدلًا من الشريط الافتراضي.</string>
     <string name="scrolling_text_title">تفعيل النص المتحرك</string>
@@ -630,7 +623,6 @@
     <string name="adaptive_controls_summary">تتغيّر أدوات التحكم في المشغل المصغّر لتلائم نمط المشغل الحالي.</string>
     <string name="swipe_to_dismiss_title">السحب لأسفل للإغلاق</string>
     <string name="swipe_to_dismiss_summary">اسحب المشغل المصغّر لأسفل لإيقاف التشغيل ومسح قائمة الانتظار.</string>
-    <string name="circle_button_title">زر تشغيل دائري</string>
     <string name="swipe_album_cover_title">السحب على غلاف الألبوم</string>
     <string name="swipe_album_cover_summary">اسحب يمينًا أو يسارًا على غلاف الألبوم للتنقل بين الأغاني.</string>
     <string name="single_tap_on_album_cover_title">ضغطة واحدة على الغلاف</string>
@@ -638,23 +630,17 @@
     <string name="double_tap_on_left_album_cover_title">ضغطة مزدوجة على الحافة اليسرى للغلاف</string>
     <string name="double_tap_on_right_album_cover_title">ضغطة مزدوجة على الحافة اليمنى للغلاف</string>
     <string name="long_press_on_album_cover_title">ضغطة مطوّلة على الغلاف</string>
-    <string name="small_image_title">صورة صغيرة</string>
-    <string name="small_image_summary">تقليل حجم الغلاف في الأنماط المدعومة.</string>
     <string name="now_playing_corner_radius_title">استدارة زوايا الصورة</string>
     <string name="now_playing_corner_radius_summary">حدِّد مدى استدارة زوايا غلاف الألبوم.</string>
     <string name="carousel_effect_title">تأثير الدوّار</string>
     <string name="album_cover_effect_title">تأثير غلاف الألبوم</string>
     <string name="animate_controls_title">تحريك أدوات التحكم</string>
     <string name="animate_controls_summary">يظهر هذا التأثير عند فتح لوحة المشغل.</string>
-    <string name="swipe_anywhere_title">السحب في أي مكان لتغيير الأغنية</string>
-    <string name="swipe_anywhere_summary">اسحب يمينًا أو يسارًا في أي منطقة فارغة من شاشة التشغيل الحالي للتنقل بين الأغاني.</string>
     <string name="swipe_up_queue_title">السحب لأعلى لفتح قائمة الانتظار</string>
     <string name="swipe_up_queue_summary">اسحب لأعلى في أي منطقة فارغة من شاشة التشغيل الحالي لفتح قائمة انتظار التشغيل.</string>
     <string name="display_album_name_title">عرض اسم الألبوم</string>
     <string name="display_extra_info_title">عرض معلومات إضافية</string>
     <string name="display_extra_info_summary">عرض معلومات إضافية عن الأغنية، مثل معدل البت والصيغة ومعدل أخذ العينات وغيرها.</string>
-    <string name="display_next_song_title">عرض الأغنية التالية</string>
-    <string name="display_next_song_summary">إظهار الأغنية التالية في نمطَي العادي والغلاف الكامل. إذا عطّلت هذا الخيار، لن يمكن الوصول إلى قائمة انتظار التشغيل إلا من قائمة النقاط الثلاث في المشغل.</string>
     <string name="select_extra_info_title">معلومات إضافية</string>
     <string name="select_extra_info_summary">اختر المعلومات الإضافية المراد عرضها في لوحة المشغل.</string>
     <string name="prefer_remaining_time_title">تفضيل الوقت المتبقي</string>
@@ -756,7 +742,6 @@
     <string name="selected">محدَّد</string>
     <string name="compact">مضغوط</string>
     <string name="expanded">موسّع</string>
-    <string name="expressive_style">تعبيري</string>
     <string name="simple">بسيط</string>
     <string name="add_after_playing_track">الإضافة بعد المقطع قيد التشغيل</string>
     <string name="add_tracks_sequentially">إضافة المقاطع بالتسلسل</string>

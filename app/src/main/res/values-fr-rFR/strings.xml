@@ -161,9 +161,6 @@
     <string name="action_go_to_genre">Aller au genre</string>
     <string name="added_title_to_playing_queue">Ajout de 1 titre à la file de lecture.</string>
     <string name="added_x_titles_to_playing_queue">Ajout de %1$d titres à la file de lecture.</string>
-    <string name="next_song_label">Titre suivant</string>
-    <string name="next_song_x">Suivant • %1$s</string>
-    <string name="next_song_x_by_artist_x">Suivant • %1$s de %2$s</string>
     <string name="similar_artists">Artistes similaires</string>
     <string name="label_more_from_artist">Plus de l\'artiste</string>
     <string name="label_more_from_x">Plus de %s</string>
@@ -552,8 +549,6 @@
     <string name="tab_mode_title">Mode de titre des onglets</string>
     <string name="hold_tab_to_search_title">Maintenez l\'onglet pour rechercher</string>
     <string name="hold_tab_to_search_summary">Appuyez longuement sur n’importe quel onglet de la barre de navigation pour ouvrir l’écran de recherche.</string>
-    <string name="larger_header_image_title">Image d\'en-tête plus grande</string>
-    <string name="larger_header_image_summary">Afficher une image de couverture plus grande dans les détails de l\'album, de l\'artiste et de la playlist.</string>
     <string name="lyrics_center_current_line_title">Centrer la ligne actuelle</string>
     <string name="lyrics_center_current_line_summary">Garder la ligne de paroles actuelle centrée sur l\'écran au lieu de l\'aligner vers le haut.</string>
     <string name="lyrics_custom_font_title">Police personnalisée</string>
@@ -589,8 +584,6 @@
     <string name="treat_all_lyrics_files_as_utf8_summary">Partons du principe que tous les fichiers utilisent l\'encodage UTF-8. Cela optimise le processus d\'analyse des fichiers, mais peut, dans certains cas, entraîner l\'apparition de caractères inhabituels dans les paroles des chansons. Un redémarrage de l\'application peut s\'avérer nécessaire.</string>
     <!-- Now playing preferences -->
     <string name="now_playing_screen_title">Style</string>
-    <string name="open_on_play_title">Ouvrir lors de la lecture</string>
-    <string name="open_on_play_summary">Développez automatiquement le panneau lecture en cours après avoir commencé à jouer une chanson.</string>
     <string name="squiggly_seek_bar_title">Barre de lecture ondulée</string>
     <string name="squiggly_seek_bar_summary">Activez une barre de lecture ondulée au lieu de la barre par défaut.</string>
     <string name="scrolling_text_title">Activer le défilement du texte</string>
@@ -601,7 +594,6 @@
     <string name="adaptive_controls_summary">Les commandes du mini-lecteur changent pour s\'adapter au style de lecteur actuel.</string>
     <string name="swipe_to_dismiss_title">Glisser vers le bas pour rejeter</string>
     <string name="swipe_to_dismiss_summary">Glissez le minilecteur vers le bas pour arrêter la lecture et effacer la file de lecture.</string>
-    <string name="circle_button_title">Bouton de lecture circulaire</string>
     <string name="swipe_album_cover_title">Glisser la couverture de l\'album</string>
     <string name="swipe_album_cover_summary">Balayez vers la gauche ou vers la droite sur la couverture de l\'album pour passer d\'un titre à l\'autre.</string>
     <string name="single_tap_on_album_cover_title">Appuyez une fois sur la couverture</string>
@@ -609,23 +601,17 @@
     <string name="double_tap_on_left_album_cover_title">Double-clic sur le bord gauche de la pochette</string>
     <string name="double_tap_on_right_album_cover_title">Double-clic sur le bord droit de la pochette</string>
     <string name="long_press_on_album_cover_title">Appui long sur la couverture</string>
-    <string name="small_image_title">Petite image</string>
-    <string name="small_image_summary">Réduis la taille de la couverture dans les styles supportés.</string>
     <string name="now_playing_corner_radius_title">Rayon des coins de l\'image</string>
     <string name="now_playing_corner_radius_summary">Définit l\'aspect arrondi des coins de la couverture de l\'album.</string>
     <string name="carousel_effect_title">Effet carrousel</string>
     <string name="album_cover_effect_title">Effet de la couverture d\'album</string>
     <string name="animate_controls_title">Animer les contrôles</string>
     <string name="animate_controls_summary">Il est joué lors de l\'ouverture du panneau du lecteur.</string>
-    <string name="swipe_anywhere_title">Balayer n\'importe où pour changer de titre</string>
-    <string name="swipe_anywhere_summary">Glissez vers la gauche ou la droite sur une zone vide de l\'écran en cours de lecture pour basculer entre les titres.</string>
     <string name="swipe_up_queue_title">Glisser vers le haut pour ouvrir la file d\'attente</string>
     <string name="swipe_up_queue_summary">Glissez vers le haut sur n\'importe quelle zone vide de l\'écran en cours de lecture pour ouvrir la file d\'attente.</string>
     <string name="display_album_name_title">Afficher le nom de l\'album</string>
     <string name="display_extra_info_title">Afficher les informations supplémentaires</string>
     <string name="display_extra_info_summary">Affichez des informations supplémentaires sur le titre, comme le débit binaire, le format, le taux d\'échantillonnage, etc.</string>
-    <string name="display_next_song_title">Afficher le titre suivant</string>
-    <string name="display_next_song_summary">Afficher le morceau suivant dans les styles « Normal » et « Intégral ». Si vous désactivez cette option, la file d\'attente de lecture ne sera accessible qu\'à partir du menu à trois points du lecteur.</string>
     <string name="select_extra_info_title">Informations supplémentaires</string>
     <string name="select_extra_info_summary">Sélectionnez les informations supplémentaires à afficher dans le panneau du lecteur.</string>
     <string name="prefer_remaining_time_title">Préférer le temps restant</string>
@@ -727,7 +713,6 @@
     <string name="selected">Sélectionnés</string>
     <string name="compact">Compacte</string>
     <string name="expanded">Étendu</string>
-    <string name="expressive_style">Expressif</string>
     <string name="simple">Simple</string>
     <string name="add_after_playing_track">Ajouter après la lecture du titre</string>
     <string name="add_tracks_sequentially">Ajouter des titres séquentiellement</string>

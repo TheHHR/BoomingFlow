@@ -161,9 +161,6 @@
     <string name="action_go_to_genre">מעבר לז\'אנר</string>
     <string name="added_title_to_playing_queue">נוסף שיר אחד לתור.</string>
     <string name="added_x_titles_to_playing_queue">נוספו %1$d שירים לתור.</string>
-    <string name="next_song_label">שיר הבא</string>
-    <string name="next_song_x">הבא • %1$s</string>
-    <string name="next_song_x_by_artist_x">הבא • %1$s על ידי %2$s</string>
     <string name="similar_artists">אומנים דומים</string>
     <string name="label_more_from_artist">עוד מהאומן</string>
     <string name="label_more_from_x">עוד מ- %s</string>
@@ -553,8 +550,6 @@
     <string name="tab_mode_title">מצב כותרות ללשוניות</string>
     <string name="hold_tab_to_search_title">החזק את הלשונית כדי לחפש</string>
     <string name="hold_tab_to_search_summary">לחץ לחיצה ארוכה על כל לשונית בסרגל הניווט כדי לפתוח את מסך החיפוש.</string>
-    <string name="larger_header_image_title">תמונת כותרת גדולה יותר</string>
-    <string name="larger_header_image_summary">הצגת תמונת עטיפה גדולה יותר בפרטי האלבום, האומן ורשימת ההשמעה.</string>
     <string name="lyrics_center_current_line_title">מרכז שורה נוכחית</string>
     <string name="lyrics_center_current_line_summary">שמור את שורת המילים הנוכחית במרכז המסך במקום להיות מיושרת לחלק העליון.</string>
     <string name="lyrics_custom_font_title">גופן מותאם אישית</string>
@@ -594,8 +589,6 @@
     <string name="treat_all_lyrics_files_as_utf8_summary">יש לצאת מנקודת הנחה שכל הקבצים משתמשים בקידוד UTF-8. קידוד זה מייעל את תהליך ניתוח הקבצים, אך במקרים מסוימים הוא עלול לגרום להופעת תווים חריגים במילות השירים. ייתכן שיהיה על היישום להיפתח מחדש</string>
     <!-- Now playing preferences -->
     <string name="now_playing_screen_title">סגנון</string>
-    <string name="open_on_play_title">פתח בעת ניגון</string>
-    <string name="open_on_play_summary">הרחב את לוח מנגן כעת באופן אוטומטי לאחר תחילת הניגון.</string>
     <string name="squiggly_seek_bar_title">פס חיפוש גלי</string>
     <string name="squiggly_seek_bar_summary">הפעל שורת חיפוש גלית במקום המחוון הרגיל.</string>
     <string name="scrolling_text_title">הפעל טקסט נגלל</string>
@@ -606,7 +599,6 @@
     <string name="adaptive_controls_summary">הפקדים בנגן המיני משתנים כדי להתאים לסגנון הנגן הנוכחי.</string>
     <string name="swipe_to_dismiss_title">החלק למטה כדי לסגור</string>
     <string name="swipe_to_dismiss_summary">החלק למטה במיני־נגן כדי לעצור את הנגינה ולנקות את רשימת ההשמעה.</string>
-    <string name="circle_button_title">כפתור ניגון עגול</string>
     <string name="swipe_album_cover_title">החלק על עטיפת האלבום</string>
     <string name="swipe_album_cover_summary">החלק שמאלה או ימינה על עטיפת האלבום כדי לדלג בין שירים.</string>
     <string name="single_tap_on_album_cover_title">הקשה אחת על העטיפה</string>
@@ -614,23 +606,17 @@
     <string name="double_tap_on_left_album_cover_title">לחיצה כפולה בקצה השמאלי של עטיפת האלבום</string>
     <string name="double_tap_on_right_album_cover_title">לחיצה כפולה בקצה הימני של עטיפת האלבום</string>
     <string name="long_press_on_album_cover_title">לחיצה ארוכה על העטיפה</string>
-    <string name="small_image_title">תמונה קטנה</string>
-    <string name="small_image_summary">מקטין את גודל העטיפה בסגנונות נתמכים.</string>
     <string name="now_playing_corner_radius_title">רדיוס פינות התמונה</string>
     <string name="now_playing_corner_radius_summary">מגדיר עד כמה פינות עטיפת האלבום יהיו מעוגלות.</string>
     <string name="carousel_effect_title">אפקט קרוסלה</string>
     <string name="album_cover_effect_title">אפקט עטיפת האלבום</string>
     <string name="animate_controls_title">אנימציית בקרות</string>
     <string name="animate_controls_summary">הוא מתנגן כאשר פותחים את לוח הניגון.</string>
-    <string name="swipe_anywhere_title">החלק בכל מקום כדי להחליף שיר</string>
-    <string name="swipe_anywhere_summary">החלק שמאלה או ימינה על אזור ריק במסך הנגינה כדי לעבור בין שירים.</string>
     <string name="swipe_up_queue_title">החלק למעלה כדי לפתוח את התור</string>
     <string name="swipe_up_queue_summary">החלק למעלה על אזור ריק במסך הנגינה כדי לפתוח את רשימת ההשמעה.</string>
     <string name="display_album_name_title">הצג את שם האלבום</string>
     <string name="display_extra_info_title">הצג מידע נוסף</string>
     <string name="display_extra_info_summary">הצג מידע נוסף על השיר, כגון קצב סיביות, פורמט, קצב דגימה ועוד.</string>
-    <string name="display_next_song_title">הצג את השיר הבא</string>
-    <string name="display_next_song_summary">הצג את השיר הבא בתור בתחתית הנגן.</string>
     <string name="select_extra_info_title">מידע נוסף</string>
     <string name="select_extra_info_summary">בחר את המידע הנוסף להצגה בלוח הניגון.</string>
     <string name="prefer_remaining_time_title">העדף זמן נותר</string>
@@ -732,7 +718,6 @@
     <string name="selected">נבחר</string>
     <string name="compact">קומפקטי</string>
     <string name="expanded">מורחב</string>
-    <string name="expressive_style">ביטוי</string>
     <string name="simple">פשוט</string>
     <string name="add_after_playing_track">הוסף לאחר השיר המנוגן</string>
     <string name="add_tracks_sequentially">הוסף שירים ברצף</string>

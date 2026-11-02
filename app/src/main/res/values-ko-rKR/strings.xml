@@ -161,9 +161,6 @@
     <string name="action_go_to_genre">장르로 이동</string>
     <string name="added_title_to_playing_queue">재생 대기열에 1곡을 추가했습니다.</string>
     <string name="added_x_titles_to_playing_queue">재생 대기열에 %1$d곡을 추가했습니다.</string>
-    <string name="next_song_label">다음 곡</string>
-    <string name="next_song_x">다음 • %1$s</string>
-    <string name="next_song_x_by_artist_x">다음 • %2$s의 %1$s</string>
     <string name="similar_artists">유사한 아티스트</string>
     <string name="label_more_from_artist">아티스트의 다른 곡</string>
     <string name="label_more_from_x">%s의 더 많은 항목</string>
@@ -537,8 +534,6 @@
     <string name="tab_mode_title">탭 제목 모드</string>
     <string name="hold_tab_to_search_title">탭 길게 눌러 검색</string>
     <string name="hold_tab_to_search_summary">네비게이션 바 탭을 길게 눌러 검색 화면을 엽니다.</string>
-    <string name="larger_header_image_title">큰 헤더 이미지</string>
-    <string name="larger_header_image_summary">상세 화면에서 더 큰 커버 이미지를 표시합니다.</string>
     <string name="lyrics_center_current_line_title">현재 줄 중앙 정렬</string>
     <string name="lyrics_center_current_line_summary">현재 가사 줄을 화면 중앙에 유지합니다.</string>
     <string name="lyrics_custom_font_title">사용자 정의 글꼴</string>
@@ -578,8 +573,6 @@
     <string name="treat_all_lyrics_files_as_utf8_summary">모든 파일이 UTF-8 인코딩을 사용한다고 가정합니다. 이렇게 하면 파일 구문 분석 프로세스가 최적화되지만, 경우에 따라 노래 가사에 특수 문자가 나타날 수 있습니다. 이 경우 앱을 다시 시작해야 할 수도 있습니다</string>
     <!-- Now playing preferences -->
     <string name="now_playing_screen_title">스타일</string>
-    <string name="open_on_play_title">재생 시 열기</string>
-    <string name="open_on_play_summary">재생 시작 시 재생 화면을 자동으로 확장합니다.</string>
     <string name="squiggly_seek_bar_title">물결무늬 탐색바</string>
     <string name="squiggly_seek_bar_summary">슬라이더 대신 물결 모양의 탐색바를 사용합니다.</string>
     <string name="scrolling_text_title">텍스트 스크롤 활성화</string>
@@ -590,7 +583,6 @@
     <string name="adaptive_controls_summary">플레이어 스타일에 맞춰 컨트롤 디자인이 변경됩니다.</string>
     <string name="swipe_to_dismiss_title">아래로 밀어서 닫기</string>
     <string name="swipe_to_dismiss_summary">미니 플레이어를 아래로 밀어 재생을 중지하고 대기열을 비웁니다.</string>
-    <string name="circle_button_title">원형 재생 버튼</string>
     <string name="swipe_album_cover_title">앨범 커버 스와이프</string>
     <string name="swipe_album_cover_summary">앨범 커버를 좌우로 밀어 곡을 변경합니다.</string>
     <string name="single_tap_on_album_cover_title">커버 한 번 탭</string>
@@ -598,23 +590,17 @@
     <string name="double_tap_on_left_album_cover_title">커버 왼쪽 가장자리 두 번 탭</string>
     <string name="double_tap_on_right_album_cover_title">커버 오른쪽 가장자리 두 번 탭</string>
     <string name="long_press_on_album_cover_title">커버 길게 누르기</string>
-    <string name="small_image_title">작은 이미지</string>
-    <string name="small_image_summary">지원되는 스타일에서 커버 크기를 줄입니다.</string>
     <string name="now_playing_corner_radius_title">이미지 모서리 반경</string>
     <string name="now_playing_corner_radius_summary">앨범 아트의 모서리가 얼마나 둥글게 보일지 정의합니다.</string>
     <string name="carousel_effect_title">카루셀 효과</string>
     <string name="album_cover_effect_title">앨범 커버 효과</string>
     <string name="animate_controls_title">컨트롤 애니메이션</string>
     <string name="animate_controls_summary">플레이어 패널을 열 때 재생됩니다.</string>
-    <string name="swipe_anywhere_title">어디서나 스와이프하여 곡 변경</string>
-    <string name="swipe_anywhere_summary">재생 화면의 빈 공간을 좌우로 밀어 곡을 변경합니다.</string>
     <string name="swipe_up_queue_title">위로 밀어 대기열 열기</string>
     <string name="swipe_up_queue_summary">빈 공간을 위로 밀어 대기열을 엽니다.</string>
     <string name="display_album_name_title">앨범 이름 표시</string>
     <string name="display_extra_info_title">추가 정보 표시</string>
     <string name="display_extra_info_summary">비트레이트, 형식, 샘플링 속도 등의 정보를 표시합니다.</string>
-    <string name="display_next_song_title">다음 곡 표시</string>
-    <string name="display_next_song_summary">플레이어 하단에 다음에 재생될 곡을 표시합니다.</string>
     <string name="select_extra_info_title">추가 정보 선택</string>
     <string name="select_extra_info_summary">표시할 추가 정보를 선택합니다.</string>
     <string name="prefer_remaining_time_title">남은 시간 표시 선호</string>
@@ -716,7 +702,6 @@
     <string name="selected">선택됨</string>
     <string name="compact">콤팩트</string>
     <string name="expanded">확장형</string>
-    <string name="expressive_style">익스프레시브</string>
     <string name="simple">심플</string>
     <string name="add_after_playing_track">현재 트랙 뒤에 추가</string>
     <string name="add_tracks_sequentially">순차적으로 추가</string>

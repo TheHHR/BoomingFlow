@@ -160,9 +160,6 @@
     <string name="action_go_to_genre">و ژانر ریوین</string>
     <string name="added_title_to_playing_queue">1 عونوان و سف پشک ٱوورده وابی.</string>
     <string name="added_x_titles_to_playing_queue">عونوانا %1$d ن و سف پشک ٱوورد.</string>
-    <string name="next_song_label">آرنگ نیایی</string>
-    <string name="next_song_x">نیایی • %1$s</string>
-    <string name="next_song_x_by_artist_x">نیایی • %1$s و دست %2$s</string>
     <string name="similar_artists">هونرمندووݩ جۊر یک</string>
     <string name="label_more_from_artist">قلوه ز هونرمند</string>
     <string name="label_more_from_x">مووردا قلوه ز %s</string>
