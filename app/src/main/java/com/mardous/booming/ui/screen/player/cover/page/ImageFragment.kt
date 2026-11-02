@@ -19,7 +19,6 @@ import com.google.android.material.imageview.ShapeableImageView
 import com.mardous.booming.R
 import com.mardous.booming.coil.songImage
 import com.mardous.booming.core.model.PaletteColor
-import com.mardous.booming.core.model.theme.NowPlayingScreen
 import com.mardous.booming.core.palette.PaletteProcessor
 import com.mardous.booming.data.model.Song
 import com.mardous.booming.extensions.EXTRA_SONG
@@ -43,16 +42,11 @@ class ImageFragment : Fragment() {
     private var disposable: Disposable? = null
     private var albumCover: ImageView? = null
 
-    private val nowPlayingScreen: NowPlayingScreen
-        get() = Preferences.nowPlayingScreen
-
     private fun getLayoutWithPlayerTheme(): Int {
-        if (nowPlayingScreen.supportsCarouselEffect) {
-            if (Preferences.isCarouselEffect) {
-                return R.layout.fragment_album_cover_carousel
-            }
+        if (Preferences.isCarouselEffect) {
+            return R.layout.fragment_album_cover_carousel
         }
-        return nowPlayingScreen.albumCoverLayoutRes
+        return R.layout.fragment_album_cover_m3
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -78,9 +72,6 @@ class ImageFragment : Fragment() {
     }
 
     private fun setupImageStyle() {
-        if (!nowPlayingScreen.supportsCustomCornerRadius)
-            return
-
         val cornerRadius = Preferences.getNowPlayingImageCornerRadius(requireContext())
         when (val image = albumCover) {
             is ShapeableImageView -> image.setCornerRadius(cornerRadius.toFloat())
@@ -92,7 +83,7 @@ class ImageFragment : Fragment() {
             }
         }
 
-        if (nowPlayingScreen.supportsSmallImage && Preferences.isSmallImage) {
+        if (Preferences.isSmallImage) {
             val carouselCard = requestView { it.findViewById<View>(R.id.player_image_card) }
             if (carouselCard == null) {
                 albumCover?.let { image ->

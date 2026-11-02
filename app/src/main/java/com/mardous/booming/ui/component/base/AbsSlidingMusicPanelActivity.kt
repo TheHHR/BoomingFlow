@@ -34,7 +34,6 @@ import android.view.GestureDetector
 import android.view.GestureDetector.SimpleOnGestureListener
 import android.view.MotionEvent
 import android.view.View
-import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.widget.FrameLayout
 import androidx.activity.OnBackPressedCallback
@@ -68,7 +67,6 @@ import com.mardous.booming.core.PlayerAccentState
 import com.mardous.booming.core.model.CategoryInfo
 import com.mardous.booming.core.model.LibraryMargin
 import com.mardous.booming.core.model.action.QueueClearingBehavior
-import com.mardous.booming.core.model.theme.NowPlayingScreen
 import com.mardous.booming.data.model.search.SearchQuery
 import com.mardous.booming.databinding.SlidingMusicPanelLayoutBinding
 import com.mardous.booming.extensions.EXTRA_IS_PERMISSION_REQUEST
@@ -94,7 +92,6 @@ import com.mardous.booming.core.palette.PaletteProcessor
 import com.mardous.booming.data.model.Song
 import com.mardous.booming.extensions.launchAndRepeatWithViewLifecycle
 import com.mardous.booming.extensions.resolveColor
-import com.mardous.booming.extensions.resources.darkenColor
 import com.mardous.booming.extensions.resources.hide
 import com.mardous.booming.extensions.resources.isColorLight
 import com.mardous.booming.extensions.resources.peekHeightAnimate
@@ -107,13 +104,7 @@ import com.mardous.booming.ui.screen.lyrics.LyricsViewModel
 import com.mardous.booming.ui.screen.onboard.OnboardActivity
 import com.mardous.booming.ui.screen.other.MiniPlayerFragment
 import com.mardous.booming.ui.screen.player.PlayerViewModel
-import com.mardous.booming.ui.screen.player.styles.defaultstyle.DefaultPlayerFragment
 import com.mardous.booming.ui.screen.player.styles.expressivestyle.ExpressivePlayerFragment
-import com.mardous.booming.ui.screen.player.styles.fullcoverstyle.FullCoverPlayerFragment
-import com.mardous.booming.ui.screen.player.styles.gradientstyle.GradientPlayerFragment
-import com.mardous.booming.ui.screen.player.styles.m3style.M3PlayerFragment
-import com.mardous.booming.ui.screen.player.styles.peekplayerstyle.PeekPlayerFragment
-import com.mardous.booming.ui.screen.player.styles.plainstyle.PlainPlayerFragment
 import com.mardous.booming.util.ADAPTIVE_CONTROLS
 import com.mardous.booming.util.ADD_EXTRA_CONTROLS
 import com.mardous.booming.util.CAROUSEL_EFFECT
@@ -122,7 +113,6 @@ import com.mardous.booming.util.ENABLE_ROTATION_LOCK
 import com.mardous.booming.util.HOLD_TAB_TO_SEARCH
 import com.mardous.booming.util.LIBRARY_CATEGORIES
 import com.mardous.booming.util.NOW_PLAYING_IMAGE_CORNER_RADIUS
-import com.mardous.booming.util.NOW_PLAYING_SCREEN
 import com.mardous.booming.util.NOW_PLAYING_SMALL_IMAGE
 import com.mardous.booming.util.PLAYER_BLUR_RADIUS
 import com.mardous.booming.util.Preferences
@@ -147,7 +137,6 @@ abstract class AbsSlidingMusicPanelActivity : AbsBaseActivity(),
     protected val lyricsViewModel: LyricsViewModel by viewModel()
 
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<FrameLayout>
-    private lateinit var nowPlayingScreen: NowPlayingScreen
 
     private var miniPlayerFragment: MiniPlayerFragment? = null
     private var windowInsets: WindowInsetsCompat? = null
@@ -443,11 +432,6 @@ abstract class AbsSlidingMusicPanelActivity : AbsBaseActivity(),
             ViewTreeObserver.OnGlobalLayoutListener {
             override fun onGlobalLayout() {
                 binding.sheetView.viewTreeObserver.removeOnGlobalLayoutListener(this)
-                if (nowPlayingScreen == NowPlayingScreen.Peek) {
-                    slidingPanel.updateLayoutParams<ViewGroup.LayoutParams> {
-                        height = ViewGroup.LayoutParams.WRAP_CONTENT
-                    }
-                }
                 when (panelState) {
                     STATE_EXPANDED -> onPanelExpanded()
                     STATE_COLLAPSED -> onPanelCollapsed()
@@ -674,25 +658,8 @@ abstract class AbsSlidingMusicPanelActivity : AbsBaseActivity(),
     private fun onPaletteColorChanged() {
         if (panelState == STATE_EXPANDED) {
             val isColorLight = paletteColor.isColorLight
-            when (nowPlayingScreen) {
-                NowPlayingScreen.Default,
-                NowPlayingScreen.Plain,
-                NowPlayingScreen.Peek,
-                NowPlayingScreen.M3,
-                NowPlayingScreen.Expressive -> {
-                    setLightStatusBar(isColorLight)
-                    setLightNavigationBar(isColorLight)
-                }
-                NowPlayingScreen.FullCover -> {
-                    setLightNavigationBar(isColorLight)
-                    setLightStatusBar(false)
-                }
-                NowPlayingScreen.Gradient -> {
-                    val navigationbarColor = paletteColor.darkenColor
-                    setLightNavigationBar(navigationbarColor.isColorLight)
-                    setLightStatusBar(isColorLight)
-                }
-            }
+            setLightStatusBar(isColorLight)
+            setLightNavigationBar(isColorLight)
         }
     }
 
@@ -715,17 +682,6 @@ abstract class AbsSlidingMusicPanelActivity : AbsBaseActivity(),
                 }
             }
             LIBRARY_CATEGORIES -> updateTabs()
-            NOW_PLAYING_SCREEN -> {
-                chooseFragmentForTheme()
-                slidingPanel.updateLayoutParams<ViewGroup.LayoutParams> {
-                    height = if (nowPlayingScreen != NowPlayingScreen.Peek) {
-                        ViewGroup.LayoutParams.MATCH_PARENT
-                    } else {
-                        ViewGroup.LayoutParams.WRAP_CONTENT
-                    }
-                }
-                miniPlayerFragment?.setupButtonStyle()
-            }
 
             ADAPTIVE_CONTROLS -> miniPlayerFragment?.setupButtonStyle()
             ADD_EXTRA_CONTROLS -> miniPlayerFragment?.setupExtraControls()
@@ -774,17 +730,7 @@ abstract class AbsSlidingMusicPanelActivity : AbsBaseActivity(),
     }
 
     private fun chooseFragmentForTheme() {
-        nowPlayingScreen = Preferences.nowPlayingScreen
-
-        val fragment: AbsPlayerFragment = when (nowPlayingScreen) {
-            NowPlayingScreen.FullCover -> FullCoverPlayerFragment()
-            NowPlayingScreen.Gradient -> GradientPlayerFragment()
-            NowPlayingScreen.Peek -> PeekPlayerFragment()
-            NowPlayingScreen.Plain -> PlainPlayerFragment()
-            NowPlayingScreen.M3 -> M3PlayerFragment()
-            NowPlayingScreen.Expressive -> ExpressivePlayerFragment()
-            else -> DefaultPlayerFragment()
-        }
+        val fragment: AbsPlayerFragment = ExpressivePlayerFragment()
 
         supportFragmentManager.commit {
             replace(R.id.player_container, fragment)

@@ -39,7 +39,6 @@ import androidx.navigation.NavDestination
 import androidx.viewpager.widget.ViewPager
 import com.mardous.booming.R
 import com.mardous.booming.core.model.PaletteColor
-import com.mardous.booming.core.model.theme.NowPlayingScreen
 import com.mardous.booming.data.model.Song
 import com.mardous.booming.databinding.FragmentPlayerAlbumCoverBinding
 import com.mardous.booming.extensions.isLandscape
@@ -55,6 +54,7 @@ import com.mardous.booming.ui.screen.player.PlayerGesturesController.GestureType
 import com.mardous.booming.ui.screen.player.PlayerViewModel
 import com.mardous.booming.ui.screen.player.cover.page.ImageFragment
 import com.mardous.booming.ui.screen.player.cover.page.ImageFragment.ColorReceiver
+import com.mardous.booming.util.PLAYER_COLOR_SCHEME
 import com.mardous.booming.util.Preferences
 import com.mardous.booming.util.SWIPE_ON_COVER
 import kotlinx.coroutines.FlowPreview
@@ -76,9 +76,6 @@ class CoverPagerFragment : Fragment(R.layout.fragment_player_album_cover),
 
     private var navController: NavController? = null
     private var coverLyricsFragment: CoverLyricsFragment? = null
-    private val nps: NowPlayingScreen by lazy {
-        Preferences.nowPlayingScreen
-    }
 
     private var isAnimatingLyrics: Boolean = false
     private val isLyricsViewVisible: Boolean
@@ -88,7 +85,7 @@ class CoverPagerFragment : Fragment(R.layout.fragment_player_album_cover),
         set(value) { Preferences.showLyricsOnCover = value }
 
     val isAllowedToLoadLyrics: Boolean
-        get() = nps.supportsCoverLyrics
+        get() = true
 
     private var callbacks: Callbacks? = null
 
@@ -130,7 +127,7 @@ class CoverPagerFragment : Fragment(R.layout.fragment_player_album_cover),
     }
 
     private fun applyCurrentTransition() {
-        if (nps.supportsCarouselEffect && Preferences.isCarouselEffect && !resources.isLandscape) {
+        if (Preferences.isCarouselEffect && !resources.isLandscape) {
             val metrics = resources.displayMetrics
             val ratio = metrics.heightPixels.toFloat() / metrics.widthPixels.toFloat()
             val padding = if (ratio >= 1.777f) 40 else 100
@@ -139,11 +136,6 @@ class CoverPagerFragment : Fragment(R.layout.fragment_player_album_cover),
             viewPager.pageMargin = 0
             viewPager.offscreenPageLimit = 1 // Only adjacent pages are visible in carousel
             viewPager.setPageTransformer(false, CarouselPagerTransformer(requireContext()))
-        } else {
-            val (transformer, reverse) = Preferences.getNowPlayingTransition(nps)
-                .transformerFactory(R.id.player_image)
-            viewPager.offscreenPageLimit = 2 // Parallax and other transitions need more pages
-            viewPager.setPageTransformer(reverse, transformer)
         }
     }
 
@@ -233,16 +225,10 @@ class CoverPagerFragment : Fragment(R.layout.fragment_player_album_cover),
     }
 
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String?) {
-        if (Preferences.getNowPlayingColorSchemeKey(nps) == key) {
+        if (PLAYER_COLOR_SCHEME == key) {
             requestColor(currentPosition)
-        } else when (key) {
-            SWIPE_ON_COVER -> {
-                viewPager.setAllowSwiping(Preferences.swipeOnCover)
-            }
-
-            Preferences.getNowPlayingTransitionKey(nps) -> {
-                applyCurrentTransition()
-            }
+        } else if (SWIPE_ON_COVER == key) {
+            viewPager.setAllowSwiping(Preferences.swipeOnCover)
         }
     }
 

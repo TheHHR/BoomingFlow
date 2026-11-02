@@ -21,7 +21,6 @@ import com.mardous.booming.core.model.player.PlayerColorSchemeMode
 import com.mardous.booming.core.model.player.PlayerTintTarget
 import com.mardous.booming.core.model.player.surfaceTintTarget
 import com.mardous.booming.core.model.player.tintTarget
-import com.mardous.booming.core.model.theme.NowPlayingScreen
 import com.mardous.booming.databinding.FragmentExpressivePlayerBinding
 import com.mardous.booming.extensions.getOnBackPressedDispatcher
 import com.mardous.booming.extensions.isLandscape
@@ -51,7 +50,7 @@ class ExpressivePlayerFragment : AbsPlayerFragment(R.layout.fragment_expressive_
         get() = binding.blur
 
     override val colorSchemeMode: PlayerColorSchemeMode
-        get() = Preferences.getNowPlayingColorSchemeMode(NowPlayingScreen.Expressive)
+        get() = Preferences.nowPlayingColorSchemeMode
 
     private var popupMenu: PopupMenu? = null
     private var isFavorite = false

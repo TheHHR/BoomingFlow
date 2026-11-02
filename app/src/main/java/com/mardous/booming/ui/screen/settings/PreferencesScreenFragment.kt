@@ -65,7 +65,7 @@ import com.mardous.booming.ui.component.preferences.dialog.MergedArtistsPreferen
 import com.mardous.booming.ui.component.preferences.dialog.ClearQueueActionPreferenceDialog
 import com.mardous.booming.ui.component.preferences.dialog.ExtraInfoPreferenceDialog
 import com.mardous.booming.ui.component.preferences.dialog.LanguageSelectionDialog
-import com.mardous.booming.ui.component.preferences.dialog.NowPlayingScreenPreferenceDialog
+import com.mardous.booming.ui.component.preferences.dialog.PlayerColorSchemeDialog
 import com.mardous.booming.ui.component.preferences.dialog.SingleSelectionDialog
 import com.mardous.booming.ui.component.preferences.dialog.SongClickActionPreferenceDialog
 import com.mardous.booming.ui.dialogs.library.BlacklistWhitelistDialog
@@ -468,7 +468,7 @@ open class PreferenceScreenFragment : PreferenceFragmentCompat(),
             }
         }
 
-        onUpdateNowPlayingScreen()
+        onUpdateNowPlayingBackground()
         onUpdateCoverActions()
         onUpdateLyricsPreferences()
         onUpdateQueuePreferences()
@@ -532,7 +532,7 @@ open class PreferenceScreenFragment : PreferenceFragmentCompat(),
         } else {
             val dialogFragment: DialogFragment? = when (preference.key) {
                 LIBRARY_CATEGORIES -> CategoriesPreferenceDialog()
-                NOW_PLAYING_SCREEN -> NowPlayingScreenPreferenceDialog()
+                NOW_PLAYING_SCREEN -> PlayerColorSchemeDialog()
                 NOW_PLAYING_EXTRA_INFO -> ExtraInfoPreferenceDialog.nowPlaying()
                 ON_SONG_CLICK_ACTION -> SongClickActionPreferenceDialog()
                 ON_CLEAR_QUEUE_ACTION -> ClearQueueActionPreferenceDialog()
@@ -579,7 +579,7 @@ open class PreferenceScreenFragment : PreferenceFragmentCompat(),
                 findPreference<ThemePreference>(GENERAL_THEME)?.syncRow()
                 updateBlackThemeAvailability()
             }
-            NOW_PLAYING_SCREEN -> onUpdateNowPlayingScreen()
+            NOW_PLAYING_SCREEN -> onUpdateNowPlayingBackground()
             COVER_DOUBLE_TAP_ACTION,
             COVER_LEFT_DOUBLE_TAP_ACTION,
             COVER_RIGHT_DOUBLE_TAP_ACTION,
@@ -597,9 +597,9 @@ open class PreferenceScreenFragment : PreferenceFragmentCompat(),
             Preferences.storedGeneralTheme == GeneralTheme.DARK
     }
 
-    private fun onUpdateNowPlayingScreen() {
+    private fun onUpdateNowPlayingBackground() {
         findPreference<Preference>(NOW_PLAYING_SCREEN)?.summary =
-            getString(Preferences.nowPlayingScreen.titleRes)
+            getString(Preferences.nowPlayingColorSchemeMode.titleRes)
     }
 
     private fun onUpdateCoverActions() {

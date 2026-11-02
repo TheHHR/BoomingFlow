@@ -64,7 +64,7 @@ class MiniPlayerFragment : Fragment(R.layout.fragment_mini_player),
 
     private val buttonStyle: NowPlayingButtonStyle
         get() = if (Preferences.adaptiveControls) {
-            Preferences.nowPlayingScreen.buttonStyle
+            NowPlayingButtonStyle.Expressive
         } else {
             NowPlayingButtonStyle.Normal
         }

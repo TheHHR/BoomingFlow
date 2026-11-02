@@ -33,10 +33,8 @@ import com.mardous.booming.core.model.action.QueueClearingBehavior
 import com.mardous.booming.core.model.action.SongClickBehavior
 import com.mardous.booming.core.model.player.MetadataField
 import com.mardous.booming.core.model.player.PlayerColorSchemeMode
-import com.mardous.booming.core.model.player.PlayerTransition
 import com.mardous.booming.core.model.shuffle.GroupShuffleMode
 import com.mardous.booming.core.model.theme.AppTheme
-import com.mardous.booming.core.model.theme.NowPlayingScreen
 import com.mardous.booming.extensions.files.getCanonicalPathSafe
 import com.mardous.booming.extensions.hasQ
 import com.mardous.booming.extensions.intRes
@@ -368,9 +366,28 @@ object Preferences : KoinComponent {
         get() = preferences.getBoolean(COMPACT_ARTIST_SONG_VIEW, false)
         set(value) = preferences.edit { putBoolean(COMPACT_ARTIST_SONG_VIEW, value) }
 
-    var nowPlayingScreen: NowPlayingScreen
-        get() = preferences.enumValue(NOW_PLAYING_SCREEN, NowPlayingScreen.Default)
-        set(value) = preferences.edit { putString(NOW_PLAYING_SCREEN, value.name) }
+    val nowPlayingColorSchemeMode: PlayerColorSchemeMode
+        get() {
+            // Migrate the old per-style key ("player_expressive_color_scheme")
+            // to the single key on first read.
+            val legacy = preferences.nullString(LEGACY_COLOR_SCHEME_KEY)
+            val schemeName = preferences.nullString(PLAYER_COLOR_SCHEME)
+                ?: legacy
+                ?: PlayerColorSchemeMode.Blur.name
+            val mode = schemeName.toEnum<PlayerColorSchemeMode>()
+            return mode ?: PlayerColorSchemeMode.Blur
+        }
+
+    fun setNowPlayingColorSchemeMode(schemeMode: PlayerColorSchemeMode) {
+        when (schemeMode) {
+            PlayerColorSchemeMode.AppTheme,
+            PlayerColorSchemeMode.MaterialYou,
+            PlayerColorSchemeMode.Blur -> preferences.edit {
+                putString(PLAYER_COLOR_SCHEME, schemeMode.name)
+                putString(LEGACY_COLOR_SCHEME_KEY, schemeMode.name)
+            }
+        }
+    }
 
     val extraControls: Boolean
         get() = preferences.getBoolean(ADD_EXTRA_CONTROLS, false)
@@ -397,28 +414,6 @@ object Preferences : KoinComponent {
     val miniPlayerSwipeToSkip: Boolean
         get() = preferences.getBoolean(MINI_PLAYER_SWIPE_TO_SKIP, true)
 
-    fun getNowPlayingColorSchemeKey(nps: NowPlayingScreen) =
-        "player_${nps.name.lowercase()}_color_scheme"
-
-    fun getNowPlayingColorSchemeMode(nps: NowPlayingScreen): PlayerColorSchemeMode {
-        val defaultScheme = nps.defaultColorScheme
-        val schemeName = preferences.nullString(getNowPlayingColorSchemeKey(nps))
-            ?: defaultScheme.name
-        if (nps.supportedColorSchemes.any { it.name == schemeName }) {
-            return schemeName.toEnum<PlayerColorSchemeMode>() ?: defaultScheme
-        }
-        return defaultScheme
-    }
-
-    fun setNowPlayingColorSchemeMode(nps: NowPlayingScreen, schemeMode: PlayerColorSchemeMode) {
-        val schemeName = schemeMode.name
-        if (nps.supportedColorSchemes.any { it.name == schemeName }) {
-            preferences.edit {
-                putString(getNowPlayingColorSchemeKey(nps), schemeName)
-            }
-        }
-    }
-
     val isSmallImage: Boolean
         get() = preferences.getBoolean(NOW_PLAYING_SMALL_IMAGE, false)
 
@@ -427,27 +422,6 @@ object Preferences : KoinComponent {
 
     val isCarouselEffect: Boolean
         get() = preferences.getBoolean(CAROUSEL_EFFECT, false)
-
-    fun getNowPlayingTransitionKey(nps: NowPlayingScreen) =
-        "player_${nps.name.lowercase()}_transition"
-
-    fun getNowPlayingTransition(nps: NowPlayingScreen): PlayerTransition {
-        val defaultTransition = nps.defaultTransition
-        val transitionName = preferences.nullString(getNowPlayingTransitionKey(nps))
-            ?: defaultTransition.name
-        if (nps.supportedTransitions.any { it.name == transitionName }) {
-            return transitionName.toEnum<PlayerTransition>() ?: defaultTransition
-        }
-        return defaultTransition
-    }
-
-    fun setNowPlayingTransition(nps: NowPlayingScreen, transition: PlayerTransition) {
-        if (nps.supportedTransitions.contains(transition)) {
-            preferences.edit {
-                putString(getNowPlayingTransitionKey(nps), transition.name)
-            }
-        }
-    }
 
     val coverSingleTapAction: NowPlayingAction
         get() = preferences.enumValue(COVER_SINGLE_TAP_ACTION, NowPlayingAction.TogglePlayState)
@@ -742,6 +716,8 @@ const val HORIZONTAL_ARTIST_ALBUMS = "horizontal_artist_albums"
 const val COMPACT_ALBUM_SONG_VIEW = "compact_album_song_view"
 const val COMPACT_ARTIST_SONG_VIEW = "compact_artist_song_view"
 const val NOW_PLAYING_SCREEN = "now_playing_screen"
+const val PLAYER_COLOR_SCHEME = "player_color_scheme"
+const val LEGACY_COLOR_SCHEME_KEY = "player_expressive_color_scheme"
 const val OPEN_ON_PLAY = "open_on_play"
 const val ADD_EXTRA_CONTROLS = "add_extra_controls"
 const val ADAPTIVE_CONTROLS = "adaptive_controls"

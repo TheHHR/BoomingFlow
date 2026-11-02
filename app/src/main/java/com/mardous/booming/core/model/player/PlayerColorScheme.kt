@@ -22,7 +22,6 @@ import android.graphics.Color
 import androidx.annotation.ColorInt
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Immutable
-import androidx.core.graphics.ColorUtils
 import androidx.preference.PreferenceManager
 import com.google.android.material.color.DynamicColors
 import com.kyant.m3color.hct.Hct
@@ -32,10 +31,6 @@ import com.mardous.booming.R
 import com.mardous.booming.core.model.PaletteColor
 import com.mardous.booming.extensions.isNightMode
 import com.mardous.booming.extensions.resolveColor
-import com.mardous.booming.extensions.resources.adjustSaturationIfTooHigh
-import com.mardous.booming.extensions.resources.boostSaturation
-import com.mardous.booming.extensions.resources.desaturateIfTooDarkComparedTo
-import com.mardous.booming.extensions.resources.ensureContrastAgainst
 import com.mardous.booming.extensions.resources.onSurfaceColor
 import com.mardous.booming.extensions.resources.primaryColor
 import com.mardous.booming.extensions.resources.surfaceColor
@@ -93,14 +88,6 @@ data class PlayerColorScheme(
             R.string.player_color_mode_app_theme_title,
             R.string.player_color_mode_app_theme_description
         ),
-        SimpleColor(
-            R.string.player_color_mode_simple_color_title,
-            R.string.player_color_mode_simple_color_description
-        ),
-        VibrantColor(
-            R.string.player_color_mode_vibrant_color_title,
-            R.string.player_color_mode_vibrant_color_description
-        ),
         MaterialYou(
             R.string.player_color_mode_material_you_title,
             R.string.player_color_mode_material_you_description,
@@ -147,7 +134,7 @@ data class PlayerColorScheme(
 
         companion object {
         val Unspecified = PlayerColorScheme(
-            mode = Mode.SimpleColor,
+            mode = Mode.AppTheme,
             appThemeToken = AppThemeToken.None,
             blurToken = BlurToken.None,
             surfaceColor = Color.TRANSPARENT,
@@ -234,48 +221,6 @@ data class PlayerColorScheme(
          * @param color A [PaletteColor] with extracted media colors.
          * @return A raw [PlayerColorScheme] using unmodified colors.
          */
-        private fun simpleColorScheme(context: Context, color: PaletteColor): PlayerColorScheme {
-            val themeColorScheme = themeColorScheme(context)
-            val backgroundColor = themeColorScheme.surfaceColor
-            // Use the boosted accent (not the text swatch) and ensure it has
-            // enough saturation to read as an accent on the theme background.
-            val emphasisColor = color.primaryColor
-                .ensureContrastAgainst(backgroundColor, 3.0)
-                .boostSaturation(0.50f)
-            return themeColorScheme.copy(mode = Mode.SimpleColor, primaryColor = emphasisColor)
-        }
-
-        /**
-         * Creates a color scheme using the raw colors extracted from media (album art, etc).
-         *
-         * @param color A [PaletteColor] with extracted media colors.
-         * @return A raw [PlayerColorScheme] using unmodified colors.
-         */
-        private fun vibrantColorScheme(color: PaletteColor): PlayerColorScheme {
-            return PlayerColorScheme(
-                mode = Mode.VibrantColor,
-                appThemeToken = AppThemeToken.None,
-                blurToken = BlurToken.None,
-                surfaceColor = color.backgroundColor,
-                surfaceContainerColor = ColorUtils.blendARGB(color.backgroundColor, color.primaryTextColor, 0.7f),
-                primaryColor = color.primaryColor,
-                secondaryContainerColor = ColorUtils.blendARGB(color.backgroundColor, color.secondaryTextColor, 0.4f),
-                onSurfaceColor = color.primaryTextColor,
-                onSurfaceVariantColor = color.secondaryTextColor.withAlpha(0.6f)
-            )
-        }
-
-        /**
-         * Generates a [PlayerColorScheme] using the m3color library (Monet). This allows us
-         * to generate Material You-based colors for all devices, without directly relying
-         * on Android 12 APIs.
-         *
-         * This method applies dynamic theming based on a `seedColor`.
-         *
-         * @param baseContext The context for theme resolution.
-         * @param seedColor The base color used to derive a dynamic palette.
-         * @return A [PlayerColorScheme] based on the system's dynamic color generation.
-         */
         private suspend fun dynamicColorScheme(
             baseContext: Context,
             seedColor: Int
@@ -326,8 +271,6 @@ data class PlayerColorScheme(
         ): PlayerColorScheme {
             val colorScheme = when (mode) {
                 Mode.AppTheme -> appThemeFollowColorScheme(context, color)
-                Mode.SimpleColor -> simpleColorScheme(context, color)
-                Mode.VibrantColor -> vibrantColorScheme(color)
                 Mode.MaterialYou -> dynamicColorScheme(context, color.primaryColor)
                 Mode.Blur -> blurColorScheme(context, color)
             }

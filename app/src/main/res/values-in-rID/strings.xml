@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="action_play">Putar</string>
     <string name="action_play_all">Putar semua</string>
@@ -22,7 +22,7 @@
     <string name="import_action">Impor</string>
     <string name="create_action">Buat</string>
     <string name="search_label">Cari</string>
-    <string name="search_hint">Cari di perpustakaan Anda…</string>
+    <string name="search_hint">Cari di perpustakaan Andaâ€¦</string>
     <string name="action_voice_search">Pencarian suara</string>
     <string name="speech_not_supported">Perangkat Anda tidak mendukung input suara</string>
     <string name="search_artist_x_label">Cari artis: %s</string>
@@ -46,7 +46,7 @@
     <string name="select_all_title">Pilih semua</string>
     <string name="x_selected">%d dipilih</string>
     <string name="preparing_playback_title">Mempersiapkan</string>
-    <string name="restoring_playback_state">Memulihkan status pemutaran dan antrean…</string>
+    <string name="restoring_playback_state">Memulihkan status pemutaran dan antreanâ€¦</string>
     <string name="playback_stopped_title">Pemutaran dihentikan</string>
     <string name="playing_notification_description">Notifikasi pemutaran menyediakan tindakan untuk putar/jeda, dll.</string>
     <string name="playing_notification_name">Notifikasi pemutaran</string>
@@ -59,7 +59,7 @@
     <string name="could_not_import_the_playlist_x">Gagal mengimpor daftar putar \"%s\"</string>
     <string name="there_are_no_importable_playlists">Tidak ada daftar putar yang dapat diimpor.</string>
     <string name="playlist_x_not_imported">Daftar putar %s tidak diimpor.</string>
-    <string name="action_import_playlist">Impor daftar putar…</string>
+    <string name="action_import_playlist">Impor daftar putarâ€¦</string>
     <string name="new_playlist_title">Daftar putar baru</string>
     <string name="add_playlist_title">Tambah ke daftar putar</string>
     <string name="rename_playlist_title">Ganti nama daftar putar</string>
@@ -112,8 +112,8 @@
     <string name="delete_songs_title">Hapus lagu-lagu</string>
     <string name="delete_x_songs">Hapus %d lagu?</string>
     <string name="delete_the_song_x">Hapus lagu %s?</string>
-    <string name="deleting_songs">Menghapus lagu, harap tunggu…</string>
-    <string name="song_x_of_x">%1$d dari %2$d • %3$s</string>
+    <string name="deleting_songs">Menghapus lagu, harap tungguâ€¦</string>
+    <string name="song_x_of_x">%1$d dari %2$d â€¢ %3$s</string>
     <string name="no_equalizer">Tidak ada ekualiser yang ditemukan.</string>
     <string name="audio_focus_denied">Fokus audio ditolak.</string>
     <string name="no_audio_ID">ID audio tidak valid.</string>
@@ -162,8 +162,8 @@
     <string name="added_title_to_playing_queue">1 judul ditambahkan ke antrean pemutaran.</string>
     <string name="added_x_titles_to_playing_queue">%1$d judul ditambahkan ke antrean pemutaran.</string>
     <string name="next_song_label">Lagu Berikutnya</string>
-    <string name="next_song_x">Berikutnya • %1$s</string>
-    <string name="next_song_x_by_artist_x">Berikutnya • %1$s oleh %2$s</string>
+    <string name="next_song_x">Berikutnya â€¢ %1$s</string>
+    <string name="next_song_x_by_artist_x">Berikutnya â€¢ %1$s oleh %2$s</string>
     <string name="similar_artists">Artis serupa</string>
     <string name="label_more_from_artist">Lainnya dari artis</string>
     <string name="label_more_from_x">Lainnya dari %s</string>
@@ -715,22 +715,8 @@
     <string name="selected">Dipilih</string>
     <string name="compact">Ringkas</string>
     <string name="expanded">Diperluas</string>
-    <string name="full_cover_style">Sampul Penuh</string>
-    <string name="gradient_style">Gradien</string>
-    <string name="peek_style">Mengintip</string>
-    <string name="plain_style">Biasa</string>
-    <string name="m3_style">M3</string>
     <string name="expressive_style">Ekspresif</string>
-    <string name="normal_style">Normal</string>
-    <string name="cascading">Bertingkat</string>
-    <string name="depth">Kedalaman</string>
-    <string name="hinge">Engsel</string>
-    <string name="horizontal_flip">Balik Horizontal</string>
-    <string name="vertical_flip">Balik Vertikal</string>
-    <string name="zoom_out">Perkecil</string>
     <string name="simple">Sederhana</string>
-    <string name="stack">Tumpuk</string>
-    <string name="parallax">Paralaks</string>
     <string name="add_after_playing_track">Tambah setelah lagu yang diputar</string>
     <string name="add_tracks_sequentially">Tambah lagu secara berurutan</string>
     <string name="albums_shuffle">Acak album</string>
@@ -758,10 +744,6 @@
     <string name="label_none">Tidak ada</string>
     <string name="player_color_mode_app_theme_title">Tema aplikasi</string>
     <string name="player_color_mode_app_theme_description">Gunakan skema warna aplikasi</string>
-    <string name="player_color_mode_simple_color_title">Warna sederhana</string>
-    <string name="player_color_mode_simple_color_description">Ekstrak warna album dan terapkan pada beberapa kontrol</string>
-    <string name="player_color_mode_vibrant_color_title">Warna cerah</string>
-    <string name="player_color_mode_vibrant_color_description">Warnai latar belakang, teks, dan kontrol dengan warna album</string>
     <string name="player_color_mode_material_you_title">Material You</string>
     <string name="player_color_mode_material_you_description">Gunakan nada Material You berdasarkan warna album</string>
     <string name="player_color_mode_blur_title">Mengaburkan</string>
@@ -777,7 +759,7 @@
     <string name="receive_experimental_updates_summary">Harap diperhatikan bahwa pembaruan ini seringkali sangat tidak stabil dan ditujukan untuk pengguna berpengalaman.</string>
     <string name="search_for_update_title">Cari pembaruan</string>
     <string name="last_update_search_x">Pemeriksaan terakhir: %s</string>
-    <string name="checking_please_wait">Memeriksa, harap tunggu…</string>
+    <string name="checking_please_wait">Memeriksa, harap tungguâ€¦</string>
     <string name="could_not_check_for_updates">Tidak dapat memeriksa pembaruan.</string>
     <string name="the_app_is_up_to_date">Aplikasi sudah terbaru</string>
     <string name="update_available_title">Pembaruan tersedia</string>
@@ -933,7 +915,7 @@
     <string name="app_widget_nothing_playing">Tidak ada yang sedang diputar</string>
     <string name="app_widget_tap_to_play">Ketuk untuk membuka Booming Music</string>
     <string name="action_auto_fill_from_musicbrainz">Isi otomatis dari MusicBrainz</string>
-    <string name="searching">Mencari…</string>
+    <string name="searching">Mencariâ€¦</string>
     <string name="musicbrainz_search_title">Pencarian MusicBrainz</string>
     <string name="musicbrainz_search_message">Cari metadata lagu di MusicBrainz menggunakan judul dan artis.</string>
     <string name="musicbrainz_no_results">Tidak ada hasil yang ditemukan di MusicBrainz.</string>
@@ -1024,7 +1006,7 @@
     <string name="search_autoeq_placeholder">Cari model headphone</string>
     <string name="allow_lyrics_download_from">Izinkan unduhan dari:</string>
     <string name="backup_warning_database_ver">Sebagian data dari cadangan ini, seperti daftar putar dan lirik, tidak kompatibel dan mungkin tidak dapat dipulihkan.</string>
-    <string name="restoring_data">Memulihkan data Anda…</string>
+    <string name="restoring_data">Memulihkan data Andaâ€¦</string>
     <string name="app_widget_circle">Lingkaran</string>
     <string name="permission_notifications_title">Pemberitahuan (opsional)</string>
     <string name="permission_notifications_summary">Izin ini memungkinkan Booming Music menampilkan tombol kontrol pemutaran di panel notifikasi dan di layar kunci.</string>
