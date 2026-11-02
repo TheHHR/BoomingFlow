@@ -90,6 +90,7 @@ half4 main(in float2 fragCoord) {
 }
 """
 
+@Composable
 private fun isReducedMotionEnabled(): Boolean = LocalContext.current.let { context ->
     remember(context) {
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1 && Settings.Global.getFloat(

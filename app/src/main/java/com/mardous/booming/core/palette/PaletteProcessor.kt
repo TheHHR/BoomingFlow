@@ -8,6 +8,7 @@ import androidx.core.graphics.scale
 import androidx.palette.graphics.Palette
 import androidx.core.graphics.ColorUtils
 import com.mardous.booming.core.model.PaletteColor
+import com.mardous.booming.core.model.SpatialSwatchColors
 import com.mardous.booming.extensions.resources.isColorLight
 import com.mardous.booming.util.color.NotificationColorUtil
 import kotlinx.coroutines.Dispatchers
