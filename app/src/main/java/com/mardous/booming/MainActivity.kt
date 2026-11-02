@@ -20,8 +20,10 @@ package com.mardous.booming
 import android.app.SearchManager
 import android.content.Intent
 import android.content.pm.ShortcutManager
+import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
+import android.view.WindowManager
 import androidx.annotation.OptIn
 import androidx.core.content.getSystemService
 import androidx.core.content.pm.ShortcutManagerCompat
@@ -84,6 +86,32 @@ class MainActivity : AbsSlidingMusicPanelActivity(), MediaController.Listener {
         streamingAuthViewModel.authState.value
 
         prepareUpdateViewModel()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        applyLockScreenSetting()
+    }
+
+    /**
+     * "Show now playing on lockscreen": when enabled, the player stays
+     * visible over the lock screen (with working controls) and lights the
+     * screen up. Re-applied on every resume so toggling the preference
+     * takes effect immediately.
+     */
+    private fun applyLockScreenSetting() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+            setShowWhenLocked(Preferences.showOnLockScreen)
+            setTurnScreenOn(Preferences.showOnLockScreen)
+        } else {
+            val flags = WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
+                    WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
+            if (Preferences.showOnLockScreen) {
+                window.addFlags(flags)
+            } else {
+                window.clearFlags(flags)
+            }
+        }
     }
 
     override fun onConnected(controller: MediaController) {

@@ -230,6 +230,15 @@
             app:widgetLayout="@layout/preference_switch"
             app:key="display_extra_info" />
 
+        <SwitchPreferenceCompat
+            app:iconSpaceReserved="true"
+            app:title="@string/show_on_lock_screen_title"
+            app:summary="@string/show_on_lock_screen_summary"
+            app:defaultValue="false"
+            app:layout="@layout/list_item_view"
+            app:widgetLayout="@layout/preference_switch"
+            app:key="show_on_lock_screen" />
+
         <com.mardous.booming.ui.component.preferences.CustomDialogPreference
             app:iconSpaceReserved="true"
             app:title="@string/select_extra_info_title"
