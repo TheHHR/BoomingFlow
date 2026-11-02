@@ -29,6 +29,7 @@ import com.mardous.booming.extensions.resources.applyColor
 import com.mardous.booming.extensions.whichFragment
 import com.mardous.booming.ui.component.base.AbsPlayerControlsFragment
 import com.mardous.booming.ui.component.base.AbsPlayerFragment
+import androidx.compose.ui.platform.ComposeView
 import com.mardous.booming.ui.component.preferences.dialog.ExtraInfoPreferenceDialog
 import com.mardous.booming.util.Preferences
 
@@ -48,6 +49,9 @@ class ExpressivePlayerFragment : AbsPlayerFragment(R.layout.fragment_expressive_
 
     override val blurView: ImageView
         get() = binding.blur
+
+    override val spatialBackgroundView: ComposeView?
+        get() = binding.spatialBackground
 
     override val colorSchemeMode: PlayerColorSchemeMode
         get() = Preferences.nowPlayingColorSchemeMode

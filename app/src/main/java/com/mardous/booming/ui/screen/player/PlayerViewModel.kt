@@ -91,6 +91,9 @@ class PlayerViewModel(
     )
     val currentSong get() = currentSongFlow.value
 
+    private val _paletteColor = MutableStateFlow(PaletteColor(0, 0, 0, 0))
+    val paletteColorFlow = _paletteColor.asStateFlow()
+
     val nextSongFlow = queueStateHolder.nextSong.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
@@ -609,6 +612,7 @@ class PlayerViewModel(
         mode: PlayerColorScheme.Mode,
         color: PaletteColor
     ) = viewModelScope.launch(Dispatchers.Default) {
+        _paletteColor.value = color
         // Update the app-wide accent state first so "Follow player color" can
         // react to song changes even when the player scheme is AppTheme and
         // the scheme itself does not need to be regenerated. Monochrome

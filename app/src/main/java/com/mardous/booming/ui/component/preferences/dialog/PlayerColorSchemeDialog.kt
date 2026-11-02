@@ -59,6 +59,7 @@ class PlayerColorSchemeDialog : DialogFragment() {
         val modes = listOf(
             PlayerColorSchemeMode.AppTheme,
             PlayerColorSchemeMode.MaterialYou,
+            PlayerColorSchemeMode.Spatial,
             PlayerColorSchemeMode.Blur
         )
         return MaterialAlertDialogBuilder(requireContext())

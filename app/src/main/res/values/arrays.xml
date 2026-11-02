@@ -91,12 +91,14 @@
 
     <string-array name="pref_lyrics_background_effect_entries">
         <item>@string/lyrics_background_gradient</item>
+        <item>@string/lyrics_background_spatial</item>
         <item>@string/lyrics_background_blur</item>
         <item>@string/label_none</item>
     </string-array>
 
     <string-array name="pref_lyrics_background_effect_values">
         <item>gradient</item>
+        <item>spatial</item>
         <item>blur</item>
         <item>none</item>
     </string-array>

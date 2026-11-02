@@ -8,6 +8,13 @@
     android:clickable="true"
     android:focusable="true">
 
+    <androidx.compose.ui.platform.ComposeView
+        android:id="@+id/spatialBackground"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:importantForAccessibility="no"
+        android:visibility="gone" />
+
     <ImageView
         android:id="@+id/blur"
         android:layout_width="match_parent"

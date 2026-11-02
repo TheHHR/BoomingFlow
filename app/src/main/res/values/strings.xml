@@ -752,6 +752,7 @@
     <string name="lyrics_effects_note">Advanced effects enhance the visual experience but may require more system resources and battery.</string>
     <string name="lyrics_background_effect_title">Background effect</string>
     <string name="lyrics_background_gradient">Gradient</string>
+    <string name="lyrics_background_spatial">Spatial</string>
     <string name="lyrics_background_blur">Blur</string>
     <string name="lyrics_blur_effect_title">Blur effect</string>
     <string name="lyrics_blur_effect_summary">Blur the lyrics lines adjacent to the current one.</string>
@@ -1050,6 +1051,8 @@
     <string name="player_color_mode_app_theme_description">Use the app\'s color scheme</string>
     <string name="player_color_mode_material_you_title">Material You</string>
     <string name="player_color_mode_material_you_description">Use Material You tones based on the album color</string>
+    <string name="player_color_mode_spatial_title">Spatial</string>
+    <string name="player_color_mode_spatial_description">Animated fluid color mesh extracted from the album</string>
     <string name="player_color_mode_blur_title">Blur</string>
     <string name="player_color_mode_blur_description">Blurred background with Material You colors</string>
 

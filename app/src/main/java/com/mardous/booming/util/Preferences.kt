@@ -379,6 +379,7 @@ object Preferences : KoinComponent {
         when (schemeMode) {
             PlayerColorSchemeMode.AppTheme,
             PlayerColorSchemeMode.MaterialYou,
+            PlayerColorSchemeMode.Spatial,
             PlayerColorSchemeMode.Blur -> preferences.edit {
                 putString(PLAYER_COLOR_SCHEME, schemeMode.name)
                 putString(LEGACY_COLOR_SCHEME_KEY, schemeMode.name)

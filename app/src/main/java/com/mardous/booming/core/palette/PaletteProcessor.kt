@@ -57,6 +57,18 @@ object PaletteProcessor {
                 .resizeBitmapArea(RESIZE_BITMAP_AREA)
                 .generate()
 
+            // Spatial background blobs (vibrant / dark-vibrant / dark-muted)
+            // come from the same palette pass, so they cost nothing extra.
+            val spatialColors = SpatialSwatchColors(
+                vibrant = palette.getVibrantColor(palette.dominantSwatch?.rgb ?: Color.BLACK),
+                darkVibrant = palette.getDarkVibrantColor(
+                    palette.getVibrantColor(palette.dominantSwatch?.rgb ?: Color.BLACK)
+                ),
+                darkMuted = palette.getDarkMutedColor(
+                    palette.getMutedColor(palette.dominantSwatch?.rgb ?: Color.DKGRAY)
+                )
+            )
+
             val allSwatches = palette.swatches
             val totalPopulation = allSwatches.sumOf { it.population }.coerceAtLeast(1)
 
@@ -120,7 +132,6 @@ object PaletteProcessor {
                 bgHsl[2] = bgHsl[2].coerceIn(0.22f, 0.48f)
                 ColorUtils.HSLToColor(bgHsl)
             }
-
             val foregroundColor = if (finalBackground.isColorLight) {
                 selectForegroundColorForSwatches(
                     palette.darkVibrantSwatch,
@@ -151,7 +162,8 @@ object PaletteProcessor {
                 backgroundColor = finalBackground,
                 primaryColor = finalAccent,
                 primaryTextColor = foregroundColors.first,
-                secondaryTextColor = foregroundColors.second
+                secondaryTextColor = foregroundColors.second,
+                spatialColors = spatialColors
             )
         } catch (t: Throwable) {
             Log.e("PaletteProcessor", "Failed to extract palette colors from bitmap", t)

@@ -96,6 +96,7 @@ import com.mardous.booming.ui.component.compose.color.extractGradientColors
 import com.mardous.booming.ui.component.compose.decoration.FadingEdges
 import com.mardous.booming.ui.component.compose.decoration.animatedGradient
 import com.mardous.booming.ui.component.compose.decoration.fadingEdges
+import com.mardous.booming.ui.component.compose.decoration.spatialBackground
 import com.mardous.booming.ui.component.compose.lyrics.LyricsView
 import com.mardous.booming.ui.component.views.PlaceholderDrawable
 import com.mardous.booming.ui.screen.library.LibraryViewModel
@@ -167,12 +168,35 @@ fun LyricsScreen(
     val isPlaying by playerViewModel.isPlayingFlow.collectAsStateWithLifecycle()
 
     var gradientColors by remember { mutableStateOf<List<Color>>(emptyList()) }
+    var spatialColors by remember { mutableStateOf<List<Color>>(emptyList()) }
     val playerColorScheme by playerViewModel.colorSchemeFlow.collectAsStateWithLifecycle()
-    LaunchedEffect(song, playerColorScheme) {
+    val paletteColor by playerViewModel.paletteColorFlow.collectAsStateWithLifecycle()
+    LaunchedEffect(song, playerColorScheme, paletteColor) {
         if (isPowerSaveMode)
             return@LaunchedEffect
 
-        if (lyricsViewSettings.backgroundEffect == BackgroundEffect.Gradient) {
+        val effect = lyricsViewSettings.backgroundEffect
+        if (effect == BackgroundEffect.Gradient || effect == BackgroundEffect.Spatial) {
+            if (effect == BackgroundEffect.Spatial) {
+                // The spatial fluid mesh uses the album's vibrant/dark
+                // swatches over the player surface color, with a plain
+                // scheme fallback while no palette swatches exist yet.
+                val swatches = paletteColor.spatialColors
+                spatialColors = if (swatches.vibrant != 0) {
+                    listOf(
+                        Color(if (playerColorScheme.surfaceColor != 0) playerColorScheme.surfaceColor else paletteColor.backgroundColor),
+                        Color(swatches.vibrant),
+                        Color(swatches.darkVibrant),
+                        Color(swatches.darkMuted)
+                    )
+                } else {
+                    listOf(
+                        Color(if (playerColorScheme.surfaceColor != 0) playerColorScheme.surfaceColor else paletteColor.backgroundColor),
+                        Color(paletteColor.primaryColor)
+                    ).filter { it != Color(0) }
+                }
+                return@LaunchedEffect
+            }
             // Prefer the player's extracted scheme so the lyrics background
             // uses the exact same colors as the rest of the app; the cover
             // extraction below is only a fallback while no scheme exists.
@@ -251,17 +275,32 @@ fun LyricsScreen(
     ) { innerPadding ->
         Box(modifier = Modifier.fillMaxSize()) {
             AnimatedContent(
-                targetState = Pair(lyricsViewSettings.backgroundEffect, gradientColors),
+                targetState = Triple(lyricsViewSettings.backgroundEffect, gradientColors, spatialColors),
                 transitionSpec = {
                     fadeIn(tween(1000)).togetherWith(fadeOut(tween(1000)))
                 }
-            ) { (effect, gradientColors) ->
+            ) { (effect, gradientColors, spatialColors) ->
                 when {
                     effect.isGradient && gradientColors.size >= 2 -> {
                         Box(
                             modifier = Modifier
                                 .fillMaxSize()
                                 .animatedGradient(gradientColors, isPlaying)
+                        )
+                        hasBackgroundEffects = true
+                    }
+
+                    effect.isSpatial && spatialColors.size >= 2 -> {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .spatialBackground(
+                                    backgroundColor = spatialColors[0],
+                                    vibrant = spatialColors.getOrElse(1) { spatialColors[0] },
+                                    darkVibrant = spatialColors.getOrElse(2) { spatialColors[1] },
+                                    darkMuted = spatialColors.getOrElse(3) { spatialColors[0] },
+                                    isAnimated = isPlaying
+                                )
                         )
                         hasBackgroundEffects = true
                     }

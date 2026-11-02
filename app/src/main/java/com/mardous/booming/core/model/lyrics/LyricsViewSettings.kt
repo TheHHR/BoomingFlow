@@ -30,11 +30,13 @@ class LyricsViewSettings(
 
     enum class BackgroundEffect {
         Gradient,
+        Spatial,
         Blur,
         None;
 
         val isBlur get() = this == Blur
         val isGradient get() = this == Gradient
+        val isSpatial get() = this == Spatial
         val isNone get() = this == None
     }
 

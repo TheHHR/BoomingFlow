@@ -41,6 +41,11 @@ import androidx.core.content.ContextCompat
 import androidx.core.os.postDelayed
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.ui.graphics.Color as ComposeColor
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.Modifier
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
@@ -67,6 +72,7 @@ import com.mardous.booming.data.model.Genre
 import com.mardous.booming.data.model.Song
 import com.mardous.booming.extensions.currentFragment
 import com.mardous.booming.extensions.launchAndRepeatWithViewLifecycle
+import com.mardous.booming.ui.component.compose.decoration.spatialBackground
 import com.mardous.booming.extensions.media.albumArtistName
 import com.mardous.booming.extensions.media.displayArtistName
 import com.mardous.booming.extensions.media.gotoArtistNames
@@ -165,6 +171,17 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) : Fragment(layoutRes
     protected open val blurView: ImageView?
         get() = null
 
+    /**
+     * Optional slot for the Spatial fluid background. When the active
+     * scheme carries [PlayerColorScheme.SpatialToken], this ComposeView
+     * shows the animated shader; the palette colors come from the song's
+     * extracted swatches.
+     */
+    protected open val spatialBackgroundView: ComposeView?
+        get() = null
+
+    private var spatialPaletteColor: PaletteColor? = null
+
     private var colorAnimatorSet: AnimatorSet? = null
 
     @CallSuper
@@ -195,7 +212,7 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) : Fragment(layoutRes
             ) { song, scheme -> Pair(song, scheme) }
                 .filter { (song, scheme) -> song.id != -1L && scheme != PlayerColorScheme.Unspecified }
                 .collect { (song, scheme) ->
-                    applyBlur(song, scheme)
+                    applyBackground(song, scheme)
                 }
         }
     }
@@ -372,6 +389,7 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) : Fragment(layoutRes
     }
 
     override fun onColorChanged(color: PaletteColor) {
+        spatialPaletteColor = color
         playerViewModel.generatePlayerScheme(requireContext(), colorSchemeMode, color)
     }
 
@@ -431,7 +449,7 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) : Fragment(layoutRes
         colorAnimatorSet = null
     }
 
-    private fun applyBlur(song: Song, scheme: PlayerColorScheme) {
+    private fun applyBackground(song: Song, scheme: PlayerColorScheme) {
         blurView?.let {
             if (scheme.blurToken.isBlur) {
                 it.isVisible = true
@@ -450,6 +468,44 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) : Fragment(layoutRes
                 it.isGone = true
                 it.setImageDrawable(null)
             }
+        }
+        updateSpatialBackground(scheme)
+    }
+
+    private fun updateSpatialBackground(scheme: PlayerColorScheme) {
+        val spatialView = spatialBackgroundView ?: return
+        if (!scheme.spatialToken.isSpatial) {
+            spatialView.isVisible = false
+            return
+        }
+        val palette = spatialPaletteColor ?: return
+        spatialView.isVisible = true
+        spatialView.setContent {
+            val backgroundColor =
+                if (scheme.surfaceColor != 0) ComposeColor(scheme.surfaceColor)
+                else ComposeColor(palette.backgroundColor)
+            val swatches = palette.spatialColors
+            val vibrant =
+                if (swatches.vibrant != 0) ComposeColor(swatches.vibrant)
+                else ComposeColor(palette.primaryColor)
+            val darkVibrant =
+                if (swatches.darkVibrant != 0) ComposeColor(swatches.darkVibrant)
+                else vibrant
+            val darkMuted =
+                if (swatches.darkMuted != 0) ComposeColor(swatches.darkMuted)
+                else ComposeColor(palette.backgroundColor)
+
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .spatialBackground(
+                        backgroundColor = backgroundColor,
+                        vibrant = vibrant,
+                        darkVibrant = darkVibrant,
+                        darkMuted = darkMuted,
+                        isAnimated = true
+                    )
+            )
         }
     }
 

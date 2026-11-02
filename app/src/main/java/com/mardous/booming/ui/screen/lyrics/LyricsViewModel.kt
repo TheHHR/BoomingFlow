@@ -565,6 +565,7 @@ class LyricsViewModel(
                 BackgroundEffect.None
             } else when (preferences.getString(Key.BACKGROUND_EFFECT, null)) {
                 "gradient" -> BackgroundEffect.Gradient
+                "spatial" -> BackgroundEffect.Spatial
                 "blur" -> BackgroundEffect.Blur
                 else -> BackgroundEffect.None
             }

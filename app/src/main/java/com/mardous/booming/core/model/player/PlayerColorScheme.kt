@@ -70,7 +70,8 @@ data class PlayerColorScheme(
     @param:ColorInt val primaryColor: Int,
     @param:ColorInt val secondaryContainerColor: Int,
     @param:ColorInt val onSurfaceColor: Int,
-    @param:ColorInt val onSurfaceVariantColor: Int
+    @param:ColorInt val onSurfaceVariantColor: Int,
+    val spatialToken: SpatialToken = SpatialToken.None
 ) {
 
     val primary = androidx.compose.ui.graphics.Color(primaryColor)
@@ -93,6 +94,11 @@ data class PlayerColorScheme(
             R.string.player_color_mode_material_you_description,
             preferredAnimDuration = 1000
         ),
+        Spatial(
+            R.string.player_color_mode_spatial_title,
+            R.string.player_color_mode_spatial_description,
+            preferredAnimDuration = 1000
+        ),
         Blur(
             R.string.player_color_mode_blur_title,
             R.string.player_color_mode_blur_description
@@ -102,6 +108,12 @@ data class PlayerColorScheme(
     class BlurToken(val isBlur: Boolean, val blurRadius: Float) {
         companion object {
             val None = BlurToken(isBlur = false, blurRadius = 0f)
+        }
+    }
+
+    class SpatialToken(val isSpatial: Boolean) {
+        companion object {
+            val None = SpatialToken(isSpatial = false)
         }
     }
 
@@ -264,6 +276,21 @@ data class PlayerColorScheme(
             )
         }
 
+        /**
+         * Spatial mode: Material You surfaces/text seeded from the cover's
+         * accent (so content stays readable), with the fluid shader drawing
+         * the album's vibrant/dark swatches behind it.
+         */
+        private suspend fun spatialColorScheme(
+            context: Context,
+            color: PaletteColor
+        ): PlayerColorScheme {
+            return dynamicColorScheme(context, color.primaryColor).copy(
+                mode = PlayerColorSchemeMode.Spatial,
+                spatialToken = SpatialToken(isSpatial = true)
+            )
+        }
+
         suspend fun autoColorScheme(
             context: Context,
             color: PaletteColor,
@@ -272,6 +299,7 @@ data class PlayerColorScheme(
             val colorScheme = when (mode) {
                 Mode.AppTheme -> appThemeFollowColorScheme(context, color)
                 Mode.MaterialYou -> dynamicColorScheme(context, color.primaryColor)
+                Mode.Spatial -> spatialColorScheme(context, color)
                 Mode.Blur -> blurColorScheme(context, color)
             }
             check(mode == colorScheme.mode)
