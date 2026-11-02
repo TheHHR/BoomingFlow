@@ -77,6 +77,7 @@ abstract class AbsMainActivityFragment @JvmOverloads constructor(@LayoutRes layo
                                 mainActivity.expandPanel()
                             }
                         }
+                        else -> Unit
                     }
                 }
             }
