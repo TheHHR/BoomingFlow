@@ -37,7 +37,6 @@ import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.LinearWavyProgressIndicator
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -608,10 +607,6 @@ private fun ProviderSwitchDialog(
                 val visibleProviders = remember {
                     LyricsProvider.entries.filter { it.isAvailableForCurrentPolicy }
                 }
-                val enabledProviderCount = remember(visibleProviders) {
-                    visibleProviders.count { it.isEnabled }
-                }
-                val isSearchingAny = liveResults.size < enabledProviderCount
                 val searchingLabel = stringResource(R.string.searching_lyrics_provider)
                 val noLyricsLabel = stringResource(R.string.no_lyrics_found)
                 val wordSyncedLabel = stringResource(R.string.word_by_word_lyrics_provider_status)
@@ -708,36 +703,17 @@ private fun ProviderSwitchDialog(
                     }
                 }
 
-                // The 12dp gap between the provider list and the sync offset
-                // row is a fixed slot: the search progress bar lives inside
-                // it (bottom-aligned, 6dp tall), so entering/leaving the
-                // composition never changes the dialog height.
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(12.dp)
-                ) {
-                    if (isSearchingAny) {
-                        LinearWavyProgressIndicator(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(6.dp)
-                                .align(Alignment.BottomCenter),
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                    }
-                }
-
                 SyncOffsetRow(
                     syncOffsetMs = syncOffsetMs,
                     onSyncOffset = onSyncOffset,
-                    onResetSyncOffset = onResetSyncOffset
+                    onResetSyncOffset = onResetSyncOffset,
+                    modifier = Modifier.padding(top = 12.dp)
                 )
             }
         },
         confirmButton = {
             TextButton(onClick = onDismiss) {
-                Text(stringResource(android.R.string.cancel))
+                Text(stringResource(R.string.action_done))
             }
         }
     )
