@@ -37,7 +37,6 @@ import androidx.compose.ui.platform.LocalContext
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.transformations
-import com.commit451.coiltransformations.BlurTransformation
 
 /**
  * The Spatial now playing background, replicating SpatialFlow's visible
@@ -64,12 +63,12 @@ fun SpatialBackdrop(
     val request = remember(coverModel, context) {
         ImageRequest.Builder(context)
             .data(coverModel)
-            .size(128)
-            // SpatialFlow order: tint passes FIRST, blur LAST - the blur
-            // averages the saturated/tinted colors for the smooth look.
+            // SpatialFlow pipeline: bitmapCompress(kenBurnsMode=true) is a
+            // 96px center-crop, then tint passes, then Toolkit.blur(12).
+            .size(96)
             .transformations(
                 SpatialTintTransformation(),
-                BlurTransformation(context = context, radius = 12f)
+                ToolkitBlurTransformation(radius = 12)
             )
             .build()
     }

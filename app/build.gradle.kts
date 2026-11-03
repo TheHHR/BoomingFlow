@@ -73,7 +73,7 @@ sealed class Version(
 val currentVersion: Version = Version.Stable(
     versionMajor = 1,
     versionMinor = 1,
-    versionPatch = 74
+    versionPatch = 75
 )
 val currentVersionCode = currentVersion.code
 
@@ -86,7 +86,7 @@ android {
         targetSdk = 36
 
         applicationId = "com.thehhr.boomingflow"
-        versionCode = 1840300
+        versionCode = 1850300
         versionName = currentVersion.name
         check(versionCode == currentVersionCode)
     }
@@ -266,6 +266,7 @@ kotlin {
 }
 
 dependencies {
+    implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.aar", "*.jar"))))
     implementation(libs.material.components)
     implementation(libs.androidx.core)
     implementation(libs.androidx.core.splashscreen)
