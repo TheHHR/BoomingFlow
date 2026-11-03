@@ -180,6 +180,15 @@
 
         <SwitchPreferenceCompat
             app:iconSpaceReserved="true"
+            app:title="@string/lyrics_film_grain_title"
+            app:summary="@string/lyrics_film_grain_summary"
+            app:defaultValue="true"
+            app:layout="@layout/list_item_view"
+            app:widgetLayout="@layout/preference_switch"
+            app:key="lyrics_film_grain_enabled" />
+
+        <SwitchPreferenceCompat
+            app:iconSpaceReserved="true"
             app:title="@string/lyrics_karaoke_style_title"
             app:summary="@string/lyrics_karaoke_style_summary"
             app:defaultValue="false"

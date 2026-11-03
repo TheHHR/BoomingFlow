@@ -302,6 +302,8 @@ fun LyricsScreen(
                             darkMuted = spatialColors.getOrElse(2) { spatialColors[1] },
                             dimmed = false,
                             isPlaying = isPlaying,
+                            kenBurnsEnabled = Preferences.nowPlayingBackgroundEffect,
+                            filmGrainEnabled = Preferences.lyricsFilmGrainEnabled,
                             modifier = Modifier.fillMaxSize()
                         )
                         hasBackgroundEffects = true

@@ -60,14 +60,30 @@ object PaletteProcessor {
 
             // Spatial background blobs (vibrant / dark-vibrant / dark-muted)
             // come from the same palette pass, so they cost nothing extra.
+            // Fallback chains mirror SpatialFlow's PlayerPaletteEffect:
+            // vibrant prefers the raw vibrant/light-vibrant swatches before
+            // Palette's target-color search, dark-vibrant darkens the vibrant
+            // tone via HSL when its swatch is missing (richer tones than a
+            // plain target-color lookup), and dark-muted steps down through
+            // muted before landing on the dominant color.
+            val dominantInt = palette.dominantSwatch?.rgb ?: Color.BLACK
+            val spatialVibrant = palette.vibrantSwatch?.rgb
+                ?: palette.lightVibrantSwatch?.rgb
+                ?: palette.getVibrantColor(dominantInt)
+            val spatialDarkVibrant = palette.darkVibrantSwatch?.rgb
+                ?: run {
+                    val hsl = FloatArray(3)
+                    ColorUtils.colorToHSL(spatialVibrant, hsl)
+                    hsl[2] = (hsl[2] * 0.45f).coerceIn(0.12f, 0.32f)
+                    ColorUtils.HSLToColor(hsl)
+                }
+            val spatialDarkMuted = palette.darkMutedSwatch?.rgb
+                ?: palette.mutedSwatch?.rgb
+                ?: dominantInt
             val spatialColors = SpatialSwatchColors(
-                vibrant = palette.getVibrantColor(palette.dominantSwatch?.rgb ?: Color.BLACK),
-                darkVibrant = palette.getDarkVibrantColor(
-                    palette.getVibrantColor(palette.dominantSwatch?.rgb ?: Color.BLACK)
-                ),
-                darkMuted = palette.getDarkMutedColor(
-                    palette.getMutedColor(palette.dominantSwatch?.rgb ?: Color.DKGRAY)
-                )
+                vibrant = spatialVibrant,
+                darkVibrant = spatialDarkVibrant,
+                darkMuted = spatialDarkMuted
             )
 
             val allSwatches = palette.swatches

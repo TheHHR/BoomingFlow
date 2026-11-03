@@ -502,6 +502,8 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) : Fragment(layoutRes
                 darkMuted = darkMuted,
                 dimmed = true,
                 isPlaying = isPlaying,
+                kenBurnsEnabled = Preferences.nowPlayingBackgroundEffect,
+                filmGrainEnabled = Preferences.lyricsFilmGrainEnabled,
                 modifier = Modifier.fillMaxSize()
             )
         }
