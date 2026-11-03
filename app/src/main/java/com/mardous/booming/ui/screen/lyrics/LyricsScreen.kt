@@ -708,14 +708,14 @@ private fun ProviderSwitchDialog(
                     }
                 }
 
-                // Fixed-height slot: the search progress bar must never
-                // enter or leave the composition, or the dialog would
-                // resize (and shift the sync offset row) the moment the
-                // last provider settles. Only its visibility toggles.
+                // The 12dp gap between the provider list and the sync offset
+                // row is a fixed slot: the search progress bar lives inside
+                // it (bottom-aligned, 6dp tall), so entering/leaving the
+                // composition never changes the dialog height.
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(14.dp)
+                        .height(12.dp)
                 ) {
                     if (isSearchingAny) {
                         LinearWavyProgressIndicator(
@@ -731,8 +731,7 @@ private fun ProviderSwitchDialog(
                 SyncOffsetRow(
                     syncOffsetMs = syncOffsetMs,
                     onSyncOffset = onSyncOffset,
-                    onResetSyncOffset = onResetSyncOffset,
-                    modifier = Modifier.padding(top = 12.dp)
+                    onResetSyncOffset = onResetSyncOffset
                 )
             }
         },
@@ -808,9 +807,17 @@ private fun sortedProviderRows(
             else if (hasLyrics) 1 else 0
         )
     }
-    return rows.sortedByDescending { it.third }.mapIndexed { index, (_, row, _) ->
-        row.copy(index = index)
-    }
+    // Enabled providers first (active > has lyrics > no result), disabled
+    // providers pinned below them: they can't take part in the race, so
+    // they never have live results to rank.
+    return rows
+        .sortedWith(
+            compareByDescending<Triple<LyricsProvider, ProviderRow, Int>> { it.second.isDisabled.not() }
+                .thenByDescending { it.third }
+        )
+        .mapIndexed { index, (_, row, _) ->
+            row.copy(index = index)
+        }
 }
 
 @Composable
