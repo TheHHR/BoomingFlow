@@ -316,7 +316,7 @@ fun LyricsScreen(
                                 contentScale = ContentScale.Crop,
                                 modifier = Modifier
                                     .fillMaxSize()
-                                    .blur(90.dp)
+                                    .blur(5.dp)
                                     .drawWithContent {
                                         drawContent()
 

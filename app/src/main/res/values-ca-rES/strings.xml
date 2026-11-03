@@ -623,8 +623,6 @@
     <string name="prefer_remaining_time_summary">Mostra el temps que queda en lloc de la duració de la cançó.</string>
     <string name="prefer_album_artist_name_title">Mostra el nom dels artistes de l\'àlbum</string>
     <string name="prefer_album_artist_name_summary">Mostra el nom de l\'artista de l\'àlbum en lloc del nom de l\'artista de la cançó (si està disponible).</string>
-    <string name="player_blur_intensity_title">Intensitat del difuminat</string>
-    <string name="player_blur_intensity_summary">Ajusteu el grau de difuminació del fons del tema Difuminat. Els valors més baixos podrien millorar el rendiment.</string>
     <!-- Playback preferences -->
     <string name="play_on_startup_title">Reprodueix en iniciar</string>
     <string name="queue_next_mode_title">Mode d\'«Afegeix a la cua»</string>

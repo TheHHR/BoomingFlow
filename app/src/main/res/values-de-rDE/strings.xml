@@ -612,8 +612,6 @@
     <string name="prefer_remaining_time_summary">Zeigt die verbleibende Wiedergabedauer statt der bisher abgelaufenen an.</string>
     <string name="prefer_album_artist_name_title">Album-Interpretenname bevorzugen</string>
     <string name="prefer_album_artist_name_summary">Zeigt den Namen des Album-Interpreten statt dem des Titel-Interpreten an (wenn verfügbar).</string>
-    <string name="player_blur_intensity_title">Unschärfe-Intensität</string>
-    <string name="player_blur_intensity_summary">Die Hintergrundunschärfe im „Unscharf“-Design anpassen. Niedrigere Werte können die Leistung verbessern.</string>
     <!-- Playback preferences -->
     <string name="play_on_startup_title">Beim App-Start fortsetzen</string>
     <string name="queue_next_mode_title">Warteschlangen-Modus</string>

@@ -689,8 +689,6 @@
     <string name="prefer_remaining_time_summary">பாடலின் காலத்திற்குப் பதிலாக மீதமுள்ள நேரத்தைக் காட்டவும்.</string>
     <string name="prefer_album_artist_name_title">ஆல்பம்-கலைஞரின் பெயரை விரும்பு</string>
     <string name="prefer_album_artist_name_summary">பாடல் கலைஞரின் பெயருக்கு பதிலாக ஆல்பம்-கலைஞரின் பெயரைக் காட்டுகிறது (கிடைத்தால்).</string>
-    <string name="player_blur_intensity_title">மங்கலான தீவிரம்</string>
-    <string name="player_blur_intensity_summary">மங்கலான தீமில் பின்னணி மங்கலானது எவ்வளவு வலுவாகத் தோன்றுகிறது என்பதைச் சரிசெய்யவும். குறைந்த மதிப்புகள் செயல்திறனை மேம்படுத்தலாம்.</string>
     <string name="play_on_startup_title">தொடக்கத்தில் விளையாடு</string>
     <string name="queue_next_mode_title">\"அடுத்த வரிசை\" பயன்முறை</string>
     <string name="remember_shuffle_mode_title">கலக்கு என்பதை நினைவில் கொள்க</string>

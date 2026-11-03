@@ -634,8 +634,6 @@
     <string name="prefer_remaining_time_summary">نمایش زمان باقی مانده به جای مدت زمان آهنگ.</string>
     <string name="prefer_album_artist_name_title">نام هنرمند آلبوم را ترجیح دهید</string>
     <string name="prefer_album_artist_name_summary">نام هنرمند آلبوم را به جای نام هنرمند آهنگ (در صورت موجود بودن) نشان می دهد.</string>
-    <string name="player_blur_intensity_title">شدت تاری</string>
-    <string name="player_blur_intensity_summary">میزان شدت تاری پس‌زمینه را در تم Blur تنظیم کنید. مقادیر کمتر ممکن است عملکرد را بهبود بخشد.</string>
     <string name="play_on_startup_title">در هنگام راه اندازی پخش</string>
     <string name="queue_next_mode_title">حالت \"پخش به عنوان بعدی\"</string>
     <string name="remember_shuffle_mode_title">Shuffle را به خاطر بسپارید</string>

@@ -22,7 +22,6 @@ import android.graphics.Color
 import androidx.annotation.ColorInt
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Immutable
-import androidx.preference.PreferenceManager
 import com.google.android.material.color.DynamicColors
 import com.kyant.m3color.hct.Hct
 import com.kyant.m3color.scheme.SchemeContent
@@ -37,7 +36,6 @@ import com.mardous.booming.extensions.resources.surfaceColor
 import com.mardous.booming.extensions.resources.withAlpha
 import com.mardous.booming.extensions.systemContrast
 import com.mardous.booming.ui.component.compose.color.onThis
-import com.mardous.booming.util.PLAYER_BLUR_RADIUS
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import com.google.android.material.R as M3R
@@ -260,9 +258,7 @@ data class PlayerColorScheme(
             context: Context,
             color: PaletteColor
         ) : PlayerColorScheme {
-            val blurRadius = PreferenceManager.getDefaultSharedPreferences(context)
-                .getInt(PLAYER_BLUR_RADIUS, context.resources.getInteger(R.integer.max_player_blur))
-                .toFloat()
+            // Blur intensity is locked (no user slider).
             // Seeded from the cover's accent (not the dominant background
             // swatch) so every player mode shares the same hue family as
             // the app chrome; the blurred backdrop image itself is still
@@ -271,7 +267,7 @@ data class PlayerColorScheme(
                 mode = PlayerColorSchemeMode.Blur,
                 blurToken = BlurToken(
                     isBlur = true,
-                    blurRadius = blurRadius
+                    blurRadius = 5f
                 )
             )
         }

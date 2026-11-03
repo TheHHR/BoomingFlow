@@ -614,8 +614,6 @@
     <string name="prefer_remaining_time_summary">Mostra il tempo rimanente invece della durata della canzone.</string>
     <string name="prefer_album_artist_name_title">Preferisci il nome dell\'artista dell\'Album</string>
     <string name="prefer_album_artist_name_summary">Mostra il nome dell\'artista dell\'Album invece del nome dell\'artista del Brano (se disponibile).</string>
-    <string name="player_blur_intensity_title">Intensità della sfuocatura</string>
-    <string name="player_blur_intensity_summary">Cambia l\'intensità della sfuocatura nel tema Sfuocato. Valori più bassi potrebbero migliorare le prestazioni.</string>
     <!-- Playback preferences -->
     <string name="play_on_startup_title">Riproduci all\'avvio</string>
     <string name="queue_next_mode_title">Modalità \"Prossimo nella coda di riproduzione\"</string>

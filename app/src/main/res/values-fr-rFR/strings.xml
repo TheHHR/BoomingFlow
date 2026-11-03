@@ -618,8 +618,6 @@
     <string name="prefer_remaining_time_summary">Afficher le temps restant au lieu de la durée du titre.</string>
     <string name="prefer_album_artist_name_title">Préférer le nom de l\'artiste de l\'album</string>
     <string name="prefer_album_artist_name_summary">Affiche le nom de l\'artiste de l\'album au lieu du nom de l\'artiste du titre (si disponible).</string>
-    <string name="player_blur_intensity_title">Intensité du flou</string>
-    <string name="player_blur_intensity_summary">Ajustez l\'intensité du flou d\'arrière-plan dans le thème Flou. Des valeurs plus faibles peuvent améliorer les performances.</string>
     <!-- Playback preferences -->
     <string name="play_on_startup_title">Jouer au démarrage</string>
     <string name="queue_next_mode_title">Mode \"File d\'attente\"</string>

@@ -615,8 +615,6 @@
     <string name="prefer_remaining_time_summary">Vis gjenværende tid i stedet for lengden på sangen.</string>
     <string name="prefer_album_artist_name_title">Foretrekk Album-artists navn</string>
     <string name="prefer_album_artist_name_summary">Viser Album-artistens navn i stedet for Song-artist\'s navn (hvis tilgjengelig).</string>
-    <string name="player_blur_intensity_title">Blur intensity</string>
-    <string name="player_blur_intensity_summary">Adjust how strong the background blur appears in the Blur theme. Lower values may improve performance.</string>
     <!-- Playback preferences -->
     <string name="play_on_startup_title">Play on startup</string>
     <string name="queue_next_mode_title">\"Kø neste\" modus</string>

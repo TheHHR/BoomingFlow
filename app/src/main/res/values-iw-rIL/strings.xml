@@ -623,8 +623,6 @@
     <string name="prefer_remaining_time_summary">הצג את הזמן הנותר במקום משך השיר.</string>
     <string name="prefer_album_artist_name_title">העדפת שם אומן האלבום</string>
     <string name="prefer_album_artist_name_summary">מציג את שם אומן האלבום במקום את שם אומן השיר (אם זמין).</string>
-    <string name="player_blur_intensity_title">עוצמת הטשטוש</string>
-    <string name="player_blur_intensity_summary">Adjust how strong the background blur appears in the Blur theme. Lower values may improve performance.</string>
     <!-- Playback preferences -->
     <string name="play_on_startup_title">השמע בהפעלה</string>
     <string name="queue_next_mode_title">מצב \"הוסף לתור הבא\"</string>

@@ -623,8 +623,6 @@
     <string name="prefer_remaining_time_summary">Mostra o tempo restante em vez da duração da música.</string>
     <string name="prefer_album_artist_name_title">Exibir nome do artista do álbum</string>
     <string name="prefer_album_artist_name_summary">Mostra o nome do artista do álbum em vez do artista da música (se disponível).</string>
-    <string name="player_blur_intensity_title">Intensidade do desfoque</string>
-    <string name="player_blur_intensity_summary">Ajuste o quão forte o borrado de fundo aparece no tema Desfoque. Valores mais baixos podem melhorar o desempenho.</string>
     <!-- Playback preferences -->
     <string name="play_on_startup_title">Reproduzir ao iniciar</string>
     <string name="queue_next_mode_title">Modo \"Enfileirar a seguir\"</string>

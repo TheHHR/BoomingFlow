@@ -630,8 +630,6 @@
     <string name="prefer_remaining_time_summary">Відображати залишковий час замість тривалості пісні.</string>
     <string name="prefer_album_artist_name_title">Надавати перевагу імені виконавця альбому</string>
     <string name="prefer_album_artist_name_summary">Відображає ім\'я виконавця альбому замість імені виконавця пісні (якщо доступно).</string>
-    <string name="player_blur_intensity_title">Інтенсивність розмиття</string>
-    <string name="player_blur_intensity_summary">Налаштувати інтенсивність розмиття тла для теми «Розмиття». Нижчі значення можуть підвищити продуктивність.</string>
     <!-- Playback preferences -->
     <string name="play_on_startup_title">Відтворювати при запуску</string>
     <string name="queue_next_mode_title">Режим «Додати до черги»</string>

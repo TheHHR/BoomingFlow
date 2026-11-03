@@ -615,8 +615,6 @@
     <string name="prefer_remaining_time_summary">Şarkının süresi yerine kalan süreyi göster.</string>
     <string name="prefer_album_artist_name_title">Albüm Sanatçısı adını tercih et</string>
     <string name="prefer_album_artist_name_summary">Şarkı Sanatçısı adı yerine Albüm Sanatçısı adını gösterir (varsa).</string>
-    <string name="player_blur_intensity_title">Blur intensity</string>
-    <string name="player_blur_intensity_summary">Adjust how strong the background blur appears in the Blur theme. Lower values may improve performance.</string>
     <!-- Playback preferences -->
     <string name="play_on_startup_title">Başlangıçta oynat</string>
     <string name="queue_next_mode_title">\"Sıradakini çal\" modu</string>

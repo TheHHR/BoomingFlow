@@ -118,9 +118,18 @@ class ExpressivePlayerFragment : AbsPlayerFragment(R.layout.fragment_expressive_
         val insetsConsumer = binding.insetsConsumer ?: binding.root
         ViewCompat.setOnApplyWindowInsetsListener(insetsConsumer) { v: View, insets: WindowInsetsCompat ->
             val systemBars = insets.getInsets(Type.systemBars())
-            v.updatePadding(top = systemBars.top, bottom = systemBars.bottom)
             val displayCutout = insets.getInsets(Type.displayCutout())
-            v.updatePadding(left = displayCutout.left, right = displayCutout.right)
+            if (v === binding.root) {
+                // Portrait: the root must stay full-bleed so the Fluid/Blur
+                // backgrounds span under the status bar; the status-bar
+                // inset goes to the transparent toolbar instead.
+                v.updatePadding(top = 0, bottom = systemBars.bottom)
+                v.updatePadding(left = displayCutout.left, right = displayCutout.right)
+                binding.playerToolbar?.updatePadding(top = systemBars.top)
+            } else {
+                v.updatePadding(top = systemBars.top, bottom = systemBars.bottom)
+                v.updatePadding(left = displayCutout.left, right = displayCutout.right)
+            }
             WindowInsetsCompat.CONSUMED
         }
     }

@@ -614,8 +614,6 @@
     <string name="prefer_remaining_time_summary">Toon de resterende tijd in plaats van de duur van het nummer.</string>
     <string name="prefer_album_artist_name_title">Naam van Album-artiesten</string>
     <string name="prefer_album_artist_name_summary">Toont de naam van de Album-artiesten in plaats van de naam van Song-artiesten (indien beschikbaar).</string>
-    <string name="player_blur_intensity_title">Vervaging intensiteit</string>
-    <string name="player_blur_intensity_summary">Pas aan hoe sterk de achtergrondvervaging verschijnt in het Vervaging thema. Lagere waarden kunnen mogelijk prestaties verbeteren.</string>
     <!-- Playback preferences -->
     <string name="play_on_startup_title">Spelen bij opstarten</string>
     <string name="queue_next_mode_title">\"Wachtrij volgende\" modus</string>

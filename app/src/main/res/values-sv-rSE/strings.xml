@@ -608,8 +608,6 @@
     <string name="prefer_remaining_time_summary">Visa återstående tid istället för låtens varaktighet.</string>
     <string name="prefer_album_artist_name_title">Föredrar Album-artistens namn</string>
     <string name="prefer_album_artist_name_summary">Visar Album-artistens namn istället för Song-artistens namn (om tillgänglig).</string>
-    <string name="player_blur_intensity_title">Suddighetsgrad</string>
-    <string name="player_blur_intensity_summary">Justera hur stark oskärpan i bakgrunden ska vara i temat ”Blur”. Lägre värden kan förbättra prestandan.</string>
     <!-- Playback preferences -->
     <string name="play_on_startup_title">Spela vid uppstart</string>
     <string name="queue_next_mode_title">\"Köa nästa\" läge</string>

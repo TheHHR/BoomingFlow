@@ -30,8 +30,6 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
@@ -67,7 +65,12 @@ fun SpatialBackdrop(
         ImageRequest.Builder(context)
             .data(coverModel)
             .size(128)
-            .transformations(BlurTransformation(context = context, radius = 12f))
+            // SpatialFlow order: tint passes FIRST, blur LAST - the blur
+            // averages the saturated/tinted colors for the smooth look.
+            .transformations(
+                SpatialTintTransformation(),
+                BlurTransformation(context = context, radius = 12f)
+            )
             .build()
     }
 
@@ -82,9 +85,6 @@ fun SpatialBackdrop(
             model = request,
             contentDescription = null,
             contentScale = ContentScale.Crop,
-            colorFilter = ColorFilter.colorMatrix(
-                ColorMatrix().apply { setToSaturation(2f) }
-            ),
             modifier = Modifier.matchParentSize()
         )
         Box(

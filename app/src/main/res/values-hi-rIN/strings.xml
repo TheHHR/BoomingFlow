@@ -615,8 +615,6 @@
     <string name="prefer_remaining_time_summary">गाने की अवधि के बजाय शेष समय दिखाएँ।</string>
     <string name="prefer_album_artist_name_title">एल्बम-कलाकार का नाम प्राथमिकता दें</string>
     <string name="prefer_album_artist_name_summary">एल्बम-कलाकार का नाम दिखाता है बजाय गाना-कलाकार के नाम के (यदि उपलब्ध हो)।</string>
-    <string name="player_blur_intensity_title">Blur intensity</string>
-    <string name="player_blur_intensity_summary">Adjust how strong the background blur appears in the Blur theme. Lower values may improve performance.</string>
     <!-- Playback preferences -->
     <string name="play_on_startup_title">प्ले ऑन स्टार्टअप</string>
     <string name="queue_next_mode_title">\"अगली कतार\" मोड</string>

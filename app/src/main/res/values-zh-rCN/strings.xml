@@ -602,8 +602,6 @@
     <string name="prefer_remaining_time_summary">显示歌曲剩余时间，而不是全长。</string>
     <string name="prefer_album_artist_name_title">优先显示专辑艺人名称</string>
     <string name="prefer_album_artist_name_summary">若有专辑艺人名称，则显示专辑艺人而非歌曲艺人。</string>
-    <string name="player_blur_intensity_title">模糊强度</string>
-    <string name="player_blur_intensity_summary">调整模糊主题中的背景模糊强度。调低数值可能会提升性能。</string>
     <!-- Playback preferences -->
     <string name="play_on_startup_title">启动时自动播放</string>
     <string name="queue_next_mode_title">“下一首播放”插入曲目至播放队列的位置</string>

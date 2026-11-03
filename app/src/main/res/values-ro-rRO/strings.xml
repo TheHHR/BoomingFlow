@@ -623,8 +623,6 @@
     <string name="prefer_remaining_time_summary">Afișează timpul rămas în loc de durata piesei.</string>
     <string name="prefer_album_artist_name_title">Prefer numele artistului Album-artist</string>
     <string name="prefer_album_artist_name_summary">Prezintă numele albumului artistului în locul numelui Song-artist (dacă este disponibil).</string>
-    <string name="player_blur_intensity_title">Blur intensity</string>
-    <string name="player_blur_intensity_summary">Adjust how strong the background blur appears in the Blur theme. Lower values may improve performance.</string>
     <!-- Playback preferences -->
     <string name="play_on_startup_title">Play on startup</string>
     <string name="queue_next_mode_title">Modul \"Coada următoare\"</string>

@@ -623,8 +623,6 @@
     <string name="prefer_remaining_time_summary">Display remaining time instead of the song\'s duration.</string>
     <string name="prefer_album_artist_name_title">Prefer Album-artist\'s name</string>
     <string name="prefer_album_artist_name_summary">Shows the Album-artist\'s name instead of Song-artist\'s name (if available).</string>
-    <string name="player_blur_intensity_title">Blur intensity</string>
-    <string name="player_blur_intensity_summary">Adjust how strong the background blur appears in the Blur theme. Lower values may improve performance.</string>
     <!-- Playback preferences -->
     <string name="play_on_startup_title">Play on startup</string>
     <string name="queue_next_mode_title">\"Queue next\" mode</string>

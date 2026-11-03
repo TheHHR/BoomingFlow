@@ -631,8 +631,6 @@
     <string name="prefer_remaining_time_summary">Zobrazit zbývající čas místo délky skladby.</string>
     <string name="prefer_album_artist_name_title">Preferovat název albového umělce</string>
     <string name="prefer_album_artist_name_summary">Zobrazí jméno alba-umělce místo jména skladby (pokud je k dispozici).</string>
-    <string name="player_blur_intensity_title">Blur intensity</string>
-    <string name="player_blur_intensity_summary">Adjust how strong the background blur appears in the Blur theme. Lower values may improve performance.</string>
     <!-- Playback preferences -->
     <string name="play_on_startup_title">Přehrát při spuštění</string>
     <string name="queue_next_mode_title">Režim \"Další fronta\"</string>

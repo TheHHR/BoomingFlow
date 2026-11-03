@@ -615,8 +615,6 @@
     <string name="prefer_remaining_time_summary">Mostrar el tiempo restante en lugar de la duración de la canción.</string>
     <string name="prefer_album_artist_name_title">Nombre del álbum preferido</string>
     <string name="prefer_album_artist_name_summary">Muestra el nombre del Álbum-artista en lugar del nombre del Artista de la Canción (si está disponible).</string>
-    <string name="player_blur_intensity_title">Intensidad de desenfoque</string>
-    <string name="player_blur_intensity_summary">Ajusta la intensidad del desenfoque del fondo en el tema Desenfoque. Unos valores más bajos pueden mejorar el rendimiento.</string>
     <!-- Playback preferences -->
     <string name="play_on_startup_title">Reproducir al iniciar</string>
     <string name="queue_next_mode_title">Modo \"Cola siguiente\"</string>

@@ -606,8 +606,6 @@
     <string name="prefer_remaining_time_summary">顯示剩餘時間，而不是歌曲總長度。</string>
     <string name="prefer_album_artist_name_title">優先顯示專輯藝人名稱</string>
     <string name="prefer_album_artist_name_summary">若有專輯藝人名稱，則顯示專輯藝人而不是歌曲藝人。</string>
-    <string name="player_blur_intensity_title">模糊強度</string>
-    <string name="player_blur_intensity_summary">調整模糊主題中的背景模糊強度。較低的值可能改善效能。</string>
     <!-- Playback preferences -->
     <string name="play_on_startup_title">啟動時自動播放</string>
     <string name="queue_next_mode_title">「加入下一首」插入曲目至播放佇列的位置</string>

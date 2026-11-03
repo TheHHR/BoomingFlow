@@ -606,8 +606,6 @@
     <string name="prefer_remaining_time_summary">Tampilkan waktu yang tersisa alih-alih durasi lagu.</string>
     <string name="prefer_album_artist_name_title">Utamakan nama Artis Album</string>
     <string name="prefer_album_artist_name_summary">Menampilkan nama Artis Album alih-alih nama Artis Lagu (jika tersedia).</string>
-    <string name="player_blur_intensity_title">Intensitas blur</string>
-    <string name="player_blur_intensity_summary">Sesuaikan seberapa kuat efek blur latar belakang muncul pada tema Blur. Nilai yang lebih rendah dapat meningkatkan performa.</string>
     <!-- Playback preferences -->
     <string name="play_on_startup_title">Putar saat mulai</string>
     <string name="queue_next_mode_title">Mode \"Antre berikutnya\"</string>

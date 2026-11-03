@@ -630,8 +630,6 @@
     <string name="prefer_remaining_time_summary">Wyświetlaj pozostały czas zamiast długości utworu.</string>
     <string name="prefer_album_artist_name_title">Preferuj imię wykonawcy albumu</string>
     <string name="prefer_album_artist_name_summary">Pokazuje nazwę wykonawcy albumu zamiast wykonawcy utworu (jeśli dostępne).</string>
-    <string name="player_blur_intensity_title">Intensywność rozmycia</string>
-    <string name="player_blur_intensity_summary">Dostosuj intensywność rozmycia tła w motywie Rozmycie. Niższe wartości mogą poprawić wydajność.</string>
     <!-- Playback preferences -->
     <string name="play_on_startup_title">Odtwarzaj po starcie</string>
     <string name="queue_next_mode_title">Dodawanie do kolejki</string>

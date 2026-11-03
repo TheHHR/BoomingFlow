@@ -112,7 +112,6 @@ import com.mardous.booming.util.ENABLE_ROTATION_LOCK
 import com.mardous.booming.util.HOLD_TAB_TO_SEARCH
 import com.mardous.booming.util.LIBRARY_CATEGORIES
 import com.mardous.booming.util.NOW_PLAYING_IMAGE_CORNER_RADIUS
-import com.mardous.booming.util.PLAYER_BLUR_RADIUS
 import com.mardous.booming.util.Preferences
 import com.mardous.booming.util.SQUIGGLY_SEEK_BAR
 import com.mardous.booming.util.SWIPE_DOWN_TO_DISMISS
@@ -685,8 +684,7 @@ abstract class AbsSlidingMusicPanelActivity : AbsBaseActivity(),
             ADD_EXTRA_CONTROLS -> miniPlayerFragment?.setupExtraControls()
             SQUIGGLY_SEEK_BAR -> miniPlayerFragment?.setUpProgressStyle()
 
-            CAROUSEL_EFFECT,
-            PLAYER_BLUR_RADIUS -> {
+            CAROUSEL_EFFECT -> {
                 chooseFragmentForTheme()
             }
 

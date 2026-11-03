@@ -618,8 +618,6 @@
     <string name="prefer_remaining_time_summary">Muestra el tiempo restante de la canción en lugar de su duración.</string>
     <string name="prefer_album_artist_name_title">Preferir Artista del álbum</string>
     <string name="prefer_album_artist_name_summary">Muestra el Artista del álbum en lugar del Artista de la canción (si está disponible).</string>
-    <string name="player_blur_intensity_title">Intensidad del difuminado</string>
-    <string name="player_blur_intensity_summary">Ajusta qué tan difuminado debe verse el fondo del tema Blur. Los valores más bajos tienen mejor rendimiento.</string>
     <!-- Playback preferences -->
     <string name="play_on_startup_title">Reproducir al iniciar</string>
     <string name="queue_next_mode_title">Modo de \"Añadir a continuación\"</string>

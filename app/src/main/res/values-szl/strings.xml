@@ -316,7 +316,6 @@
     <string name="lyrics_custom_font_title">Włŏsna czcionka</string>
     <string name="lyrics_background_effect_title">Efekt tła</string>
     <string name="lyrics_shadow_effect_title">Efekt ciynia</string>
-    <string name="player_blur_intensity_title">Intynsywnoś rozmycia</string>
     <string name="player_color_mode_app_theme_title">Motyw aplikacyji</string>
     <string name="player_color_mode_material_you_title">Material you</string>
     <string name="system_default">Wedle systemu</string>

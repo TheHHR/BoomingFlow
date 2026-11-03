@@ -615,8 +615,6 @@
     <string name="prefer_remaining_time_summary">Εμφάνιση χρόνου που απομένει αντί για τη διάρκεια του τραγουδιού.</string>
     <string name="prefer_album_artist_name_title">Προτιμήστε το όνομα του καλλιτέχνη Album-</string>
     <string name="prefer_album_artist_name_summary">Εμφανίζει το όνομα του καλλιτέχνη του Album αντί για το όνομα του Song-artist\'s (αν υπάρχει).</string>
-    <string name="player_blur_intensity_title">Blur intensity</string>
-    <string name="player_blur_intensity_summary">Adjust how strong the background blur appears in the Blur theme. Lower values may improve performance.</string>
     <!-- Playback preferences -->
     <string name="play_on_startup_title">Play on startup</string>
     <string name="queue_next_mode_title">\"Ουρά επόμενη\" λειτουργία</string>

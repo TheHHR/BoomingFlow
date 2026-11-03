@@ -647,8 +647,6 @@
     <string name="prefer_remaining_time_summary">عرض الوقت المتبقي بدلًا من مدة الأغنية.</string>
     <string name="prefer_album_artist_name_title">تفضيل اسم فنان الألبوم</string>
     <string name="prefer_album_artist_name_summary">عرض اسم فنان الألبوم بدلًا من اسم فنان الأغنية (إن توفّر).</string>
-    <string name="player_blur_intensity_title">شدة الضبابية</string>
-    <string name="player_blur_intensity_summary">اضبط قوة تمويه الخلفية في سمة الضبابية. قد تُحسّن القيم المنخفضة الأداء.</string>
     <!-- Playback preferences -->
     <string name="play_on_startup_title">التشغيل عند بدء التطبيق</string>
     <string name="queue_next_mode_title">نمط \"إضافة إلى التالي\"</string>

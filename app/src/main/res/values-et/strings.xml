@@ -787,8 +787,6 @@
     <string name="ignore_blank_lines_title">Eira tühje ridu</string>
     <string name="ignore_blank_lines_summary">Animeeritud jutumullide asemel eira LRC-failides leiduvaid tühje ridu.</string>
     <string name="enable_audio_float_output_title">Kõrge täpsusega heliväljund</string>
-    <string name="player_blur_intensity_title">Hägustamise intensiivsus</string>
-    <string name="player_blur_intensity_summary">Saad seadistada, kui tugev on taustahägusus „Hägustatud kujunduses“. Madalamad väärtused võivad parandada jõudlust.</string>
     <string name="play_on_startup_title">Käivitamisel alusta esitust</string>
     <string name="remember_shuffle_mode_title">Jäta lugude segamine meelde</string>
     <string name="remember_shuffle_mode_summary">Uue lugude loendi koostamisel jääb senine segamise viis meelde.</string>

@@ -630,8 +630,6 @@
     <string name="prefer_remaining_time_summary">Отображать оставшееся время вместо длительности песни.</string>
     <string name="prefer_album_artist_name_title">Предпочитать имя исполнителя альбома</string>
     <string name="prefer_album_artist_name_summary">Показывает имя исполнителя альбома вместо имени исполнителя песни (если доступно).</string>
-    <string name="player_blur_intensity_title">Интенсивность размытия</string>
-    <string name="player_blur_intensity_summary">Настройте интенсивность размытия фона в теме «Размытие». Более низкие значения могут повысить производительность.</string>
     <!-- Playback preferences -->
     <string name="play_on_startup_title">Проигрывать при запуске</string>
     <string name="queue_next_mode_title">Режим «Добавить в очередь»</string>
