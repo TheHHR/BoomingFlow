@@ -38,6 +38,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.viewinterop.AndroidView
 import coil3.load
+import coil3.request.transformations
 import com.flaviofaria.kenburnsview.KenBurnsView
 import com.flaviofaria.kenburnsview.RandomTransitionGenerator
 
