@@ -24,6 +24,7 @@ import android.graphics.ColorMatrix
 import android.graphics.ColorMatrixColorFilter
 import android.graphics.Paint
 import android.graphics.PorterDuff
+import androidx.core.graphics.applyCanvas
 import coil3.size.Size
 import coil3.transform.Transformation
 
@@ -36,7 +37,7 @@ import coil3.transform.Transformation
  * so the blur averages the saturated/tinted colors - the source of the
  * smoother, softer SpatialFlow look.
  */
-class SpatialTintTransformation : Transformation {
+class SpatialTintTransformation : Transformation() {
 
     override val cacheKey: String = "spatial_tint"
 
