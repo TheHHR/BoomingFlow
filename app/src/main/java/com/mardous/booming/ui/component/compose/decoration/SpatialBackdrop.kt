@@ -18,8 +18,6 @@
 
 package com.mardous.booming.ui.component.compose.decoration
 
-import android.graphics.ColorMatrix
-import android.graphics.ColorMatrixColorFilter
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
@@ -33,6 +31,7 @@ import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
@@ -84,7 +83,7 @@ fun SpatialBackdrop(
             contentDescription = null,
             contentScale = ContentScale.Crop,
             colorFilter = ColorFilter.colorMatrix(
-                ColorMatrixColorFilter(ColorMatrix().apply { setSaturation(2f) })
+                ColorMatrix().apply { setToSaturation(2f) }
             ),
             modifier = Modifier.matchParentSize()
         )
