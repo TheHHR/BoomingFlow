@@ -18,37 +18,43 @@
 
 package com.mardous.booming.ui.component.compose.decoration
 
+import android.view.animation.AccelerateDecelerateInterpolator
+import android.widget.ImageView
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.CompositingStrategy
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
-import coil3.compose.AsyncImage
-import coil3.request.ImageRequest
-import coil3.request.transformations
+import androidx.compose.ui.viewinterop.AndroidView
+import coil3.load
+import com.flaviofaria.kenburnsview.KenBurnsView
+import com.flaviofaria.kenburnsview.RandomTransitionGenerator
 
 /**
- * The Spatial now playing background, replicating SpatialFlow's visible
- * composition exactly:
- * 1. Album cover downscaled to 128px, saturation boosted 2.0x, blurred
- *    (radius 12 on the small bitmap - the cheap RenderScript-style trick).
- * 2. Dark tint passes over the artwork (OVERLAY + plain) for contrast.
+ * The Spatial now playing background, matching SpatialFlow's visible
+ * composition:
+ * 1. Album cover downscaled to 96px, tint passes applied pre-blur
+ *    ([SpatialTintTransformation]: 2.0x saturation + OVERLAY/plain tints),
+ *    then blurred (radius 12 on the small bitmap - the cheap
+ *    RenderScript-style trick). Applied exactly once, like SpatialFlow.
+ * 2. KenBurns slow pan/zoom motion (12s random transitions) while the
+ *    player is playing; frozen frame when paused.
  * 3. A STATIC vertical palette gradient
  *    (vibrant 30% -> dark-vibrant 20% -> dark-muted 15%).
- * 4. Optional black dim (player: on, matching SpatialFlow's lossEffect;
- *    lyrics page: off).
- * No motion: the only "animation" is the spring color morph on song change.
+ * 4. Animated black dim (player: fades to 0.42 * 0.618 like SpatialFlow's
+ *    lossEffect; lyrics page: fades out). The only "animation" besides
+ *    KenBurns is the spring color morph on song change.
  */
 @Composable
 fun SpatialBackdrop(
@@ -57,43 +63,66 @@ fun SpatialBackdrop(
     darkVibrant: Color,
     darkMuted: Color,
     dimmed: Boolean,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isPlaying: Boolean = true
 ) {
-    val context = LocalContext.current
-    val request = remember(coverModel, context) {
-        ImageRequest.Builder(context)
-            .data(coverModel)
-            // SpatialFlow pipeline: bitmapCompress(kenBurnsMode=true) is a
-            // 96px center-crop, then tint passes, then Toolkit.blur(12).
-            .size(96)
-            .transformations(
-                SpatialTintTransformation(),
-                ToolkitBlurTransformation(radius = 12)
-            )
-            .build()
-    }
-
     // SpatialFlow's NonCanvasPaletteOverlay spring specs.
     val colorSpec = spring<Color>(stiffness = 100f, dampingRatio = 0.8f)
     val animatedVibrant by animateColorAsState(vibrant, colorSpec, label = "spatial_vibrant")
     val animatedDarkVibrant by animateColorAsState(darkVibrant, colorSpec, label = "spatial_dark_vibrant")
     val animatedDarkMuted by animateColorAsState(darkMuted, colorSpec, label = "spatial_dark_muted")
 
+    // SpatialFloatingLight's lossEffect: tweened 0 <-> 0.618 dim progress.
+    val dimAlpha by animateFloatAsState(
+        targetValue = if (dimmed) 0.618f else 0f,
+        animationSpec = tween(durationMillis = 300, easing = FastOutSlowInEasing),
+        label = "spatial_loss_effect"
+    )
+
+    var loadedModel by remember { mutableStateOf<Any?>(null) }
+
     Box(modifier.background(Color.Black)) {
-        AsyncImage(
-            model = request,
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier.matchParentSize()
+        AndroidView(
+            factory = { ctx ->
+                KenBurnsView(ctx).apply {
+                    scaleType = ImageView.ScaleType.CENTER_CROP
+                    setTransitionGenerator(
+                        RandomTransitionGenerator(
+                            12000,
+                            AccelerateDecelerateInterpolator()
+                        )
+                    )
+                }
+            },
+            modifier = Modifier.matchParentSize(),
+            onRelease = { view ->
+                view.pause()
+                view.setImageDrawable(null)
+            },
+            update = { view ->
+                val model = coverModel
+                if (model != null && loadedModel != model) {
+                    loadedModel = model
+                    view.load(model) {
+                        // SpatialFlow pipeline: 96px, tint passes, Toolkit.blur(12).
+                        size(96)
+                        transformations(
+                            SpatialTintTransformation(),
+                            ToolkitBlurTransformation(radius = 12)
+                        )
+                    }
+                }
+                if (isPlaying) {
+                    view.resume()
+                } else {
+                    view.pause()
+                }
+            }
         )
         Box(
             modifier = Modifier
                 .matchParentSize()
-                .graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
                 .drawBehind {
-                    // SpatialFloatingLight's imageResolve() tint passes.
-                    drawRect(Color(0x33000000), blendMode = BlendMode.Overlay)
-                    drawRect(Color(0x40000000))
                     // NonCanvasPaletteOverlay: static palette gradient.
                     drawRect(
                         Brush.verticalGradient(
@@ -105,7 +134,7 @@ fun SpatialBackdrop(
                         )
                     )
                     // lossEffect: 0.42 alpha * 0.618 animated progress.
-                    if (dimmed) drawRect(Color.Black.copy(alpha = 0.42f * 0.618f))
+                    if (dimAlpha > 0f) drawRect(Color.Black.copy(alpha = 0.42f * dimAlpha))
                 }
         )
     }

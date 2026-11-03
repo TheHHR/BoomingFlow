@@ -49,6 +49,7 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.navOptions
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.load
 import coil3.request.crossfade
 import coil3.request.transformations
@@ -491,12 +492,15 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) : Fragment(layoutRes
                 if (swatches.darkMuted != 0) ComposeColor(swatches.darkMuted)
                 else ComposeColor(palette.backgroundColor)
 
+            val isPlaying by playerViewModel.isPlayingFlow.collectAsStateWithLifecycle()
+
             SpatialBackdrop(
                 coverModel = song,
                 vibrant = vibrant,
                 darkVibrant = darkVibrant,
                 darkMuted = darkMuted,
                 dimmed = true,
+                isPlaying = isPlaying,
                 modifier = Modifier.fillMaxSize()
             )
         }
