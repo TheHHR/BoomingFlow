@@ -19,7 +19,6 @@
 package com.mardous.booming.ui.component.compose.decoration
 
 import android.graphics.Bitmap
-import android.graphics.Canvas
 import android.graphics.ColorMatrix
 import android.graphics.ColorMatrixColorFilter
 import android.graphics.Paint
@@ -52,7 +51,7 @@ class SpatialTintTransformation : Transformation() {
             colorFilter = ColorMatrixColorFilter(ColorMatrix().apply { setSaturation(2f) })
         }
         val result = Bitmap.createBitmap(source.width, source.height, Bitmap.Config.ARGB_8888)
-        Canvas(result).applyCanvas {
+        result.applyCanvas {
             drawBitmap(source, 0f, 0f, saturationPaint)
             drawColor(0x33000000, PorterDuff.Mode.OVERLAY)
             drawColor(0x40000000)
