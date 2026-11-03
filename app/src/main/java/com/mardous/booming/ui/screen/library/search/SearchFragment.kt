@@ -118,6 +118,15 @@ class SearchFragment : AbsMainActivityFragment(R.layout.fragment_search),
 
     private lateinit var searchAdapter: SearchAdapter
 
+    /** Query key whose results last played the entrance animation. */
+    private var lastAnimatedQueryKey: String? = null
+
+    /** Accent value the adapter rows were last rebinding for. */
+    private var lastAdapterAccent = Int.MIN_VALUE
+
+    /** Last playlists LiveData delivery; identical re-deliveries must not re-search. */
+    private var lastObservedPlaylists: List<PlaylistWithSongs>? = null
+
     @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -171,7 +180,18 @@ class SearchFragment : AbsMainActivityFragment(R.layout.fragment_search),
                         addAll(spotify.albums)
                     }
                 }
-                searchAdapter.dataSet = local + spotifyItems
+                val combined: List<Any> = local + spotifyItems
+                val queryKey = viewModel.currentQueryKey
+                val isNewQuery = queryKey != lastAnimatedQueryKey
+                lastAnimatedQueryKey = queryKey
+                // The fall-down entrance animation plays only when a genuine
+                // new query produced results - never on page appends, accent
+                // changes or START re-deliveries.
+                searchAdapter.submitList(combined) {
+                    if (isNewQuery && combined.isNotEmpty()) {
+                        binding.recyclerView.scheduleLayoutAnimation()
+                    }
+                }
             }
         }
 
@@ -184,9 +204,14 @@ class SearchFragment : AbsMainActivityFragment(R.layout.fragment_search),
             }
         }
 
-        // Observe playlists-related changes
-        libraryViewModel.getPlaylists().observe(viewLifecycleOwner) {
-            viewModel.refresh()
+        // Observe playlists-related changes. LiveData re-delivers its last
+        // value on every START, which used to re-run the whole search on
+        // every return to this screen; only a genuinely new list refreshes.
+        libraryViewModel.getPlaylists().observe(viewLifecycleOwner) { playlists ->
+            if (playlists !== lastObservedPlaylists) {
+                lastObservedPlaylists = playlists
+                viewModel.refresh()
+            }
         }
 
         binding.appBar.setupStatusBarForeground()
@@ -209,9 +234,13 @@ class SearchFragment : AbsMainActivityFragment(R.layout.fragment_search),
                 )
             }
             binding.keyboardPopup.applyPlayerAccent(accent)
-            // Badges and checked (selected) rows tint at bind time;
-            // rebind so they don't keep the previous accent.
-            searchAdapter.notifyDataSetChanged()
+            // Badges and checked (selected) rows tint at bind time; rebind
+            // them (targeted, only on a real accent change) so they don't
+            // keep the previous accent.
+            if (accent != lastAdapterAccent) {
+                lastAdapterAccent = accent
+                searchAdapter.refreshAccentBadges()
+            }
         }
         viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
             launch {
@@ -268,18 +297,29 @@ class SearchFragment : AbsMainActivityFragment(R.layout.fragment_search),
 
     private val adapterDataObserver = object : AdapterDataObserver() {
         override fun onChanged() {
-            super.onChanged()
-            val isEmpty = searchAdapter.isEmpty
-            if (!isEmpty) {
-                binding.recyclerView.scheduleLayoutAnimation()
-            }
-            binding.empty.isVisible = isEmpty
+            updateEmptyState()
+        }
+
+        override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
+            updateEmptyState()
+        }
+
+        override fun onItemRangeRemoved(positionStart: Int, itemCount: Int) {
+            updateEmptyState()
+        }
+
+        override fun onItemRangeChanged(positionStart: Int, itemCount: Int, payload: Any?) {
+            updateEmptyState()
+        }
+
+        private fun updateEmptyState() {
+            binding.empty.isVisible = searchAdapter.isEmpty
         }
     }
 
     @SuppressLint("ClickableViewAccessibility")
     private fun setupRecyclerView() {
-        searchAdapter = SearchAdapter(requireActivity(), emptyList(), this, this).apply {
+        searchAdapter = SearchAdapter(requireActivity(), this, this).apply {
             registerAdapterDataObserver(adapterDataObserver)
         }
         binding.recyclerView.apply {

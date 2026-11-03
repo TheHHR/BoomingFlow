@@ -27,6 +27,10 @@ import android.widget.TextView
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.fragment.app.FragmentActivity
+import androidx.recyclerview.widget.AsyncDifferConfig
+import androidx.recyclerview.widget.AsyncListDiffer
+import androidx.recyclerview.widget.AdapterListUpdateCallback
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import coil3.load
 import com.mardous.booming.R
@@ -45,6 +49,10 @@ import com.mardous.booming.data.model.Album
 import com.mardous.booming.data.model.Artist
 import com.mardous.booming.data.model.Genre
 import com.mardous.booming.data.model.Song
+import com.mardous.booming.online.data.spotify.SpotifyAlbum
+import com.mardous.booming.online.data.spotify.SpotifyArtist
+import com.mardous.booming.online.data.spotify.SpotifyPlaylist
+import com.mardous.booming.online.data.spotify.SpotifyTrack
 import com.mardous.booming.online.data.spotify.thumbnailUrl
 import com.mardous.booming.extensions.media.albumInfo
 import com.mardous.booming.extensions.media.artistInfo
@@ -55,29 +63,77 @@ import com.mardous.booming.extensions.media.songInfo
 import com.mardous.booming.ui.ISearchCallback
 import com.mardous.booming.ui.component.base.AbsMultiSelectAdapter
 import com.mardous.booming.ui.component.menu.OnClickMenu
-import kotlin.properties.Delegates
-import kotlin.reflect.KProperty
 
 class SearchAdapter(
     activity: FragmentActivity,
-    dataSet: List<Any>,
     private val callback: ISearchCallback? = null,
     private val spotifyCallback: com.mardous.booming.ui.ISpotifySearchCallback? = null
 ) : AbsMultiSelectAdapter<SearchAdapter.ViewHolder, Song>(activity, R.menu.menu_media_selection) {
 
-    var dataSet by Delegates.observable(dataSet) { _: KProperty<*>, _: List<Any>, _: List<Any> ->
-        notifyDataSetChanged()
+    /**
+     * Diff-backed list. Updates go through [submitList] and AsyncListDiffer
+     * computes minimal range notifications: appending a Spotify page only
+     * binds the appended rows, and re-delivering the same results binds
+     * nothing at all. Previously every assignment fired a blanket
+     * notifyDataSetChanged, which made song selection, accent changes and
+     * scroll-to-load-more look like a full list reload.
+     */
+    val dataSet: List<Any>
+        get() = differ.currentList
+
+    private val diffCallback = object : DiffUtil.ItemCallback<Any>() {
+        override fun areItemsTheSame(oldItem: Any, newItem: Any): Boolean = when {
+            oldItem is Song && newItem is Song -> oldItem.id == newItem.id
+            oldItem is Album && newItem is Album -> oldItem.id == newItem.id
+            oldItem is Artist && newItem is Artist -> oldItem.id == newItem.id
+            oldItem is Genre && newItem is Genre -> oldItem.id == newItem.id
+            oldItem is PlaylistWithSongs && newItem is PlaylistWithSongs ->
+                oldItem.playlistEntity.playListId == newItem.playlistEntity.playListId
+            oldItem is SpotifyTrack && newItem is SpotifyTrack -> oldItem.id == newItem.id
+            oldItem is SpotifyPlaylist && newItem is SpotifyPlaylist -> oldItem.id == newItem.id
+            oldItem is SpotifyArtist && newItem is SpotifyArtist -> oldItem.id == newItem.id
+            oldItem is SpotifyAlbum && newItem is SpotifyAlbum -> oldItem.id == newItem.id
+            oldItem is String && newItem is String -> oldItem == newItem
+            else -> false
+        }
+
+        override fun areContentsTheSame(oldItem: Any, newItem: Any): Boolean = oldItem == newItem
+    }
+
+    private val differ = AsyncListDiffer(
+        AdapterListUpdateCallback(this),
+        AsyncDifferConfig.Builder(diffCallback).build()
+    )
+
+    fun submitList(list: List<Any>?, commitCallback: (() -> Unit)? = null) {
+        differ.submitList(list, commitCallback)
     }
 
     /**
      * Live downloaded set from [com.mardous.booming.online.download.DownloadRegistry];
-     * setting it rebinds rows so badges follow downloads and accent changes.
+     * setting it rebinds only the Spotify track rows (badges follow downloads),
+     * and identical re-deliveries (StateFlow replay on START) bind nothing.
      */
     var downloadedSpotifyIds: Set<String> = emptySet()
         set(value) {
+            if (field == value) return
             field = value
-            notifyDataSetChanged()
+            refreshSpotifyTrackRows()
         }
+
+    /** Rebinds accent-sensitive rows: Spotify track badges + checked-row fills. */
+    fun refreshAccentBadges() {
+        refreshSpotifyTrackRows()
+        refreshCheckedRows()
+    }
+
+    private fun refreshSpotifyTrackRows() {
+        for (i in 0 until itemCount) {
+            if (getItemViewType(i) == SPOTIFY_TRACK) {
+                notifyItemChanged(i)
+            }
+        }
+    }
 
     override fun getIdentifier(position: Int): Song? {
         val item = dataSet[position]

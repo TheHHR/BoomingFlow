@@ -245,6 +245,25 @@ class SearchViewModel(
         searchQuery.value = searchQuery.value.copy(timestamp = System.currentTimeMillis())
     }
 
+    /**
+     * Stable key of what the search screen is currently displaying (scope +
+     * filter + mode + text). The fragment compares it before and after a
+     * results emission to tell a genuine new query apart from a page append
+     * or a StateFlow replay, so the entrance animation only plays on the
+     * former. The timestamp deliberately does not take part: refresh() only
+     * re-runs the search, it is not a "new query" to the user.
+     */
+    val currentQueryKey: String
+        get() {
+            val query = searchQuery.value
+            return listOf(
+                scopePlaylistKey.orEmpty(),
+                _searchFilter.value?.hashCode().toString(),
+                query.filterMode.toString(),
+                query.searched.orEmpty()
+            ).joinToString("|")
+        }
+
     companion object {
         private const val SPOTIFY_PAGE = 20
     }

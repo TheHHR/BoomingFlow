@@ -598,19 +598,26 @@ private fun ProviderSwitchDialog(
         title = { Text(stringResource(R.string.switch_lyrics_provider_title)) },
         text = {
             Column(modifier = Modifier.fillMaxWidth()) {
-                // Only providers enabled in the network settings take part
-                // in the race, so only those get rows.
+                // Every policy-available provider gets a row, including the
+                // ones disabled in network settings: the user can tap a
+                // disabled provider to fetch from just that one, on demand
+                // (applyProviderLyrics ignores the provider setting). Only
+                // ENABLED providers take part in the background race, so
+                // disabled rows start as "Disabled — tap to fetch on demand"
+                // instead of a live result.
                 val visibleProviders = remember {
-                    LyricsProvider.entries.filter {
-                        it.isAvailableForCurrentPolicy && it.isEnabled
-                    }
+                    LyricsProvider.entries.filter { it.isAvailableForCurrentPolicy }
                 }
-                val isSearchingAny = liveResults.size < visibleProviders.size
+                val enabledProviderCount = remember(visibleProviders) {
+                    visibleProviders.count { it.isEnabled }
+                }
+                val isSearchingAny = liveResults.size < enabledProviderCount
                 val searchingLabel = stringResource(R.string.searching_lyrics_provider)
                 val noLyricsLabel = stringResource(R.string.no_lyrics_found)
                 val wordSyncedLabel = stringResource(R.string.word_by_word_lyrics_provider_status)
                 val lineSyncedLabel = stringResource(R.string.line_synced_lyrics_provider_status)
                 val plainLabel = stringResource(R.string.plain_text_lyrics_provider_status)
+                val disabledLabel = stringResource(R.string.disabled_lyrics_provider_status)
                 val rows = remember(
                     activeProvider, switchState, liveResults, visibleProviders
                 ) {
@@ -623,7 +630,8 @@ private fun ProviderSwitchDialog(
                         noLyricsLabel = noLyricsLabel,
                         wordSyncedLabel = wordSyncedLabel,
                         lineSyncedLabel = lineSyncedLabel,
-                        plainLabel = plainLabel
+                        plainLabel = plainLabel,
+                        disabledLabel = disabledLabel
                     )
                 }
                 LazyColumn(
@@ -684,7 +692,13 @@ private fun ProviderSwitchDialog(
                             },
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .alpha(if (!row.hasLyrics && !row.isPending) 0.6f else 1f)
+                                .alpha(
+                                    if ((!row.hasLyrics && !row.isPending) || row.isDisabled) {
+                                        0.5f
+                                    } else {
+                                        1f
+                                    }
+                                )
                         ) {
                             Text(
                                 text = row.provider.displayName,
@@ -694,14 +708,24 @@ private fun ProviderSwitchDialog(
                     }
                 }
 
-                if (isSearchingAny) {
-                    LinearWavyProgressIndicator(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(6.dp)
-                            .padding(top = 8.dp),
-                        color = MaterialTheme.colorScheme.primary
-                    )
+                // Fixed-height slot: the search progress bar must never
+                // enter or leave the composition, or the dialog would
+                // resize (and shift the sync offset row) the moment the
+                // last provider settles. Only its visibility toggles.
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(14.dp)
+                ) {
+                    if (isSearchingAny) {
+                        LinearWavyProgressIndicator(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(6.dp)
+                                .align(Alignment.BottomCenter),
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
                 }
 
                 SyncOffsetRow(
@@ -727,6 +751,7 @@ private data class ProviderRow(
     val hasLyrics: Boolean,
     val isPending: Boolean,
     val isLoading: Boolean,
+    val isDisabled: Boolean,
     val index: Int
 )
 
@@ -739,7 +764,8 @@ private fun sortedProviderRows(
     noLyricsLabel: String,
     wordSyncedLabel: String,
     lineSyncedLabel: String,
-    plainLabel: String
+    plainLabel: String,
+    disabledLabel: String
 ): List<ProviderRow> {
     val rows = visibleProviders.map { provider ->
         val remote = liveResults[provider.displayName]
@@ -750,12 +776,17 @@ private fun sortedProviderRows(
                 remote?.synced?.isWordLevel() == true
         val isSynced = remote?.hasSynced == true || isWordSynced
         val hasLyrics = remote != null && (isSynced || remote.hasPlain)
-        val isPending = !liveResults.containsKey(provider.displayName)
+        val isDisabled = !provider.isEnabled
+        // Only enabled providers take part in the background race, so only
+        // they can be "pending" — a disabled row would otherwise spin
+        // forever waiting for a result the race never produces.
+        val isPending = provider.isEnabled && !liveResults.containsKey(provider.displayName)
         val isLoading = switchState.loadingProvider == provider
         val subtitle = when {
             switchState.failureProvider == provider -> noLyricsLabel
             isLoading -> searchingLabel
             isPending -> searchingLabel
+            isDisabled && !hasLyrics -> disabledLabel
             !hasLyrics -> noLyricsLabel
             isWordSynced -> wordSyncedLabel
             isSynced -> lineSyncedLabel
@@ -770,6 +801,7 @@ private fun sortedProviderRows(
                 hasLyrics = hasLyrics,
                 isPending = isPending || isLoading,
                 isLoading = isPending || isLoading,
+                isDisabled = isDisabled,
                 index = 0
             ),
             if (provider.displayName == activeProvider) 2
