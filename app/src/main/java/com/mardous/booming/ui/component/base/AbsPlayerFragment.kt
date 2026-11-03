@@ -41,7 +41,6 @@ import androidx.core.content.ContextCompat
 import androidx.core.os.postDelayed
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.graphics.Color as ComposeColor
 import androidx.compose.ui.platform.ComposeView
@@ -72,7 +71,7 @@ import com.mardous.booming.data.model.Genre
 import com.mardous.booming.data.model.Song
 import com.mardous.booming.extensions.currentFragment
 import com.mardous.booming.extensions.launchAndRepeatWithViewLifecycle
-import com.mardous.booming.ui.component.compose.decoration.spatialBackground
+import com.mardous.booming.ui.component.compose.decoration.SpatialBackdrop
 import com.mardous.booming.extensions.media.albumArtistName
 import com.mardous.booming.extensions.media.displayArtistName
 import com.mardous.booming.extensions.media.gotoArtistNames
@@ -469,10 +468,10 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) : Fragment(layoutRes
                 it.setImageDrawable(null)
             }
         }
-        updateSpatialBackground(scheme)
+        updateSpatialBackground(song, scheme)
     }
 
-    private fun updateSpatialBackground(scheme: PlayerColorScheme) {
+    private fun updateSpatialBackground(song: Song, scheme: PlayerColorScheme) {
         val spatialView = spatialBackgroundView ?: return
         if (!scheme.spatialToken.isSpatial) {
             spatialView.isVisible = false
@@ -481,9 +480,6 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) : Fragment(layoutRes
         val palette = spatialPaletteColor ?: return
         spatialView.isVisible = true
         spatialView.setContent {
-            val backgroundColor =
-                if (scheme.surfaceColor != 0) ComposeColor(scheme.surfaceColor)
-                else ComposeColor(palette.backgroundColor)
             val swatches = palette.spatialColors
             val vibrant =
                 if (swatches.vibrant != 0) ComposeColor(swatches.vibrant)
@@ -495,15 +491,13 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) : Fragment(layoutRes
                 if (swatches.darkMuted != 0) ComposeColor(swatches.darkMuted)
                 else ComposeColor(palette.backgroundColor)
 
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .spatialBackground(
-                        backgroundColor = backgroundColor,
-                        vibrant = vibrant,
-                        darkVibrant = darkVibrant,
-                        darkMuted = darkMuted
-                    )
+            SpatialBackdrop(
+                coverModel = song,
+                vibrant = vibrant,
+                darkVibrant = darkVibrant,
+                darkMuted = darkMuted,
+                dimmed = true,
+                modifier = Modifier.fillMaxSize()
             )
         }
     }

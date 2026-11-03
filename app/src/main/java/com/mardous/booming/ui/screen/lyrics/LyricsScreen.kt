@@ -96,7 +96,7 @@ import com.mardous.booming.ui.component.compose.color.extractGradientColors
 import com.mardous.booming.ui.component.compose.decoration.FadingEdges
 import com.mardous.booming.ui.component.compose.decoration.animatedGradient
 import com.mardous.booming.ui.component.compose.decoration.fadingEdges
-import com.mardous.booming.ui.component.compose.decoration.spatialBackground
+import com.mardous.booming.ui.component.compose.decoration.SpatialBackdrop
 import com.mardous.booming.ui.component.compose.lyrics.LyricsView
 import com.mardous.booming.ui.component.views.PlaceholderDrawable
 import com.mardous.booming.ui.screen.library.LibraryViewModel
@@ -178,24 +178,19 @@ fun LyricsScreen(
         val effect = lyricsViewSettings.backgroundEffect
         if (effect == BackgroundEffect.Gradient || effect == BackgroundEffect.Spatial) {
             if (effect == BackgroundEffect.Spatial) {
-                // The spatial fluid mesh uses the album's vibrant/dark
-                // swatches over the player surface color, with a plain
-                // scheme fallback while no palette swatches exist yet.
+                // The spatial backdrop uses the album's vibrant/dark
+                // swatches (same extraction SpatialFlow feeds its palette
+                // overlay); cover extraction is the fallback while no
+                // palette swatches exist yet.
                 val swatches = paletteColor.spatialColors
-                spatialColors = if (swatches.vibrant != 0) {
-                    listOf(
-                        Color(if (playerColorScheme.surfaceColor != 0) playerColorScheme.surfaceColor else paletteColor.backgroundColor),
+                if (swatches.vibrant != 0) {
+                    spatialColors = listOf(
                         Color(swatches.vibrant),
                         Color(swatches.darkVibrant),
                         Color(swatches.darkMuted)
                     )
-                } else {
-                    listOf(
-                        Color(if (playerColorScheme.surfaceColor != 0) playerColorScheme.surfaceColor else paletteColor.backgroundColor),
-                        Color(paletteColor.primaryColor)
-                    ).filter { it != Color(0) }
+                    return@LaunchedEffect
                 }
-                return@LaunchedEffect
             }
             // Prefer the player's extracted scheme so the lyrics background
             // uses the exact same colors as the rest of the app; the cover
@@ -204,7 +199,11 @@ fun LyricsScreen(
                 .takeIf { colors -> colors.none { it == 0 } }
                 ?.map { Color(it) }
             if (schemeColors != null) {
-                gradientColors = schemeColors
+                if (effect == BackgroundEffect.Spatial) {
+                    spatialColors = schemeColors
+                } else {
+                    gradientColors = schemeColors
+                }
             } else {
                 withContext(Dispatchers.Default) {
                     val result = SingletonImageLoader.get(context).execute(
@@ -212,12 +211,17 @@ fun LyricsScreen(
                             .data(song)
                             .build()
                     )
-                    gradientColors = if (result is SuccessResult) {
+                    val extracted = if (result is SuccessResult) {
                         result.image.toBitmap().extractGradientColors(
                             context.resolveColor(PlaceholderDrawable.BACKGROUND_COLOR)
                         )
                     } else {
                         emptyList()
+                    }
+                    if (effect == BackgroundEffect.Spatial) {
+                        spatialColors = extracted
+                    } else {
+                        gradientColors = extracted
                     }
                 }
             }
@@ -291,15 +295,13 @@ fun LyricsScreen(
                     }
 
                     effect.isSpatial && spatialColors.size >= 2 -> {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .spatialBackground(
-                                    backgroundColor = spatialColors[0],
-                                    vibrant = spatialColors.getOrElse(1) { spatialColors[0] },
-                                    darkVibrant = spatialColors.getOrElse(2) { spatialColors[1] },
-                                    darkMuted = spatialColors.getOrElse(3) { spatialColors[0] }
-                                )
+                        SpatialBackdrop(
+                            coverModel = song,
+                            vibrant = spatialColors[0],
+                            darkVibrant = spatialColors.getOrElse(1) { spatialColors[0] },
+                            darkMuted = spatialColors.getOrElse(2) { spatialColors[1] },
+                            dimmed = false,
+                            modifier = Modifier.fillMaxSize()
                         )
                         hasBackgroundEffects = true
                     }
