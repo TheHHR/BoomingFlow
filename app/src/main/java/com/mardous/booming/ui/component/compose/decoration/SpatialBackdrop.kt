@@ -83,7 +83,7 @@ fun SpatialBackdrop(
             model = request,
             contentDescription = null,
             contentScale = ContentScale.Crop,
-            colorFilter = ColorFilter.colorFilter(
+            colorFilter = ColorFilter.colorMatrix(
                 ColorMatrixColorFilter(ColorMatrix().apply { setSaturation(2f) })
             ),
             modifier = Modifier.matchParentSize()
