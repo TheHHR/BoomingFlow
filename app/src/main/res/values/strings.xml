@@ -754,10 +754,6 @@
     <string name="lyrics_background_gradient">Gradient</string>
     <string name="lyrics_background_spatial">Fluid</string>
     <string name="lyrics_background_blur">Blur</string>
-    <string name="now_playing_background_effect_title">Background effect</string>
-    <string name="now_playing_background_effect_summary">Slow pan and zoom motion on the Fluid background. When off, the blurred cover stays still.</string>
-    <string name="lyrics_film_grain_title">Film grain</string>
-    <string name="lyrics_film_grain_summary">Subtle tactile grain over the Fluid background, like on film footage.</string>
     <string name="lyrics_blur_effect_title">Blur effect</string>
     <string name="lyrics_blur_effect_summary">Blur the lyrics lines adjacent to the current one.</string>
     <string name="lyrics_shadow_effect_title">Shadow effect</string>

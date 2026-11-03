@@ -49,8 +49,9 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.navOptions
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import coil3.load
 import coil3.request.crossfade
 import coil3.request.transformations
@@ -182,6 +183,20 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) : Fragment(layoutRes
         get() = null
 
     private var spatialPaletteColor: PaletteColor? = null
+
+    /**
+     * Compose-state holder for the Spatial fluid background. The
+     * ComposeView composition is created ONCE and only mutated on song and
+     * scheme changes: [androidx.compose.animation.animateColorAsState]
+     * springs old-to-new colors and the cover view persists (holding the
+     * previous artwork until the next blurred bitmap resolves), exactly
+     * like SpatialFlow's persistent player composition. Calling
+     * setContent on every song change would restart the composition and
+     * turn every transition into a snap plus a black flash.
+     */
+    private val spatialBackdropState = SpatialBackdropState()
+
+    private var spatialContentInitialized = false
 
     private var colorAnimatorSet: AnimatorSet? = null
 
@@ -481,32 +496,32 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) : Fragment(layoutRes
         }
         val palette = spatialPaletteColor ?: return
         spatialView.isVisible = true
-        spatialView.setContent {
-            val swatches = palette.spatialColors
-            val vibrant =
-                if (swatches.vibrant != 0) ComposeColor(swatches.vibrant)
-                else ComposeColor(palette.primaryColor)
-            val darkVibrant =
-                if (swatches.darkVibrant != 0) ComposeColor(swatches.darkVibrant)
-                else vibrant
-            val darkMuted =
-                if (swatches.darkMuted != 0) ComposeColor(swatches.darkMuted)
-                else ComposeColor(palette.backgroundColor)
-
-            val isPlaying by playerViewModel.isPlayingFlow.collectAsStateWithLifecycle()
-
-            SpatialBackdrop(
-                coverModel = song,
-                vibrant = vibrant,
-                darkVibrant = darkVibrant,
-                darkMuted = darkMuted,
-                dimmed = true,
-                isPlaying = isPlaying,
-                kenBurnsEnabled = Preferences.nowPlayingBackgroundEffect,
-                filmGrainEnabled = Preferences.lyricsFilmGrainEnabled,
-                modifier = Modifier.fillMaxSize()
-            )
+        if (!spatialContentInitialized) {
+            spatialContentInitialized = true
+            spatialView.setContent {
+                SpatialBackdrop(
+                    coverModel = spatialBackdropState.coverModel,
+                    vibrant = spatialBackdropState.vibrant,
+                    darkVibrant = spatialBackdropState.darkVibrant,
+                    darkMuted = spatialBackdropState.darkMuted,
+                    dimmed = spatialBackdropState.dimmed,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
         }
+        val swatches = palette.spatialColors
+        val vibrant =
+            if (swatches.vibrant != 0) ComposeColor(swatches.vibrant)
+            else ComposeColor(palette.primaryColor)
+        spatialBackdropState.coverModel = song
+        spatialBackdropState.vibrant = vibrant
+        spatialBackdropState.darkVibrant =
+            if (swatches.darkVibrant != 0) ComposeColor(swatches.darkVibrant)
+            else vibrant
+        spatialBackdropState.darkMuted =
+            if (swatches.darkMuted != 0) ComposeColor(swatches.darkMuted)
+            else ComposeColor(palette.backgroundColor)
+        spatialBackdropState.dimmed = true
     }
 
     protected fun Menu.onLyricsVisibilityChang(lyricsVisible: Boolean) {
@@ -792,4 +807,18 @@ fun goToDestination(
                 .navigate(destinationId, args, navOptions)
         }
     }
+}
+
+/**
+ * Mutable snapshot of the Spatial fluid background, read inside the
+ * ComposeView's persistent composition. Written from the main thread on
+ * every song/scheme change; Compose recomposes [SpatialBackdrop] in place,
+ * letting the palette springs and the dim animate between values.
+ */
+private class SpatialBackdropState {
+    var coverModel by mutableStateOf<Any?>(null)
+    var vibrant by mutableStateOf(ComposeColor(android.graphics.Color.BLACK))
+    var darkVibrant by mutableStateOf(ComposeColor(android.graphics.Color.BLACK))
+    var darkMuted by mutableStateOf(ComposeColor(android.graphics.Color.BLACK))
+    var dimmed by mutableStateOf(true)
 }

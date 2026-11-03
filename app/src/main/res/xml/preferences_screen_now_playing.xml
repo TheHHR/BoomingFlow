@@ -10,30 +10,6 @@
         app:key="now_playing_screen" />
 
     <PreferenceCategory
-        app:title="@string/lyrics_background_effect_title"
-        app:layout="@layout/preference_category_title">
-
-        <SwitchPreferenceCompat
-            app:iconSpaceReserved="true"
-            app:title="@string/now_playing_background_effect_title"
-            app:summary="@string/now_playing_background_effect_summary"
-            app:defaultValue="true"
-            app:layout="@layout/list_item_view"
-            app:widgetLayout="@layout/preference_switch"
-            app:key="now_playing_background_effect" />
-
-        <SwitchPreferenceCompat
-            app:iconSpaceReserved="true"
-            app:title="@string/lyrics_film_grain_title"
-            app:summary="@string/lyrics_film_grain_summary"
-            app:defaultValue="true"
-            app:layout="@layout/list_item_view"
-            app:widgetLayout="@layout/preference_switch"
-            app:key="lyrics_film_grain_enabled" />
-
-    </PreferenceCategory>
-
-    <PreferenceCategory
         app:title="@string/album_cover_header"
         app:layout="@layout/preference_category_title">
 

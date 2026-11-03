@@ -24,7 +24,6 @@ import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.os.Build
 import android.provider.Settings
-import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.ImageView
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -45,9 +44,6 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.compose.LocalLifecycleOwner
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.SingletonImageLoader
 import coil3.request.ImageRequest
 import coil3.request.SuccessResult
@@ -55,24 +51,14 @@ import coil3.request.allowHardware
 import coil3.request.transformations
 import coil3.size.Scale
 import coil3.toBitmap
-import com.flaviofaria.kenburnsview.KenBurnsView
-import com.flaviofaria.kenburnsview.RandomTransitionGenerator
 import com.mardous.booming.data.model.Song
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import android.util.LruCache
 import java.util.concurrent.ConcurrentHashMap
-
-private enum class KenBurnsOption {
-    Init,
-    Pause,
-    Resume
-}
 
 /**
  * SpatialFlow's BlurredDrawableCache: a heap-proportional LruCache
@@ -141,8 +127,8 @@ private object BlurredDrawableCache {
 
 /**
  * SpatialFlow's reduced-motion check: system animator scale set to 0
- * (accessibility "remove animations") freezes KenBurns, skips the spring
- * color morphs and renders the dim statically.
+ * (accessibility "remove animations") skips the spring color morphs and
+ * renders the dim statically.
  */
 private fun Context.isReducedMotionEnabled(): Boolean =
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
@@ -163,29 +149,26 @@ private fun coverCacheKey(model: Any?): String? = when (model) {
 
 /**
  * The Spatial now playing background, matching SpatialFlow's visible
- * composition:
+ * composition, rendered as a STATIC (non-panning) backdrop:
  * 1. Album cover downscaled to a 96px square, tint passes applied pre-blur
  *    ([SpatialTintTransformation]: 2.0x saturation + OVERLAY/plain tints),
  *    then blurred (radius 12 via Google's RenderScript Toolkit - the same
  *    engine SpatialFlow uses). Served through an LruCache (1/32 of max
  *    heap, 2-8 MB) with in-flight request deduplication, exactly like
- *    SpatialFlow's BlurredDrawableCache. Applied exactly once per cover.
- * 2. KenBurns slow pan/zoom motion (12s random transitions) while the
- *    player is playing AND the host is resumed (SpatialFlow's gating);
- *    frozen frame when paused, backgrounded, toggled off, or under
- *    reduced motion. With the toggle off, the same blurred cover is
- *    shown as a static image.
- * 3. A STATIC vertical palette gradient
+ *    SpatialFlow's BlurredDrawableCache. On song change the previous cover
+ *    stays visible until the new blurred bitmap resolves, so transitions
+ *    never flash black (matching SpatialFloatingLight's update behavior).
+ * 2. The black lossEffect dim (0.42 * 0.618 on the player page, fading out
+ *    on the lyrics page) is drawn FIRST, and the palette gradient on TOP
+ *    of it - SpatialFlow's exact stacking (NonCanvasPaletteOverlay is a
+ *    later sibling than SpatialFloatingLight's dim).
+ * 3. The palette gradient itself is STATIC
  *    (vibrant 30% -> dark-vibrant 20% -> dark-muted 15%), spring-morphed
  *    on song change with SpatialFlow's NonCanvasPaletteOverlay specs.
- * 4. Animated black dim (player page: 0.42 * 0.618 like SpatialFlow's
- *    lossEffect; lyrics page: fades out).
- * 5. Apple Music-style tactile film grain (SpatialFlow's FilmGrainLayer:
- *    AGSL on Android 13+, tiled noise bitmap below), applied over both
+ * 4. Apple Music-style tactile film grain (SpatialFlow's FilmGrainLayer:
+ *    AGSL on Android 13+, tiled noise bitmap below), always on, over both
  *    the player and lyrics pages.
- * The only "animation" besides KenBurns is the spring color morph on
- * song change and the dim fade; all of it is suppressed under reduced
- * motion.
+ * Under reduced motion, the springs and the dim fade are suppressed.
  */
 @Composable
 fun SpatialBackdrop(
@@ -194,10 +177,7 @@ fun SpatialBackdrop(
     darkVibrant: Color,
     darkMuted: Color,
     dimmed: Boolean,
-    modifier: Modifier = Modifier,
-    isPlaying: Boolean = true,
-    kenBurnsEnabled: Boolean = true,
-    filmGrainEnabled: Boolean = true
+    modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
     val isReducedMotion = remember(context) { context.isReducedMotionEnabled() }
@@ -258,82 +238,33 @@ fun SpatialBackdrop(
         }
     }
 
-    val animateMotion = kenBurnsEnabled && !isReducedMotion
-    val lifecycleOwner = LocalLifecycleOwner.current
-    val isResumed by lifecycleOwner.lifecycle.currentStateFlow
-        .map { it.isAtLeast(Lifecycle.State.RESUMED) }
-        .distinctUntilChanged()
-        .collectAsStateWithLifecycle(
-            initialValue = lifecycleOwner.lifecycle.currentState
-                .isAtLeast(Lifecycle.State.RESUMED)
-        )
-
     Box(modifier.background(Color.Black)) {
-        if (animateMotion) {
-            val lastOption = remember { mutableStateOf(KenBurnsOption.Init) }
-            AndroidView(
-                factory = { ctx ->
-                    KenBurnsView(ctx).apply {
-                        scaleType = ImageView.ScaleType.CENTER_CROP
-                        setTransitionGenerator(
-                            RandomTransitionGenerator(
-                                12000,
-                                AccelerateDecelerateInterpolator()
-                            )
-                        )
-                    }
-                },
-                modifier = Modifier.matchParentSize(),
-                onRelease = { view ->
-                    view.pause()
-                    view.setImageDrawable(null)
-                },
-                update = { view ->
-                    val currentDrawable = blurredCover
-                    if (currentDrawable != null && view.drawable !== currentDrawable) {
-                        view.setImageDrawable(currentDrawable)
-                    }
-                    // SpatialFloatingLight's gating: animate only while the
-                    // host is resumed and playback is active (the mini-player
-                    // gate is N/A here - the player is a full screen).
-                    val shouldAnimate = isResumed && isPlaying
-                    if (shouldAnimate) {
-                        if (lastOption.value != KenBurnsOption.Resume) {
-                            view.resume()
-                            lastOption.value = KenBurnsOption.Resume
-                        }
-                    } else {
-                        if (lastOption.value != KenBurnsOption.Pause) {
-                            view.pause()
-                            lastOption.value = KenBurnsOption.Pause
-                        }
-                    }
+        AndroidView(
+            factory = { ctx ->
+                ImageView(ctx).apply {
+                    scaleType = ImageView.ScaleType.CENTER_CROP
                 }
-            )
-        } else {
-            AndroidView(
-                factory = { ctx ->
-                    ImageView(ctx).apply {
-                        scaleType = ImageView.ScaleType.CENTER_CROP
-                    }
-                },
-                modifier = Modifier.matchParentSize(),
-                onRelease = { view ->
-                    view.setImageDrawable(null)
-                },
-                update = { view ->
-                    val currentDrawable = blurredCover
-                    if (view.drawable !== currentDrawable) {
-                        view.setImageDrawable(currentDrawable)
-                    }
+            },
+            modifier = Modifier.matchParentSize(),
+            onRelease = { view ->
+                view.setImageDrawable(null)
+            },
+            update = { view ->
+                val currentDrawable = blurredCover
+                if (currentDrawable != null && view.drawable !== currentDrawable) {
+                    view.setImageDrawable(currentDrawable)
                 }
-            )
-        }
+            }
+        )
 
         Box(
             modifier = Modifier
                 .matchParentSize()
                 .drawBehind {
+                    // lossEffect: 0.42 alpha * 0.618 animated progress,
+                    // drawn UNDER the palette gradient (SpatialFlow stacks
+                    // NonCanvasPaletteOverlay above the dim).
+                    if (dimAlpha > 0f) drawRect(Color.Black.copy(alpha = 0.42f * dimAlpha))
                     // NonCanvasPaletteOverlay: static palette gradient.
                     drawRect(
                         Brush.verticalGradient(
@@ -344,15 +275,12 @@ fun SpatialBackdrop(
                             )
                         )
                     )
-                    // lossEffect: 0.42 alpha * 0.618 animated progress.
-                    if (dimAlpha > 0f) drawRect(Color.Black.copy(alpha = 0.42f * dimAlpha))
                 }
         )
 
         FilmGrainLayer(
             alphaProvider = { 1f },
             intensity = 0.055f,
-            enabled = filmGrainEnabled,
             modifier = Modifier.matchParentSize()
         )
     }

@@ -387,17 +387,6 @@ object Preferences : KoinComponent {
         }
     }
 
-    /**
-     * KenBurns pan/zoom motion on the Spatial fluid background.
-     * When off, the blurred cover renders as a static image.
-     */
-    val nowPlayingBackgroundEffect: Boolean
-        get() = preferences.getBoolean(NOW_PLAYING_BACKGROUND_EFFECT, true)
-
-    /** Apple Music-style tactile grain over the Spatial fluid background. */
-    val lyricsFilmGrainEnabled: Boolean
-        get() = preferences.getBoolean(LYRICS_FILM_GRAIN_ENABLED, true)
-
     val extraControls: Boolean
         get() = preferences.getBoolean(ADD_EXTRA_CONTROLS, false)
 
@@ -712,8 +701,6 @@ const val COMPACT_ARTIST_SONG_VIEW = "compact_artist_song_view"
 const val NOW_PLAYING_SCREEN = "now_playing_screen"
 const val PLAYER_COLOR_SCHEME = "player_color_scheme"
 const val LEGACY_COLOR_SCHEME_KEY = "player_expressive_color_scheme"
-const val NOW_PLAYING_BACKGROUND_EFFECT = "now_playing_background_effect"
-const val LYRICS_FILM_GRAIN_ENABLED = "lyrics_film_grain_enabled"
 const val ADD_EXTRA_CONTROLS = "add_extra_controls"
 const val ADAPTIVE_CONTROLS = "adaptive_controls"
         const val SQUIGGLY_SEEK_BAR = "squiggly_seek_bar"
