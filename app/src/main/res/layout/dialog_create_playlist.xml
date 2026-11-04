@@ -113,7 +113,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:hint="@string/sync_folders_hint"
-                app:helperText="@string/sync_folders_helper">
+                app:placeholderText="@string/sync_folders_placeholder">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/playlist_sync_folders_edit_text"
@@ -131,7 +131,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:hint="@string/sync_artists_hint"
-                app:helperText="@string/sync_artists_helper">
+                app:placeholderText="@string/sync_artists_placeholder">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/playlist_sync_artists_edit_text"
@@ -149,7 +149,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:hint="@string/sync_genres_hint"
-                app:helperText="@string/sync_genres_helper">
+                app:placeholderText="@string/sync_genres_placeholder">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/playlist_sync_genres_edit_text"

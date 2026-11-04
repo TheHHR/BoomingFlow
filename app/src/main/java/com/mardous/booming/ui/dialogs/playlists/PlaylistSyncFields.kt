@@ -23,8 +23,6 @@ import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.mardous.booming.R
 import com.mardous.booming.core.playlist.PlaylistSyncRules
-import com.mardous.booming.core.playlist.SyncRuleValidationData
-import com.mardous.booming.core.playlist.validate
 import com.mardous.booming.databinding.DialogCreatePlaylistBinding
 
 /**
@@ -62,49 +60,15 @@ private fun DialogCreatePlaylistBinding.clearErrorOnEdit(
 }
 
 /**
- * Validates the rule input against [data] and shows a per-field error
- * for every entry that resolves to nothing ("Invalid folder: X", etc.).
- * Returns true when the input is acceptable (or the sync switch is off).
- *
- * A null [data] means the library snapshot could not be fetched; in that
- * case only the structural checks run and saving is never blocked by a
- * transient failure.
+ * Structural check only: the switch is on but not a single rule field
+ * is filled. Entry-level existence validation is intentionally not done
+ * here; unknown entries simply match nothing at sync time.
  */
-fun DialogCreatePlaylistBinding.validateSyncFields(
-    data: SyncRuleValidationData?
-): Boolean {
+fun DialogCreatePlaylistBinding.validateSyncFields(): Boolean {
     if (!playlistSyncedSwitch.isChecked) {
         return true
     }
-    val rules = readSyncFields()
-    if (!rules.isValid()) {
-        playlistSyncFoldersLayout.error =
-            root.context.getString(R.string.synced_playlist_rules_error)
-        return false
-    }
-    if (data == null) {
-        return true
-    }
-    val errors = rules.validate(data)
-    if (errors.invalidFolders.isNotEmpty()) {
-        playlistSyncFoldersLayout.error = root.context.getString(
-            R.string.sync_invalid_folder_x,
-            errors.invalidFolders.joinToString(", ")
-        )
-    }
-    if (errors.invalidArtists.isNotEmpty()) {
-        playlistSyncArtistsLayout.error = root.context.getString(
-            R.string.sync_invalid_artist_x,
-            errors.invalidArtists.joinToString(", ")
-        )
-    }
-    if (errors.invalidGenres.isNotEmpty()) {
-        playlistSyncGenresLayout.error = root.context.getString(
-            R.string.sync_invalid_genre_x,
-            errors.invalidGenres.joinToString(", ")
-        )
-    }
-    return !errors.hasErrors
+    return readSyncFields().isValid()
 }
 
 /** The parsed rules, or null when the synced switch is off. */

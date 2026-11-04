@@ -25,7 +25,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.net.toUri
 import androidx.core.view.isGone
 import androidx.fragment.app.DialogFragment
-import androidx.lifecycle.lifecycleScope
 import coil3.load
 import coil3.size.Precision
 import coil3.size.Scale
@@ -42,7 +41,6 @@ import com.mardous.booming.extensions.showToast
 import com.mardous.booming.extensions.withArgs
 import com.mardous.booming.ui.screen.library.LibraryViewModel
 import com.mardous.booming.ui.screen.library.ReloadType
-import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
 
 /**
@@ -83,14 +81,15 @@ class EditPlaylistDialog : DialogFragment() {
         binding.playlistNameEditText.setText(playlistEntity.playlistName)
         binding.playlistDescriptionEditText.setText(playlistEntity.description ?: "")
 
-        // Sync rules prefill; Favorites never syncs and cannot be toggled
-        val initialRules = if (isFavorites) {
-            null
+        // The sync section only exists for already-synced playlists:
+        // manual playlists (and Favorites) cannot gain rules from here,
+        // so no special "locked" handling is needed at all.
+        if (playlistEntity.isSynced) {
+            binding.setupSyncFields(PlaylistSyncRules.deserialize(playlistEntity.syncRules))
         } else {
-            PlaylistSyncRules.deserialize(playlistEntity.syncRules)
+            binding.playlistSyncedSwitch.isGone = true
+            binding.syncRulesContainer.isGone = true
         }
-        binding.playlistSyncedSwitch.isEnabled = !isFavorites
-        binding.setupSyncFields(initialRules)
 
         // Set initial image
         selectedImageUri = playlistEntity.customCoverUri
@@ -112,24 +111,22 @@ class EditPlaylistDialog : DialogFragment() {
                     return@setPositiveButton
                 }
 
-                viewLifecycleOwner.lifecycleScope.launch {
-                    val validationData =
-                        runCatching { libraryViewModel.syncRuleValidationData() }.getOrNull()
-                    if (!binding.validateSyncFields(validationData)) {
-                        return@launch
-                    }
-
-                    libraryViewModel.updatePlaylist(
-                        playlist = playlistEntity,
-                        newName = playlistName,
-                        newImageUri = selectedImageUri,
-                        newDescription = description?.ifEmpty { null },
-                        syncRules = binding.collectSyncRules()
-                    )
-
-                    libraryViewModel.forceReload(ReloadType.Playlists)
-                    showToast(R.string.playlist_updated)
+                if (!binding.validateSyncFields()) {
+                    binding.playlistSyncFoldersLayout.error =
+                        getString(R.string.synced_playlist_rules_error)
+                    return@setPositiveButton
                 }
+
+                libraryViewModel.updatePlaylist(
+                    playlist = playlistEntity,
+                    newName = playlistName,
+                    newImageUri = selectedImageUri,
+                    newDescription = description?.ifEmpty { null },
+                    syncRules = binding.collectSyncRules()
+                )
+
+                libraryViewModel.forceReload(ReloadType.Playlists)
+                showToast(R.string.playlist_updated)
             }
             .setNegativeButton(android.R.string.cancel, null)
             .create()
