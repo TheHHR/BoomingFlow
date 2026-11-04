@@ -40,7 +40,7 @@ class ArtistImageKeyer(
 
 class PlaylistImageKeyer : Keyer<PlaylistImage> {
     override fun key(data: PlaylistImage, options: Options): String? {
-        return "playlist2::id=${data.playlistEntity.playListId}" +
+        return "playlist3::id=${data.playlistEntity.playListId}" +
                 "|customCoverUri=${data.playlistEntity.customCoverUri}" +
                 "|songs=${data.songs.size}"
     }
