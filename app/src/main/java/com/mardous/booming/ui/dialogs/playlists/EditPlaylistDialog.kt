@@ -25,6 +25,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.net.toUri
 import androidx.core.view.isGone
 import androidx.fragment.app.DialogFragment
+import androidx.lifecycle.lifecycleScope
 import coil3.load
 import coil3.size.Precision
 import coil3.size.Scale
@@ -41,6 +42,7 @@ import com.mardous.booming.extensions.showToast
 import com.mardous.booming.extensions.withArgs
 import com.mardous.booming.ui.screen.library.LibraryViewModel
 import com.mardous.booming.ui.screen.library.ReloadType
+import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
 
 /**
@@ -76,16 +78,18 @@ class EditPlaylistDialog : DialogFragment() {
         binding.message.isGone = true
 
         // Pre-fill existing data
-        binding.playlistNameEditText.isEnabled = !playlistEntity.isFavorites(requireContext())
+        val isFavorites = playlistEntity.isFavorites(requireContext())
+        binding.playlistNameEditText.isEnabled = !isFavorites
         binding.playlistNameEditText.setText(playlistEntity.playlistName)
         binding.playlistDescriptionEditText.setText(playlistEntity.description ?: "")
 
-        // Sync rules prefill; Favorites never syncs
-        val initialRules = if (playlistEntity.isFavorites(requireContext())) {
+        // Sync rules prefill; Favorites never syncs and cannot be toggled
+        val initialRules = if (isFavorites) {
             null
         } else {
             PlaylistSyncRules.deserialize(playlistEntity.syncRules)
         }
+        binding.playlistSyncedSwitch.isEnabled = !isFavorites
         binding.setupSyncFields(initialRules)
 
         // Set initial image
@@ -108,21 +112,24 @@ class EditPlaylistDialog : DialogFragment() {
                     return@setPositiveButton
                 }
 
-                if (!binding.validateSyncFields()) {
-                    showToast(R.string.synced_playlist_rules_error)
-                    return@setPositiveButton
+                viewLifecycleOwner.lifecycleScope.launch {
+                    val validationData =
+                        runCatching { libraryViewModel.syncRuleValidationData() }.getOrNull()
+                    if (!binding.validateSyncFields(validationData)) {
+                        return@launch
+                    }
+
+                    libraryViewModel.updatePlaylist(
+                        playlist = playlistEntity,
+                        newName = playlistName,
+                        newImageUri = selectedImageUri,
+                        newDescription = description?.ifEmpty { null },
+                        syncRules = binding.collectSyncRules()
+                    )
+
+                    libraryViewModel.forceReload(ReloadType.Playlists)
+                    showToast(R.string.playlist_updated)
                 }
-
-                libraryViewModel.updatePlaylist(
-                    playlist = playlistEntity,
-                    newName = playlistName,
-                    newImageUri = selectedImageUri,
-                    newDescription = description?.ifEmpty { null },
-                    syncRules = binding.collectSyncRules()
-                )
-
-                libraryViewModel.forceReload(ReloadType.Playlists)
-                showToast(R.string.playlist_updated)
             }
             .setNegativeButton(android.R.string.cancel, null)
             .create()

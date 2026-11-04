@@ -16,8 +16,15 @@
  */
 package com.mardous.booming.ui.dialogs.playlists
 
+import android.text.Editable
+import android.text.TextWatcher
 import androidx.core.view.isVisible
+import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
+import com.mardous.booming.R
 import com.mardous.booming.core.playlist.PlaylistSyncRules
+import com.mardous.booming.core.playlist.SyncRuleValidationData
+import com.mardous.booming.core.playlist.validate
 import com.mardous.booming.databinding.DialogCreatePlaylistBinding
 
 /**
@@ -35,25 +42,69 @@ fun DialogCreatePlaylistBinding.setupSyncFields(initialRules: PlaylistSyncRules?
     playlistSyncedSwitch.setOnCheckedChangeListener { _, isChecked ->
         syncRulesContainer.isVisible = isChecked
     }
+    // Typing clears the field's validation error.
+    clearErrorOnEdit(playlistSyncFoldersLayout, playlistSyncFoldersEditText)
+    clearErrorOnEdit(playlistSyncArtistsLayout, playlistSyncArtistsEditText)
+    clearErrorOnEdit(playlistSyncGenresLayout, playlistSyncGenresEditText)
 }
 
-/** True when the switch is on and at least one rule field is filled. */
-fun DialogCreatePlaylistBinding.validateSyncFields(): Boolean {
+private fun DialogCreatePlaylistBinding.clearErrorOnEdit(
+    layout: TextInputLayout,
+    editText: TextInputEditText
+) {
+    editText.addTextChangedListener(object : TextWatcher {
+        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+        override fun afterTextChanged(s: Editable?) {
+            layout.error = null
+        }
+    })
+}
+
+/**
+ * Validates the rule input against [data] and shows a per-field error
+ * for every entry that resolves to nothing ("Invalid folder: X", etc.).
+ * Returns true when the input is acceptable (or the sync switch is off).
+ *
+ * A null [data] means the library snapshot could not be fetched; in that
+ * case only the structural checks run and saving is never blocked by a
+ * transient failure.
+ */
+fun DialogCreatePlaylistBinding.validateSyncFields(
+    data: SyncRuleValidationData?
+): Boolean {
     if (!playlistSyncedSwitch.isChecked) {
         return true
     }
-    return readSyncFields().isValid()
-}
-
-fun DialogCreatePlaylistBinding.markInvalidSyncFields() {
-    playlistSyncFoldersLayout.error =
-        root.context.getString(com.mardous.booming.R.string.synced_playlist_rules_error)
-    playlistSyncedSwitch.setOnCheckedChangeListener { _, isChecked ->
-        syncRulesContainer.isVisible = isChecked
-        if (isChecked) {
-            playlistSyncFoldersLayout.error = null
-        }
+    val rules = readSyncFields()
+    if (!rules.isValid()) {
+        playlistSyncFoldersLayout.error =
+            root.context.getString(R.string.synced_playlist_rules_error)
+        return false
     }
+    if (data == null) {
+        return true
+    }
+    val errors = rules.validate(data)
+    if (errors.invalidFolders.isNotEmpty()) {
+        playlistSyncFoldersLayout.error = root.context.getString(
+            R.string.sync_invalid_folder_x,
+            errors.invalidFolders.joinToString(", ")
+        )
+    }
+    if (errors.invalidArtists.isNotEmpty()) {
+        playlistSyncArtistsLayout.error = root.context.getString(
+            R.string.sync_invalid_artist_x,
+            errors.invalidArtists.joinToString(", ")
+        )
+    }
+    if (errors.invalidGenres.isNotEmpty()) {
+        playlistSyncGenresLayout.error = root.context.getString(
+            R.string.sync_invalid_genre_x,
+            errors.invalidGenres.joinToString(", ")
+        )
+    }
+    return !errors.hasErrors
 }
 
 /** The parsed rules, or null when the synced switch is off. */

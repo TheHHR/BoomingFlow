@@ -24,6 +24,7 @@ import android.os.Bundle
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.DialogFragment
+import androidx.lifecycle.lifecycleScope
 import coil3.load
 import coil3.size.Precision
 import coil3.size.Scale
@@ -38,6 +39,7 @@ import com.mardous.booming.extensions.extraNotNull
 import com.mardous.booming.extensions.showToast
 import com.mardous.booming.extensions.withArgs
 import com.mardous.booming.ui.screen.library.LibraryViewModel
+import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
 
 class CreatePlaylistDialog : DialogFragment() {
@@ -114,33 +116,37 @@ class CreatePlaylistDialog : DialogFragment() {
             return
         }
 
-        if (!binding.validateSyncFields()) {
-            binding.markInvalidSyncFields()
-            return
-        }
-
-        val description = binding.playlistDescriptionEditText.text?.toString()?.trim()
-        val customCoverUri = selectedCoverUri?.toString()
-        val syncRules = binding.collectSyncRules()
-
-        // Use the new createCustomPlaylist method
-        libraryViewModel.createCustomPlaylist(
-            playlistName = playlistName,
-            customCoverUri = customCoverUri,
-            description = if (description.isNullOrEmpty()) null else description,
-            songs = songs,
-            syncRules = syncRules
-        ).observe(this) { result ->
-            if (result.isWorking) {
-                return@observe
+        // Rule validation needs a library snapshot; fetch it off the main
+        // thread before deciding whether the input is acceptable.
+        viewLifecycleOwner.lifecycleScope.launch {
+            val validationData =
+                runCatching { libraryViewModel.syncRuleValidationData() }.getOrNull()
+            if (!binding.validateSyncFields(validationData)) {
+                return@launch
             }
 
-            if (result.playlistCreated) {
-                showToast(getString(R.string.created_playlist_x, result.playlistName))
-                callback?.playlistCreated()
-                dismiss()
-            } else {
-                showToast(getString(R.string.playlist_exists, result.playlistName))
+            val description = binding.playlistDescriptionEditText.text?.toString()?.trim()
+            val customCoverUri = selectedCoverUri?.toString()
+            val syncRules = binding.collectSyncRules()
+
+            libraryViewModel.createCustomPlaylist(
+                playlistName = playlistName,
+                customCoverUri = customCoverUri,
+                description = if (description.isNullOrEmpty()) null else description,
+                songs = songs,
+                syncRules = syncRules
+            ).observe(this@CreatePlaylistDialog) { result ->
+                if (result.isWorking) {
+                    return@observe
+                }
+
+                if (result.playlistCreated) {
+                    showToast(getString(R.string.created_playlist_x, result.playlistName))
+                    callback?.playlistCreated()
+                    dismiss()
+                } else {
+                    showToast(getString(R.string.playlist_exists, result.playlistName))
+                }
             }
         }
     }
