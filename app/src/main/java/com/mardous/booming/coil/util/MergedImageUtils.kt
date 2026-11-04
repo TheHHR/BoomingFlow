@@ -48,6 +48,47 @@ internal object MergedImageUtils {
         return finalImage
     }
 
+    fun joinImages2x2(list: List<Bitmap>): Bitmap? {
+        if (list.isEmpty()) return null
+        val result = createBitmap(IMAGE_SIZE, IMAGE_SIZE)
+        val canvas = Canvas(result)
+        val paint = Paint(Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG)
+        val half = IMAGE_SIZE / 2
+        when (list.size) {
+            1 -> drawTile(canvas, paint, list[0], 0, 0, IMAGE_SIZE, IMAGE_SIZE)
+            2 -> {
+                drawTile(canvas, paint, list[0], 0, 0, half, IMAGE_SIZE)
+                drawTile(canvas, paint, list[1], half, 0, half, IMAGE_SIZE)
+            }
+            3 -> {
+                drawTile(canvas, paint, list[0], 0, 0, half, half)
+                drawTile(canvas, paint, list[1], half, 0, half, half)
+                drawTile(canvas, paint, list[2], 0, half, IMAGE_SIZE, half)
+            }
+            else -> {
+                drawTile(canvas, paint, list[0], 0, 0, half, half)
+                drawTile(canvas, paint, list[1], half, 0, half, half)
+                drawTile(canvas, paint, list[2], 0, half, half, half)
+                drawTile(canvas, paint, list[3], half, half, half, half)
+            }
+        }
+        return result
+    }
+
+    private fun drawTile(
+        canvas: Canvas,
+        paint: Paint,
+        bitmap: Bitmap,
+        x: Int,
+        y: Int,
+        width: Int,
+        height: Int
+    ) {
+        val scaled = bitmap.scale(width, height)
+        canvas.drawBitmap(scaled, x.toFloat(), y.toFloat(), paint)
+        scaled.recycle()
+    }
+
     private fun arrangeBitmaps(list: List<Bitmap>): List<Bitmap> {
         return when {
             list.size == 1 -> {
