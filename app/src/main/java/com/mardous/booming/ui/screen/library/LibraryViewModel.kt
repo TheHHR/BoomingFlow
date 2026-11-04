@@ -181,6 +181,11 @@ class LibraryViewModel(
         playlists.postValue(repository.playlistsWithSongs(true))
     }
 
+    fun savePlaylistOrder(orderedPlaylists: List<PlaylistWithSongs>) = viewModelScope.launch(IO) {
+        repository.savePlaylistOrder(orderedPlaylists.map { it.playlistEntity })
+        playlists.postValue(orderedPlaylists)
+    }
+
     private suspend fun fetchGenres() {
         genres.postValue(repository.allGenres())
     }

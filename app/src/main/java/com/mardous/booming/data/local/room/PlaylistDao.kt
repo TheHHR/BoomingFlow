@@ -46,8 +46,20 @@ interface PlaylistDao {
     suspend fun renamePlaylist(playlistId: Long, name: String)
 
     @Transaction
-    @Query("SELECT * FROM PlaylistEntity")
+    @Query("SELECT * FROM PlaylistEntity ORDER BY playlist_order ASC")
     suspend fun playlistsWithSongs(): List<PlaylistWithSongs>
+
+    @Query("SELECT MAX(playlist_order) FROM PlaylistEntity")
+    suspend fun maxPlaylistOrder(): Int?
+
+    @Transaction
+    suspend fun savePlaylistOrder(orderedEntities: List<PlaylistEntity>) {
+        orderedEntities.forEachIndexed { index, entity ->
+            if (entity.playlistOrder != index) {
+                updatePlaylist(entity.copy(playlistOrder = index))
+            }
+        }
+    }
 
     @Transaction
     @Query("SELECT * FROM PlaylistEntity WHERE playlist_id = :playlistId")

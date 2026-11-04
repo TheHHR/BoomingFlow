@@ -17,19 +17,29 @@
 
 package com.mardous.booming.ui.adapters
 
+import android.annotation.SuppressLint
+import android.view.ActionMode
 import android.view.LayoutInflater
+import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isGone
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
+import com.h6ah4i.android.widget.advrecyclerview.draggable.DraggableItemAdapter
+import com.h6ah4i.android.widget.advrecyclerview.draggable.DraggableItemState
+import com.h6ah4i.android.widget.advrecyclerview.draggable.DraggableItemViewHolder
+import com.h6ah4i.android.widget.advrecyclerview.draggable.ItemDraggableRange
+import com.h6ah4i.android.widget.advrecyclerview.draggable.annotation.DraggableItemStateFlags
 import com.mardous.booming.R
 import com.mardous.booming.coil.playlistImage
 import com.mardous.booming.data.local.room.PlaylistWithSongs
 import com.mardous.booming.extensions.isActivated
 import com.mardous.booming.extensions.media.asNumberOfSongs
+import com.mardous.booming.extensions.resources.hitTest
 import com.mardous.booming.ui.IPlaylistCallback
 import com.mardous.booming.ui.component.base.AbsMultiSelectAdapter
 import com.mardous.booming.ui.component.base.MediaEntryViewHolder
@@ -48,14 +58,28 @@ class PlaylistAdapter(
     @LayoutRes
     private val itemLayoutRes: Int,
     private val callback: IPlaylistCallback? = null
-) : AbsMultiSelectAdapter<PlaylistAdapter.ViewHolder, PlaylistWithSongs>(activity, R.menu.menu_playlists_selection) {
+) : AbsMultiSelectAdapter<PlaylistAdapter.ViewHolder, PlaylistWithSongs>(activity, R.menu.menu_playlists_selection),
+    DraggableItemAdapter<PlaylistAdapter.ViewHolder> {
 
     var dataSet by Delegates.observable(dataSet) { _: KProperty<*>, _: List<Any>, _: List<Any> ->
         notifyDataSetChanged()
     }
 
+    var canReorder = false
+        private set
+
+    private val mutableDataSet: MutableList<PlaylistWithSongs>
+        get() = dataSet as MutableList
+
     init {
         setHasStableIds(true)
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    fun setCanReorder(canReorder: Boolean) {
+        if (this.canReorder == canReorder) return
+        this.canReorder = canReorder
+        notifyDataSetChanged()
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -73,6 +97,13 @@ class PlaylistAdapter(
         val isChecked = isChecked(playlist)
         holder.isActivated = isChecked
         holder.menu?.isGone = isChecked
+        // Reorder session: list view, Custom order and a selected song;
+        // rows swap the overflow menu for the drag handle.
+        val dragSession = canReorder && isInQuickSelectMode
+        holder.dragView?.isVisible = dragSession
+        if (dragSession) {
+            holder.menu?.isGone = true
+        }
         holder.title?.text = playlist.playlistEntity.playlistName
         if (holder.text != null) {
             holder.text.text = playlist.songCount.asNumberOfSongs(holder.itemView.context)
@@ -105,7 +136,65 @@ class PlaylistAdapter(
         callback?.playlistsMenuItemClick(selection, menuItem)
     }
 
-    inner class ViewHolder(itemView: View) : MediaEntryViewHolder(itemView) {
+    override fun onCheckCanStartDrag(holder: ViewHolder, position: Int, x: Int, y: Int): Boolean {
+        if (!canReorder || !isInQuickSelectMode) {
+            return false
+        }
+        return (holder.dragView?.hitTest(x, y) ?: false)
+    }
+
+    override fun onGetItemDraggableRange(holder: ViewHolder, position: Int): ItemDraggableRange? {
+        return null
+    }
+
+    override fun onMoveItem(fromPosition: Int, toPosition: Int) {
+        mutableDataSet.add(toPosition, mutableDataSet.removeAt(fromPosition))
+    }
+
+    override fun onCheckCanDrop(draggingPosition: Int, dropPosition: Int): Boolean {
+        return true
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    override fun onItemDragStarted(position: Int) {
+        notifyDataSetChanged()
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    override fun onItemDragFinished(fromPosition: Int, toPosition: Int, result: Boolean) {
+        notifyDataSetChanged()
+    }
+
+    override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
+        val result = super.onCreateActionMode(mode, menu)
+        // Rebind all rows so they all swap to the drag handle.
+        notifyDataSetChanged()
+        return result
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    override fun onDestroyActionMode(mode: ActionMode) {
+        super.onDestroyActionMode(mode)
+        notifyDataSetChanged()
+    }
+
+    inner class ViewHolder(itemView: View) : MediaEntryViewHolder(itemView),
+        DraggableItemViewHolder {
+
+        private val mDragItemState: DraggableItemState = DraggableItemState()
+
+        override fun getDragState(): DraggableItemState {
+            return mDragItemState
+        }
+
+        @DraggableItemStateFlags
+        override fun getDragStateFlags(): Int {
+            return mDragItemState.flags
+        }
+
+        override fun setDragStateFlags(flags: Int) {
+            mDragItemState.flags = flags
+        }
 
         init {
             menu?.setOnClickListener(object : OnClickMenu() {

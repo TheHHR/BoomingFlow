@@ -24,7 +24,9 @@
 	<item
 		android:id="@id/action_sort_order"
 		android:title="@string/action_sort_order"
-		app:showAsAction="never"/>
+		app:showAsAction="never">
+		<menu/>
+	</item>
 	<item
 		android:id="@+id/action_export_playlist"
 		android:title="@string/action_export_playlist"

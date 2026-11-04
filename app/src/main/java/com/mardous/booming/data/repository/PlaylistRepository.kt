@@ -64,6 +64,7 @@ interface PlaylistRepository {
     suspend fun insertSongs(songs: List<SongEntity>)
     suspend fun renamePlaylistEntity(playlistId: Long, name: String)
     suspend fun updatePlaylist(playlist: PlaylistEntity)
+    suspend fun savePlaylistOrder(orderedEntities: List<PlaylistEntity>)
     suspend fun favoritePlaylist(): PlaylistEntity
     suspend fun checkFavoritePlaylist(): PlaylistEntity?
     suspend fun favoriteSongs(): List<Song>
@@ -115,7 +116,11 @@ class RealPlaylistRepository(
     }
 
     override suspend fun createPlaylist(playlistEntity: PlaylistEntity): Long =
-        playlistDao.createPlaylist(playlistEntity)
+        playlistDao.createPlaylist(
+            playlistEntity.copy(
+                playlistOrder = (playlistDao.maxPlaylistOrder() ?: -1) + 1
+            )
+        )
 
     override suspend fun checkPlaylistExists(playlistName: String): List<PlaylistEntity> =
         playlistDao.playlist(playlistName)
@@ -161,6 +166,9 @@ class RealPlaylistRepository(
 
     override suspend fun updatePlaylist(playlist: PlaylistEntity) =
         playlistDao.updatePlaylist(playlist)
+
+    override suspend fun savePlaylistOrder(orderedEntities: List<PlaylistEntity>) =
+        playlistDao.savePlaylistOrder(orderedEntities)
 
     override suspend fun favoritePlaylist(): PlaylistEntity {
         val favorite = context.getString(R.string.favorites_label)

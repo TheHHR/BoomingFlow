@@ -28,8 +28,10 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.h6ah4i.android.widget.advrecyclerview.draggable.RecyclerViewDragDropManager
 import com.mardous.booming.R
 import com.mardous.booming.core.model.GridViewType
+import com.mardous.booming.core.model.sort.SortKey
 import com.mardous.booming.core.sort.PlaylistSortMode
 import com.mardous.booming.data.local.room.PlaylistWithSongs
 import com.mardous.booming.extensions.launchAndRepeatWithViewLifecycle
@@ -71,6 +73,8 @@ class PlaylistListFragment : AbsRecyclerViewCustomGridSizeFragment<RecyclerView.
     private val authViewModel: StreamingAuthViewModel by activityViewModel()
 
     private var playlistAdapter: PlaylistAdapter? = null
+    private var wrappedPlaylistAdapter: RecyclerView.Adapter<*>? = null
+    private var recyclerViewDragDropManager: RecyclerViewDragDropManager? = null
     private var yourHeaderAdapter: SectionHeaderAdapter? = null
     private var likedHeaderAdapter: SectionHeaderAdapter? = null
     private var likedRowAdapter: LikedSongsRowAdapter? = null
@@ -97,6 +101,7 @@ class PlaylistListFragment : AbsRecyclerViewCustomGridSizeFragment<RecyclerView.
             playlistAdapter?.dataSet = list
             refreshSectionVisibility()
         }
+        updateReorderState()
         viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
             launch {
                 authViewModel.authState.collect { state ->
@@ -169,13 +174,30 @@ class PlaylistListFragment : AbsRecyclerViewCustomGridSizeFragment<RecyclerView.
         libraryViewModel.forceReload(ReloadType.Playlists)
     }
 
+    /**
+     * Playlist drag reorder exists only in Custom order and only in the
+     * list view; grid cards have no drag handle.
+     */
+    private fun updateReorderState() {
+        playlistAdapter?.setCanReorder(
+            !isGridMode && PlaylistSortMode.AllPlaylists.selectedKey == SortKey.Custom
+        )
+    }
+
     override fun createLayoutManager(): GridLayoutManager {
         return GridLayoutManager(requireContext(), gridSize).apply {
             spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
                 override fun getSpanSize(position: Int): Int {
                     val concat = adapter as? ConcatAdapter ?: return spanCount
                     val adapterAndPosition = concat.getWrappedAdapterAndPosition(position)
-                    return if (adapterAndPosition.first is PlaylistAdapter) 1 else spanCount
+                    // The playlist adapter may be wrapped by the drag
+                    // manager, so full-span adapters are enumerated
+                    // instead of matching PlaylistAdapter directly.
+                    val wrapped = adapterAndPosition.first
+                    return if (wrapped is SectionHeaderAdapter ||
+                        wrapped is HorizontalListAdapter ||
+                        wrapped is LikedSongsRowAdapter
+                    ) spanCount else 1
                 }
             }
         }
@@ -185,6 +207,9 @@ class PlaylistListFragment : AbsRecyclerViewCustomGridSizeFragment<RecyclerView.
         notifyLayoutResChanged(itemLayoutRes)
         val dataSet = playlistAdapter?.dataSet ?: ArrayList()
         playlistAdapter = PlaylistAdapter(mainActivity, dataSet, itemLayoutRes, this)
+        recyclerViewDragDropManager = RecyclerViewDragDropManager().also { dragDropManager ->
+            wrappedPlaylistAdapter = dragDropManager.createWrappedAdapter(playlistAdapter!!)
+        }
         yourHeaderAdapter = SectionHeaderAdapter(getString(R.string.playlists_section_your))
         likedHeaderAdapter = SectionHeaderAdapter(getString(R.string.liked_songs_label))
         likedRowAdapter = LikedSongsRowAdapter { openLikedSongs() }
@@ -205,7 +230,7 @@ class PlaylistListFragment : AbsRecyclerViewCustomGridSizeFragment<RecyclerView.
             likedRowAdapter!!,
             spotifyShelf!!,
             yourHeaderAdapter!!,
-            playlistAdapter!!
+            wrappedPlaylistAdapter!!
         )
         refreshSectionVisibility()
         return concat
@@ -233,7 +258,25 @@ class PlaylistListFragment : AbsRecyclerViewCustomGridSizeFragment<RecyclerView.
 
     override fun onPause() {
         super.onPause()
+        recyclerViewDragDropManager?.cancelDrag()
         playlistAdapter?.actionMode?.finish()
+        playlistAdapter?.let { adapter ->
+            // Persist the (possibly dragged) manual order — never under
+            // an active Name/SongCount sort, where dataSet is the sorted
+            // view rather than the manual order.
+            if (adapter.canReorder &&
+                PlaylistSortMode.AllPlaylists.selectedKey == SortKey.Custom
+            ) {
+                libraryViewModel.savePlaylistOrder(adapter.dataSet.toList())
+            }
+        }
+    }
+
+    override fun onDestroyView() {
+        recyclerViewDragDropManager?.release()
+        recyclerViewDragDropManager = null
+        wrappedPlaylistAdapter = null
+        super.onDestroyView()
     }
 
     override fun onCreateMenu(menu: Menu, inflater: MenuInflater) {
@@ -246,6 +289,7 @@ class PlaylistListFragment : AbsRecyclerViewCustomGridSizeFragment<RecyclerView.
 
     override fun onMenuItemSelected(item: MenuItem): Boolean {
         if (PlaylistSortMode.AllPlaylists.sortItemSelected(item)) {
+            updateReorderState()
             libraryViewModel.forceReload(ReloadType.Playlists)
             return true
         }
@@ -281,6 +325,7 @@ class PlaylistListFragment : AbsRecyclerViewCustomGridSizeFragment<RecyclerView.
     override fun onGridSizeChanged(isLand: Boolean, gridColumns: Int) {
         layoutManager?.spanCount = gridColumns
         adapter?.notifyDataSetChanged()
+        updateReorderState()
     }
 
     companion object {

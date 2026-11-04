@@ -37,7 +37,9 @@ data class PlaylistEntity(
     @ColumnInfo(name = "sort_mode")
     val sortMode: String? = null,
     @ColumnInfo(name = "sort_descending")
-    val sortDescending: Boolean = false
+    val sortDescending: Boolean = false,
+    @ColumnInfo(name = "playlist_order")
+    val playlistOrder: Int = 0
 ) : Parcelable {
 
     val isSynced: Boolean
