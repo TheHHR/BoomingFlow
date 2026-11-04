@@ -285,9 +285,6 @@
     <string name="select_content_to_restore">בחר תוכן לשחזור:</string>
     <string name="could_not_restore_data">לא ניתן היה לשחזר את הנתונים. יש לאמת את קובץ הגיבוי ולנסות שוב.</string>
     <string name="data_restored_successfully">הנתונים שוחזרו בהצלחה.</string>
-    <string name="action_toggle_playlist_lock">נעל/פתח רשימת השמעה</string>
-    <string name="playlist_locked">רשימת ההשמעה ננעלה</string>
-    <string name="playlist_unlocked">רשימת ההשמעה נפתחה</string>
     <string name="action_toggle_queue_lock">נעל/פתח תור השמעה</string>
     <!-- Audio output devices-->
     <string name="audio_device_aux_line">Aux Line</string>

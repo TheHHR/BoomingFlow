@@ -582,9 +582,6 @@
     <string name="data_restored_successfully">Andmete taastamine õnnestus.</string>
     <string name="could_not_restore_data">Andmete taastamine ei õnnestunud. Palun kontrolli, kas kasutasid õiget varukoopiafaili ja proovi uuesti.</string>
     <string name="scan_media_message">Enamustel juhtudel Android automaatselt tuvastab ja indekseerib sinu nutiseadme multimeediafailid ja käsitsi skaneerimine pole tavaliselt vajalik.</string>
-    <string name="action_toggle_playlist_lock">Lukusta esitusloend või ava lukustus</string>
-    <string name="playlist_locked">Esitusloend on lukus</string>
-    <string name="playlist_unlocked">Esitusloend pole lukus</string>
     <string name="top_artists">Populaarsemad esitajad</string>
     <string name="top_albums">Populaarsemad albumid</string>
     <string name="recent_artists">Hiljutised esitajad</string>

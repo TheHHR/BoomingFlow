@@ -285,9 +285,6 @@
     <string name="select_content_to_restore">Vyberte obsah k obnovení:</string>
     <string name="could_not_restore_data">Nelze obnovit data. Ověřte záložní soubor a opakujte akci.</string>
     <string name="data_restored_successfully">Data byla úspěšně obnovena.</string>
-    <string name="action_toggle_playlist_lock">Zamknout/odemknout playlist</string>
-    <string name="playlist_locked">Seznam skladeb uzamčen</string>
-    <string name="playlist_unlocked">Seznam skladeb odemknut</string>
     <string name="action_toggle_queue_lock">Zamknout/odemknout frontu</string>
     <!-- Audio output devices-->
     <string name="audio_device_aux_line">Automatická čára</string>

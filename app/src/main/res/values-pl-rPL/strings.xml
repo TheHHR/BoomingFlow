@@ -285,9 +285,6 @@
     <string name="select_content_to_restore">Wybierz zawartość do przywrócenia:</string>
     <string name="could_not_restore_data">Nie można przywrócić danych. Zweryfikuj plik kopii zapasowej i spróbuj ponownie.</string>
     <string name="data_restored_successfully">Przywrócono dane.</string>
-    <string name="action_toggle_playlist_lock">Zablokuj/odblokuj playlistę</string>
-    <string name="playlist_locked">Zablokowano playlistę</string>
-    <string name="playlist_unlocked">Odblokowano playlistę</string>
     <string name="action_toggle_queue_lock">Zablokuj/odblokuj kolejkę</string>
     <!-- Audio output devices-->
     <string name="audio_device_aux_line">Wyjście AUX</string>

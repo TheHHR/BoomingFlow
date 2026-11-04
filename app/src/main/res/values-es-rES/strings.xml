@@ -278,9 +278,6 @@
     <string name="select_content_to_restore">Seleccione contenido para restaurar:</string>
     <string name="could_not_restore_data">No se pudieron restaurar los datos. Verifique el archivo de respaldo y vuelva a intentarlo.</string>
     <string name="data_restored_successfully">Datos restaurados con éxito.</string>
-    <string name="action_toggle_playlist_lock">Bloquear/desbloquear lista</string>
-    <string name="playlist_locked">Lista de reproducción bloqueada</string>
-    <string name="playlist_unlocked">Lista de reproducción desbloqueada</string>
     <string name="action_toggle_queue_lock">Cola de bloqueo/desbloqueo</string>
     <!-- Audio output devices-->
     <string name="audio_device_aux_line">Línea auxiliar</string>

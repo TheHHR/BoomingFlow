@@ -285,9 +285,6 @@
     <string name="select_content_to_restore">اختر المحتوى المراد استعادته:</string>
     <string name="could_not_restore_data">تعذّرت استعادة البيانات. تحقّق من ملف النسخ الاحتياطي وأعد المحاولة.</string>
     <string name="data_restored_successfully">تمت استعادة البيانات بنجاح.</string>
-    <string name="action_toggle_playlist_lock">قفل قائمة التشغيل أو إلغاء قفلها</string>
-    <string name="playlist_locked">قائمة التشغيل مقفلة</string>
-    <string name="playlist_unlocked">قائمة التشغيل غير مقفلة</string>
     <string name="action_toggle_queue_lock">قفل قائمة الانتظار أو إلغاء قفلها</string>
     <!-- Audio output devices-->
     <string name="audio_device_aux_line">منفذ AUX</string>

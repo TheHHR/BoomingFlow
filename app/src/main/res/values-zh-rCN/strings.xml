@@ -285,9 +285,6 @@
     <string name="select_content_to_restore">选择要还原的内容：</string>
     <string name="could_not_restore_data">无法还原数据。请验证备份文件并重试。</string>
     <string name="data_restored_successfully">已成功还原数据。</string>
-    <string name="action_toggle_playlist_lock">锁定/解锁播放列表</string>
-    <string name="playlist_locked">播放列表已锁定</string>
-    <string name="playlist_unlocked">播放列表已解锁</string>
     <string name="action_toggle_queue_lock">锁定/解锁队列</string>
     <!-- Audio output devices-->
     <string name="audio_device_aux_line">Aux 线路</string>

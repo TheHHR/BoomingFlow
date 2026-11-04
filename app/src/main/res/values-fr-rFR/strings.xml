@@ -285,9 +285,6 @@
     <string name="select_content_to_restore">Sélectionner le contenu à restaurer :</string>
     <string name="could_not_restore_data">Impossible de restaurer les données. Vérifiez le fichier de sauvegarde et réessayez.</string>
     <string name="data_restored_successfully">Données restaurées avec succès.</string>
-    <string name="action_toggle_playlist_lock">Verrouiller/Déverrouiller la liste de lecture</string>
-    <string name="playlist_locked">Liste de lecture verrouillée</string>
-    <string name="playlist_unlocked">Liste de lecture déverrouillée</string>
     <string name="action_toggle_queue_lock">Verrouiller/Déverrouiller la file d\'attente</string>
     <!-- Audio output devices-->
     <string name="audio_device_aux_line">Ligne Aux</string>

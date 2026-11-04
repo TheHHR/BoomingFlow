@@ -283,9 +283,6 @@
     <string name="select_content_to_restore">Valitse palautettava sisältö:</string>
     <string name="could_not_restore_data">Tietoja ei voitu palauttaa. Varmista varmuuskopiotiedosto ja yritä uudelleen.</string>
     <string name="data_restored_successfully">Tiedot palautettu onnistuneesti.</string>
-    <string name="action_toggle_playlist_lock">Lukitse soittolista</string>
-    <string name="playlist_locked">Soittolista lukittu</string>
-    <string name="playlist_unlocked">Soittolista avattu</string>
     <string name="action_toggle_queue_lock">Lukitus/avaa jono</string>
     <!-- Audio output devices-->
     <string name="audio_device_aux_line">Aux Viiva</string>

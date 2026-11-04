@@ -285,9 +285,6 @@
     <string name="select_content_to_restore">Pilih konten yang ingin dipulihkan:</string>
     <string name="could_not_restore_data">Tidak dapat memulihkan data. Verifikasi file cadangan dan coba lagi.</string>
     <string name="data_restored_successfully">Data berhasil dipulihkan.</string>
-    <string name="action_toggle_playlist_lock">Kunci/buka kunci daftar putar</string>
-    <string name="playlist_locked">Daftar putar dikunci</string>
-    <string name="playlist_unlocked">Daftar putar dibuka kuncinya</string>
     <string name="action_toggle_queue_lock">Kunci/buka kunci antrean</string>
     <!-- Audio output devices-->
     <string name="audio_device_aux_line">Jalur Aux</string>

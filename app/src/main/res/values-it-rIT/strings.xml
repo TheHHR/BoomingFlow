@@ -285,9 +285,6 @@
     <string name="select_content_to_restore">Seleziona il contenuto da ripristinare:</string>
     <string name="could_not_restore_data">Impossibile ripristinare i dati. Verificare il file di backup e riprovare.</string>
     <string name="data_restored_successfully">Dati ripristinati con successo.</string>
-    <string name="action_toggle_playlist_lock">Blocca/sblocca playlist</string>
-    <string name="playlist_locked">Playlist bloccata</string>
-    <string name="playlist_unlocked">Playlist sbloccata</string>
     <string name="action_toggle_queue_lock">Blocca/sblocca coda</string>
     <!-- Audio output devices-->
     <string name="audio_device_aux_line">Linea Aux</string>

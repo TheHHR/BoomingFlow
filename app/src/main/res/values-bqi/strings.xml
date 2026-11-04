@@ -265,9 +265,6 @@
     <string name="new_start_directory">دایرکتوری شۊرۊع نۊ: %s</string>
     <string name="select_content_to_restore">پسند موئتوا سی وورگندن:</string>
     <string name="data_restored_successfully">داده یل وا مووفقیت وورگشتن.</string>
-    <string name="action_toggle_playlist_lock">چفت/گۊشیڌن چفت نومگه پشک</string>
-    <string name="playlist_locked">نومگه پشک چفت وابی</string>
-    <string name="playlist_unlocked">نومگه پشک گوئشست</string>
     <string name="action_toggle_queue_lock">چفت/گۊشیڌن چفت سف</string>
     <string name="channel_mono">مونو</string>
     <string name="channel_stereo">استریو</string>

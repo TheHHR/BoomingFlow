@@ -285,9 +285,6 @@
     <string name="select_content_to_restore">복원할 콘텐츠 선택:</string>
     <string name="could_not_restore_data">데이터를 복원할 수 없습니다. 백업 파일을 확인하고 다시 시도하세요.</string>
     <string name="data_restored_successfully">데이터가 성공적으로 복원되었습니다.</string>
-    <string name="action_toggle_playlist_lock">재생목록 잠금/해제</string>
-    <string name="playlist_locked">재생목록 잠김</string>
-    <string name="playlist_unlocked">재생목록 잠금 해제</string>
     <string name="action_toggle_queue_lock">대기열 잠금/해제</string>
     <!-- Audio output devices-->
     <string name="audio_device_aux_line">Aux 라인</string>

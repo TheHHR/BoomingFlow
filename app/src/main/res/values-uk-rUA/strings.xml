@@ -285,9 +285,6 @@
     <string name="select_content_to_restore">Виберіть контент для відновлення:</string>
     <string name="could_not_restore_data">Не вдалося відновити дані. Перевірте файл резервної копії та спробуйте ще раз.</string>
     <string name="data_restored_successfully">Дані успішно відновлено.</string>
-    <string name="action_toggle_playlist_lock">Заблокувати/розблокувати список відтворення</string>
-    <string name="playlist_locked">Список відтворення заблоковано</string>
-    <string name="playlist_unlocked">Список відтворення розблоковано</string>
     <string name="action_toggle_queue_lock">Заблокувати/розблокувати чергу</string>
     <!-- Audio output devices-->
     <string name="audio_device_aux_line">Лінія зв\'язку</string>

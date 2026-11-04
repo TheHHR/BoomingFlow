@@ -285,9 +285,6 @@
     <string name="select_content_to_restore">Trieu el contingut a restablir:</string>
     <string name="could_not_restore_data">No s\'han pogut restablir les dades. Comproveu el fitxer i torneu-ho a intentar.</string>
     <string name="data_restored_successfully">Les dades s\'han restablert correctament.</string>
-    <string name="action_toggle_playlist_lock">Fixa/allibera la llista</string>
-    <string name="playlist_locked">S\'ha fixat la llista</string>
-    <string name="playlist_unlocked">S\'ha alliberat la llista</string>
     <string name="action_toggle_queue_lock">Fixa/allibera la cua</string>
     <!-- Audio output devices-->
     <string name="audio_device_aux_line">Línia auxiliar</string>

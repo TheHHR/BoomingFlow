@@ -283,9 +283,6 @@
     <string name="select_content_to_restore">Välj innehåll att återställa:</string>
     <string name="could_not_restore_data">Kunde inte återställa data. Verifiera säkerhetskopieringsfil och försök igen.</string>
     <string name="data_restored_successfully">Data återställdes framgångsrikt.</string>
-    <string name="action_toggle_playlist_lock">Lås upp/lås upp spellista</string>
-    <string name="playlist_locked">Spellista låst</string>
-    <string name="playlist_unlocked">Spellista upplåst</string>
     <string name="action_toggle_queue_lock">Lås/låsa upp kö</string>
     <!-- Audio output devices-->
     <string name="audio_device_aux_line">Aux Linje</string>

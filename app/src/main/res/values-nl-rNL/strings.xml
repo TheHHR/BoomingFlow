@@ -285,9 +285,6 @@
     <string name="select_content_to_restore">Selecteer inhoud om te herstellen:</string>
     <string name="could_not_restore_data">Kan gegevens niet herstellen. Controleer het back-upbestand en probeer het opnieuw.</string>
     <string name="data_restored_successfully">Gegevens succesvol hersteld.</string>
-    <string name="action_toggle_playlist_lock">Afspeellijst vergrendelen/ontgrendelen</string>
-    <string name="playlist_locked">Afspeellijst vergrendeld</string>
-    <string name="playlist_unlocked">Afspeellijst ontgrendeld</string>
     <string name="action_toggle_queue_lock">Vergrendel/ontgrendel wachtrij</string>
     <!-- Audio output devices-->
     <string name="audio_device_aux_line">Aux Lijn</string>

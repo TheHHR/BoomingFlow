@@ -295,9 +295,6 @@
     <string name="select_content_to_restore">انتخاب محتوا برای بازیابی:</string>
     <string name="could_not_restore_data">داده ها بازیابی نشد. فایل پشتیبان را تأیید کنید و دوباره امتحان کنید.</string>
     <string name="data_restored_successfully">داده ها با موفقیت بازیابی شدند.</string>
-    <string name="action_toggle_playlist_lock">قفل/باز کردن قفل لیست پخش</string>
-    <string name="playlist_locked">لیست پخش قفل شد</string>
-    <string name="playlist_unlocked">لیست پخش باز شد</string>
     <string name="action_toggle_queue_lock">قفل / باز کردن صف</string>
     <string name="channel_mono">مونونوکلئوز</string>
     <string name="channel_stereo">استریو</string>

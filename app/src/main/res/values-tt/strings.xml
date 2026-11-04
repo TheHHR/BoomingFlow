@@ -303,9 +303,6 @@
     <string name="select_content_to_restore">Торгызу өчен контентны сайлагыз:</string>
     <string name="could_not_restore_data">Мәгълүматларны торгызып булмады. Резерв күчермәсе файлын тикшерегез һәм омтылышны кабатлагыз.</string>
     <string name="data_restored_successfully">Мәгълүматлар уңышлы торгызылды.</string>
-    <string name="action_toggle_playlist_lock">Плейлист блокировкага/дан алу/төшү</string>
-    <string name="playlist_locked">Плейлист блокировкага алган</string>
-    <string name="playlist_unlocked">Плейлист блокировкадан төшкән</string>
     <string name="action_toggle_queue_lock">Чиратны блокировкага/дан алу/төшү</string>
     <string name="channel_mono">Моно</string>
     <string name="channel_stereo">Стерео</string>

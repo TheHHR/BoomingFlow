@@ -285,9 +285,6 @@
     <string name="select_content_to_restore">Chọn nội dung cần khôi phục:</string>
     <string name="could_not_restore_data">Không thể khôi phục dữ liệu. Vui lòng kiểm tra lại tệp sao lưu và thử lại.</string>
     <string name="data_restored_successfully">Dữ liệu được khôi phục thành công.</string>
-    <string name="action_toggle_playlist_lock">Khoá/Mở khoá danh sách phát</string>
-    <string name="playlist_locked">Danh sách phát đã bị khoá</string>
-    <string name="playlist_unlocked">Danh sách phát đã mở khoá</string>
     <string name="action_toggle_queue_lock">Khoá/Mở khoá hàng đợi</string>
     <!-- Audio output devices-->
     <string name="audio_device_aux_line">Cổng Aux</string>

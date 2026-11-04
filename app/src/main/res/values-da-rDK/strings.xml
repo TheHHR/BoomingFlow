@@ -285,9 +285,6 @@
     <string name="select_content_to_restore">Vælg indhold at gendanne:</string>
     <string name="could_not_restore_data">Kunne ikke gendanne data. Kontroller backupfil og prøv igen.</string>
     <string name="data_restored_successfully">Data gendannet med succes.</string>
-    <string name="action_toggle_playlist_lock">Lås/oplåsning af afspilningsliste</string>
-    <string name="playlist_locked">Afspilningsliste låst</string>
-    <string name="playlist_unlocked">Afspilningsliste låst op</string>
     <string name="action_toggle_queue_lock">Lås/oplåsningskø</string>
     <!-- Audio output devices-->
     <string name="audio_device_aux_line">Aux Linje</string>
