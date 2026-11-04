@@ -4,6 +4,12 @@ import com.mardous.booming.R
 
 sealed class SortItem(val group: Int, val id: Int, val title: Int)
 
+object CustomSortItem : SortItem(
+    group = 0,
+    id = R.id.action_sort_order_custom,
+    title = R.string.sort_order_custom
+)
+
 sealed class KeySortItem(id: Int, title: Int, val key: SortKey)
     : SortItem(group = 0, id = id, title = title) {
 

@@ -36,7 +36,7 @@ abstract class AbsMultiSelectAdapter<VH : RecyclerView.ViewHolder, I>(
         get() = actionMode != null
     private val checked: MutableList<I> = ArrayList()
 
-    override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
+    open override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
         val inflater = mode.menuInflater
         inflater?.inflate(menuRes, menu)
         return true
@@ -57,7 +57,7 @@ abstract class AbsMultiSelectAdapter<VH : RecyclerView.ViewHolder, I>(
         return true
     }
 
-    override fun onDestroyActionMode(mode: ActionMode) {
+    open override fun onDestroyActionMode(mode: ActionMode) {
         clearChecked()
         actionMode = null
         onBackPressedCallback.remove()

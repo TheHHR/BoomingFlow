@@ -7,6 +7,7 @@ import android.view.MenuItem
 import androidx.core.content.edit
 import com.mardous.booming.R
 import com.mardous.booming.core.model.filesystem.FileSystemItem
+import com.mardous.booming.core.model.sort.CustomSortItem
 import com.mardous.booming.core.model.sort.DescendingItem
 import com.mardous.booming.core.model.sort.KeySortItem
 import com.mardous.booming.core.model.sort.SortItem
@@ -74,10 +75,12 @@ sealed class SortMode(
         val menu = menu.findItem(R.id.action_sort_order)?.subMenu ?: menu
         items.forEach {
             when (it) {
+                is CustomSortItem -> if (selectedKey == SortKey.Custom) menu.findItem(it.id)?.isChecked = true
                 is KeySortItem -> if (it.key == selectedKey) menu.findItem(it.id)?.isChecked = true
                 is DescendingItem -> menu.findItem(it.id)?.apply {
                     isCheckable = true
-                    isChecked = selectedDescending
+                    isEnabled = selectedKey != SortKey.Custom
+                    isChecked = selectedDescending && selectedKey != SortKey.Custom
                 }
             }
         }
@@ -87,6 +90,11 @@ sealed class SortMode(
         if (items.isEmpty()) return false
 
         return when(val selectedItem = items.find { it.id == menuItem.itemId }) {
+            is CustomSortItem -> {
+                menuItem.isChecked = true
+                selectedKey = SortKey.Custom
+                true
+            }
             is KeySortItem -> {
                 menuItem.isChecked = true
                 selectedKey = selectedItem.key
@@ -206,6 +214,43 @@ sealed class SongSortMode(
         override var selectedDescending: Boolean = false,
         items: List<SortItem> = emptyList()
     ) : SongSortMode("dynamic_song", selectedKey to selectedDescending, items)
+
+    class PlaylistSongs(
+        sortKey: SortKey?,
+        sortDescending: Boolean,
+        private val onSortChanged: (SortKey?, Boolean) -> Unit
+    ) : SongSortMode(
+        "playlist_song",
+        (sortKey ?: SortKey.Custom) to sortDescending,
+        items = listOf(
+            CustomSortItem,
+            KeySortItem.Name,
+            KeySortItem.Artist,
+            KeySortItem.Album,
+            KeySortItem.Duration,
+            KeySortItem.Year,
+            KeySortItem.DateAdded,
+            DescendingItem
+        )
+    ) {
+
+        private var storedKey: SortKey? = sortKey
+        private var storedDescending: Boolean = sortDescending
+
+        override var selectedKey: SortKey
+            get() = storedKey ?: SortKey.Custom
+            set(value) {
+                storedKey = if (value == SortKey.Custom) null else value
+                onSortChanged(storedKey, storedDescending)
+            }
+
+        override var selectedDescending: Boolean
+            get() = storedDescending
+            set(value) {
+                storedDescending = value
+                onSortChanged(storedKey, value)
+            }
+    }
 
     fun List<Song>.sorted(): List<Song> {
         val byTitle: Comparator<Song> = compareBy(collator) { it.title.normalize() }
@@ -386,6 +431,7 @@ sealed class PlaylistSortMode(
         id = "playlist",
         defaults = SortKey.Name to false,
         items = listOf(
+            CustomSortItem,
             KeySortItem.Name,
             KeySortItem.SongCount,
             DescendingItem

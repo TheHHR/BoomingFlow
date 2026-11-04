@@ -347,10 +347,6 @@ object Preferences : KoinComponent {
     val ignoreArticlesWhenSorting: Boolean
         get() = preferences.getBoolean(IGNORE_ARTICLES_WHEN_SORTING, false)
 
-    var lockedPlaylists: Boolean
-        get() = preferences.getBoolean(LOCKED_PLAYLISTS, false)
-        set(value) = preferences.edit { putBoolean(LOCKED_PLAYLISTS, value) }
-
     var horizontalArtistAlbums: Boolean
         get() = preferences.getBoolean(HORIZONTAL_ARTIST_ALBUMS, true)
         set(value) = preferences.edit { putBoolean(HORIZONTAL_ARTIST_ALBUMS, value) }
@@ -769,7 +765,6 @@ const val INITIALIZED_BLACKLIST = "initialized_blacklist"
 const val HIERARCHY_FOLDER_VIEW = "hierarchy_folder_view"
 const val SWIPE_UP_QUEUE = "swipe_up_queue"
 const val LOCKED_QUEUE = "locked_queue"
-const val LOCKED_PLAYLISTS = "locked_playlists"
 const val LASTFM_LOGIN = "lastfm_login"
 const val LISTENBRAINZ_LOGIN = "listenbrainz_login"
 const val SPOTIFY_LOGIN = "spotify_login"

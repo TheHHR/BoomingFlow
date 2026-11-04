@@ -341,9 +341,6 @@
     <string name="connection_unavailable">Connection unavailable.</string>
     <string name="you_have_to_select_at_least_one_category">You have to select at least one category</string>
     <string name="you_cannot_select_more_than_five_categories">You can\'t select more than five categories.</string>
-    <string name="action_toggle_playlist_lock">Lock/unlock playlist</string>
-    <string name="playlist_locked">Playlist locked</string>
-    <string name="playlist_unlocked">Playlist unlocked</string>
     <string name="action_toggle_queue_lock">Lock/unlock queue</string>
     <string name="channel_mono">Mono</string>
     <string name="channel_stereo">Stereo</string>

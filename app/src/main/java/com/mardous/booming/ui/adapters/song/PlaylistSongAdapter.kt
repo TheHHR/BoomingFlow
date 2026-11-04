@@ -18,6 +18,8 @@
 package com.mardous.booming.ui.adapters.song
 
 import android.annotation.SuppressLint
+import android.view.ActionMode
+import android.view.Menu
 import android.view.View
 import androidx.annotation.LayoutRes
 import androidx.core.view.isGone
@@ -45,12 +47,12 @@ class PlaylistSongAdapter(
     dataSet: List<Song>,
     @LayoutRes
     itemLayoutRes: Int,
-    isLockDrag: Boolean,
+    canReorder: Boolean = false,
     callback: ISongCallback? = null
 ) : SongAdapter(activity, dataSet, itemLayoutRes, null, callback),
     DraggableItemAdapter<PlaylistSongAdapter.ViewHolder> {
 
-    var isLockDrag = isLockDrag
+    var canReorder = canReorder
         private set
 
     private val libraryViewModel: LibraryViewModel by activity.viewModel()
@@ -63,7 +65,13 @@ class PlaylistSongAdapter(
 
     override fun onBindViewHolder(holder: SongAdapter.ViewHolder, position: Int) {
         super.onBindViewHolder(holder, position)
-        holder.dragView?.isGone = isLockDrag
+        // Reorder session: only in Custom order, only while songs are
+        // selected; every row swaps its overflow menu for the drag handle.
+        val dragSession = canReorder && isInQuickSelectMode
+        holder.dragView?.isVisible = dragSession
+        if (dragSession) {
+            holder.menu?.isGone = true
+        }
     }
 
     override fun getItemId(position: Int): Long {
@@ -71,7 +79,7 @@ class PlaylistSongAdapter(
     }
 
     override fun onCheckCanStartDrag(holder: ViewHolder, position: Int, x: Int, y: Int): Boolean {
-        if (isLockDrag || isInQuickSelectMode) {
+        if (!canReorder || !isInQuickSelectMode) {
             return false
         }
         return (holder.dragView?.hitTest(x, y) ?: false)
@@ -99,6 +107,21 @@ class PlaylistSongAdapter(
         notifyDataSetChanged()
     }
 
+    override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
+        val result = super.onCreateActionMode(mode, menu)
+        // Rebind all rows so they all swap to the drag handle.
+        notifyDataSetChanged()
+        return result
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    override fun onDestroyActionMode(mode: ActionMode) {
+        super.onDestroyActionMode(mode)
+        // The base clears rows before clearing its action mode; rebind
+        // again so the handles disappear on every row.
+        notifyDataSetChanged()
+    }
+
     fun saveSongs(playlistEntity: PlaylistEntity) {
         if (playlistEntity == PlaylistEntity.Empty)
             return
@@ -109,8 +132,9 @@ class PlaylistSongAdapter(
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    fun setLockDrag(lockDrag: Boolean) {
-        this.isLockDrag = lockDrag
+    fun setCanReorder(canReorder: Boolean) {
+        if (this.canReorder == canReorder) return
+        this.canReorder = canReorder
         notifyDataSetChanged()
     }
 
@@ -136,7 +160,6 @@ class PlaylistSongAdapter(
         }
 
         init {
-            dragView?.isVisible = true
             mDragItemState = DraggableItemState()
         }
     }

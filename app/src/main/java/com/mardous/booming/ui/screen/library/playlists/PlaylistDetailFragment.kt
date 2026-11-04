@@ -63,7 +63,6 @@ import com.mardous.booming.extensions.navigation.searchArgs
 import com.mardous.booming.extensions.resources.createFastScroller
 import com.mardous.booming.extensions.resources.surfaceColor
 import com.mardous.booming.extensions.setSupportActionBar
-import com.mardous.booming.extensions.showToast
 import com.mardous.booming.core.model.shuffle.OpenShuffleMode
 import com.mardous.booming.online.spotify.PlaylistAccentCache
 import com.mardous.booming.ui.ISongCallback
@@ -73,7 +72,6 @@ import com.mardous.booming.ui.component.menu.onPlaylistMenu
 import com.mardous.booming.ui.component.menu.onSongMenu
 import com.mardous.booming.ui.component.menu.onSongsMenu
 import com.mardous.booming.ui.dialogs.playlists.RemoveFromPlaylistDialog
-import com.mardous.booming.util.Preferences
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
 
@@ -104,6 +102,7 @@ class PlaylistDetailFragment : AbsMainActivityFragment(R.layout.fragment_playlis
     private var playlistSongAdapter: PlaylistSongAdapter? = null
     private var wrappedAdapter: RecyclerView.Adapter<*>? = null
     private var recyclerViewDragDropManager: RecyclerViewDragDropManager? = null
+    private var playlistSortMode: SongSortMode.PlaylistSongs? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -171,10 +170,12 @@ class PlaylistDetailFragment : AbsMainActivityFragment(R.layout.fragment_playlis
             } else {
                 info
             }
-            // Synced playlists own their content: no drag reorder.
-            if (playlist.playlistEntity.isSynced) {
-                playlistSongAdapter?.setLockDrag(true)
-            }
+            playlistSortMode = buildPlaylistSortMode()
+            // Drag reorder exists only in Custom order, and synced
+            // playlists own their content: no reorder at all.
+            playlistSongAdapter?.setCanReorder(
+                !playlist.playlistEntity.isSynced && playlist.playlistEntity.sortMode == null
+            )
             applySongs()
             binding.header.image.playlistImage(playlist) {
                 crossfade(false)
@@ -227,8 +228,23 @@ class PlaylistDetailFragment : AbsMainActivityFragment(R.layout.fragment_playlis
         }
     }
 
-    private fun setPlaylistSort(sortKey: SortKey?) {
-        detailViewModel.setPlaylistSort(sortKey?.value, playlist.playlistEntity.sortDescending)
+    /**
+     * Entity-backed sort mode: menu checks update instantly and every
+     * selection is persisted to the playlist entity through the callback.
+     * Switching away from Custom order saves the manual (drag) order
+     * first, or it is lost once the sorted view replaces the dataSet.
+     */
+    private fun buildPlaylistSortMode(): SongSortMode.PlaylistSongs {
+        val entity = playlist.playlistEntity
+        val initialKey = entity.sortMode?.let { mode ->
+            SortKey.entries.firstOrNull { it.value == mode }
+        }
+        return SongSortMode.PlaylistSongs(initialKey, entity.sortDescending) { sortKey, descending ->
+            if (entity.sortMode == null && sortKey != null && !entity.isSynced) {
+                playlistSongAdapter?.saveSongs(entity)
+            }
+            detailViewModel.setPlaylistSort(sortKey?.value, descending)
+        }
     }
 
     private fun applyHeaderAccent(accent: Int) {
@@ -269,7 +285,6 @@ class PlaylistDetailFragment : AbsMainActivityFragment(R.layout.fragment_playlis
             activity = mainActivity,
             dataSet = emptyList(),
             itemLayoutRes = R.layout.item_list,
-            isLockDrag = Preferences.lockedPlaylists,
             callback = this
         )
         recyclerViewDragDropManager = RecyclerViewDragDropManager().also { dragDropManager ->
@@ -303,33 +318,10 @@ class PlaylistDetailFragment : AbsMainActivityFragment(R.layout.fragment_playlis
             // Synced playlists own their content: no manual additions.
             menu.removeItem(R.id.action_add_to_playlist)
         }
-        menu.findItem(R.id.action_playlist_sort_order)?.subMenu?.let { sortMenu ->
-            val entity = playlist.playlistEntity
-            sortMenu.setGroupCheckable(0, true, true)
-            sortMenu.findItem(R.id.action_playlist_sort_custom)?.isChecked =
-                entity.sortMode == null
-            sortMenu.findItem(R.id.action_sort_order_name)?.isChecked =
-                entity.sortMode == SortKey.Name.value
-            sortMenu.findItem(R.id.action_sort_order_artist)?.isChecked =
-                entity.sortMode == SortKey.Artist.value
-            sortMenu.findItem(R.id.action_sort_order_album)?.isChecked =
-                entity.sortMode == SortKey.Album.value
-            sortMenu.findItem(R.id.action_sort_order_duration)?.isChecked =
-                entity.sortMode == SortKey.Duration.value
-            sortMenu.findItem(R.id.action_sort_order_year)?.isChecked =
-                entity.sortMode == SortKey.Year.value
-            sortMenu.findItem(R.id.action_sort_order_date_added)?.isChecked =
-                entity.sortMode == SortKey.DateAdded.value
-            sortMenu.findItem(R.id.action_sort_order_descending)?.isChecked =
-                entity.sortDescending
+        if (playlistSortMode == null) {
+            playlistSortMode = buildPlaylistSortMode()
         }
-        if (playlistSongAdapter?.isLockDrag == true) {
-            menu.findItem(R.id.action_lock)
-                ?.setIcon(R.drawable.ic_lock_24dp)
-        } else {
-            menu.findItem(R.id.action_lock)
-                ?.setIcon(R.drawable.ic_lock_open_24dp)
-        }
+        playlistSortMode?.createMenu(menu)
         if (!isLandscape()) {
             menu.removeItem(R.id.action_search)
         }
@@ -350,64 +342,14 @@ class PlaylistDetailFragment : AbsMainActivityFragment(R.layout.fragment_playlis
                 true
             }
 
-            R.id.action_lock -> {
-                val lockedPlaylists = !Preferences.lockedPlaylists
-                Preferences.lockedPlaylists = lockedPlaylists
-                if (lockedPlaylists) {
-                    menuItem.setIcon(R.drawable.ic_lock_24dp)
-                    showToast(R.string.playlist_locked)
+            else -> {
+                if (playlistSortMode?.sortItemSelected(menuItem) == true) {
+                    // Sort state is checked + persisted inside the engine.
+                    true
                 } else {
-                    menuItem.setIcon(R.drawable.ic_lock_open_24dp)
-                    showToast(R.string.playlist_unlocked)
+                    playlist.onPlaylistMenu(this, menuItem)
                 }
-                playlistSongAdapter?.setLockDrag(lockedPlaylists)
-                true
             }
-
-            R.id.action_playlist_sort_custom -> {
-                setPlaylistSort(null)
-                true
-            }
-
-            R.id.action_sort_order_name -> {
-                setPlaylistSort(SortKey.Name)
-                true
-            }
-
-            R.id.action_sort_order_artist -> {
-                setPlaylistSort(SortKey.Artist)
-                true
-            }
-
-            R.id.action_sort_order_album -> {
-                setPlaylistSort(SortKey.Album)
-                true
-            }
-
-            R.id.action_sort_order_duration -> {
-                setPlaylistSort(SortKey.Duration)
-                true
-            }
-
-            R.id.action_sort_order_year -> {
-                setPlaylistSort(SortKey.Year)
-                true
-            }
-
-            R.id.action_sort_order_date_added -> {
-                setPlaylistSort(SortKey.DateAdded)
-                true
-            }
-
-            R.id.action_sort_order_descending -> {
-                detailViewModel.setPlaylistSort(
-                    playlist.playlistEntity.sortMode,
-                    !playlist.playlistEntity.sortDescending
-                )
-                true
-            }
-
-            else -> playlist.onPlaylistMenu(this, menuItem)
         }
     }
 
@@ -450,8 +392,10 @@ class PlaylistDetailFragment : AbsMainActivityFragment(R.layout.fragment_playlis
     override fun onPause() {
         recyclerViewDragDropManager?.cancelDrag()
         // Never persist the (possibly sorted) view order over a synced
-        // playlist's rule-driven content.
-        if (!playlist.playlistEntity.isSynced) {
+        // playlist's rule-driven content, and never overwrite the manual
+        // drag order while a sort is active (the dataSet is the sorted
+        // view then).
+        if (!playlist.playlistEntity.isSynced && playlist.playlistEntity.sortMode == null) {
             playlistSongAdapter?.saveSongs(playlist.playlistEntity)
         }
         super.onPause()
