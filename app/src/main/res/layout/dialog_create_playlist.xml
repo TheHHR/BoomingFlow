@@ -77,6 +77,7 @@
             style="?textInputOutlinedStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
             android:hint="@string/playlist_description_hint">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -89,6 +90,77 @@
                 android:minLines="2" />
 
         </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.materialswitch.MaterialSwitch
+            android:id="@+id/playlist_synced_switch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/synced_playlist_label" />
+
+        <LinearLayout
+            android:id="@+id/sync_rules_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone"
+            tools:visibility="gone">
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/playlist_sync_folders_layout"
+                style="?textInputOutlinedStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:hint="@string/sync_folders_hint"
+                app:helperText="@string/sync_folders_helper">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/playlist_sync_folders_edit_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textCapWords"
+                    android:maxLines="2" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/playlist_sync_artists_layout"
+                style="?textInputOutlinedStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:hint="@string/sync_artists_hint"
+                app:helperText="@string/sync_artists_helper">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/playlist_sync_artists_edit_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textCapWords"
+                    android:maxLines="2" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/playlist_sync_genres_layout"
+                style="?textInputOutlinedStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:hint="@string/sync_genres_hint"
+                app:helperText="@string/sync_genres_helper">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/playlist_sync_genres_edit_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textCapWords"
+                    android:maxLines="2" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+        </LinearLayout>
 
     </LinearLayout>
 

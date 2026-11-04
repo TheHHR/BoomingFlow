@@ -31,8 +31,17 @@ data class PlaylistEntity(
     @ColumnInfo(name = "custom_cover_uri")
     val customCoverUri: String? = null,
     @ColumnInfo(name = "description")
-    val description: String? = null
+    val description: String? = null,
+    @ColumnInfo(name = "sync_rules")
+    val syncRules: String? = null,
+    @ColumnInfo(name = "sort_mode")
+    val sortMode: String? = null,
+    @ColumnInfo(name = "sort_descending")
+    val sortDescending: Boolean = false
 ) : Parcelable {
+
+    val isSynced: Boolean
+        get() = syncRules != null
 
     companion object {
         val Empty = PlaylistEntity(-1, "", null, null)

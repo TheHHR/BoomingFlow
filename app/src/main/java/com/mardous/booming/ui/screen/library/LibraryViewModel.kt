@@ -37,6 +37,7 @@ import com.mardous.booming.coil.CustomPlaylistImageManager
 import com.mardous.booming.core.model.LibraryMargin
 import com.mardous.booming.core.model.filesystem.FileSystemItem
 import com.mardous.booming.core.model.filesystem.FileSystemQuery
+import com.mardous.booming.core.playlist.PlaylistSyncRules
 import com.mardous.booming.data.SongProvider
 import com.mardous.booming.data.local.room.InclExclDao
 import com.mardous.booming.data.local.room.InclExclEntity
@@ -174,6 +175,9 @@ class LibraryViewModel(
     }
 
     private suspend fun fetchPlaylists() {
+        // Re-evaluate synced playlists before the lists page reads them,
+        // so rule-driven additions/removals are visible right away.
+        runCatching { repository.syncAllPlaylists() }
         playlists.postValue(repository.playlistsWithSongs(true))
     }
 
@@ -369,7 +373,11 @@ class LibraryViewModel(
             }
 
             var success = true
-            val playlists = state.playlists.filter { playlistsIds.contains(it.playlistEntity.playListId) }
+            // Synced playlists own their content; the UI disables them, and
+            // this guard covers any path that still reaches this point.
+            val playlists = state.playlists.filter {
+                playlistsIds.contains(it.playlistEntity.playListId) && !it.playlistEntity.isSynced
+            }
             for (playlist in playlists) {
                 val checkedSongs = localSongs.filterNot {
                     repository.checkSongExistInPlaylist(playlist.playlistEntity, it)
@@ -397,7 +405,8 @@ class LibraryViewModel(
         playlist: PlaylistEntity,
         newName: String,
         newImageUri: String?,
-        newDescription: String?
+        newDescription: String?,
+        syncRules: PlaylistSyncRules? = null
     ) = viewModelScope.launch(IO) {
         var imageUri = playlist.customCoverUri
         if (newImageUri != imageUri) {
@@ -406,13 +415,19 @@ class LibraryViewModel(
             }
             imageUri = customPlaylistImageManager.createPlaylistImage(newImageUri)?.toString()
         }
-        repository.updatePlaylist(
-            playlist.copy(
-                playlistName = newName,
-                customCoverUri = imageUri,
-                description = newDescription
-            )
+        val rulesJson = syncRules?.takeIf { it.isValid() }?.serialize()
+        val updated = playlist.copy(
+            playlistName = newName,
+            customCoverUri = imageUri,
+            description = newDescription,
+            syncRules = rulesJson
         )
+        repository.updatePlaylist(updated)
+        // A rules change takes effect immediately: the next sync pass
+        // fills or prunes the playlist to match the new rules.
+        if (updated.isSynced) {
+            runCatching { repository.syncPlaylist(updated.playListId) }
+        }
     }
 
     fun deleteSongsInPlaylist(songs: List<SongEntity>) = viewModelScope.launch(IO) {
@@ -434,20 +449,27 @@ class LibraryViewModel(
         playlistName: String,
         customCoverUri: String? = null,
         description: String? = null,
-        songs: List<Song> = emptyList()
+        songs: List<Song> = emptyList(),
+        syncRules: PlaylistSyncRules? = null
     ): LiveData<AddToPlaylistResult> = liveData(IO) {
         emit(AddToPlaylistResult(playlistName, isWorking = true))
 
         val playlists = checkPlaylistExists(playlistName)
         if (playlists.isEmpty()) {
             val playlistImageUri = customPlaylistImageManager.createPlaylistImage(customCoverUri)
+            val rulesJson = syncRules?.takeIf { it.isValid() }?.serialize()
             val playlistEntity = PlaylistEntity(
                 playlistName = playlistName,
                 customCoverUri = playlistImageUri?.toString(),
-                description = description
+                description = description,
+                syncRules = rulesJson
             )
             val playlistId: Long = createPlaylist(playlistEntity)
-            if (songs.isNotEmpty()) {
+            if (playlistId != -1L && rulesJson != null) {
+                // First sync fills the playlist immediately.
+                runCatching { repository.syncPlaylist(playlistId) }
+            }
+            if (songs.isNotEmpty() && rulesJson == null) {
                 // Online songs must be added as their local-library twins
                 // (downloaded first when needed) — inserting the remote
                 // objects directly produces unplayable fake-id rows.

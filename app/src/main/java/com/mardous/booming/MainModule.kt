@@ -161,7 +161,8 @@ private val roomModule = module {
                 BoomingDatabase.MIGRATION_4_5,
                 BoomingDatabase.MIGRATION_5_6,
                 BoomingDatabase.MIGRATION_6_7,
-                BoomingDatabase.MIGRATION_7_8
+                BoomingDatabase.MIGRATION_7_8,
+                BoomingDatabase.MIGRATION_8_9
             )
             .build()
     }

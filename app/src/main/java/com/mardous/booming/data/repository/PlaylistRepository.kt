@@ -24,6 +24,7 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.map
 import com.mardous.booming.R
+import com.mardous.booming.core.playlist.PlaylistSyncRules
 import com.mardous.booming.core.sort.PlaylistSortMode
 import com.mardous.booming.data.local.room.PlaylistDao
 import com.mardous.booming.data.local.room.PlaylistEntity
@@ -79,6 +80,8 @@ interface PlaylistRepository {
     suspend fun deleteSongsFromPlaylist(songs: List<SongEntity>)
     suspend fun deleteSongsFromAllPlaylists(songsIds: List<Long>)
     fun updatePlaylistsContainingIds(songIds: List<Long>)
+    suspend fun syncPlaylist(playlistId: Long): Boolean
+    suspend fun syncAllPlaylists(): Int
 }
 
 class RealPlaylistRepository(
@@ -305,6 +308,57 @@ class RealPlaylistRepository(
                 }
             }
         }
+    }
+
+    override suspend fun syncPlaylist(playlistId: Long): Boolean {
+        val playlistWithSongs = playlistDao.playlistWithSongs(playlistId) ?: return false
+        return syncPlaylistsWithRules(listOf(playlistWithSongs)) > 0
+    }
+
+    override suspend fun syncAllPlaylists(): Int =
+        syncPlaylistsWithRules(playlistDao.playlistsWithSongs())
+
+    /**
+     * Re-evaluates the sync rules of every playlist that has them: songs
+     * newly matching a rule are inserted, stored songs that no longer
+     * match are removed. The Favorites playlist never syncs, even if it
+     * somehow carries rules.
+     */
+    private suspend fun syncPlaylistsWithRules(playlists: List<PlaylistWithSongs>): Int {
+        val favoritesId = checkFavoritePlaylist()?.playListId
+        val synced = playlists.filter {
+            it.playlistEntity.isSynced && it.playlistEntity.playListId != favoritesId
+        }
+        if (synced.isEmpty()) return 0
+
+        val librarySongs = songRepository.songs()
+        for (playlist in synced) {
+            val rules = PlaylistSyncRules.deserialize(playlist.playlistEntity.syncRules)
+            if (rules == null || !rules.isValid()) continue
+
+            val matched = librarySongs.filter { rules.matches(it) }
+            val matchedIds = HashSet<Long>(matched.size).apply {
+                matched.forEach { add(it.id) }
+            }
+            val existingIds = HashSet<Long>(playlist.songs.size).apply {
+                playlist.songs.forEach { add(it.id) }
+            }
+
+            val toAdd = matched.filterNot { existingIds.contains(it.id) }
+            if (toAdd.isNotEmpty()) {
+                playlistDao.insertSongsToPlaylist(
+                    toAdd.map { it.toSongEntity(playlist.playlistEntity.playListId) }
+                )
+            }
+            val toRemove = playlist.songs.filterNot { matchedIds.contains(it.id) }
+            if (toRemove.isNotEmpty()) {
+                playlistDao.deleteSongsFromPlaylist(
+                    playlist.playlistEntity.playListId,
+                    toRemove.map { it.id }
+                )
+            }
+        }
+        return synced.size
     }
 
     @Suppress("DEPRECATION")

@@ -94,6 +94,8 @@ interface Repository {
     suspend fun deleteSongsInPlaylist(songs: List<SongEntity>)
     suspend fun deleteSong(songId: Long): Song
     suspend fun deleteSongs(songs: List<Song>)
+    suspend fun syncPlaylist(playlistId: Long): Boolean
+    suspend fun syncAllPlaylists(): Int
     fun updatePlaylistsContainingIds(songIds: List<Long>)
     suspend fun deleteMissingContent()
 
@@ -285,6 +287,12 @@ class RealRepository(
         smartRepository.deleteSongsInHistory(deletableIds)
         smartRepository.deleteSongsInPlayCount(deletableIds)
     }
+
+    override suspend fun syncPlaylist(playlistId: Long) =
+        playlistRepository.syncPlaylist(playlistId)
+
+    override suspend fun syncAllPlaylists() =
+        playlistRepository.syncAllPlaylists()
 
     override fun updatePlaylistsContainingIds(songIds: List<Long>) =
         playlistRepository.updatePlaylistsContainingIds(songIds)

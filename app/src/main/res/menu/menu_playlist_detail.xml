@@ -27,6 +27,38 @@
 		</menu>
 	</item>
 	<item
+		android:id="@+id/action_playlist_sort_order"
+		android:title="@string/action_sort_order"
+		app:showAsAction="never">
+		<menu>
+			<item
+				android:id="@+id/action_playlist_sort_custom"
+				android:title="@string/sort_order_custom"/>
+			<item
+				android:id="@id/action_sort_order_name"
+				android:title="@string/sort_order_name"/>
+			<item
+				android:id="@id/action_sort_order_artist"
+				android:title="@string/sort_order_artist"/>
+			<item
+				android:id="@id/action_sort_order_album"
+				android:title="@string/sort_order_album"/>
+			<item
+				android:id="@id/action_sort_order_duration"
+				android:title="@string/sort_order_duration"/>
+			<item
+				android:id="@id/action_sort_order_year"
+				android:title="@string/sort_order_year"/>
+			<item
+				android:id="@id/action_sort_order_date_added"
+				android:title="@string/sort_order_date_added"/>
+			<item
+				android:id="@id/action_sort_order_descending"
+				android:checkable="true"
+				android:title="@string/sort_order_descending"/>
+		</menu>
+	</item>
+	<item
 		android:id="@+id/action_export_playlist"
 		android:title="@string/action_export_playlist"
 		app:showAsAction="never"/>

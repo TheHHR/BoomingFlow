@@ -50,7 +50,15 @@ abstract class BoomingDatabase : RoomDatabase() {
          * When increasing this value, we must ensure we also make any necessary
          * changes in [com.mardous.booming.data.local.backup.BackupManager].
          */
-        const val VERSION = 8
+        const val VERSION = 9
+
+        val MIGRATION_8_9 = object : Migration(8, 9) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE PlaylistEntity ADD COLUMN sync_rules TEXT")
+                db.execSQL("ALTER TABLE PlaylistEntity ADD COLUMN sort_mode TEXT")
+                db.execSQL("ALTER TABLE PlaylistEntity ADD COLUMN sort_descending INTEGER NOT NULL DEFAULT 0")
+            }
+        }
 
         val MIGRATION_1_2 = object : Migration(1, 2) {
             override fun migrate(db: SupportSQLiteDatabase) {

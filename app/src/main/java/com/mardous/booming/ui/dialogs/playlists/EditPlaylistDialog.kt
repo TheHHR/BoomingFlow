@@ -33,6 +33,7 @@ import com.mardous.booming.R
 import com.mardous.booming.coil.DEFAULT_PLAYLIST_IMAGE
 import com.mardous.booming.coil.placeholderDrawableRes
 import com.mardous.booming.data.local.room.PlaylistEntity
+import com.mardous.booming.core.playlist.PlaylistSyncRules
 import com.mardous.booming.databinding.DialogCreatePlaylistBinding
 import com.mardous.booming.extensions.extraNotNull
 import com.mardous.booming.extensions.media.isFavorites
@@ -79,6 +80,14 @@ class EditPlaylistDialog : DialogFragment() {
         binding.playlistNameEditText.setText(playlistEntity.playlistName)
         binding.playlistDescriptionEditText.setText(playlistEntity.description ?: "")
 
+        // Sync rules prefill; Favorites never syncs
+        val initialRules = if (playlistEntity.isFavorites(requireContext())) {
+            null
+        } else {
+            PlaylistSyncRules.deserialize(playlistEntity.syncRules)
+        }
+        binding.setupSyncFields(initialRules)
+
         // Set initial image
         selectedImageUri = playlistEntity.customCoverUri
         loadImage(selectedImageUri?.toUri())
@@ -99,11 +108,17 @@ class EditPlaylistDialog : DialogFragment() {
                     return@setPositiveButton
                 }
 
+                if (!binding.validateSyncFields()) {
+                    showToast(R.string.synced_playlist_rules_error)
+                    return@setPositiveButton
+                }
+
                 libraryViewModel.updatePlaylist(
                     playlist = playlistEntity,
                     newName = playlistName,
                     newImageUri = selectedImageUri,
-                    newDescription = description?.ifEmpty { null }
+                    newDescription = description?.ifEmpty { null },
+                    syncRules = binding.collectSyncRules()
                 )
 
                 libraryViewModel.forceReload(ReloadType.Playlists)

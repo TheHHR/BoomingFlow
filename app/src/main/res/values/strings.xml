@@ -89,6 +89,15 @@
     <string name="create_a_playlist_with_x_songs">A playlist will be created and %d songs will be added automatically.</string>
     <string name="playlist_name_empty">Playlist name</string>
     <string name="playlist_description_hint">Playlist description (optional)</string>
+    <string name="synced_playlist_label">Synced playlist</string>
+    <string name="synced_playlist_tag">Synced</string>
+    <string name="sync_folders_hint">Folders</string>
+    <string name="sync_folders_helper">Comma-separated, e.g. English Songs, My new songs. Songs from those folders (and subfolders) sync automatically.</string>
+    <string name="sync_artists_hint">Artists</string>
+    <string name="sync_artists_helper">Comma-separated, e.g. Eminem, Rihana. Songs by these artists sync automatically.</string>
+    <string name="sync_genres_hint">Genres</string>
+    <string name="sync_genres_helper">Comma-separated genre names. Songs with those genres sync automatically.</string>
+    <string name="synced_playlist_rules_error">Enter at least one folder, artist or genre</string>
     <string name="saved_playlist_x">Saved playlist %s.</string>
     <string name="playlist_updated">Playlist updated.</string>
     <string name="failed_to_save_playlist">Failed to save playlist.</string>
@@ -267,6 +276,7 @@
     <string name="sort_order_last_played_date">Last played date</string>
     <string name="sort_order_track_list">Track list</string>
     <string name="sort_order_descending">Descending</string>
+    <string name="sort_order_custom">Custom order</string>
     <string name="sort_order_ignore_articles">Ignore articles</string>
     <string name="action_details">Details</string>
     <string name="action_set_as_start_directory">Set as start directory</string>

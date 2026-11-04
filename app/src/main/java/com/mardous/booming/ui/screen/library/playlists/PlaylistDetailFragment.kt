@@ -36,6 +36,8 @@ import com.h6ah4i.android.widget.advrecyclerview.animator.RefactoredDefaultItemA
 import com.h6ah4i.android.widget.advrecyclerview.draggable.RecyclerViewDragDropManager
 import com.h6ah4i.android.widget.advrecyclerview.utils.WrapperAdapterUtils
 import com.mardous.booming.R
+import com.mardous.booming.core.model.sort.SortKey
+import com.mardous.booming.core.sort.SongSortMode
 import coil3.request.crossfade
 import coil3.toBitmap
 import com.mardous.booming.coil.playlistImage
@@ -90,6 +92,7 @@ class PlaylistDetailFragment : AbsMainActivityFragment(R.layout.fragment_playlis
     private val binding get() = _binding!!
 
     private var playlist: PlaylistWithSongs = PlaylistWithSongs.Empty
+    private var currentSongs: List<Song> = emptyList()
 
     /**
      * Accent extracted from the playlist cover (null until the art
@@ -162,7 +165,17 @@ class PlaylistDetailFragment : AbsMainActivityFragment(R.layout.fragment_playlis
                 binding.header.description.isGone = true
             }
             binding.collapsingAppBarLayout.title = playlist.playlistEntity.playlistName
-            binding.header.subtitle.text = playlist.songs.toSongs().playlistInfo(requireContext())
+            val info = playlist.songs.toSongs().playlistInfo(requireContext())
+            binding.header.subtitle.text = if (playlist.playlistEntity.isSynced) {
+                getString(R.string.synced_playlist_tag) + " • " + info
+            } else {
+                info
+            }
+            // Synced playlists own their content: no drag reorder.
+            if (playlist.playlistEntity.isSynced) {
+                playlistSongAdapter?.setLockDrag(true)
+            }
+            applySongs()
             binding.header.image.playlistImage(playlist) {
                 crossfade(false)
                 listener(
@@ -181,7 +194,8 @@ class PlaylistDetailFragment : AbsMainActivityFragment(R.layout.fragment_playlis
         }
         detailViewModel.getSongs().observe(viewLifecycleOwner) {
             binding.progressIndicator.hide()
-            playlistSongAdapter?.dataSet = it.toSongs()
+            currentSongs = it.toSongs()
+            applySongs()
         }
         detailViewModel.playlistExists().observe(viewLifecycleOwner) {
             if (!it) {
@@ -192,6 +206,29 @@ class PlaylistDetailFragment : AbsMainActivityFragment(R.layout.fragment_playlis
 
     private fun checkIsEmpty() {
         binding.empty.isVisible = playlistSongAdapter?.isNullOrEmpty == true
+    }
+
+    private fun applySongs() {
+        playlistSongAdapter?.dataSet = sortedSongs(currentSongs)
+    }
+
+    /**
+     * Applies the per-playlist sort choice. A null sortMode keeps the
+     * manual (drag) order stored in the Room rows; otherwise the list is
+     * sorted in memory, leaving the stored order untouched.
+     */
+    private fun sortedSongs(songs: List<Song>): List<Song> {
+        val modeValue = playlist.playlistEntity.sortMode ?: return songs
+        val sortKey = SortKey.entries.firstOrNull { it.value == modeValue } ?: return songs
+        return with(
+            SongSortMode.Dynamic(sortKey, playlist.playlistEntity.sortDescending)
+        ) {
+            songs.sorted()
+        }
+    }
+
+    private fun setPlaylistSort(sortKey: SortKey?) {
+        detailViewModel.setPlaylistSort(sortKey?.value, playlist.playlistEntity.sortDescending)
     }
 
     private fun applyHeaderAccent(accent: Int) {
@@ -262,6 +299,30 @@ class PlaylistDetailFragment : AbsMainActivityFragment(R.layout.fragment_playlis
                 menu.removeItem(R.id.action_delete_playlist)
             }
         }
+        if (playlist.playlistEntity.isSynced) {
+            // Synced playlists own their content: no manual additions.
+            menu.removeItem(R.id.action_add_to_playlist)
+        }
+        menu.findItem(R.id.action_playlist_sort_order)?.subMenu?.let { sortMenu ->
+            val entity = playlist.playlistEntity
+            sortMenu.setGroupCheckable(0, true, true)
+            sortMenu.findItem(R.id.action_playlist_sort_custom)?.isChecked =
+                entity.sortMode == null
+            sortMenu.findItem(R.id.action_sort_order_name)?.isChecked =
+                entity.sortMode == SortKey.Name.value
+            sortMenu.findItem(R.id.action_sort_order_artist)?.isChecked =
+                entity.sortMode == SortKey.Artist.value
+            sortMenu.findItem(R.id.action_sort_order_album)?.isChecked =
+                entity.sortMode == SortKey.Album.value
+            sortMenu.findItem(R.id.action_sort_order_duration)?.isChecked =
+                entity.sortMode == SortKey.Duration.value
+            sortMenu.findItem(R.id.action_sort_order_year)?.isChecked =
+                entity.sortMode == SortKey.Year.value
+            sortMenu.findItem(R.id.action_sort_order_date_added)?.isChecked =
+                entity.sortMode == SortKey.DateAdded.value
+            sortMenu.findItem(R.id.action_sort_order_descending)?.isChecked =
+                entity.sortDescending
+        }
         if (playlistSongAdapter?.isLockDrag == true) {
             menu.findItem(R.id.action_lock)
                 ?.setIcon(R.drawable.ic_lock_24dp)
@@ -303,6 +364,49 @@ class PlaylistDetailFragment : AbsMainActivityFragment(R.layout.fragment_playlis
                 true
             }
 
+            R.id.action_playlist_sort_custom -> {
+                setPlaylistSort(null)
+                true
+            }
+
+            R.id.action_sort_order_name -> {
+                setPlaylistSort(SortKey.Name)
+                true
+            }
+
+            R.id.action_sort_order_artist -> {
+                setPlaylistSort(SortKey.Artist)
+                true
+            }
+
+            R.id.action_sort_order_album -> {
+                setPlaylistSort(SortKey.Album)
+                true
+            }
+
+            R.id.action_sort_order_duration -> {
+                setPlaylistSort(SortKey.Duration)
+                true
+            }
+
+            R.id.action_sort_order_year -> {
+                setPlaylistSort(SortKey.Year)
+                true
+            }
+
+            R.id.action_sort_order_date_added -> {
+                setPlaylistSort(SortKey.DateAdded)
+                true
+            }
+
+            R.id.action_sort_order_descending -> {
+                detailViewModel.setPlaylistSort(
+                    playlist.playlistEntity.sortMode,
+                    !playlist.playlistEntity.sortDescending
+                )
+                true
+            }
+
             else -> playlist.onPlaylistMenu(this, menuItem)
         }
     }
@@ -314,9 +418,14 @@ class PlaylistDetailFragment : AbsMainActivityFragment(R.layout.fragment_playlis
     ): Boolean {
         return when (menuItem.itemId) {
             R.id.action_remove_from_playlist -> {
-                RemoveFromPlaylistDialog.create(song.toSongEntity(playlist.playlistEntity.playListId))
-                    .show(childFragmentManager, "REMOVE_FROM_PLAYLIST")
-                true
+                if (playlist.playlistEntity.isSynced) {
+                    // Content is rule-owned; removal is not available.
+                    true
+                } else {
+                    RemoveFromPlaylistDialog.create(song.toSongEntity(playlist.playlistEntity.playListId))
+                        .show(childFragmentManager, "REMOVE_FROM_PLAYLIST")
+                    true
+                }
             }
 
             else -> song.onSongMenu(this, menuItem)
@@ -326,8 +435,12 @@ class PlaylistDetailFragment : AbsMainActivityFragment(R.layout.fragment_playlis
     override fun songsMenuItemClick(songs: List<Song>, menuItem: MenuItem) {
         when (menuItem.itemId) {
             R.id.action_remove_from_playlist -> {
-                RemoveFromPlaylistDialog.create(songs.toSongsEntity(playlist.playlistEntity))
-                    .show(childFragmentManager, "REMOVE_FROM_PLAYLIST")
+                if (playlist.playlistEntity.isSynced) {
+                    // Content is rule-owned; removal is not available.
+                } else {
+                    RemoveFromPlaylistDialog.create(songs.toSongsEntity(playlist.playlistEntity))
+                        .show(childFragmentManager, "REMOVE_FROM_PLAYLIST")
+                }
             }
 
             else -> songs.onSongsMenu(this, menuItem)
@@ -336,7 +449,11 @@ class PlaylistDetailFragment : AbsMainActivityFragment(R.layout.fragment_playlis
 
     override fun onPause() {
         recyclerViewDragDropManager?.cancelDrag()
-        playlistSongAdapter?.saveSongs(playlist.playlistEntity)
+        // Never persist the (possibly sorted) view order over a synced
+        // playlist's rule-driven content.
+        if (!playlist.playlistEntity.isSynced) {
+            playlistSongAdapter?.saveSongs(playlist.playlistEntity)
+        }
         super.onPause()
     }
 

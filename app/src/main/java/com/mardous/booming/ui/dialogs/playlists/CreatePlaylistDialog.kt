@@ -92,6 +92,9 @@ class CreatePlaylistDialog : DialogFragment() {
             )
         }
 
+        // Synced playlist rules (folders/artists/genres)
+        binding.setupSyncFields(null)
+
         // Load default playlist image
         loadCoverImage(null)
     }
@@ -111,15 +114,22 @@ class CreatePlaylistDialog : DialogFragment() {
             return
         }
 
+        if (!binding.validateSyncFields()) {
+            binding.markInvalidSyncFields()
+            return
+        }
+
         val description = binding.playlistDescriptionEditText.text?.toString()?.trim()
         val customCoverUri = selectedCoverUri?.toString()
+        val syncRules = binding.collectSyncRules()
 
         // Use the new createCustomPlaylist method
         libraryViewModel.createCustomPlaylist(
             playlistName = playlistName,
             customCoverUri = customCoverUri,
             description = if (description.isNullOrEmpty()) null else description,
-            songs = songs
+            songs = songs,
+            syncRules = syncRules
         ).observe(this) { result ->
             if (result.isWorking) {
                 return@observe
