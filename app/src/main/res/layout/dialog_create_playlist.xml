@@ -160,24 +160,6 @@
 
             </com.google.android.material.textfield.TextInputLayout>
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/playlist_sync_playlists_layout"
-                style="?textInputOutlinedStyle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:hint="@string/sync_playlists_hint"
-                app:helperText="@string/sync_playlists_helper">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/playlist_sync_playlists_edit_text"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="textCapWords"
-                    android:maxLines="2" />
-
-            </com.google.android.material.textfield.TextInputLayout>
-
         </LinearLayout>
 
     </LinearLayout>

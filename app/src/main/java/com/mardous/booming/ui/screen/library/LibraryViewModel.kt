@@ -38,7 +38,6 @@ import com.mardous.booming.core.model.LibraryMargin
 import com.mardous.booming.core.model.filesystem.FileSystemItem
 import com.mardous.booming.core.model.filesystem.FileSystemQuery
 import com.mardous.booming.core.playlist.PlaylistSyncRules
-import com.mardous.booming.core.playlist.SyncRuleValidationData
 import com.mardous.booming.data.SongProvider
 import com.mardous.booming.data.local.room.InclExclDao
 import com.mardous.booming.data.local.room.InclExclEntity
@@ -69,7 +68,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
-import kotlinx.coroutines.withContext
 import java.io.File
 import kotlin.coroutines.resume
 
@@ -522,21 +520,6 @@ class LibraryViewModel(
     }
 
     suspend fun insertSongs(songs: List<SongEntity>) = repository.insertSongsInPlaylist(songs)
-
-    /**
-     * Reference sets for validating synced-playlist rule input (folders,
-     * artists, genres, user playlist names), built with the same
-     * canonicalization the rule matcher uses.
-     */
-    suspend fun syncRuleValidationData(): SyncRuleValidationData =
-        withContext(IO) {
-            SyncRuleValidationData.fromSongs(
-                songs = repository.allSongs(),
-                playlistNames = repository.playlistsWithSongs().map {
-                    it.playlistEntity.playlistName
-                }
-            )
-        }
 
     private suspend fun checkPlaylistExists(playlistName: String): List<PlaylistEntity> =
         repository.checkPlaylistExists(playlistName)
