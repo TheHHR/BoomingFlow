@@ -228,7 +228,8 @@ private val dataModule = module {
         RealPlaylistRepository(
             context = androidContext(),
             songRepository = get(),
-            playlistDao = get()
+            playlistDao = get(),
+            smartRepository = get()
         )
     } bind PlaylistRepository::class
 

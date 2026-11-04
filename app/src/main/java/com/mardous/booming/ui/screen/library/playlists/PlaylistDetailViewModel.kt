@@ -3,6 +3,7 @@ package com.mardous.booming.ui.screen.library.playlists
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mardous.booming.data.local.room.PlaylistEntity
 import com.mardous.booming.data.local.room.SongEntity
 import com.mardous.booming.data.repository.PlaylistRepository
 import kotlinx.coroutines.Dispatchers
@@ -30,17 +31,25 @@ class PlaylistDetailViewModel(
     fun getPlaylist() = playlistRepository.playlistWithSongsObservable(playlistId)
 
     /**
-     * Persists the per-playlist sort choice. `null` key means the manual
-     * (drag) order stored in the Room rows.
+     * Persists the per-playlist sort choice. `null` key means Custom
+     * order (the manual drag order stored in the Room rows); switching
+     * to Custom also clears the descending flag.
      */
-    fun setPlaylistSort(sortKey: String?, descending: Boolean) {
+    fun setPlaylistSort(sortKey: String?) {
+        updateSortEntity { it.copy(sortMode = sortKey, sortDescending = false) }
+    }
+
+    /** Toggles the descending flag, reading the fresh entity from the DAO. */
+    fun toggleSortDescending() {
+        updateSortEntity { it.copy(sortDescending = !it.sortDescending) }
+    }
+
+    private fun updateSortEntity(transform: (PlaylistEntity) -> PlaylistEntity) {
         viewModelScope.launch(Dispatchers.IO) {
             runCatching {
                 val entity = playlistRepository.playlistWithSongs(playlistId).playlistEntity
                 if (entity.playListId != -1L) {
-                    playlistRepository.updatePlaylist(
-                        entity.copy(sortMode = sortKey, sortDescending = descending)
-                    )
+                    playlistRepository.updatePlaylist(transform(entity))
                 }
             }
         }

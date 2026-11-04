@@ -214,21 +214,21 @@ class PlaylistDetailFragment : AbsMainActivityFragment(R.layout.fragment_playlis
 
     /**
      * Applies the per-playlist sort choice. A null sortMode keeps the
-     * manual (drag) order stored in the Room rows; otherwise the list is
-     * sorted in memory, leaving the stored order untouched.
+     * manual (drag) order stored in the Room rows — reversed when the
+     * descending flag is set — otherwise the list is sorted in memory,
+     * leaving the stored order untouched.
      */
     private fun sortedSongs(songs: List<Song>): List<Song> {
-        val modeValue = playlist.playlistEntity.sortMode ?: return songs
+        val entity = playlist.playlistEntity
+        val modeValue = entity.sortMode ?: return if (entity.sortDescending) {
+            songs.reversed()
+        } else {
+            songs
+        }
         val sortKey = SortKey.entries.firstOrNull { it.value == modeValue } ?: return songs
-        return with(
-            SongSortMode.Dynamic(sortKey, playlist.playlistEntity.sortDescending)
-        ) {
+        return with(SongSortMode.Dynamic(sortKey, entity.sortDescending)) {
             songs.sorted()
         }
-    }
-
-    private fun setPlaylistSort(sortKey: SortKey?) {
-        detailViewModel.setPlaylistSort(sortKey?.value, playlist.playlistEntity.sortDescending)
     }
 
     private fun applyHeaderAccent(accent: Int) {
@@ -365,45 +365,50 @@ class PlaylistDetailFragment : AbsMainActivityFragment(R.layout.fragment_playlis
             }
 
             R.id.action_playlist_sort_custom -> {
-                setPlaylistSort(null)
+                menuItem.isChecked = true
+                detailViewModel.setPlaylistSort(null)
                 true
             }
 
             R.id.action_sort_order_name -> {
-                setPlaylistSort(SortKey.Name)
+                menuItem.isChecked = true
+                detailViewModel.setPlaylistSort(SortKey.Name.value)
                 true
             }
 
             R.id.action_sort_order_artist -> {
-                setPlaylistSort(SortKey.Artist)
+                menuItem.isChecked = true
+                detailViewModel.setPlaylistSort(SortKey.Artist.value)
                 true
             }
 
             R.id.action_sort_order_album -> {
-                setPlaylistSort(SortKey.Album)
+                menuItem.isChecked = true
+                detailViewModel.setPlaylistSort(SortKey.Album.value)
                 true
             }
 
             R.id.action_sort_order_duration -> {
-                setPlaylistSort(SortKey.Duration)
+                menuItem.isChecked = true
+                detailViewModel.setPlaylistSort(SortKey.Duration.value)
                 true
             }
 
             R.id.action_sort_order_year -> {
-                setPlaylistSort(SortKey.Year)
+                menuItem.isChecked = true
+                detailViewModel.setPlaylistSort(SortKey.Year.value)
                 true
             }
 
             R.id.action_sort_order_date_added -> {
-                setPlaylistSort(SortKey.DateAdded)
+                menuItem.isChecked = true
+                detailViewModel.setPlaylistSort(SortKey.DateAdded.value)
                 true
             }
 
             R.id.action_sort_order_descending -> {
-                detailViewModel.setPlaylistSort(
-                    playlist.playlistEntity.sortMode,
-                    !playlist.playlistEntity.sortDescending
-                )
+                menuItem.isChecked = !menuItem.isChecked
+                detailViewModel.toggleSortDescending()
                 true
             }
 
@@ -449,9 +454,9 @@ class PlaylistDetailFragment : AbsMainActivityFragment(R.layout.fragment_playlis
 
     override fun onPause() {
         recyclerViewDragDropManager?.cancelDrag()
-        // Never persist the (possibly sorted) view order over a synced
-        // playlist's rule-driven content.
-        if (!playlist.playlistEntity.isSynced) {
+        // Persist the order only after a real drag: saving on every pause
+        // would rewrite the manual order with the (possibly sorted) view.
+        if (!playlist.playlistEntity.isSynced && playlistSongAdapter?.isDragDirty == true) {
             playlistSongAdapter?.saveSongs(playlist.playlistEntity)
         }
         super.onPause()

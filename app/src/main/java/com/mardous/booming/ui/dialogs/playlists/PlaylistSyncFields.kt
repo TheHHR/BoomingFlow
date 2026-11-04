@@ -16,14 +16,20 @@
  */
 package com.mardous.booming.ui.dialogs.playlists
 
+import android.text.Editable
+import android.text.TextWatcher
 import androidx.core.view.isVisible
+import com.google.android.material.textfield.TextInputLayout
+import com.mardous.booming.R
 import com.mardous.booming.core.playlist.PlaylistSyncRules
+import com.mardous.booming.core.playlist.SyncRuleValidationData
+import com.mardous.booming.core.playlist.validate
 import com.mardous.booming.databinding.DialogCreatePlaylistBinding
 
 /**
  * Shared wiring for the "Synced playlist" section of the create/edit
- * playlist dialog: a switch that reveals the folder/artist/genre rule
- * fields.
+ * playlist dialog: a switch that reveals the folder/artist/genre/
+ * playlist rule fields.
  */
 fun DialogCreatePlaylistBinding.setupSyncFields(initialRules: PlaylistSyncRules?) {
     val rules = initialRules ?: PlaylistSyncRules()
@@ -32,28 +38,77 @@ fun DialogCreatePlaylistBinding.setupSyncFields(initialRules: PlaylistSyncRules?
     playlistSyncFoldersEditText.setText(rules.folders.joinToString(", "))
     playlistSyncArtistsEditText.setText(rules.artists.joinToString(", "))
     playlistSyncGenresEditText.setText(rules.genres.joinToString(", "))
+    playlistSyncPlaylistsEditText.setText(rules.playlists.joinToString(", "))
     playlistSyncedSwitch.setOnCheckedChangeListener { _, isChecked ->
         syncRulesContainer.isVisible = isChecked
     }
+    // Typing clears the field's validation error.
+    clearErrorOnEdit(playlistSyncFoldersLayout, playlistSyncFoldersEditText)
+    clearErrorOnEdit(playlistSyncArtistsLayout, playlistSyncArtistsEditText)
+    clearErrorOnEdit(playlistSyncGenresLayout, playlistSyncGenresEditText)
+    clearErrorOnEdit(playlistSyncPlaylistsLayout, playlistSyncPlaylistsEditText)
 }
 
-/** True when the switch is on and at least one rule field is filled. */
-fun DialogCreatePlaylistBinding.validateSyncFields(): Boolean {
+private fun DialogCreatePlaylistBinding.clearErrorOnEdit(layout: TextInputLayout, editText: com.google.android.material.textfield.TextInputEditText) {
+    editText.addTextChangedListener(object : TextWatcher {
+        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+        override fun afterTextChanged(s: Editable?) {
+            layout.error = null
+        }
+    })
+}
+
+/**
+ * Validates the rule input against [data] and shows a per-field error
+ * for every problem. Returns true when the input is valid (or the sync
+ * switch is off). A null [data] skips existence validation but still
+ * catches the "switch on, nothing entered" and built-in misuse cases.
+ */
+fun DialogCreatePlaylistBinding.validateSyncFields(
+    data: SyncRuleValidationData?
+): Boolean {
     if (!playlistSyncedSwitch.isChecked) {
         return true
     }
-    return readSyncFields().isValid()
-}
-
-fun DialogCreatePlaylistBinding.markInvalidSyncFields() {
-    playlistSyncFoldersLayout.error =
-        root.context.getString(com.mardous.booming.R.string.synced_playlist_rules_error)
-    playlistSyncedSwitch.setOnCheckedChangeListener { _, isChecked ->
-        syncRulesContainer.isVisible = isChecked
-        if (isChecked) {
-            playlistSyncFoldersLayout.error = null
-        }
+    val rules = readSyncFields()
+    if (!rules.isValid()) {
+        playlistSyncFoldersLayout.error =
+            root.context.getString(R.string.synced_playlist_rules_error)
+        return false
     }
+    if (data == null) {
+        // Snapshot unavailable: run structural checks only (built-in
+        // misuse), never block on existence.
+        if (rules.validate(EMPTY_VALIDATION_DATA).builtinMisuse) {
+            playlistSyncPlaylistsLayout.error =
+                root.context.getString(R.string.sync_builtin_solo_error)
+            return false
+        }
+        return true
+    }
+    val errors = rules.validate(data)
+    if (errors.hasErrors) {
+        val notFoundTemplate = root.context.getString(R.string.sync_rule_not_found_x)
+        if (errors.invalidFolders.isNotEmpty()) {
+            playlistSyncFoldersLayout.error = notFoundTemplate.format(errors.invalidFolders.joinToString(", "))
+        }
+        if (errors.invalidArtists.isNotEmpty()) {
+            playlistSyncArtistsLayout.error = notFoundTemplate.format(errors.invalidArtists.joinToString(", "))
+        }
+        if (errors.invalidGenres.isNotEmpty()) {
+            playlistSyncGenresLayout.error = notFoundTemplate.format(errors.invalidGenres.joinToString(", "))
+        }
+        if (errors.invalidPlaylists.isNotEmpty()) {
+            playlistSyncPlaylistsLayout.error = notFoundTemplate.format(errors.invalidPlaylists.joinToString(", "))
+        }
+        if (errors.builtinMisuse) {
+            playlistSyncPlaylistsLayout.error =
+                root.context.getString(R.string.sync_builtin_solo_error)
+        }
+        return false
+    }
+    return true
 }
 
 /** The parsed rules, or null when the synced switch is off. */
@@ -68,5 +123,18 @@ private fun DialogCreatePlaylistBinding.readSyncFields(): PlaylistSyncRules =
     PlaylistSyncRules.parse(
         folders = playlistSyncFoldersEditText.text?.toString(),
         artists = playlistSyncArtistsEditText.text?.toString(),
-        genres = playlistSyncGenresEditText.text?.toString()
+        genres = playlistSyncGenresEditText.text?.toString(),
+        playlists = playlistSyncPlaylistsEditText.text?.toString()
     )
+
+/**
+ * Empty reference sets: only structural checks (empty rules, built-in
+ * misuse) run against it. Used when the library snapshot could not be
+ * fetched, so saving is never blocked by a transient failure.
+ */
+private val EMPTY_VALIDATION_DATA = SyncRuleValidationData(
+    folderSegments = emptySet(),
+    artistNames = emptySet(),
+    genreNames = emptySet(),
+    playlistNames = emptySet()
+)

@@ -24,14 +24,34 @@ import org.json.JSONArray
 import org.json.JSONObject
 
 /**
+ * The built-in (smart) song lists that a synced playlist may reference.
+ * A built-in is a whole rule by itself: it must be the only entry in the
+ * playlists field and no other field (folders/artists/genres) may be
+ * filled alongside it.
+ *
+ * The enum name is the stable, locale-proof identifier; [token] is what
+ * the user types (matched case-insensitively).
+ */
+enum class BuiltinPlaylist(val token: String) {
+    TOP_TRACKS("top tracks"),
+    HISTORY("history"),
+    LAST_ADDED("last added");
+
+    companion object {
+        fun fromToken(raw: String): BuiltinPlaylist? =
+            entries.firstOrNull { it.token.equals(raw.trim(), ignoreCase = true) }
+    }
+}
+
+/**
  * Rules that make a playlist "synced": every library song matching at
  * least one rule is added to the playlist, and stored songs that no
  * longer match are removed on every sync pass.
  *
  * Within each field the values are alternatives (OR). Across fields the
  * match is also OR: a song belongs to the playlist when it matches any
- * non-empty field. A playlist with rules that match nothing is simply
- * empty.
+ * non-empty field or is a member of a referenced playlist. A playlist
+ * with rules that match nothing is simply empty.
  *
  * - Folders match by folder NAME anywhere in the song path (case-
  *   insensitive), subfolders included.
@@ -40,15 +60,20 @@ import org.json.JSONObject
  *   their canonical spelling, and both the album-artist tag (with the
  *   album-derived fallback) and the song's own artist tag are considered.
  * - Genres match the song's genre tag (case-insensitive).
+ * - Playlists reference other playlists by name (case-insensitive);
+ *   [BuiltinPlaylist] tokens reference the built-in smart lists, which
+ *   may only be used singularly (validation enforces this).
  */
 data class PlaylistSyncRules(
     val folders: List<String> = emptyList(),
     val artists: List<String> = emptyList(),
-    val genres: List<String> = emptyList()
+    val genres: List<String> = emptyList(),
+    val playlists: List<String> = emptyList()
 ) {
 
     fun isValid(): Boolean =
-        folders.isNotEmpty() || artists.isNotEmpty() || genres.isNotEmpty()
+        folders.isNotEmpty() || artists.isNotEmpty() ||
+            genres.isNotEmpty() || playlists.isNotEmpty()
 
     fun matches(song: Song): Boolean {
         if (folders.isNotEmpty() && matchesFolders(song)) return true
@@ -89,6 +114,7 @@ data class PlaylistSyncRules(
         json.put(KEY_FOLDERS, JSONArray(folders))
         json.put(KEY_ARTISTS, JSONArray(artists))
         json.put(KEY_GENRES, JSONArray(genres))
+        json.put(KEY_PLAYLISTS, JSONArray(playlists))
         return json.toString()
     }
 
@@ -96,6 +122,7 @@ data class PlaylistSyncRules(
         private const val KEY_FOLDERS = "folders"
         private const val KEY_ARTISTS = "artists"
         private const val KEY_GENRES = "genres"
+        private const val KEY_PLAYLISTS = "playlists"
 
         fun deserialize(json: String?): PlaylistSyncRules? {
             if (json.isNullOrEmpty()) return null
@@ -104,7 +131,8 @@ data class PlaylistSyncRules(
                 PlaylistSyncRules(
                     folders = obj.optStringArray(KEY_FOLDERS),
                     artists = obj.optStringArray(KEY_ARTISTS),
-                    genres = obj.optStringArray(KEY_GENRES)
+                    genres = obj.optStringArray(KEY_GENRES),
+                    playlists = obj.optStringArray(KEY_PLAYLISTS)
                 )
             }.getOrNull()
         }
@@ -113,13 +141,14 @@ data class PlaylistSyncRules(
          * Parses the raw comma-separated dialog input. Empty entries are
          * dropped, so "Eminem, Rihana" and "Eminem,Rihana" are equivalent.
          */
-        fun parse(folders: String?, artists: String?, genres: String?): PlaylistSyncRules {
+        fun parse(folders: String?, artists: String?, genres: String?, playlists: String? = null): PlaylistSyncRules {
             fun parseField(raw: String?): List<String> =
                 raw?.split(',')?.map { it.trim() }?.filter { it.isNotEmpty() } ?: emptyList()
             return PlaylistSyncRules(
                 folders = parseField(folders),
                 artists = parseField(artists),
-                genres = parseField(genres)
+                genres = parseField(genres),
+                playlists = parseField(playlists)
             )
         }
 

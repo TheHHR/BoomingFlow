@@ -24,6 +24,7 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.map
 import com.mardous.booming.R
+import com.mardous.booming.core.playlist.BuiltinPlaylist
 import com.mardous.booming.core.playlist.PlaylistSyncRules
 import com.mardous.booming.core.sort.PlaylistSortMode
 import com.mardous.booming.data.local.room.PlaylistDao
@@ -87,7 +88,8 @@ interface PlaylistRepository {
 class RealPlaylistRepository(
     private val context: Context,
     private val songRepository: SongRepository,
-    private val playlistDao: PlaylistDao
+    private val playlistDao: PlaylistDao,
+    private val smartRepository: SmartRepository
 ) : PlaylistRepository {
 
     private val repositoryScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
@@ -332,11 +334,13 @@ class RealPlaylistRepository(
         if (synced.isEmpty()) return 0
 
         val librarySongs = songRepository.songs()
+        val allPlaylists = playlistDao.playlistsWithSongs()
         for (playlist in synced) {
             val rules = PlaylistSyncRules.deserialize(playlist.playlistEntity.syncRules)
             if (rules == null || !rules.isValid()) continue
 
-            val matched = librarySongs.filter { rules.matches(it) }
+            val memberIds = resolvePlaylistMemberIds(rules.playlists, allPlaylists)
+            val matched = librarySongs.filter { rules.matches(it) || memberIds.contains(it.id) }
             val matchedIds = HashSet<Long>(matched.size).apply {
                 matched.forEach { add(it.id) }
             }
@@ -359,6 +363,38 @@ class RealPlaylistRepository(
             }
         }
         return synced.size
+    }
+
+    /**
+     * Resolves the song ids of every playlist referenced by a rules set.
+     * Built-in tokens ([BuiltinPlaylist]) resolve live against the smart
+     * repositories (Top Tracks, History, Last added), so their songs
+     * follow play stats; any other entry is a user playlist name,
+     * matched case-insensitively. Unknown references contribute nothing.
+     */
+    private suspend fun resolvePlaylistMemberIds(
+        entries: List<String>,
+        playlists: List<PlaylistWithSongs>
+    ): Set<Long> {
+        if (entries.isEmpty()) return emptySet()
+        val ids = HashSet<Long>()
+        for (entry in entries) {
+            when (BuiltinPlaylist.fromToken(entry)) {
+                BuiltinPlaylist.TOP_TRACKS ->
+                    smartRepository.playCountSongs().forEach { ids.add(it.id) }
+                BuiltinPlaylist.HISTORY ->
+                    smartRepository.historySongs().forEach { ids.add(it.id) }
+                BuiltinPlaylist.LAST_ADDED ->
+                    smartRepository.recentSongs().forEach { ids.add(it.id) }
+                null ->
+                    playlists.filter {
+                        it.playlistEntity.playlistName.equals(entry.trim(), ignoreCase = true)
+                    }.forEach { playlist ->
+                        playlist.songs.forEach { ids.add(it.id) }
+                    }
+            }
+        }
+        return ids
     }
 
     @Suppress("DEPRECATION")

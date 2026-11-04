@@ -53,6 +53,15 @@ class PlaylistSongAdapter(
     var isLockDrag = isLockDrag
         private set
 
+    /**
+     * True once an actual drag reorder happened in this session. Only
+     * then may [saveSongs] rewrite the stored order — otherwise leaving
+     * the screen would persist the (possibly sorted) view order over
+     * the playlist's manual order.
+     */
+    var isDragDirty = false
+        private set
+
     private val libraryViewModel: LibraryViewModel by activity.viewModel()
     private val mutableDataSet: MutableList<Song>
         get() = dataSet as MutableList
@@ -96,6 +105,9 @@ class PlaylistSongAdapter(
 
     @SuppressLint("NotifyDataSetChanged")
     override fun onItemDragFinished(fromPosition: Int, toPosition: Int, result: Boolean) {
+        if (result) {
+            isDragDirty = true
+        }
         notifyDataSetChanged()
     }
 
@@ -106,6 +118,7 @@ class PlaylistSongAdapter(
         activity.lifecycleScope.launch(Dispatchers.IO) {
             libraryViewModel.insertSongs(dataSet.toSongsEntity(playlistEntity))
         }
+        isDragDirty = false
     }
 
     @SuppressLint("NotifyDataSetChanged")

@@ -97,7 +97,11 @@
     <string name="sync_artists_helper">Comma-separated, e.g. Eminem, Rihana. Songs by these artists sync automatically.</string>
     <string name="sync_genres_hint">Genres</string>
     <string name="sync_genres_helper">Comma-separated genre names. Songs with those genres sync automatically.</string>
-    <string name="synced_playlist_rules_error">Enter at least one folder, artist or genre</string>
+    <string name="sync_playlists_hint">Playlists</string>
+    <string name="sync_playlists_helper">Comma-separated playlist names. Built-ins (only on their own): Top Tracks, History, Last added.</string>
+    <string name="synced_playlist_rules_error">Enter at least one folder, artist, genre or playlist</string>
+    <string name="sync_builtin_solo_error">A built-in playlist (Top Tracks, History, Last added) can only be used on its own</string>
+    <string name="sync_rule_not_found_x">Not found: %s</string>
     <string name="saved_playlist_x">Saved playlist %s.</string>
     <string name="playlist_updated">Playlist updated.</string>
     <string name="failed_to_save_playlist">Failed to save playlist.</string>
