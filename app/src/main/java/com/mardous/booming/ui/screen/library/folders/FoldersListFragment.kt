@@ -121,7 +121,10 @@ class FoldersListFragment : AbsRecyclerViewCustomGridSizeFragment<FileAdapter, G
             is Song -> {
                 libraryViewModel.listSongsFromFiles(
                     song = file,
-                    files = fileSystem?.getSortedChildren(FileSortMode.AllFiles)
+                    // Sort with the SAME mode the list displays (flat
+                    // view uses the "folder" prefs, hierarchy the
+                    // "file" prefs) — playback must match the screen.
+                    files = fileSystem?.getSortedChildren(sortMode)
                 ).observe(viewLifecycleOwner) { (songs, position) ->
                     playerViewModel.openSongs(position, songs, Preferences.songClickAction)
                     if (adapter?.songClickBehavior?.isAbleToPlay == false) {
@@ -189,7 +192,8 @@ class FoldersListFragment : AbsRecyclerViewCustomGridSizeFragment<FileAdapter, G
                     R.id.action_play -> {
                         libraryViewModel.listSongsFromFiles(
                             song = file,
-                            files = fileSystem?.getSortedChildren(FileSortMode.AllFiles)
+                            // Same sort the list displays (see fileClick).
+                            files = fileSystem?.getSortedChildren(sortMode)
                         ).observe(viewLifecycleOwner) { (songs, position) ->
                             playerViewModel.openSongs(
                                 position = position,
