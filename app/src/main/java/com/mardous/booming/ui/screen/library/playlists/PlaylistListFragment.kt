@@ -233,7 +233,6 @@ class PlaylistListFragment : AbsRecyclerViewCustomGridSizeFragment<RecyclerView.
                 }
             },
             onDragSessionChanged = { sessionActive ->
-                android.util.Log.d("BoomingFlowDrag", "tab gate: touchEnabled=${!sessionActive}")
                 fastScrollGate?.touchEnabled = !sessionActive
             }
         )

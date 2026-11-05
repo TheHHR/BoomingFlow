@@ -19,6 +19,7 @@ import com.mardous.booming.databinding.FragmentPlaylistDetailBinding
 import com.mardous.booming.extensions.collectPlayerAccent
 import com.mardous.booming.extensions.isLandscape
 import com.mardous.booming.extensions.launchAndRepeatWithViewLifecycle
+import com.mardous.booming.extensions.materialSharedAxis
 import com.mardous.booming.extensions.resources.applyHeaderAccentFromArt
 import com.mardous.booming.extensions.resources.applyPlayerAccent
 import com.mardous.booming.extensions.setSupportActionBar
@@ -70,6 +71,9 @@ class SpotifyPlaylistFragment : AbsMainActivityFragment(R.layout.fragment_playli
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        // Same shared-axis slide as the local playlist detail — this
+        // screen was a hard-cut navigation (1.1.95).
+        materialSharedAxis(view)
         _binding = FragmentPlaylistDetailBinding.bind(view)
 
         setSupportActionBar(binding.toolbar, null)

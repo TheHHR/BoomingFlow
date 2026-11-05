@@ -18,7 +18,6 @@ package com.mardous.booming.extensions.resources
 
 import android.graphics.Canvas
 import android.graphics.Rect
-import android.util.Log
 import android.view.MotionEvent
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.GridLayoutManager
@@ -81,9 +80,6 @@ class GatedRecyclerViewHelper(
                 recyclerView: RecyclerView,
                 event: MotionEvent
             ): Boolean {
-                if (event.actionMasked == MotionEvent.ACTION_DOWN) {
-                    Log.d("BoomingFlowDrag", "scroller saw DOWN, gate=${gate.touchEnabled}")
-                }
                 if (!gate.touchEnabled) return false
                 return onTouchEvent.test(event)
             }
