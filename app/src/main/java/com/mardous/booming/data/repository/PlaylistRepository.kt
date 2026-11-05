@@ -313,7 +313,12 @@ class RealPlaylistRepository(
             if (existingEntities.isEmpty()) return@launch
 
             // 2. Get the updated songs from MediaStore/Library
-            val updatedSongs = songRepository.songs(songIds).associateBy { it.id }
+            // (chunked like the lookup above — an unchunked IN() over
+            // a large batch edit exceeds the SQLite bind-argument
+            // limit and crashes this fire-and-forget scope)
+            val updatedSongs = songIds.chunked(MAX_ITEMS_PER_CHUNK)
+                .flatMap { chunk -> songRepository.songs(chunk) }
+                .associateBy { it.id }
 
             if (updatedSongs.isEmpty()) return@launch
 
@@ -338,8 +343,13 @@ class RealPlaylistRepository(
         return syncPlaylistsWithRules(listOf(playlistWithSongs)) > 0
     }
 
-    override suspend fun syncAllPlaylists(): Int =
-        syncPlaylistsWithRules(playlistDao.playlistsWithSongs())
+    override suspend fun syncAllPlaylists(): Int {
+        // Cheap pre-check: the entity-only query avoids loading every
+        // playlist's full song relation (the 1.1.95 perf audit) when
+        // the user has no synced playlists at all — the common case.
+        if (playlistDao.playlists().none { it.isSynced }) return 0
+        return syncPlaylistsWithRules(playlistDao.playlistsWithSongs())
+    }
 
     /**
      * Re-evaluates the sync rules of every playlist that has them: songs
@@ -355,6 +365,12 @@ class RealPlaylistRepository(
         if (synced.isEmpty()) return 0
 
         val librarySongs = songRepository.songs()
+        // An empty library read (MediaStore briefly unavailable) must
+        // never be treated as "nothing matches" — that would wipe every
+        // synced playlist. Real changes always come with at least one
+        // library song to consider.
+        if (librarySongs.isEmpty()) return 0
+
         for (playlist in synced) {
             val rules = PlaylistSyncRules.deserialize(playlist.playlistEntity.syncRules)
             if (rules == null || !rules.isValid()) continue
@@ -375,10 +391,16 @@ class RealPlaylistRepository(
             }
             val toRemove = playlist.songs.filterNot { matchedIds.contains(it.id) }
             if (toRemove.isNotEmpty()) {
-                playlistDao.deleteSongsFromPlaylist(
-                    playlist.playlistEntity.playListId,
-                    toRemove.map { it.id }
-                )
+                // Chunked: a rules change that unmatches hundreds of
+                // songs must not exceed the SQLite bind-argument limit.
+                toRemove.map { it.id }
+                    .chunked(MAX_ITEMS_PER_CHUNK)
+                    .forEach { chunkIds ->
+                        playlistDao.deleteSongsFromPlaylist(
+                            playlist.playlistEntity.playListId,
+                            chunkIds
+                        )
+                    }
             }
         }
         return synced.size

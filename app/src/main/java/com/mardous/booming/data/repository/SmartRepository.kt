@@ -104,13 +104,18 @@ class RealSmartRepository(
             val oldSongIds = historyDao.notPlayedSongIds(
                 cutoff = Preferences.getHistoryCutoff(context).interval
             )
-            val oldSongs = songRepository.songs(
-                songRepository.makeSongCursor(
-                    selection = "${AudioColumns._ID} IN (${oldSongIds.joinToString(",") { "?" }})",
-                    selectionValues = oldSongIds.map { it.toString() }.toTypedArray()
+            // An empty id set must not build "_id IN ()" — that is a
+            // SQLite syntax error, and the caller only guards against
+            // SecurityException.
+            if (oldSongIds.isNotEmpty()) {
+                val oldSongs = songRepository.songs(
+                    songRepository.makeSongCursor(
+                        selection = "${AudioColumns._ID} IN (${oldSongIds.joinToString(",") { "?" }})",
+                        selectionValues = oldSongIds.map { it.toString() }.toTypedArray()
+                    )
                 )
-            )
-            addAll(oldSongs)
+                addAll(oldSongs)
+            }
         }
     }
 
@@ -212,28 +217,16 @@ class RealSmartRepository(
     }
 
     private suspend fun List<PlayCountEntity>.fromPlayCountToSongs(): List<Song> = withContext(IO) {
-        val (deletedTracks, validTracks) = partition { it.id == -1L || !File(it.data).exists() }
-        if (deletedTracks.isNotEmpty()) {
-            deletedTracks.map { it.id }
-                .chunked(MAX_ITEMS_PER_CHUNK)
-                .forEach { chunkIds ->
-                    deleteSongsInPlayCount(chunkIds)
-                }
-        }
-
-        validTracks.map { it.toSong() }
+        // Read paths must never mutate the database: a briefly unavailable
+        // file (unmounted storage, rescan in progress) is not a deletion.
+        // Missing entries are filtered from display only; rows are removed
+        // by explicit song deletions instead.
+        filter { it.id != -1L && File(it.data).exists() }
+            .map { it.toSong() }
     }
 
     private suspend fun List<HistoryEntity>.fromHistoryToSongs(): List<Song> = withContext(IO) {
-        val (deletedTracks, validTracks) = partition { it.id == -1L || !File(it.data).exists() }
-        if (deletedTracks.isNotEmpty()) {
-            deletedTracks.map { it.id }
-                .chunked(MAX_ITEMS_PER_CHUNK)
-                .forEach { chunkIds ->
-                    deleteSongsInHistory(chunkIds)
-                }
-        }
-
-        validTracks.map { it.toSong() }
+        filter { it.id != -1L && File(it.data).exists() }
+            .map { it.toSong() }
     }
 }
