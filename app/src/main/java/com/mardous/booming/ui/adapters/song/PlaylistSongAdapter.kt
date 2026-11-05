@@ -19,25 +19,22 @@ package com.mardous.booming.ui.adapters.song
 
 import android.annotation.SuppressLint
 import android.view.ActionMode
+import android.view.HapticFeedbackConstants
 import android.view.Menu
+import android.view.MotionEvent
 import android.view.View
 import androidx.annotation.LayoutRes
-import androidx.core.view.isGone
-import androidx.core.view.isVisible
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
-import com.h6ah4i.android.widget.advrecyclerview.draggable.DraggableItemAdapter
-import com.h6ah4i.android.widget.advrecyclerview.draggable.DraggableItemState
-import com.h6ah4i.android.widget.advrecyclerview.draggable.DraggableItemViewHolder
-import com.h6ah4i.android.widget.advrecyclerview.draggable.ItemDraggableRange
-import com.h6ah4i.android.widget.advrecyclerview.draggable.annotation.DraggableItemStateFlags
+import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.RecyclerView
 import com.mardous.booming.R
 import com.mardous.booming.data.local.room.PlaylistEntity
 import com.mardous.booming.data.mapper.toSongsEntity
 import com.mardous.booming.data.model.Song
-import com.mardous.booming.extensions.resources.hitTest
 import com.mardous.booming.ui.ISongCallback
 import com.mardous.booming.ui.screen.library.LibraryViewModel
+import com.mardous.booming.util.DragTouchCallback
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -49,8 +46,7 @@ class PlaylistSongAdapter(
     itemLayoutRes: Int,
     canReorder: Boolean = false,
     callback: ISongCallback? = null
-) : SongAdapter(activity, dataSet, itemLayoutRes, null, callback),
-    DraggableItemAdapter<PlaylistSongAdapter.ViewHolder> {
+) : SongAdapter(activity, dataSet, itemLayoutRes, null, callback) {
 
     var canReorder = canReorder
         private set
@@ -59,6 +55,20 @@ class PlaylistSongAdapter(
     private val mutableDataSet: MutableList<Song>
         get() = dataSet as MutableList
 
+    private val itemTouchHelper = ItemTouchHelper(
+        DragTouchCallback(
+            canDrag = { canReorder && isInQuickSelectMode },
+            onMoved = { from, to ->
+                mutableDataSet.add(to, mutableDataSet.removeAt(from))
+                notifyItemMoved(from, to)
+            }
+        )
+    )
+
+    fun attachToRecyclerView(recyclerView: RecyclerView?) {
+        itemTouchHelper.attachToRecyclerView(recyclerView)
+    }
+
     override fun createViewHolder(view: View, viewType: Int): SongAdapter.ViewHolder {
         return ViewHolder(view)
     }
@@ -66,45 +76,31 @@ class PlaylistSongAdapter(
     override fun onBindViewHolder(holder: SongAdapter.ViewHolder, position: Int) {
         super.onBindViewHolder(holder, position)
         // Reorder session: only in Custom order, only while songs are
-        // selected; every row swaps its overflow menu for the drag handle.
-        val dragSession = canReorder && isInQuickSelectMode
-        holder.dragView?.isVisible = dragSession
-        if (dragSession) {
-            holder.menu?.isGone = true
+        // selected. The overflow button stays in its exact spot but
+        // becomes the drag handle: grab it and the row follows the
+        // finger, exactly like the queue screen.
+        holder.menu?.let { menu ->
+            val dragSession = canReorder && isInQuickSelectMode
+            if (dragSession) {
+                menu.setIconResource(R.drawable.ic_drag_handle_24dp)
+                menu.isClickable = false
+                menu.setOnTouchListener { view, event ->
+                    if (event.actionMasked == MotionEvent.ACTION_DOWN) {
+                        view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
+                        itemTouchHelper.startDrag(holder)
+                    }
+                    true
+                }
+            } else {
+                menu.setIconResource(R.drawable.ic_more_vert_24dp)
+                menu.isClickable = true
+                menu.setOnTouchListener(null)
+            }
         }
     }
 
     override fun getItemId(position: Int): Long {
         return dataSet[position].id
-    }
-
-    override fun onCheckCanStartDrag(holder: ViewHolder, position: Int, x: Int, y: Int): Boolean {
-        if (!canReorder || !isInQuickSelectMode) {
-            return false
-        }
-        return (holder.dragView?.hitTest(x, y) ?: false)
-    }
-
-    override fun onGetItemDraggableRange(holder: ViewHolder, position: Int): ItemDraggableRange? {
-        return null
-    }
-
-    override fun onMoveItem(fromPosition: Int, toPosition: Int) {
-        mutableDataSet.add(toPosition, mutableDataSet.removeAt(fromPosition))
-    }
-
-    override fun onCheckCanDrop(draggingPosition: Int, dropPosition: Int): Boolean {
-        return true
-    }
-
-    @SuppressLint("NotifyDataSetChanged")
-    override fun onItemDragStarted(position: Int) {
-        notifyDataSetChanged()
-    }
-
-    @SuppressLint("NotifyDataSetChanged")
-    override fun onItemDragFinished(fromPosition: Int, toPosition: Int, result: Boolean) {
-        notifyDataSetChanged()
     }
 
     override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
@@ -138,30 +134,10 @@ class PlaylistSongAdapter(
         notifyDataSetChanged()
     }
 
-    inner class ViewHolder internal constructor(itemView: View) : SongAdapter.ViewHolder(itemView),
-        DraggableItemViewHolder {
-
-        private val mDragItemState: DraggableItemState
+    inner class ViewHolder internal constructor(itemView: View) : SongAdapter.ViewHolder(itemView) {
 
         override val songMenuRes: Int
             get() = R.menu.menu_item_playlist_song
-
-        override fun getDragState(): DraggableItemState {
-            return mDragItemState
-        }
-
-        @DraggableItemStateFlags
-        override fun getDragStateFlags(): Int {
-            return mDragItemState.flags
-        }
-
-        override fun setDragStateFlags(flags: Int) {
-            mDragItemState.flags = flags
-        }
-
-        init {
-            mDragItemState = DraggableItemState()
-        }
     }
 
     init {

@@ -17,6 +17,7 @@ import com.mardous.booming.coil.placeholderDrawableRes
 import com.mardous.booming.core.PlayerAccentState
 import com.mardous.booming.databinding.FragmentPlaylistDetailBinding
 import com.mardous.booming.extensions.collectPlayerAccent
+import com.mardous.booming.extensions.isLandscape
 import com.mardous.booming.extensions.launchAndRepeatWithViewLifecycle
 import com.mardous.booming.extensions.resources.applyHeaderAccentFromArt
 import com.mardous.booming.extensions.resources.applyPlayerAccent
@@ -418,6 +419,14 @@ class SpotifyPlaylistFragment : AbsMainActivityFragment(R.layout.fragment_playli
             updateDownloadMenu(true)
         }
         refreshDownloadedBadges()
+    }
+
+    override fun onPrepareMenu(menu: Menu) {
+        // Portrait shows the header search button; the toolbar icon
+        // would duplicate it (landscape header has no search button).
+        if (!isLandscape()) {
+            menu.removeItem(R.id.action_search)
+        }
     }
 
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {

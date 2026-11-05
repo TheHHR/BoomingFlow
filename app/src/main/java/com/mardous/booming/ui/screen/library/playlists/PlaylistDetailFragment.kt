@@ -32,9 +32,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.transition.MaterialArcMotion
 import com.google.android.material.transition.MaterialContainerTransform
-import com.h6ah4i.android.widget.advrecyclerview.animator.RefactoredDefaultItemAnimator
-import com.h6ah4i.android.widget.advrecyclerview.draggable.RecyclerViewDragDropManager
-import com.h6ah4i.android.widget.advrecyclerview.utils.WrapperAdapterUtils
 import com.mardous.booming.R
 import com.mardous.booming.core.model.sort.SortKey
 import com.mardous.booming.core.sort.SongSortMode
@@ -100,8 +97,6 @@ class PlaylistDetailFragment : AbsMainActivityFragment(R.layout.fragment_playlis
     private var headerAccent: Int? = null
 
     private var playlistSongAdapter: PlaylistSongAdapter? = null
-    private var wrappedAdapter: RecyclerView.Adapter<*>? = null
-    private var recyclerViewDragDropManager: RecyclerViewDragDropManager? = null
     private var playlistSortMode: SongSortMode.PlaylistSongs? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -261,6 +256,17 @@ class PlaylistDetailFragment : AbsMainActivityFragment(R.layout.fragment_playlis
 
     private fun localAccentKey(playlistId: Long): String = "local:$playlistId"
 
+    private fun openScopedSearch() {
+        // The playlist loads asynchronously; tapping search before the
+        // first emission would build the filter with Empty's id (-1),
+        // silently searching nothing.
+        if (playlist == PlaylistWithSongs.Empty) return
+        findNavController().navigate(
+            R.id.nav_search,
+            searchArgs(playlist.playlistEntity.searchFilter(requireContext()))
+        )
+    }
+
     private fun setupButtons() {
         binding.header.playAction.setOnClickListener {
             playlistSongAdapter?.dataSet?.let {
@@ -273,10 +279,7 @@ class PlaylistDetailFragment : AbsMainActivityFragment(R.layout.fragment_playlis
             }
         }
         binding.header.searchAction?.setOnClickListener {
-            findNavController().navigate(
-                R.id.nav_search,
-                searchArgs(playlist.playlistEntity.searchFilter(requireContext()))
-            )
+            openScopedSearch()
         }
     }
 
@@ -287,14 +290,10 @@ class PlaylistDetailFragment : AbsMainActivityFragment(R.layout.fragment_playlis
             itemLayoutRes = R.layout.item_list,
             callback = this
         )
-        recyclerViewDragDropManager = RecyclerViewDragDropManager().also { dragDropManager ->
-            wrappedAdapter = dragDropManager.createWrappedAdapter(playlistSongAdapter!!)
-        }
         binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
-        binding.recyclerView.adapter = wrappedAdapter
-        binding.recyclerView.itemAnimator = RefactoredDefaultItemAnimator()
+        binding.recyclerView.adapter = playlistSongAdapter
         binding.recyclerView.createFastScroller()
-        recyclerViewDragDropManager?.attachRecyclerView(binding.recyclerView)
+        playlistSongAdapter!!.attachToRecyclerView(binding.recyclerView)
         playlistSongAdapter!!.registerAdapterDataObserver(adapterDataObserver)
     }
 
@@ -335,10 +334,7 @@ class PlaylistDetailFragment : AbsMainActivityFragment(R.layout.fragment_playlis
             }
 
             R.id.action_search -> {
-                findNavController().navigate(
-                    R.id.nav_search,
-                    searchArgs(playlist.playlistEntity.searchFilter(requireContext()))
-                )
+                openScopedSearch()
                 true
             }
 
@@ -390,7 +386,6 @@ class PlaylistDetailFragment : AbsMainActivityFragment(R.layout.fragment_playlis
     }
 
     override fun onPause() {
-        recyclerViewDragDropManager?.cancelDrag()
         // Never persist the (possibly sorted) view order over a synced
         // playlist's rule-driven content, and never overwrite the manual
         // drag order while a sort is active (the dataSet is the sorted
@@ -403,15 +398,7 @@ class PlaylistDetailFragment : AbsMainActivityFragment(R.layout.fragment_playlis
 
     override fun onDestroyView() {
         playlistSongAdapter?.unregisterAdapterDataObserver(adapterDataObserver)
-
-        recyclerViewDragDropManager?.release()
-        recyclerViewDragDropManager = null
-
-        binding.recyclerView.itemAnimator = null
         binding.recyclerView.adapter = null
-
-        WrapperAdapterUtils.releaseAll(wrappedAdapter)
-        wrappedAdapter = null
         super.onDestroyView()
         _binding = null
     }
