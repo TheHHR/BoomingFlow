@@ -51,6 +51,14 @@ class PlaylistSongAdapter(
     var canReorder = canReorder
         private set
 
+    /**
+     * Synced playlists are rule-owned: individual songs cannot be
+     * removed, so the remove actions gray out instead of silently
+     * doing nothing.
+     */
+    var playlistSynced: Boolean = false
+        private set
+
     private val libraryViewModel: LibraryViewModel by activity.viewModel()
     private val mutableDataSet: MutableList<Song>
         get() = dataSet as MutableList
@@ -105,6 +113,9 @@ class PlaylistSongAdapter(
 
     override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
         val result = super.onCreateActionMode(mode, menu)
+        if (playlistSynced) {
+            menu.findItem(R.id.action_remove_from_playlist)?.isEnabled = false
+        }
         // Rebind all rows so they all swap to the drag handle.
         notifyDataSetChanged()
         return result
@@ -134,10 +145,24 @@ class PlaylistSongAdapter(
         notifyDataSetChanged()
     }
 
+    @SuppressLint("NotifyDataSetChanged")
+    fun setPlaylistSynced(synced: Boolean) {
+        if (this.playlistSynced == synced) return
+        this.playlistSynced = synced
+        notifyDataSetChanged()
+    }
+
     inner class ViewHolder internal constructor(itemView: View) : SongAdapter.ViewHolder(itemView) {
 
         override val songMenuRes: Int
             get() = R.menu.menu_item_playlist_song
+
+        override fun onPrepareSongMenu(menu: Menu) {
+            super.onPrepareSongMenu(menu)
+            if (playlistSynced) {
+                menu.findItem(R.id.action_remove_from_playlist)?.isEnabled = false
+            }
+        }
     }
 
     init {

@@ -166,11 +166,11 @@ class PlaylistDetailFragment : AbsMainActivityFragment(R.layout.fragment_playlis
                 info
             }
             playlistSortMode = buildPlaylistSortMode()
-            // Drag reorder exists only in Custom order, and synced
-            // playlists own their content: no reorder at all.
-            playlistSongAdapter?.setCanReorder(
-                !playlist.playlistEntity.isSynced && playlist.playlistEntity.sortMode == null
-            )
+            // Drag reorder exists only in Custom order. Synced playlists
+            // allow it too: the sync pass is differential, so the manual
+            // order of kept rows survives (new rule matches append).
+            playlistSongAdapter?.setCanReorder(playlist.playlistEntity.sortMode == null)
+            playlistSongAdapter?.setPlaylistSynced(playlist.playlistEntity.isSynced)
             applySongs()
             binding.header.image.playlistImage(playlist) {
                 crossfade(false)
@@ -235,7 +235,7 @@ class PlaylistDetailFragment : AbsMainActivityFragment(R.layout.fragment_playlis
             SortKey.entries.firstOrNull { it.value == mode }
         }
         return SongSortMode.PlaylistSongs(initialKey, entity.sortDescending) { sortKey, descending ->
-            if (entity.sortMode == null && sortKey != null && !entity.isSynced) {
+            if (entity.sortMode == null && sortKey != null) {
                 playlistSongAdapter?.saveSongs(entity)
             }
             detailViewModel.setPlaylistSort(sortKey?.value, descending)
@@ -386,11 +386,10 @@ class PlaylistDetailFragment : AbsMainActivityFragment(R.layout.fragment_playlis
     }
 
     override fun onPause() {
-        // Never persist the (possibly sorted) view order over a synced
-        // playlist's rule-driven content, and never overwrite the manual
-        // drag order while a sort is active (the dataSet is the sorted
-        // view then).
-        if (!playlist.playlistEntity.isSynced && playlist.playlistEntity.sortMode == null) {
+        // Persist the manual (drag) order in Custom order — synced or
+        // not (the sync pass preserves kept rows). Never while a sort
+        // is active: the dataSet is the sorted view then.
+        if (playlist.playlistEntity.sortMode == null) {
             playlistSongAdapter?.saveSongs(playlist.playlistEntity)
         }
         super.onPause()

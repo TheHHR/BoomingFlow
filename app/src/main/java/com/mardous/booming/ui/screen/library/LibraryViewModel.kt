@@ -182,8 +182,10 @@ class LibraryViewModel(
     }
 
     fun savePlaylistOrder(orderedPlaylists: List<PlaylistWithSongs>) = viewModelScope.launch(IO) {
+        // Persist only — the UI already reflects the dragged order, and
+        // re-posting the list here would flash a full rebind after
+        // every drag.
         repository.savePlaylistOrder(orderedPlaylists.map { it.playlistEntity })
-        playlists.postValue(orderedPlaylists)
     }
 
     private suspend fun fetchGenres() {

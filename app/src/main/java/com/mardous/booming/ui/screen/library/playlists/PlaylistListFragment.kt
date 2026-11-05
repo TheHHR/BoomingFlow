@@ -196,7 +196,23 @@ class PlaylistListFragment : AbsRecyclerViewCustomGridSizeFragment<RecyclerView.
     override fun createAdapter(): RecyclerView.Adapter<*> {
         notifyLayoutResChanged(itemLayoutRes)
         val dataSet = playlistAdapter?.dataSet ?: ArrayList()
-        playlistAdapter = PlaylistAdapter(mainActivity, dataSet, itemLayoutRes, this)
+        playlistAdapter = PlaylistAdapter(
+            mainActivity,
+            dataSet,
+            itemLayoutRes,
+            this,
+            onOrderChanged = {
+                // Persist at drag end so in-tab reloads never snap the
+                // dragged item back to the old DB order.
+                playlistAdapter?.let { adapter ->
+                    if (adapter.canReorder &&
+                        PlaylistSortMode.AllPlaylists.selectedKey == SortKey.Custom
+                    ) {
+                        libraryViewModel.savePlaylistOrder(adapter.dataSet.toList())
+                    }
+                }
+            }
+        )
         yourHeaderAdapter = SectionHeaderAdapter(getString(R.string.playlists_section_your))
         likedHeaderAdapter = SectionHeaderAdapter(getString(R.string.liked_songs_label))
         likedRowAdapter = LikedSongsRowAdapter { openLikedSongs() }

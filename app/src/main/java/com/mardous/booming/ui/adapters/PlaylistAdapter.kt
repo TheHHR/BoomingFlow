@@ -54,7 +54,8 @@ class PlaylistAdapter(
     dataSet: List<PlaylistWithSongs>,
     @LayoutRes
     private val itemLayoutRes: Int,
-    private val callback: IPlaylistCallback? = null
+    private val callback: IPlaylistCallback? = null,
+    private val onOrderChanged: (() -> Unit)? = null
 ) : AbsMultiSelectAdapter<PlaylistAdapter.ViewHolder, PlaylistWithSongs>(activity, R.menu.menu_playlists_selection) {
 
     var dataSet by Delegates.observable(dataSet) { _: KProperty<*>, _: List<Any>, _: List<Any> ->
@@ -73,7 +74,11 @@ class PlaylistAdapter(
             onMoved = { from, to ->
                 mutableDataSet.add(to, mutableDataSet.removeAt(from))
                 notifyItemMoved(from, to)
-            }
+            },
+            // Persist at drag end (queue-style) — a later in-tab reload
+            // would otherwise refetch the stale DB order and snap the
+            // dragged item back.
+            onReleased = { onOrderChanged?.invoke() }
         )
     )
 
