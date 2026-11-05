@@ -172,21 +172,12 @@ class SpotifyAlbumFragment : AbsMainActivityFragment(R.layout.fragment_detail_li
                 return@launch
             }
             playerViewModel.playOnlineQueue(listOf(item))
+            // Queue starts AT the tapped track, like local lists and the
+            // playlist page — no front-inserting the preceding tracks
+            // (removed in 1.1.97).
             viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
                 val rest = tracks.drop(index + 1)
                 playerViewModel.addOnlineQueue(rest.resolveBatchForPlayback(20))
-            }
-            if (index > 0) {
-                viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
-                    var insertIndex = 0
-                    tracks.take(index).chunked(20).forEach { chunk ->
-                        val items = chunk.resolveBatchForPlayback(20)
-                        if (items.isNotEmpty()) {
-                            playerViewModel.addOnlineQueueAt(insertIndex, items)
-                            insertIndex += items.size
-                        }
-                    }
-                }
             }
         }
     }
