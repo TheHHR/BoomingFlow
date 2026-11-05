@@ -32,6 +32,15 @@ open class DragTouchCallback(
     private val onReleased: () -> Unit = {}
 ) : ItemTouchHelper.Callback() {
 
+    /**
+     * True while a drag is in progress. Owners (fragments/adapters) use
+     * it to postpone reloads and dataset swaps: a mid-drag update would
+     * invalidate every holder (positions -> NO_POSITION), abort the
+     * drag and snap the item back to its old spot.
+     */
+    var isDragging: Boolean = false
+        private set
+
     override fun getMovementFlags(
         recyclerView: RecyclerView,
         viewHolder: RecyclerView.ViewHolder
@@ -58,6 +67,11 @@ open class DragTouchCallback(
     }
 
     override fun isLongPressDragEnabled(): Boolean = false
+
+    override fun onSelectedChanged(viewHolder: RecyclerView.ViewHolder?, actionState: Int) {
+        super.onSelectedChanged(viewHolder, actionState)
+        isDragging = actionState == ItemTouchHelper.ACTION_STATE_DRAG
+    }
 
     override fun clearView(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder) {
         super.clearView(recyclerView, viewHolder)

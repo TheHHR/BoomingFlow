@@ -18,6 +18,8 @@
 package com.mardous.booming.ui.adapters
 
 import android.annotation.SuppressLint
+import android.os.Handler
+import android.os.Looper
 import android.view.ActionMode
 import android.view.HapticFeedbackConstants
 import android.view.LayoutInflater
@@ -67,6 +69,9 @@ class PlaylistAdapter(
 
     private val mutableDataSet: MutableList<PlaylistWithSongs>
         get() = dataSet as MutableList
+
+    val isDragging: Boolean
+        get() = itemTouchHelper.dragging
 
     private val itemTouchHelper = ItemTouchHelper(
         DragTouchCallback(
@@ -167,15 +172,23 @@ class PlaylistAdapter(
 
     override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
         val result = super.onCreateActionMode(mode, menu)
-        // Rebind all rows so they all swap to the drag handle.
-        notifyDataSetChanged()
+        // Rebind all rows so they all swap to the drag handle. POSTED:
+        // inside onCreateActionMode the base has not assigned its
+        // actionMode field yet, so an inline rebind would render the
+        // rows without a drag session (no handles, no listeners).
+        mainHandler.post { notifyDataSetChanged() }
         return result
     }
 
-    @SuppressLint("NotifyDataSetChanged")
     override fun onDestroyActionMode(mode: ActionMode) {
         super.onDestroyActionMode(mode)
-        notifyDataSetChanged()
+        // The base clears rows before clearing its action mode; rebind
+        // again so the handles disappear on every row.
+        mainHandler.post { notifyDataSetChanged() }
+    }
+
+    companion object {
+        private val mainHandler = Handler(Looper.getMainLooper())
     }
 
     inner class ViewHolder(itemView: View) : MediaEntryViewHolder(itemView) {

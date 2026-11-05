@@ -18,12 +18,15 @@
 package com.mardous.booming.ui.adapters.song
 
 import android.annotation.SuppressLint
+import android.os.Handler
+import android.os.Looper
 import android.view.ActionMode
 import android.view.HapticFeedbackConstants
 import android.view.Menu
 import android.view.MotionEvent
 import android.view.View
 import androidx.annotation.LayoutRes
+import androidx.core.view.isGone
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -45,7 +48,8 @@ class PlaylistSongAdapter(
     @LayoutRes
     itemLayoutRes: Int,
     canReorder: Boolean = false,
-    callback: ISongCallback? = null
+    callback: ISongCallback? = null,
+    private val onOrderChanged: (() -> Unit)? = null
 ) : SongAdapter(activity, dataSet, itemLayoutRes, null, callback) {
 
     var canReorder = canReorder
@@ -63,13 +67,18 @@ class PlaylistSongAdapter(
     private val mutableDataSet: MutableList<Song>
         get() = dataSet as MutableList
 
+    val isDragging: Boolean
+        get() = itemTouchHelper.dragging
+
     private val itemTouchHelper = ItemTouchHelper(
         DragTouchCallback(
             canDrag = { canReorder && isInQuickSelectMode },
             onMoved = { from, to ->
                 mutableDataSet.add(to, mutableDataSet.removeAt(from))
                 notifyItemMoved(from, to)
-            }
+            },
+            // Persist at drag end (queue-style): never rely on onPause.
+            onReleased = { onOrderChanged?.invoke() }
         )
     )
 
@@ -90,6 +99,9 @@ class PlaylistSongAdapter(
         holder.menu?.let { menu ->
             val dragSession = canReorder && isInQuickSelectMode
             if (dragSession) {
+                // The base bind hides the overflow button on checked
+                // rows; the selected song must show its drag handle too.
+                menu.isGone = false
                 menu.setIconResource(R.drawable.ic_drag_handle_24dp)
                 menu.isClickable = false
                 menu.setOnTouchListener { view, event ->
@@ -116,17 +128,19 @@ class PlaylistSongAdapter(
         if (playlistSynced) {
             menu.findItem(R.id.action_remove_from_playlist)?.isEnabled = false
         }
-        // Rebind all rows so they all swap to the drag handle.
-        notifyDataSetChanged()
+        // Rebind all rows so they all swap to the drag handle. POSTED:
+        // inside onCreateActionMode the base has not assigned its
+        // actionMode field yet, so an inline rebind would render the
+        // rows without a drag session (no handles, no listeners).
+        mainHandler.post { notifyDataSetChanged() }
         return result
     }
 
-    @SuppressLint("NotifyDataSetChanged")
     override fun onDestroyActionMode(mode: ActionMode) {
         super.onDestroyActionMode(mode)
         // The base clears rows before clearing its action mode; rebind
         // again so the handles disappear on every row.
-        notifyDataSetChanged()
+        mainHandler.post { notifyDataSetChanged() }
     }
 
     fun saveSongs(playlistEntity: PlaylistEntity) {
@@ -163,6 +177,10 @@ class PlaylistSongAdapter(
                 menu.findItem(R.id.action_remove_from_playlist)?.isEnabled = false
             }
         }
+    }
+
+    companion object {
+        private val mainHandler = Handler(Looper.getMainLooper())
     }
 
     init {

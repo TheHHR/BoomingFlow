@@ -95,6 +95,10 @@ class PlaylistListFragment : AbsRecyclerViewCustomGridSizeFragment<RecyclerView.
         super.onViewCreated(view, savedInstanceState)
         libraryViewModel.getPlaylists().observe(viewLifecycleOwner) { list ->
             playlists = list
+            // Skip dataset swaps mid-drag: they invalidate every holder,
+            // abort the drag and snap the item back to its old spot. The
+            // next reload (after the drag-end save) delivers the order.
+            if (playlistAdapter?.isDragging == true) return@observe
             playlistAdapter?.dataSet = list
             refreshSectionVisibility()
         }
@@ -253,10 +257,15 @@ class PlaylistListFragment : AbsRecyclerViewCustomGridSizeFragment<RecyclerView.
     }
 
     override fun onMediaContentChanged() {
+        // A mid-drag reload invalidates every holder (positions ->
+        // NO_POSITION), aborts the drag and snaps the item back; the
+        // save at drag end keeps the DB current instead.
+        if (playlistAdapter?.isDragging == true) return
         libraryViewModel.forceReload(ReloadType.Playlists)
     }
 
     override fun onFavoriteContentChanged() {
+        if (playlistAdapter?.isDragging == true) return
         libraryViewModel.forceReload(ReloadType.Playlists)
     }
 

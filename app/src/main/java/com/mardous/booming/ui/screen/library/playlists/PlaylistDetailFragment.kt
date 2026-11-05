@@ -288,7 +288,15 @@ class PlaylistDetailFragment : AbsMainActivityFragment(R.layout.fragment_playlis
             activity = mainActivity,
             dataSet = emptyList(),
             itemLayoutRes = R.layout.item_list,
-            callback = this
+            callback = this,
+            onOrderChanged = {
+                // Persist at drag end (queue-style); onPause stays as a
+                // backstop. Only in Custom order, never for Empty.
+                val entity = playlist.playlistEntity
+                if (playlist != PlaylistWithSongs.Empty && entity.sortMode == null) {
+                    playlistSongAdapter?.saveSongs(entity)
+                }
+            }
         )
         binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerView.adapter = playlistSongAdapter
