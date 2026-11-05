@@ -47,6 +47,7 @@ import com.mardous.booming.data.model.network.ScrobblingService
 import com.mardous.booming.extensions.hasR
 import com.mardous.booming.extensions.hasS
 import com.mardous.booming.extensions.isTablet
+import com.mardous.booming.extensions.materialSharedAxis
 import com.mardous.booming.extensions.navigation.findActivityNavController
 import com.mardous.booming.extensions.requestContext
 import com.mardous.booming.extensions.showToast
@@ -265,10 +266,7 @@ open class PreferenceScreenFragment : PreferenceFragmentCompat(),
             listView.updatePadding(bottom = it.getWithSpace())
         }
         setDivider(Color.TRANSPARENT.toDrawable())
-        // No fragment-level sharedAxis here: settings sub-navigation
-        // already carries the zoom animations defined on the settings
-        // graph actions, and the two animation systems firing together
-        // produced the classic overlapping-motion jank (1.1.95).
+        materialSharedAxis(view)
         preparePreferences()
         listView.addOnChildAttachStateChangeListener(object : RecyclerView.OnChildAttachStateChangeListener {
             override fun onChildViewAttachedToWindow(child: View) {

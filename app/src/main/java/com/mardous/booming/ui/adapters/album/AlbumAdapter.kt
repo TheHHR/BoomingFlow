@@ -174,10 +174,8 @@ open class AlbumAdapter(
             val albumSongs = with(SongSortMode.AlbumSongs) {
                 album.songs.sorted()
             }
-            // No explicit shuffle mode: honor the remembered mode like
-            // ArtistAdapter's row play does (consistency, 1.1.95).
             getViewModel<PlayerViewModel>()
-                ?.openQueue(albumSongs)
+                ?.openQueue(albumSongs, shuffleMode = OpenShuffleMode.Off)
         }
         }
     }

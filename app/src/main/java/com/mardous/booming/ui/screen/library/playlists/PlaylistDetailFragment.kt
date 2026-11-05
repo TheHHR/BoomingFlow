@@ -17,6 +17,7 @@
 
 package com.mardous.booming.ui.screen.library.playlists
 
+import android.graphics.Color
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
@@ -29,6 +30,8 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.transition.MaterialArcMotion
+import com.google.android.material.transition.MaterialContainerTransform
 import com.mardous.booming.R
 import com.mardous.booming.core.model.sort.SortKey
 import com.mardous.booming.core.sort.SongSortMode
@@ -56,6 +59,7 @@ import com.mardous.booming.extensions.media.playlistInfo
 import com.mardous.booming.extensions.navigation.searchArgs
 import com.mardous.booming.extensions.resources.FastScrollGate
 import com.mardous.booming.extensions.resources.createGatedFastScroller
+import com.mardous.booming.extensions.resources.surfaceColor
 import com.mardous.booming.extensions.setSupportActionBar
 import com.mardous.booming.core.model.shuffle.OpenShuffleMode
 import com.mardous.booming.online.spotify.PlaylistAccentCache
@@ -112,11 +116,15 @@ class PlaylistDetailFragment : AbsMainActivityFragment(R.layout.fragment_playlis
      */
     private var pendingSongsApply = false
 
-    // NOTE: no sharedElementEnterTransition here — the old
-    // MaterialContainerTransform was dead code (no caller ever passed
-    // shared elements, so it never fired). This screen opens with the
-    // same shared-axis slide as the other detail screens
-    // (genre/year/folder), which IS wired (1.1.95 transition audit).
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        sharedElementEnterTransition = MaterialContainerTransform(requireContext(), true).apply {
+            drawingViewId = R.id.fragment_container
+            scrimColor = Color.TRANSPARENT
+            setAllContainerColors(surfaceColor())
+            setPathMotion(MaterialArcMotion())
+        }
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -157,6 +165,11 @@ class PlaylistDetailFragment : AbsMainActivityFragment(R.layout.fragment_playlis
         }
 
         detailViewModel.getPlaylist().observe(viewLifecycleOwner) { playlistWithSongs ->
+            android.util.Log.d(
+                "BoomingFlowDrag",
+                "playlist emitted: id=${playlistWithSongs.playlistEntity.playListId} " +
+                    "sortMode=${playlistWithSongs.playlistEntity.sortMode}"
+            )
             playlist = playlistWithSongs
             binding.header.title.text = playlist.playlistEntity.playlistName
             val description = playlist.playlistEntity.description
@@ -199,6 +212,7 @@ class PlaylistDetailFragment : AbsMainActivityFragment(R.layout.fragment_playlis
         }
         detailViewModel.getSongs().observe(viewLifecycleOwner) {
             binding.progressIndicator.hide()
+            android.util.Log.d("BoomingFlowDrag", "songs emitted: ${it.size}")
             currentSongs = it.toSongs()
             applyOrDeferSongs()
         }
@@ -328,6 +342,7 @@ class PlaylistDetailFragment : AbsMainActivityFragment(R.layout.fragment_playlis
                 }
             },
             onDragSessionChanged = { sessionActive ->
+                android.util.Log.d("BoomingFlowDrag", "detail gate: touchEnabled=${!sessionActive}")
                 fastScrollGate?.touchEnabled = !sessionActive
             }
         )

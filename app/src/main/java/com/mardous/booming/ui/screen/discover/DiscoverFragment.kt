@@ -15,7 +15,6 @@ import com.mardous.booming.R
 import com.mardous.booming.databinding.FragmentDiscoverBinding
 import com.mardous.booming.extensions.launchAndRepeatWithViewLifecycle
 import com.mardous.booming.extensions.collectPlayerAccent
-import com.mardous.booming.extensions.materialSharedAxis
 import com.mardous.booming.extensions.resources.applyPlayerAccent
 import com.mardous.booming.extensions.navigation.spotifyPlaylistArgs
 import com.mardous.booming.online.data.spotify.SpotifyHomeItem
@@ -40,9 +39,6 @@ class DiscoverFragment : AbsMainActivityFragment(R.layout.fragment_discover), IS
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        // Same shared-axis slide as every other screen — this tab was
-        // the only hard-cut navigation in the app (1.1.95).
-        materialSharedAxis(view)
         _binding = FragmentDiscoverBinding.bind(view)
 
         binding.appBarLayout.title = getString(R.string.discover_label)

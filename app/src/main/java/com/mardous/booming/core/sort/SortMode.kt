@@ -153,7 +153,6 @@ sealed class SongSortMode(
             KeySortItem.Name,
             KeySortItem.Track,
             KeySortItem.Duration,
-            KeySortItem.Year,
             DescendingItem
         )
     )
@@ -179,7 +178,6 @@ sealed class SongSortMode(
             KeySortItem.Artist,
             KeySortItem.Album,
             KeySortItem.Duration,
-            KeySortItem.Year,
             DescendingItem
         )
     )

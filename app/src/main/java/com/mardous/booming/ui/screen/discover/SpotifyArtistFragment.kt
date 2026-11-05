@@ -15,7 +15,6 @@ import com.mardous.booming.databinding.FragmentDetailListBinding
 import com.mardous.booming.data.model.Song
 import com.mardous.booming.extensions.collectPlayerAccent
 import com.mardous.booming.extensions.launchAndRepeatWithViewLifecycle
-import com.mardous.booming.extensions.materialSharedAxis
 import com.mardous.booming.extensions.resources.applyPlayerAccent
 import com.mardous.booming.extensions.setSupportActionBar
 import com.mardous.booming.extensions.showToast
@@ -59,9 +58,6 @@ class SpotifyArtistFragment : AbsMainActivityFragment(R.layout.fragment_detail_l
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        // Same shared-axis slide as the local detail screens — this
-        // screen was a hard-cut navigation (1.1.95).
-        materialSharedAxis(view)
         _binding = FragmentDetailListBinding.bind(view)
 
         val artist = artist

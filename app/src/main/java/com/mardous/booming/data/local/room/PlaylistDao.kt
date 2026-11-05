@@ -75,8 +75,7 @@ interface PlaylistDao {
 
     @Transaction
     @Query("""SELECT * FROM SongEntity WHERE playlist_creator_id = :playlistId
-        AND (title LIKE :query OR artist_name LIKE :query OR album_name LIKE :query)
-        ORDER BY song_key ASC""")
+        AND (title LIKE :query OR artist_name LIKE :query OR album_name LIKE :query)""")
     fun searchSongs(playlistId: Long, query: String): List<SongEntity>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)

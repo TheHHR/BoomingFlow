@@ -30,7 +30,6 @@ import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
-import android.util.LruCache
 import android.view.GestureDetector
 import android.view.GestureDetector.SimpleOnGestureListener
 import android.view.MotionEvent
@@ -148,14 +147,6 @@ abstract class AbsSlidingMusicPanelActivity : AbsBaseActivity(),
 
     private var playerFragment: AbsPlayerFragment? = null
     private var paletteColor: Int = 0
-
-    /**
-     * Follow-color accent per song id (1.1.95 perf audit): cover
-     * extraction is deterministic per song, so a repeat play or a skip
-     * back to a seen track must not re-run the Coil decode + palette
-     * pass. Mirrors the cover pager's paletteMemo.
-     */
-    private val accentPaletteMemo = LruCache<Long, Int>(100)
 
     var panelState: Int
         get() = bottomSheetBehavior.state
@@ -398,16 +389,6 @@ abstract class AbsSlidingMusicPanelActivity : AbsBaseActivity(),
             PlayerAccentState.update(AccentSchemes.NEUTRAL_ACCENT)
             return
         }
-        // Cover extraction is deterministic per song, so memoize it
-        // (same pattern as the cover pager's paletteMemo) — without
-        // this every track transition, including skips back to an
-        // already-seen song, re-runs a full Coil decode + palette pass.
-        accentPaletteMemo.get(song.id)?.let { cached ->
-            PlayerAccentState.update(
-                if (AccentSchemes.isColorful(cached)) cached else AccentSchemes.NEUTRAL_ACCENT
-            )
-            return
-        }
         val context = applicationContext
         val bitmap = withContext(Dispatchers.IO) {
             runCatching {
@@ -427,7 +408,6 @@ abstract class AbsSlidingMusicPanelActivity : AbsBaseActivity(),
                 // changing color right after a song starts.
             ?.let { PaletteProcessor.getPaletteColor(context, it, colorAccuracy = true).primaryColor }
             ?: 0
-        accentPaletteMemo.put(song.id, accent)
         if (AccentSchemes.isColorful(accent)) {
             PlayerAccentState.update(accent)
         } else {

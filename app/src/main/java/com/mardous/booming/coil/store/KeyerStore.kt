@@ -40,17 +40,9 @@ class ArtistImageKeyer(
 
 class PlaylistImageKeyer : Keyer<PlaylistImage> {
     override fun key(data: PlaylistImage, options: Options): String? {
-        // Key on what actually drives the 2x2 collage — the first four
-        // distinct albums — not the song count. The old |songs=size
-        // suffix invalidated the key on EVERY insert/remove (sync
-        // passes, downloads, favorites), forcing a full 1600px collage
-        // rebuild each time (1.1.95 perf audit).
-        val coverAlbums = data.songs.distinctBy { it.albumId }
-            .take(4)
-            .joinToString(",") { it.albumId.toString() }
-        return "playlist4::id=${data.playlistEntity.playListId}" +
+        return "playlist3::id=${data.playlistEntity.playListId}" +
                 "|customCoverUri=${data.playlistEntity.customCoverUri}" +
-                "|albums=$coverAlbums"
+                "|songs=${data.songs.size}"
     }
 }
 

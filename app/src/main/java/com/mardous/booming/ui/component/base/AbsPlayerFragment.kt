@@ -798,15 +798,14 @@ fun goToDestination(
             collapsePanel()
         }
 
-        // Navigate immediately — the old artificial 250ms wait made
-        // every Go To tap feel sluggish; the panel collapse and the
-        // enter transition run concurrently just fine (1.1.95).
-        val navOptions = when {
-            singleTop -> navOptions { launchSingleTop = true }
-            else -> null
+        Handler(Looper.getMainLooper()).postDelayed(250) {
+            val navOptions = when {
+                singleTop -> navOptions { launchSingleTop = true }
+                else -> null
+            }
+            findNavController(R.id.fragment_container)
+                .navigate(destinationId, args, navOptions)
         }
-        findNavController(R.id.fragment_container)
-            .navigate(destinationId, args, navOptions)
     }
 }
 

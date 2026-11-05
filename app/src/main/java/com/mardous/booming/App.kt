@@ -57,7 +57,6 @@ import com.mardous.booming.coil.store.PlaylistMapper
 import com.mardous.booming.coil.store.SongMapper
 import com.mardous.booming.coil.store.YearMapper
 import com.mardous.booming.data.local.ReplayGainTagExtractor
-import com.mardous.booming.online.spotify.PlaylistAccentCache
 import com.mardous.booming.ui.screen.error.ErrorActivity
 import com.mardous.booming.ui.screen.settings.SettingsScreen
 import com.mardous.booming.util.AUTO_LANGUAGE
@@ -66,9 +65,6 @@ import com.mardous.booming.util.GENERAL_THEME
 import com.mardous.booming.util.GeneralTheme
 import com.mardous.booming.util.LANGUAGE_NAME
 import com.mardous.booming.util.Preferences.getDayNightMode
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import org.koin.android.ext.android.get
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
@@ -124,13 +120,6 @@ class App : Application(), SingletonImageLoader.Factory {
             .apply()
 
         AppCompatDelegate.setDefaultNightMode(getDayNightMode())
-
-        // Warm the playlist accent cache off the main thread so the
-        // first detail open never pays a synchronous file read + JSON
-        // decode before its enter transition's first frame (1.1.95).
-        CoroutineScope(Dispatchers.IO).launch {
-            PlaylistAccentCache.preload(this@App)
-        }
     }
 
     private fun migrateLegacyBlackTheme(prefs: SharedPreferences) {

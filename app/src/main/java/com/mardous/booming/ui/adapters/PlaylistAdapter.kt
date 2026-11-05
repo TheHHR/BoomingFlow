@@ -20,6 +20,7 @@ package com.mardous.booming.ui.adapters
 import android.annotation.SuppressLint
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.ActionMode
 import android.view.HapticFeedbackConstants
 import android.view.LayoutInflater
@@ -128,7 +129,12 @@ class PlaylistAdapter(
                 menu.isClickable = false
                 menu.setOnTouchListener { view, event ->
                     if (event.actionMasked == MotionEvent.ACTION_DOWN) {
-                        itemTouchHelper.startDrag(holder)
+                        val started = itemTouchHelper.startDrag(holder)
+                        Log.d(
+                            "BoomingFlowDrag",
+                            "tab handle DOWN: canReorder=$canReorder " +
+                                "quickSelect=$isInQuickSelectMode startDrag=$started"
+                        )
                         view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
                     }
                     true
@@ -175,6 +181,10 @@ class PlaylistAdapter(
         val result = super.onCreateActionMode(mode, menu)
         // Reorder session armed: the drag handles occupy the trailing
         // strip, so the fast scroller must stand down while they show.
+        Log.d(
+            "BoomingFlowDrag",
+            "tab session armed: canReorder=$canReorder quickSelect=$isInQuickSelectMode"
+        )
         onDragSessionChanged?.invoke(canReorder)
         // Rebind all rows so they all swap to the drag handle. POSTED:
         // inside onCreateActionMode the base has not assigned its

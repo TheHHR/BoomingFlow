@@ -67,13 +67,13 @@ interface PlayCountDao {
         upsertSongInPlayCount(playCountEntity.copy(skipCount = playCountEntity.skipCount + 1))
     }
 
-    @Query("SELECT * FROM PlayCountEntity WHERE play_count > 0 ORDER BY play_count DESC, time_played DESC LIMIT :limit")
+    @Query("SELECT * FROM PlayCountEntity WHERE play_count > 0 ORDER BY play_count DESC LIMIT :limit")
     suspend fun playCountSongs(limit: Int = PLAY_COUNT_LIMIT): List<PlayCountEntity>
 
-    @Query("SELECT * FROM PlayCountEntity WHERE play_count > 0 ORDER BY play_count DESC, time_played DESC LIMIT :limit")
+    @Query("SELECT * FROM PlayCountEntity WHERE play_count > 0 ORDER BY play_count DESC LIMIT :limit")
     fun playCountSongsFlow(limit: Int = PLAY_COUNT_LIMIT): Flow<List<PlayCountEntity>>
 
-    @Query("SELECT id FROM PlayCountEntity WHERE play_count > 0 ORDER BY play_count DESC, time_played DESC LIMIT :limit")
+    @Query("SELECT id FROM PlayCountEntity WHERE play_count > 0 ORDER BY play_count DESC LIMIT :limit")
     suspend fun playCountSongIds(limit: Int = PLAY_COUNT_LIMIT): List<Long>
 
     @Query("DELETE FROM PlayCountEntity")

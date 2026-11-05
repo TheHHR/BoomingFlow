@@ -24,17 +24,6 @@ object PlaylistAccentCache {
         return loaded
     }
 
-    /**
-     * Warms the in-memory map off the main thread (call once from
-     * App.onCreate). Without this the first playlist detail open after
-     * process start paid a synchronous file read + JSON decode inside
-     * onViewCreated, before the enter transition's first frame
-     * (1.1.95 transition audit).
-     */
-    fun preload(context: Context) {
-        map(context.applicationContext)
-    }
-
     fun get(context: Context, key: String): Int? = map(context)[key].takeIf { it != 0 }
 
     fun put(context: Context, key: String, accent: Int) {
