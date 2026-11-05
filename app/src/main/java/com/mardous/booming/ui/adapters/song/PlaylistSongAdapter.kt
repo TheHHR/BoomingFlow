@@ -49,7 +49,8 @@ class PlaylistSongAdapter(
     itemLayoutRes: Int,
     canReorder: Boolean = false,
     callback: ISongCallback? = null,
-    private val onOrderChanged: (() -> Unit)? = null
+    private val onOrderChanged: (() -> Unit)? = null,
+    private val onDragSessionChanged: ((Boolean) -> Unit)? = null
 ) : SongAdapter(activity, dataSet, itemLayoutRes, null, callback) {
 
     var canReorder = canReorder
@@ -128,6 +129,9 @@ class PlaylistSongAdapter(
         if (playlistSynced) {
             menu.findItem(R.id.action_remove_from_playlist)?.isEnabled = false
         }
+        // Reorder session armed: the drag handles occupy the trailing
+        // strip, so the fast scroller must stand down while they show.
+        onDragSessionChanged?.invoke(canReorder)
         // Rebind all rows so they all swap to the drag handle. POSTED:
         // inside onCreateActionMode the base has not assigned its
         // actionMode field yet, so an inline rebind would render the
@@ -138,6 +142,7 @@ class PlaylistSongAdapter(
 
     override fun onDestroyActionMode(mode: ActionMode) {
         super.onDestroyActionMode(mode)
+        onDragSessionChanged?.invoke(false)
         // The base clears rows before clearing its action mode; rebind
         // again so the handles disappear on every row.
         mainHandler.post { notifyDataSetChanged() }

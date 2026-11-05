@@ -57,7 +57,8 @@ class PlaylistAdapter(
     @LayoutRes
     private val itemLayoutRes: Int,
     private val callback: IPlaylistCallback? = null,
-    private val onOrderChanged: (() -> Unit)? = null
+    private val onOrderChanged: (() -> Unit)? = null,
+    private val onDragSessionChanged: ((Boolean) -> Unit)? = null
 ) : AbsMultiSelectAdapter<PlaylistAdapter.ViewHolder, PlaylistWithSongs>(activity, R.menu.menu_playlists_selection) {
 
     var dataSet by Delegates.observable(dataSet) { _: KProperty<*>, _: List<Any>, _: List<Any> ->
@@ -172,6 +173,9 @@ class PlaylistAdapter(
 
     override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
         val result = super.onCreateActionMode(mode, menu)
+        // Reorder session armed: the drag handles occupy the trailing
+        // strip, so the fast scroller must stand down while they show.
+        onDragSessionChanged?.invoke(canReorder)
         // Rebind all rows so they all swap to the drag handle. POSTED:
         // inside onCreateActionMode the base has not assigned its
         // actionMode field yet, so an inline rebind would render the
@@ -182,6 +186,7 @@ class PlaylistAdapter(
 
     override fun onDestroyActionMode(mode: ActionMode) {
         super.onDestroyActionMode(mode)
+        onDragSessionChanged?.invoke(false)
         // The base clears rows before clearing its action mode; rebind
         // again so the handles disappear on every row.
         mainHandler.post { notifyDataSetChanged() }

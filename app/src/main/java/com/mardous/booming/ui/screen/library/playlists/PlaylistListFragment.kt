@@ -36,6 +36,8 @@ import com.mardous.booming.data.local.room.PlaylistWithSongs
 import com.mardous.booming.extensions.launchAndRepeatWithViewLifecycle
 import com.mardous.booming.extensions.navigation.playlistDetailArgs
 import com.mardous.booming.extensions.navigation.spotifyPlaylistArgs
+import com.mardous.booming.extensions.resources.FastScrollGate
+import com.mardous.booming.extensions.resources.createGatedFastScroller
 import com.mardous.booming.online.data.spotify.SpotifyHomeItem
 import com.mardous.booming.online.data.spotify.SpotifyPlaylist
 import com.mardous.booming.online.data.spotify.thumbnailUrl
@@ -54,6 +56,7 @@ import com.mardous.booming.ui.screen.discover.SpotifyPlaylistFragment
 import com.mardous.booming.ui.screen.library.ReloadType
 import com.mardous.booming.online.viewmodel.StreamingAuthViewModel
 import kotlinx.coroutines.launch
+import me.zhanghai.android.fastscroll.FastScroller
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -77,6 +80,7 @@ class PlaylistListFragment : AbsRecyclerViewCustomGridSizeFragment<RecyclerView.
     private var likedRowAdapter: LikedSongsRowAdapter? = null
     private var spotifyShelf: HorizontalListAdapter? = null
     private var spotifyCardAdapter: SpotifyCardAdapter? = null
+    private var fastScrollGate: FastScrollGate? = null
 
     private var playlists: List<PlaylistWithSongs> = emptyList()
     private var likedTotal: Int? = null
@@ -185,6 +189,18 @@ class PlaylistListFragment : AbsRecyclerViewCustomGridSizeFragment<RecyclerView.
         )
     }
 
+    /**
+     * The fast scroller grabs gestures inside a 48dp strip along the
+     * trailing edge — exactly where the drag handles sit — so the
+     * playlists tab gets a gated scroller that stands down while a
+     * reorder session is armed (see [onDragSessionChanged] below).
+     */
+    override fun createFastScroller(recyclerView: RecyclerView): FastScroller {
+        return recyclerView.createGatedFastScroller().also {
+            fastScrollGate = it.gate
+        }.scroller
+    }
+
     override fun createLayoutManager(): GridLayoutManager {
         return GridLayoutManager(requireContext(), gridSize).apply {
             spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
@@ -215,6 +231,9 @@ class PlaylistListFragment : AbsRecyclerViewCustomGridSizeFragment<RecyclerView.
                         libraryViewModel.savePlaylistOrder(adapter.dataSet.toList())
                     }
                 }
+            },
+            onDragSessionChanged = { sessionActive ->
+                fastScrollGate?.touchEnabled = !sessionActive
             }
         )
         yourHeaderAdapter = SectionHeaderAdapter(getString(R.string.playlists_section_your))

@@ -57,7 +57,8 @@ import com.mardous.booming.extensions.materialSharedAxis
 import com.mardous.booming.extensions.media.isFavorites
 import com.mardous.booming.extensions.media.playlistInfo
 import com.mardous.booming.extensions.navigation.searchArgs
-import com.mardous.booming.extensions.resources.createFastScroller
+import com.mardous.booming.extensions.resources.FastScrollGate
+import com.mardous.booming.extensions.resources.createGatedFastScroller
 import com.mardous.booming.extensions.resources.surfaceColor
 import com.mardous.booming.extensions.setSupportActionBar
 import com.mardous.booming.core.model.shuffle.OpenShuffleMode
@@ -98,6 +99,7 @@ class PlaylistDetailFragment : AbsMainActivityFragment(R.layout.fragment_playlis
 
     private var playlistSongAdapter: PlaylistSongAdapter? = null
     private var playlistSortMode: SongSortMode.PlaylistSongs? = null
+    private var fastScrollGate: FastScrollGate? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -296,11 +298,19 @@ class PlaylistDetailFragment : AbsMainActivityFragment(R.layout.fragment_playlis
                 if (playlist != PlaylistWithSongs.Empty && entity.sortMode == null) {
                     playlistSongAdapter?.saveSongs(entity)
                 }
+            },
+            onDragSessionChanged = { sessionActive ->
+                fastScrollGate?.touchEnabled = !sessionActive
             }
         )
         binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerView.adapter = playlistSongAdapter
-        binding.recyclerView.createFastScroller()
+        // Gated fast scroller: while a reorder session is armed the
+        // drag handles occupy the trailing strip the scroller would
+        // grab, so it must stand down for the whole session.
+        binding.recyclerView.createGatedFastScroller().also { gated ->
+            fastScrollGate = gated.gate
+        }
         playlistSongAdapter!!.attachToRecyclerView(binding.recyclerView)
         playlistSongAdapter!!.registerAdapterDataObserver(adapterDataObserver)
     }
