@@ -17,6 +17,7 @@
 
 package com.mardous.booming.util
 
+import android.util.Log
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 
@@ -71,6 +72,10 @@ open class DragTouchCallback(
     override fun onSelectedChanged(viewHolder: RecyclerView.ViewHolder?, actionState: Int) {
         super.onSelectedChanged(viewHolder, actionState)
         isDragging = actionState == ItemTouchHelper.ACTION_STATE_DRAG
+        Log.d(
+            "BoomingFlowDrag",
+            "select: actionState=$actionState dragging=$isDragging"
+        )
     }
 
     override fun clearView(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder) {

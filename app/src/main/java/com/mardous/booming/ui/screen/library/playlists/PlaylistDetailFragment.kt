@@ -150,6 +150,11 @@ class PlaylistDetailFragment : AbsMainActivityFragment(R.layout.fragment_playlis
         }
 
         detailViewModel.getPlaylist().observe(viewLifecycleOwner) { playlistWithSongs ->
+            android.util.Log.d(
+                "BoomingFlowDrag",
+                "playlist emitted: id=${playlistWithSongs.playlistEntity.playListId} " +
+                    "sortMode=${playlistWithSongs.playlistEntity.sortMode}"
+            )
             playlist = playlistWithSongs
             binding.header.title.text = playlist.playlistEntity.playlistName
             val description = playlist.playlistEntity.description
@@ -192,6 +197,7 @@ class PlaylistDetailFragment : AbsMainActivityFragment(R.layout.fragment_playlis
         }
         detailViewModel.getSongs().observe(viewLifecycleOwner) {
             binding.progressIndicator.hide()
+            android.util.Log.d("BoomingFlowDrag", "songs emitted: ${it.size}")
             currentSongs = it.toSongs()
             applySongs()
         }
@@ -300,6 +306,7 @@ class PlaylistDetailFragment : AbsMainActivityFragment(R.layout.fragment_playlis
                 }
             },
             onDragSessionChanged = { sessionActive ->
+                android.util.Log.d("BoomingFlowDrag", "detail gate: touchEnabled=${!sessionActive}")
                 fastScrollGate?.touchEnabled = !sessionActive
             }
         )
