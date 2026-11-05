@@ -49,13 +49,20 @@ class PlaylistSongAdapter(
     dataSet: List<Song>,
     @LayoutRes
     itemLayoutRes: Int,
-    canReorder: Boolean = false,
     callback: ISongCallback? = null,
     private val onOrderChanged: (() -> Unit)? = null,
     private val onDragSessionChanged: ((Boolean) -> Unit)? = null
 ) : SongAdapter(activity, dataSet, itemLayoutRes, null, callback) {
 
-    var canReorder = canReorder
+    // Deliberately NO constructor parameter named canReorder: a plain
+    // constructor parameter shadows the same-named property inside
+    // property initializers, which silently pinned the drag-gate
+    // lambda below to `false` forever — startDrag always refused
+    // ("dragging is not enabled") while every member-function read
+    // (bind guards, log probes) saw the real property value. The
+    // Playlists tab reorders fine for exactly this reason:
+    // PlaylistAdapter has no such parameter.
+    var canReorder = false
         private set
 
     /**
@@ -128,11 +135,14 @@ class PlaylistSongAdapter(
                 menu.isClickable = false
                 menu.setOnTouchListener { view, event ->
                     if (event.actionMasked == MotionEvent.ACTION_DOWN) {
-                        val started = itemTouchHelper.startDrag(holder)
+                        // androidx startDrag is void — a refused start
+                        // is only visible in the "ItemTouchHelper"
+                        // error log, never in a return value.
+                        itemTouchHelper.startDrag(holder)
                         Log.d(
                             "BoomingFlowDrag",
                             "detail handle DOWN: canReorder=$canReorder " +
-                                "quickSelect=$isInQuickSelectMode startDrag=$started"
+                                "quickSelect=$isInQuickSelectMode"
                         )
                         view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
                     }
