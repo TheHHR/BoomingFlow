@@ -274,7 +274,10 @@ sealed class SongSortMode(
             SortKey.FileName -> sortedWith(compareBy(collator) { it.fileName })
             else -> this
         }
-        return if (selectedDescending) songs.reversed() else songs
+        // Custom is the stored manual order; never reverse it.
+        return if (selectedKey != SortKey.Custom && selectedDescending) {
+            songs.reversed()
+        } else songs
     }
 }
 
@@ -447,7 +450,11 @@ sealed class PlaylistSortMode(
             SortKey.SongCount -> sortedWithTiebreak(byName) { it.songCount }
             else -> this
         }
-        return if (selectedDescending) playlists.reversed() else playlists
+        // Custom is the stored drag order; a stale Descending preference
+        // must never reverse (and persist) a flipped manual order.
+        return if (selectedKey != SortKey.Custom && selectedDescending) {
+            playlists.reversed()
+        } else playlists
     }
 }
 
