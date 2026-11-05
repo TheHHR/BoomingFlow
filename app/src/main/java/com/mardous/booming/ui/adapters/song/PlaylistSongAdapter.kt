@@ -40,6 +40,7 @@ import com.mardous.booming.ui.ISongCallback
 import com.mardous.booming.ui.screen.library.LibraryViewModel
 import com.mardous.booming.util.DragTouchCallback
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -77,10 +78,29 @@ class PlaylistSongAdapter(
         onMoved = { from, to ->
             mutableDataSet.add(to, mutableDataSet.removeAt(from))
             notifyItemMoved(from, to)
+            orderDirty = true
         },
         // Persist at drag end (queue-style): never rely on onPause.
         onReleased = { onOrderChanged?.invoke() }
     )
+
+    /**
+     * Set once a drag actually moved a row. Guards every save path
+     * (drag end, sort-switch, onPause backstop): releasing the handle
+     * or leaving the screen without a move must not rewrite the whole
+     * playlist — each REPLACE-save reassigns every song_key, fires a
+     * redundant LiveData emission and a full rebind, and that
+     * emission storm is what kills the NEXT drag when it lands
+     * mid-gesture.
+     */
+    private var orderDirty = false
+
+    /**
+     * The in-flight order save, if any. New saves join it so two
+     * snapshots (drag end + a second drag finished before the first
+     * write landed) can never commit out of order on Dispatchers.IO.
+     */
+    private var saveJob: Job? = null
 
     private val itemTouchHelper = ItemTouchHelper(dragCallback)
 
@@ -162,8 +182,18 @@ class PlaylistSongAdapter(
         if (playlistEntity == PlaylistEntity.Empty)
             return
 
-        activity.lifecycleScope.launch(Dispatchers.IO) {
-            libraryViewModel.insertSongs(dataSet.toSongsEntity(playlistEntity))
+        if (!orderDirty)
+            return
+        orderDirty = false
+
+        // Snapshot on the main thread: the drag mutates the dataset
+        // in place, so iterating it on IO risks a torn read or a
+        // ConcurrentModificationException.
+        val snapshot = dataSet.toList()
+        val previous = saveJob
+        saveJob = activity.lifecycleScope.launch(Dispatchers.IO) {
+            previous?.join()
+            libraryViewModel.insertSongs(snapshot.toSongsEntity(playlistEntity))
         }
     }
 

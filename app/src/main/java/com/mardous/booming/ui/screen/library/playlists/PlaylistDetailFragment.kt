@@ -101,6 +101,21 @@ class PlaylistDetailFragment : AbsMainActivityFragment(R.layout.fragment_playlis
     private var playlistSortMode: SongSortMode.PlaylistSongs? = null
     private var fastScrollGate: FastScrollGate? = null
 
+    /**
+     * Set when a song-list rebind was skipped because a drag was in
+     * progress, and applied at drag end. A dataset swap mid-drag
+     * invalidates every holder (positions -> NO_POSITION), aborts
+     * onMove and snaps the dragged item back — the exact failure the
+     * Playlists tab already guards against. The detail observers are
+     * hot (SongEntity + PlaylistEntity invalidations: rescans,
+     * metadata refreshes, downloads, favorite toggles — and the
+     * REPLACE-save of the PREVIOUS drag, whose re-emission lands
+     * while the user is already grabbing the handle for the next
+     * one), so without this guard reordering here is effectively
+     * dead.
+     */
+    private var pendingSongsApply = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         sharedElementEnterTransition = MaterialContainerTransform(requireContext(), true).apply {
@@ -178,7 +193,7 @@ class PlaylistDetailFragment : AbsMainActivityFragment(R.layout.fragment_playlis
             // order of kept rows survives (new rule matches append).
             playlistSongAdapter?.setCanReorder(playlist.playlistEntity.sortMode == null)
             playlistSongAdapter?.setPlaylistSynced(playlist.playlistEntity.isSynced)
-            applySongs()
+            applyOrDeferSongs()
             binding.header.image.playlistImage(playlist) {
                 crossfade(false)
                 listener(
@@ -199,7 +214,7 @@ class PlaylistDetailFragment : AbsMainActivityFragment(R.layout.fragment_playlis
             binding.progressIndicator.hide()
             android.util.Log.d("BoomingFlowDrag", "songs emitted: ${it.size}")
             currentSongs = it.toSongs()
-            applySongs()
+            applyOrDeferSongs()
         }
         detailViewModel.playlistExists().observe(viewLifecycleOwner) {
             if (!it) {
@@ -214,6 +229,22 @@ class PlaylistDetailFragment : AbsMainActivityFragment(R.layout.fragment_playlis
 
     private fun applySongs() {
         playlistSongAdapter?.dataSet = sortedSongs(currentSongs)
+    }
+
+    /**
+     * Rebinds the song list unless a drag is in progress, in which
+     * case the rebind is deferred to drag end ([pendingSongsApply]).
+     * Safe either way: in Custom order the drag mutates the very list
+     * instance this would rebind, so a deferred apply is visually a
+     * no-op — it only converges content that changed mid-drag.
+     */
+    private fun applyOrDeferSongs() {
+        if (playlistSongAdapter?.isDragging == true) {
+            pendingSongsApply = true
+        } else {
+            pendingSongsApply = false
+            applySongs()
+        }
     }
 
     /**
@@ -303,6 +334,11 @@ class PlaylistDetailFragment : AbsMainActivityFragment(R.layout.fragment_playlis
                 val entity = playlist.playlistEntity
                 if (playlist != PlaylistWithSongs.Empty && entity.sortMode == null) {
                     playlistSongAdapter?.saveSongs(entity)
+                }
+                // Deliver any rebind that was skipped mid-drag.
+                if (pendingSongsApply) {
+                    pendingSongsApply = false
+                    applySongs()
                 }
             },
             onDragSessionChanged = { sessionActive ->
