@@ -71,21 +71,21 @@ class PlaylistAdapter(
         get() = dataSet as MutableList
 
     val isDragging: Boolean
-        get() = itemTouchHelper.dragging
+        get() = dragCallback.isDragging
 
-    private val itemTouchHelper = ItemTouchHelper(
-        DragTouchCallback(
-            canDrag = { canReorder && isInQuickSelectMode },
-            onMoved = { from, to ->
-                mutableDataSet.add(to, mutableDataSet.removeAt(from))
-                notifyItemMoved(from, to)
-            },
-            // Persist at drag end (queue-style) — a later in-tab reload
-            // would otherwise refetch the stale DB order and snap the
-            // dragged item back.
-            onReleased = { onOrderChanged?.invoke() }
-        )
+    private val dragCallback = DragTouchCallback(
+        canDrag = { canReorder && isInQuickSelectMode },
+        onMoved = { from, to ->
+            mutableDataSet.add(to, mutableDataSet.removeAt(from))
+            notifyItemMoved(from, to)
+        },
+        // Persist at drag end (queue-style) — a later in-tab reload
+        // would otherwise refetch the stale DB order and snap the
+        // dragged item back.
+        onReleased = { onOrderChanged?.invoke() }
     )
+
+    private val itemTouchHelper = ItemTouchHelper(dragCallback)
 
     fun attachToRecyclerView(recyclerView: RecyclerView?) {
         itemTouchHelper.attachToRecyclerView(recyclerView)

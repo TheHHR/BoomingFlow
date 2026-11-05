@@ -68,19 +68,19 @@ class PlaylistSongAdapter(
         get() = dataSet as MutableList
 
     val isDragging: Boolean
-        get() = itemTouchHelper.dragging
+        get() = dragCallback.isDragging
 
-    private val itemTouchHelper = ItemTouchHelper(
-        DragTouchCallback(
-            canDrag = { canReorder && isInQuickSelectMode },
-            onMoved = { from, to ->
-                mutableDataSet.add(to, mutableDataSet.removeAt(from))
-                notifyItemMoved(from, to)
-            },
-            // Persist at drag end (queue-style): never rely on onPause.
-            onReleased = { onOrderChanged?.invoke() }
-        )
+    private val dragCallback = DragTouchCallback(
+        canDrag = { canReorder && isInQuickSelectMode },
+        onMoved = { from, to ->
+            mutableDataSet.add(to, mutableDataSet.removeAt(from))
+            notifyItemMoved(from, to)
+        },
+        // Persist at drag end (queue-style): never rely on onPause.
+        onReleased = { onOrderChanged?.invoke() }
     )
+
+    private val itemTouchHelper = ItemTouchHelper(dragCallback)
 
     fun attachToRecyclerView(recyclerView: RecyclerView?) {
         itemTouchHelper.attachToRecyclerView(recyclerView)
