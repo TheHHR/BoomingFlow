@@ -131,7 +131,7 @@ class RealPlaylistRepository(
     override suspend fun playlists(): List<PlaylistEntity> = playlistDao.playlists()
 
     override suspend fun playlistsWithSongs(sorted: Boolean): List<PlaylistWithSongs> =
-        playlistDao.playlistsWithSongs().let { playlistWithSongs ->
+        playlistDao.playlistsWithSongs().map { it.withOrderedSongs() }.let { playlistWithSongs ->
             if (sorted) with(PlaylistSortMode.AllPlaylists) {
                 playlistWithSongs.sorted()
             } else {
@@ -140,10 +140,11 @@ class RealPlaylistRepository(
         }
 
     override suspend fun playlistWithSongs(playlistId: Long): PlaylistWithSongs =
-        playlistDao.playlistWithSongs(playlistId) ?: PlaylistWithSongs.Empty
+        playlistDao.playlistWithSongs(playlistId)?.withOrderedSongs() ?: PlaylistWithSongs.Empty
 
     override fun playlistWithSongsObservable(playlistId: Long): LiveData<PlaylistWithSongs> =
-        playlistDao.playlistWithSongsObservable(playlistId).map { result -> result ?: PlaylistWithSongs.Empty }
+        playlistDao.playlistWithSongsObservable(playlistId)
+            .map { result -> (result ?: PlaylistWithSongs.Empty).withOrderedSongs() }
 
     override suspend fun playlistSongs(playlistId: Long): List<SongEntity> =
         playlistDao.songsFromPlaylist(playlistId)
@@ -152,10 +153,24 @@ class RealPlaylistRepository(
         playlistDao.songsFromPlaylistObservable(playListId)
 
     override suspend fun searchPlaylists(searchQuery: String): List<PlaylistWithSongs> =
-        playlistDao.searchPlaylists("%$searchQuery%")
+        playlistDao.searchPlaylists("%$searchQuery%").map { it.withOrderedSongs() }
 
     override suspend fun searchPlaylistSongs(playlistId: Long, searchQuery: String): List<SongEntity> =
         playlistDao.searchSongs(playlistId, "%$searchQuery%")
+
+    /**
+     * Room @Relation results have no guaranteed order: the generated
+     * relation query carries no ORDER BY, so SQLite typically returns
+     * rows in unique-index (playlist, id) order — song id order, not
+     * the manual (drag) order stored in song_key. Re-sorting here
+     * makes every PlaylistWithSongs consumer honor the custom order
+     * (media-session playback, Liked Songs covers, backup). The
+     * detail screen is unaffected (it reads the explicit
+     * ORDER BY song_key queries) and M3UWriter re-sorts defensively
+     * anyway.
+     */
+    private fun PlaylistWithSongs.withOrderedSongs(): PlaylistWithSongs =
+        copy(songs = songs.sortedBy { it.songPrimaryKey })
 
     override suspend fun insertSongs(songs: List<SongEntity>) {
         playlistDao.insertSongsToPlaylist(songs)

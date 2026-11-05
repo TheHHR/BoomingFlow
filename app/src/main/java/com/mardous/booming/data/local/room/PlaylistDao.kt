@@ -118,10 +118,11 @@ interface PlaylistDao {
     @Query("""
     SELECT * FROM SongEntity,
     (SELECT playlist_id FROM PlaylistEntity WHERE playlist_name = :playlistName LIMIT 1) AS playlist
-    WHERE playlist_creator_id = playlist.playlist_id""")
+    WHERE playlist_creator_id = playlist.playlist_id
+    ORDER BY song_key ASC""")
     fun favoritesSongsFlow(playlistName: String): Flow<List<SongEntity>>
 
-    @Query("SELECT * FROM SongEntity WHERE playlist_creator_id = :playlistId")
+    @Query("SELECT * FROM SongEntity WHERE playlist_creator_id = :playlistId ORDER BY song_key ASC")
     fun favoritesSongs(playlistId: Long): List<SongEntity>
 
     @Query("SELECT EXISTS(SELECT * FROM PlaylistEntity WHERE playlist_id = :playlistId)")
