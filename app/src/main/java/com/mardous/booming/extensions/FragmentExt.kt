@@ -38,6 +38,7 @@ import androidx.transition.Fade
 import com.google.android.material.transition.MaterialSharedAxis
 import com.mardous.booming.R
 import com.mardous.booming.core.PlayerAccentState
+import com.mardous.booming.extensions.resources.applyPlayerAccent
 import com.mardous.booming.extensions.resources.createBoomingMusicBalloon
 import com.mardous.booming.util.Preferences
 import com.skydoves.balloon.Balloon
@@ -56,8 +57,16 @@ fun AlertDialog.Builder.create(onShow: (AlertDialog) -> Unit) =
 fun AlertDialog.Builder.show(onShow: (AlertDialog) -> Unit) =
     show().onShow(onShow)
 
+/**
+ * The shared dialog accent hook: every dialog routed through here follows
+ * the player color when "Follow player color" is on (buttons + checkbox/
+ * radio rows), while keeping the theme's own colors when it is off.
+ */
 fun AlertDialog.onShow(onShow: (AlertDialog) -> Unit) = apply {
-    setOnShowListener { onShow(this) }
+    setOnShowListener {
+        applyPlayerAccent()
+        onShow(this)
+    }
 }
 
 fun Fragment.isLandscape() = resources.isLandscape

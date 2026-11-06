@@ -30,7 +30,9 @@ import com.mardous.booming.core.sort.sortedByName
 import com.mardous.booming.data.local.EditTarget
 import com.mardous.booming.databinding.ActivityTagEditorBinding
 import com.mardous.booming.extensions.*
+import com.mardous.booming.extensions.resources.applyPlayerAccent
 import com.mardous.booming.extensions.resources.setupStatusBarForeground
+import com.mardous.booming.extensions.resources.showAccent
 import com.mardous.booming.ui.screen.tageditor.TagEditorViewModel
 import org.jaudiotagger.tag.reference.GenreTypes
 
@@ -131,7 +133,7 @@ abstract class AbsTagEditorActivity : AbsBaseActivity(),
                     4 -> deleteImage()
                 }
             }
-            .show()
+            .showAccent()
     }
 
     /**
@@ -225,7 +227,7 @@ abstract class AbsTagEditorActivity : AbsBaseActivity(),
         MaterialAlertDialogBuilder(this)
             .setItems(titles) { _: DialogInterface, i: Int -> onDefaultGenreSelection(titles[i]) }
             .setNegativeButton(android.R.string.cancel, null)
-            .create()
+            .create { it.applyPlayerAccent() }
     }
 
     protected fun selectDefaultGenre() {

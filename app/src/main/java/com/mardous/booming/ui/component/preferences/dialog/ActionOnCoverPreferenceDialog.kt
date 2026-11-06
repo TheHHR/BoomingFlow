@@ -45,6 +45,8 @@ import com.mardous.booming.util.COVER_LEFT_DOUBLE_TAP_ACTION
 import com.mardous.booming.util.COVER_LONG_PRESS_ACTION
 import com.mardous.booming.util.COVER_RIGHT_DOUBLE_TAP_ACTION
 import com.mardous.booming.util.COVER_SINGLE_TAP_ACTION
+import com.mardous.booming.extensions.create
+import com.mardous.booming.extensions.resources.applyPlayerAccent
 import com.mardous.booming.util.Preferences
 import org.koin.android.ext.android.get
 
@@ -82,7 +84,7 @@ class ActionOnCoverPreferenceDialog : DialogFragment() {
                     }
                 }
             )
-            .create()
+            .create { it.applyPlayerAccent() }
     }
 
     @Composable

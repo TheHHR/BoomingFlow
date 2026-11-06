@@ -30,6 +30,7 @@ import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
 import com.google.android.material.snackbar.Snackbar
 import com.mardous.booming.R
 import com.mardous.booming.extensions.getStoragePermissions
+import com.mardous.booming.extensions.resources.applyPlayerAccent
 import com.mardous.booming.extensions.rootView
 
 abstract class AbsBaseActivity : AbsThemeActivity() {
@@ -80,6 +81,7 @@ abstract class AbsBaseActivity : AbsThemeActivity() {
                     if (shouldShowRationale) {
                         Snackbar.make(snackBarContainer, getString(R.string.permissions_denied), Snackbar.LENGTH_SHORT)
                             .setAction(R.string.action_grant) { requestPermissions() }
+                            .applyPlayerAccent()
                             .show()
                     } else {
                         Snackbar.make(snackBarContainer, getString(R.string.permissions_denied), Snackbar.LENGTH_INDEFINITE)
@@ -90,6 +92,7 @@ abstract class AbsBaseActivity : AbsThemeActivity() {
                                         .setData(Uri.fromParts("package", packageName, null))
                                 )
                             }
+                            .applyPlayerAccent()
                             .show()
                     }
                     return

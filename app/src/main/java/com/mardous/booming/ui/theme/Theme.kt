@@ -110,20 +110,27 @@ fun BoomingMusicTheme(
     val contrastLevel = getSystemContrast()
 
     var colorScheme = when {
-        // "Follow player color": when enabled and the current song yielded a
-        // colorful accent, the entire scheme (every role, not just the accent
-        // ones) is generated from the song's color family with the bundled
-        // M3 color engine. Otherwise the base scheme stays Material You.
-        Preferences.followPlayerColor && accent != 0 ->
+        // "Follow player color": the entire scheme (every role, not just the
+        // accent ones) is generated from the song's color family with the
+        // bundled M3 color engine. Wallpaper colors are NEVER used while the
+        // toggle is on - before any song has played, the neutral gray accent
+        // applies (the same look a coverless song produces).
+        Preferences.followPlayerColor -> {
+            val effectiveAccent = if (accent != 0) accent else AccentSchemes.NEUTRAL_ACCENT
             dynamicColorScheme(
-                Hct.fromInt(accent),
+                Hct.fromInt(effectiveAccent),
                 darkTheme,
                 // Colorful songs shift the app to the song's color family;
-                // grayscale/coverless playback uses the neutral scheme for a
-                // clean gray look instead of reverting to Material You.
-                if (AccentSchemes.isColorful(accent)) PaletteStyle.TonalSpot else PaletteStyle.Neutral,
+                // grayscale/coverless/idle playback uses the neutral scheme
+                // for a clean gray look instead of reverting to Material You.
+                if (AccentSchemes.isColorful(effectiveAccent)) {
+                    PaletteStyle.TonalSpot
+                } else {
+                    PaletteStyle.Neutral
+                },
                 contrastLevel = contrastLevel
             )
+        }
 
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
             val context = LocalContext.current

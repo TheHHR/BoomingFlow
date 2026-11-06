@@ -42,6 +42,8 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.mardous.booming.core.model.player.PlayerColorSchemeMode
 import com.mardous.booming.ui.component.compose.DialogListItemWithRadio
 import com.mardous.booming.ui.theme.BoomingMusicTheme
+import com.mardous.booming.extensions.create
+import com.mardous.booming.extensions.resources.applyPlayerAccent
 import com.mardous.booming.util.Preferences
 
 /**
@@ -86,7 +88,7 @@ class PlayerColorSchemeDialog : DialogFragment() {
                     }
                 }
             )
-            .create()
+            .create { it.applyPlayerAccent() }
     }
 
     @Composable

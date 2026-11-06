@@ -29,6 +29,7 @@ import coil3.request.ImageRequest
 import coil3.toBitmap
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.mardous.booming.R
+import com.mardous.booming.extensions.resources.showAccent
 import com.mardous.booming.coil.DEFAULT_ARTIST_IMAGE
 import com.mardous.booming.data.local.MetadataReader
 import com.mardous.booming.databinding.TagEditorArtistFieldBinding
@@ -100,7 +101,7 @@ class ArtistTagEditorActivity : AbsTagEditorActivity() {
                     2 -> deleteImage()
                 }
             }
-            .show()
+            .showAccent()
     }
 
     override fun searchOnlineImage() {

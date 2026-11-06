@@ -30,6 +30,8 @@ import coil3.size.Precision
 import coil3.size.Scale
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.mardous.booming.R
+import com.mardous.booming.extensions.create
+import com.mardous.booming.extensions.resources.applyPlayerAccent
 import com.mardous.booming.coil.DEFAULT_PLAYLIST_IMAGE
 import com.mardous.booming.coil.placeholderDrawableRes
 import com.mardous.booming.data.local.room.PlaylistEntity
@@ -129,7 +131,7 @@ class EditPlaylistDialog : DialogFragment() {
                 showToast(R.string.playlist_updated)
             }
             .setNegativeButton(android.R.string.cancel, null)
-            .create()
+            .create { it.applyPlayerAccent() }
     }
 
     override fun onDestroyView() {

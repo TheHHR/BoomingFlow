@@ -14,6 +14,8 @@ import com.google.android.material.checkbox.MaterialCheckBox
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 import com.mardous.booming.R
+import com.mardous.booming.extensions.create
+import com.mardous.booming.extensions.resources.applyPlayerAccent
 import com.mardous.booming.util.Preferences
 
 /**
@@ -94,7 +96,7 @@ class IgnoredArtistsPreferenceDialog : DialogFragment() {
                 Preferences.ignoredArtists = active.toList()
             }
             .setNegativeButton(android.R.string.cancel, null)
-            .create()
+            .create { it.applyPlayerAccent() }
     }
 
     private fun row(context: android.content.Context, name: String): MaterialCheckBox {

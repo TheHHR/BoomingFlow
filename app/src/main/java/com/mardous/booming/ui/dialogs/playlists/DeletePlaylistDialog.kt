@@ -23,6 +23,8 @@ import android.os.Bundle
 import androidx.fragment.app.DialogFragment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.mardous.booming.R
+import com.mardous.booming.extensions.create
+import com.mardous.booming.extensions.resources.applyPlayerAccent
 import com.mardous.booming.data.local.room.PlaylistEntity
 import com.mardous.booming.data.local.room.PlaylistWithSongs
 import com.mardous.booming.extensions.EXTRA_PLAYLISTS
@@ -55,7 +57,7 @@ class DeletePlaylistDialog : DialogFragment() {
                 libraryViewModel.deletePlaylists(playlists)
             }
             .setNegativeButton(android.R.string.cancel, null)
-            .create()
+            .create { it.applyPlayerAccent() }
     }
 
     companion object {

@@ -31,6 +31,7 @@ import androidx.core.app.ActivityCompat.checkSelfPermission
 import androidx.fragment.app.DialogFragment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.mardous.booming.R
+import com.mardous.booming.extensions.resources.applyPlayerAccent
 import com.mardous.booming.core.sort.sortedByName
 import com.mardous.booming.databinding.DialogRecyclerViewBinding
 import com.mardous.booming.extensions.create
@@ -103,7 +104,7 @@ class FolderChooserDialog : DialogFragment(), SimpleItemAdapter.Callback<String>
             .setTitle(R.string.permissions_denied)
             .setMessage(R.string.permission_external_storage_denied)
             .setPositiveButton(android.R.string.ok, null)
-            .create()
+            .create { it.applyPlayerAccent() }
 
     override fun bindData(itemView: View, position: Int, item: String): Boolean {
         val textView = itemView.findViewById<TextView>(android.R.id.text1)

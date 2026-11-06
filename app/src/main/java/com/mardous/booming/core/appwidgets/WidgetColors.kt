@@ -3,16 +3,21 @@ package com.mardous.booming.core.appwidgets
 import androidx.compose.material3.ColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
 import androidx.glance.GlanceTheme
 import androidx.glance.color.ColorProvider as dayNightColorProvider
 import androidx.glance.unit.ColorProvider
 import android.util.LruCache
 import androidx.annotation.ColorInt
+import com.mardous.booming.core.PlayerAccentState
 import com.mardous.booming.core.appwidgets.state.PlaybackState
+import com.mardous.booming.core.model.theme.AccentSchemes
 import com.mardous.booming.core.model.theme.ColorSchemes
 import com.mardous.booming.ui.theme.PaletteStyle
 import com.mardous.booming.ui.theme.dynamicColorSchemes
+import com.mardous.booming.util.Preferences
 
 @Immutable
 data class WidgetColors(
@@ -35,6 +40,13 @@ fun PlaybackState.widgetColors(useAlbumPalette: Boolean): WidgetColors {
 
 @Composable
 private fun systemColors(): WidgetColors {
+    // "Follow player color": the widget follows the player scheme (idle and
+    // coverless playback included, via the neutral gray accent) instead of
+    // the launcher's Material You colors.
+    val accent by PlayerAccentState.accentColor.collectAsState()
+    if (Preferences.followPlayerColor) {
+        return albumColors(if (accent != 0) accent else AccentSchemes.NEUTRAL_ACCENT)
+    }
     val colors = GlanceTheme.colors
     return WidgetColors(
         surface = colors.widgetBackground,

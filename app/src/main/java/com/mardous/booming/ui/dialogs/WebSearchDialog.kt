@@ -24,6 +24,8 @@ import androidx.core.os.BundleCompat
 import androidx.fragment.app.DialogFragment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.mardous.booming.R
+import com.mardous.booming.extensions.create
+import com.mardous.booming.extensions.resources.applyPlayerAccent
 import com.mardous.booming.core.model.WebSearchEngine
 import com.mardous.booming.data.model.Song
 import com.mardous.booming.extensions.EXTRA_SONG
@@ -48,7 +50,7 @@ class WebSearchDialog : DialogFragment() {
                     song.searchQuery(engines[position]).openWeb().toChooser(getString(R.string.web_search))
                 )
             }
-            .create()
+            .create { it.applyPlayerAccent() }
     }
 
     companion object {

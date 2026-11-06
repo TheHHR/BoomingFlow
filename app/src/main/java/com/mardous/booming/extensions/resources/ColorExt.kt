@@ -19,6 +19,7 @@ package com.mardous.booming.extensions.resources
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.DialogInterface
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.PorterDuff
@@ -27,11 +28,13 @@ import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.RippleDrawable
 import android.text.style.ForegroundColorSpan
+import android.widget.CompoundButton
 import android.widget.ImageButton
 import android.widget.SeekBar
 import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.view.menu.ActionMenuItemView
 import androidx.appcompat.widget.ActionMenuView
 import androidx.appcompat.widget.SwitchCompat
@@ -45,10 +48,13 @@ import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.snackbar.Snackbar
 import android.widget.ImageView
 import android.view.View
+import com.mardous.booming.core.PlayerAccentState
 import com.mardous.booming.core.model.theme.AccentSchemes
 import com.mardous.booming.core.palette.PaletteProcessor
 import com.google.android.material.slider.Slider
@@ -57,6 +63,7 @@ import com.mardous.booming.databinding.ItemDetailHeaderBinding
 import com.mardous.booming.extensions.isNightMode
 import com.mardous.booming.extensions.resolveColor
 import com.mardous.booming.ui.component.views.MorphicIconButton
+import com.mardous.booming.util.Preferences
 import android.graphics.Bitmap
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -711,4 +718,113 @@ fun com.google.android.material.progressindicator.CircularProgressIndicator.appl
     }
     val scheme = AccentSchemes.viewScheme(accent, context.isNightMode)
     setIndicatorColor(scheme.primary)
+}
+
+/**
+ * Applies the player accent to an AlertDialog's action buttons and to any
+ * checkbox/radio rows in its view hierarchy. With "Follow player color"
+ * off this is a no-op and the dialog keeps the theme's own colors (which
+ * are Material You wallpaper colors while dynamic colors are active).
+ * Buttons only exist after the dialog is shown, so call it on the result
+ * of [show] - see [MaterialAlertDialogBuilder.showAccent]. Idle and
+ * coverless playback still yield the neutral gray accent, matching the
+ * rest of the follow-color surfaces.
+ */
+fun AlertDialog.applyPlayerAccent() {
+    if (!Preferences.followPlayerColor) return
+    val accent = PlayerAccentState.accentColor.value.takeIf { it != 0 }
+        ?: AccentSchemes.NEUTRAL_ACCENT
+    val scheme = AccentSchemes.viewScheme(accent, context.isNightMode)
+    val buttonColors = ColorStateList(
+        arrayOf(
+            intArrayOf(-android.R.attr.state_enabled),
+            intArrayOf()
+        ),
+        intArrayOf(
+            context.onSurfaceColor().withAlpha(0.38f),
+            scheme.primary
+        )
+    )
+    for (which in intArrayOf(
+        DialogInterface.BUTTON_POSITIVE,
+        DialogInterface.BUTTON_NEGATIVE,
+        DialogInterface.BUTTON_NEUTRAL
+    )) {
+        getButton(which)?.setTextColor(buttonColors)
+    }
+    (window?.decorView as? ViewGroup)?.applyDialogCheckAccent(scheme.primary)
+}
+
+/** Recursively accents the [CompoundButton]s inside a dialog's view hierarchy. */
+private fun ViewGroup.applyDialogCheckAccent(@ColorInt checkedColor: Int) {
+    for (i in 0 until childCount) {
+        val child = getChildAt(i)
+        when {
+            child is CompoundButton -> {
+                if (child.getTag(R.id.tag_accent_originals) == null) {
+                    child.setTag(
+                        R.id.tag_accent_originals,
+                        AccentOriginals(switchTrack = child.buttonTintList)
+                    )
+                }
+                val original = (child.getTag(R.id.tag_accent_originals) as? AccentOriginals)?.switchTrack
+                child.buttonTintList = ColorStateList(
+                    arrayOf(
+                        intArrayOf(-android.R.attr.state_enabled),
+                        intArrayOf(android.R.attr.state_checked),
+                        intArrayOf()
+                    ),
+                    intArrayOf(
+                        original?.defaultColor?.withAlpha(0.38f) ?: Color.GRAY,
+                        checkedColor,
+                        original?.defaultColor ?: checkedColor
+                    )
+                )
+            }
+            child is ViewGroup -> child.applyDialogCheckAccent(checkedColor)
+        }
+    }
+}
+
+/** [MaterialAlertDialogBuilder.show] followed by [AlertDialog.applyPlayerAccent]. */
+fun MaterialAlertDialogBuilder.showAccent(): AlertDialog = show().applyPlayerAccent()
+
+/**
+ * Applies the player accent to a checkbox/radio button: the checked state
+ * tints in the scheme primary, the unchecked state keeps the themed
+ * defaults. 0 restores the themed defaults.
+ */
+fun CompoundButton.applyPlayerAccent(@ColorInt accent: Int) {
+    if (getTag(R.id.tag_accent_originals) == null) {
+        setTag(
+            R.id.tag_accent_originals,
+            AccentOriginals(switchTrack = buttonTintList)
+        )
+    }
+    val original = getTag(R.id.tag_accent_originals) as? AccentOriginals
+    val scheme = AccentSchemes.viewScheme(accent, context.isNightMode)
+    val unchecked = original?.switchTrack?.defaultColor ?: scheme.primary
+    buttonTintList = ColorStateList(
+        arrayOf(
+            intArrayOf(-android.R.attr.state_enabled),
+            intArrayOf(android.R.attr.state_checked),
+            intArrayOf()
+        ),
+        intArrayOf(
+            unchecked.withAlpha(0.38f),
+            scheme.primary,
+            unchecked
+        )
+    )
+}
+
+/**
+ * Tints the snackbar action text with the player accent. No-op when
+ * "Follow player color" is off.
+ */
+fun Snackbar.applyPlayerAccent() {
+    if (!Preferences.followPlayerColor) return
+    val accent = PlayerAccentState.accentColor.value.takeIf { it != 0 }
+        ?: AccentSchemes.NEUTRAL_ACCENT
+    setActionTextColor(AccentSchemes.viewScheme(accent, context.isNightMode).primary)
 }

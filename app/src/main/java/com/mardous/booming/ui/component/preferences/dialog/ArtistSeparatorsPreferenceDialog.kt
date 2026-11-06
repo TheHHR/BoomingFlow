@@ -15,6 +15,8 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textview.MaterialTextView
 import com.mardous.booming.R
+import com.mardous.booming.extensions.create
+import com.mardous.booming.extensions.resources.applyPlayerAccent
 import com.mardous.booming.util.Preferences
 
 /**
@@ -119,7 +121,7 @@ class ArtistSeparatorsPreferenceDialog : DialogFragment() {
                 Preferences.artistSeparatorExceptions = activeExceptions.toList()
             }
             .setNegativeButton(android.R.string.cancel, null)
-            .create()
+            .create { it.applyPlayerAccent() }
     }
 
     private fun tokenRow(context: android.content.Context, token: String): MaterialCheckBox {

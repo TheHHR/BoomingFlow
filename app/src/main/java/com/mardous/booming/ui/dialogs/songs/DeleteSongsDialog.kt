@@ -35,6 +35,8 @@ import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.mardous.booming.R
+import com.mardous.booming.extensions.create
+import com.mardous.booming.extensions.resources.applyPlayerAccent
 import com.mardous.booming.data.model.Song
 import com.mardous.booming.databinding.DialogDeleteSongsBinding
 import com.mardous.booming.extensions.*
@@ -99,11 +101,11 @@ class DeleteSongsDialog : DialogFragment(), SAFDialog.SAFResultListener {
                 )
                 return MaterialAlertDialogBuilder(requireContext())
                     .setView(R.layout.dialog_deleting_songs)
-                    .create()
+                    .create { it.applyPlayerAccent() }
             } catch (t: Throwable) {
                 return MaterialAlertDialogBuilder(requireContext())
                     .setMessage("Failed to delete songs: ${t.localizedMessage}")
-                    .create()
+                    .create { it.applyPlayerAccent() }
             }
         } else {
             val titleRes: Int

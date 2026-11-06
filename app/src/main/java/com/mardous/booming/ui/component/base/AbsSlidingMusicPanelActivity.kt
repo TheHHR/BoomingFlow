@@ -63,6 +63,7 @@ import com.google.android.material.navigationrail.NavigationRailView
 import com.google.android.material.R as M3R
 import com.mardous.booming.MediaControllerOwner
 import com.mardous.booming.R
+import com.mardous.booming.extensions.resources.showAccent
 import com.mardous.booming.core.PlayerAccentState
 import com.mardous.booming.core.model.CategoryInfo
 import com.mardous.booming.core.model.LibraryMargin
@@ -716,7 +717,7 @@ abstract class AbsSlidingMusicPanelActivity : AbsBaseActivity(),
                                         .setData(Uri.fromParts("package", packageName, null))
                                 )
                             }
-                            .show()
+                            .showAccent()
                     }
                 }
             }

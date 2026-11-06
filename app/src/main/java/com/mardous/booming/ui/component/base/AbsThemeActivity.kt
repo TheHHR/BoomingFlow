@@ -72,6 +72,14 @@ abstract class AbsThemeActivity : AppCompatActivity() {
                     appTheme.dynamicColorOverlay?.takeIf { isNightModeActive() }?.let { setTheme(it) }
                 }
             DynamicColors.applyToActivityIfAvailable(this, dynamicColorsOptions.build())
+        } else {
+            // "Follow player color" is on: wallpaper colors are suppressed,
+            // so the black-theme overlay must be applied directly instead of
+            // riding on the dynamic-colors callback. The overlay only
+            // resolves under night/v31 resources; below that it no-ops.
+            if (isNightModeActive()) {
+                appTheme.dynamicColorOverlay?.let { setTheme(it) }
+            }
         }
         if (Preferences.isCustomFont) {
             setTheme(R.style.CustomFontThemeOverlay)

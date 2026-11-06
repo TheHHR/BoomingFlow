@@ -12,6 +12,8 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.mardous.booming.R
 import com.mardous.booming.data.remote.github.model.GitHubRelease
 import com.mardous.booming.databinding.DialogUpdateInfoBinding
+import com.mardous.booming.extensions.create
+import com.mardous.booming.extensions.resources.applyPlayerAccent
 import com.mardous.booming.extensions.openUrl
 import com.mardous.booming.extensions.resources.setMarkdownText
 import com.mardous.booming.extensions.showToast
@@ -46,7 +48,7 @@ class UpdateDialog : BottomSheetDialogFragment(), View.OnClickListener {
         return MaterialAlertDialogBuilder(requireContext())
             .setMessage(R.string.the_app_is_up_to_date)
             .setPositiveButton(android.R.string.ok, null)
-            .create()
+            .create { it.applyPlayerAccent() }
     }
 
     override fun onCancel(dialog: DialogInterface) {

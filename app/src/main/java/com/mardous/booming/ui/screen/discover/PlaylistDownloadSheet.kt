@@ -1,10 +1,12 @@
 package com.mardous.booming.ui.screen.discover
 
 import android.annotation.SuppressLint
+import android.content.res.ColorStateList
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.ColorInt
 import androidx.core.view.isVisible
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -17,6 +19,11 @@ import com.google.android.material.button.MaterialButtonToggleGroup
 import com.google.android.material.checkbox.MaterialCheckBox
 import com.google.android.material.textview.MaterialTextView
 import com.mardous.booming.R
+import com.mardous.booming.core.model.theme.AccentSchemes
+import com.mardous.booming.extensions.collectPlayerAccent
+import com.mardous.booming.extensions.isNightMode
+import com.mardous.booming.extensions.resources.applyPlayerAccent
+import com.mardous.booming.extensions.resources.applyPreferenceToggleAccent
 import com.mardous.booming.online.data.spotify.SpotifyTrack
 import com.mardous.booming.online.download.DownloadFormat
 import com.mardous.booming.online.download.DownloadRegistry
@@ -122,6 +129,16 @@ class PlaylistDownloadSheet : BottomSheetDialogFragment() {
             }
             dismiss()
         }
+
+        collectPlayerAccent { accent ->
+            val scheme = AccentSchemes.viewScheme(accent, requireContext().isNightMode)
+            formatGroup.applyPreferenceToggleAccent(accent, scheme.secondaryContainer, scheme.onSecondaryContainer)
+            downloadButton.applyPlayerAccent(accent, tonal = true)
+            selectAll.applyPlayerAccent(accent)
+            hideDownloaded.applyPlayerAccent(accent)
+            autoDownload.applyPlayerAccent(accent)
+            (recycler.adapter as? TrackPickAdapter)?.rowAccent = scheme.primary
+        }
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -155,6 +172,14 @@ class PlaylistDownloadSheet : BottomSheetDialogFragment() {
         private val onSelectionChanged: () -> Unit
     ) : RecyclerView.Adapter<TrackPickAdapter.Holder>() {
 
+        /** Player-accent tint for the row checkboxes; 0 = themed default. */
+        @ColorInt
+        var rowAccent: Int = 0
+            set(value) {
+                field = value
+                notifyDataSetChanged()
+            }
+
         class Holder(view: View) : RecyclerView.ViewHolder(view) {
             val title: MaterialTextView = view.findViewById(R.id.title)
             val subtitle: MaterialTextView = view.findViewById(R.id.subtitle)
@@ -171,6 +196,11 @@ class PlaylistDownloadSheet : BottomSheetDialogFragment() {
             holder.title.text = track.name
             holder.subtitle.text = track.artists.joinToString { it.name }
             holder.checkbox.isChecked = selected.contains(position)
+            holder.checkbox.buttonTintList = if (rowAccent != 0) {
+                ColorStateList.valueOf(rowAccent)
+            } else {
+                null
+            }
             holder.itemView.setOnClickListener {
                 if (selected.contains(position)) selected.remove(position) else selected.add(position)
                 holder.checkbox.isChecked = selected.contains(position)

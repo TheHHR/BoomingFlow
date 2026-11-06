@@ -5,6 +5,7 @@ import android.content.res.ColorStateList
 import android.graphics.*
 import android.graphics.drawable.Drawable
 import androidx.annotation.AttrRes
+import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
 import com.google.android.material.color.MaterialColors
 import com.google.android.material.color.MaterialColors.getColorStateList
@@ -15,19 +16,31 @@ import com.google.android.material.R as M3R
 fun Context.getPlaceholderDrawable(@DrawableRes foregroundRes: Int) =
     PlaceholderDrawable(this, foregroundRes)
 
+fun Context.getPlaceholderDrawable(
+    @DrawableRes foregroundRes: Int,
+    @ColorInt background: Int,
+    @ColorInt foreground: Int
+) = PlaceholderDrawable(this, foregroundRes, background, foreground)
+
 class PlaceholderDrawable(
     context: Context,
     @DrawableRes
-    private val foregroundRes: Int
+    private val foregroundRes: Int,
+    @ColorInt explicitBackground: Int? = null,
+    @ColorInt explicitForeground: Int? = null
 ) : Drawable() {
 
     private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.FILL
-        color = MaterialColors.getColor(context, BACKGROUND_COLOR, Color.DKGRAY)
+        color = explicitBackground
+            ?: MaterialColors.getColor(context, BACKGROUND_COLOR, Color.DKGRAY)
     }
 
     private val foreground = context.getDrawableCompat(foregroundRes)?.apply {
-        setTintList(getColorStateList(context, FOREGROUND_COLOR, FALLBACK_TINT))
+        setTintList(
+            explicitForeground?.let { ColorStateList.valueOf(it) }
+                ?: getColorStateList(context, FOREGROUND_COLOR, FALLBACK_TINT)
+        )
     }
 
     override fun setAlpha(alpha: Int) {}

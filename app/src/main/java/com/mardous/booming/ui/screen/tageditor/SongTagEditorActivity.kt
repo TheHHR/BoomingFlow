@@ -26,6 +26,7 @@ import android.view.ViewGroup
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.mardous.booming.R
+import com.mardous.booming.extensions.resources.showAccent
 import com.mardous.booming.coil.DEFAULT_SONG_IMAGE
 import com.mardous.booming.data.local.MetadataReader
 import com.mardous.booming.data.local.toBitmap
@@ -126,7 +127,7 @@ class SongTagEditorActivity : AbsTagEditorActivity() {
                 showToast(R.string.album_or_artist_empty)
             }
             .setNegativeButton(android.R.string.cancel, null)
-            .show()
+            .showAccent()
     }
 
     private fun searchMusicBrainz(title: String, artist: String) {
@@ -158,7 +159,7 @@ class SongTagEditorActivity : AbsTagEditorActivity() {
                 }
             }
             .setNegativeButton(android.R.string.cancel, null)
-            .show()
+            .showAccent()
     }
 
     private fun applyMusicBrainzTags(mbContent: Pair<String?, TagEditorResult>) {
@@ -231,7 +232,7 @@ class SongTagEditorActivity : AbsTagEditorActivity() {
                 }
             }
             .setNegativeButton(android.R.string.cancel, null)
-            .show()
+            .showAccent()
     }
 
     override fun searchOnlineImage() {

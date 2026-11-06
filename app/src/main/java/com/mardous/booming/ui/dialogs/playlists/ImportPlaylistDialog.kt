@@ -32,6 +32,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.mardous.booming.R
+import com.mardous.booming.extensions.resources.showAccent
 import com.mardous.booming.databinding.DialogProgressRecyclerViewBinding
 import com.mardous.booming.extensions.create
 import com.mardous.booming.extensions.media.getSpannedTitles
@@ -95,7 +96,7 @@ class ImportPlaylistDialog : DialogFragment() {
                 }
             }
             .setNegativeButton(android.R.string.cancel, null)
-            .show()
+            .showAccent()
     }
 
     private inner class Adapter(private val context: Context, private val playlists: List<ImportablePlaylistResult>) :

@@ -24,6 +24,7 @@ import android.view.ViewGroup
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.mardous.booming.R
+import com.mardous.booming.extensions.resources.showAccent
 import com.mardous.booming.coil.DEFAULT_ALBUM_IMAGE
 import com.mardous.booming.data.local.MetadataReader
 import com.mardous.booming.data.local.toBitmap
@@ -128,7 +129,7 @@ class AlbumTagEditorActivity : AbsTagEditorActivity() {
                 }
             }
             .setNegativeButton(android.R.string.cancel, null)
-            .show()
+            .showAccent()
     }
 
     override fun searchOnlineImage() {

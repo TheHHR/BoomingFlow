@@ -29,6 +29,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.mardous.booming.R
+import com.mardous.booming.extensions.resources.showAccent
 import com.mardous.booming.data.local.room.InclExclDao
 import com.mardous.booming.data.local.room.InclExclEntity
 import com.mardous.booming.databinding.DialogProgressRecyclerViewBinding
@@ -114,7 +115,7 @@ class BlacklistWhitelistDialog : DialogFragment(), FolderCallback, SimpleItemAda
                     }
                 }
                 .setNegativeButton(android.R.string.cancel, null)
-                .show()
+                .showAccent()
         }
     }
 
@@ -138,7 +139,7 @@ class BlacklistWhitelistDialog : DialogFragment(), FolderCallback, SimpleItemAda
                 }
             }
             .setNegativeButton(android.R.string.cancel, null)
-            .show()
+            .showAccent()
     }
 
     private fun refreshData() {

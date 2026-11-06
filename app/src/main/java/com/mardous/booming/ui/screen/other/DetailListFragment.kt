@@ -319,6 +319,7 @@ class DetailListFragment : AbsMainActivityFragment(R.layout.fragment_detail_list
                 libraryViewModel.clearHistory()
                 val translationY = -(libraryViewModel.getMiniPlayerMargin().value?.getWithSpace() ?: 0)
                 val snackBar = Snackbar.make(binding.root, getString(R.string.history_cleared), Snackbar.LENGTH_LONG)
+                snackBar.applyPlayerAccent()
                 val snackBarView = snackBar.view
                 snackBarView.translationY = translationY.toFloat()
                 snackBar.show()

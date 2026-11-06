@@ -45,6 +45,7 @@ import com.mardous.booming.core.model.shuffle.OpenShuffleMode
 import com.mardous.booming.data.model.ContentType
 import com.mardous.booming.data.model.network.NetworkFeature
 import com.mardous.booming.extensions.currentFragment
+import com.mardous.booming.extensions.resources.showAccent
 import com.mardous.booming.extensions.navigation.detailArgs
 import com.mardous.booming.extensions.navigation.isValidCategory
 import com.mardous.booming.extensions.showToast
@@ -162,7 +163,7 @@ class MainActivity : AbsSlidingMusicPanelActivity(), MediaController.Listener {
                 }
             }
             .setNegativeButton(android.R.string.cancel, null)
-            .show()
+            .showAccent()
     }
 
     private fun setupNavigationController() {

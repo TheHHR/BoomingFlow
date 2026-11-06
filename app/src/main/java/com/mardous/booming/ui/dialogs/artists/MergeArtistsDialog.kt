@@ -5,6 +5,8 @@ import android.os.Bundle
 import androidx.fragment.app.DialogFragment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.mardous.booming.R
+import com.mardous.booming.extensions.create
+import com.mardous.booming.extensions.resources.applyPlayerAccent
 
 /**
  * Lets the user pick the canonical entry when merging artists: a
@@ -31,7 +33,7 @@ class MergeArtistsDialog(
                 distinct.getOrNull(checked)?.let { onCanonicalSelected(it) }
             }
             .setNegativeButton(R.string.close_action, null)
-            .create()
+            .create { it.applyPlayerAccent() }
     }
 
     companion object {

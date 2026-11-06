@@ -47,9 +47,14 @@ class AppTheme private constructor(
 
     companion object {
         /**
-         * The app theme is always Material You (wallpaper-based dynamic colors)
-         * when the platform supports it; the classic palette is only used on
+         * The app theme is Material You (wallpaper-based dynamic colors) when
+         * the platform supports it; the classic palette is only used on
          * devices below Android 12, where dynamic colors are unavailable.
+         * "Follow player color" suppresses wallpaper colors entirely - the
+         * song's scheme takes over the surfaces the accent pipeline paints,
+         * and every remaining theme-attribute consumer (dialogs, menus,
+         * preference screens) resolves the classic palette instead of
+         * wallpaper colors the song accent would never reach.
          */
         fun createAppTheme(): AppTheme {
             val generalTheme = Preferences.generalTheme
@@ -57,7 +62,8 @@ class AppTheme private constructor(
             return AppTheme(
                 id = generalTheme,
                 themeRes = themeMode.themeRes,
-                applyDynamicColors = DynamicColors.isDynamicColorAvailable()
+                applyDynamicColors = DynamicColors.isDynamicColorAvailable() &&
+                        !Preferences.followPlayerColor
             )
         }
     }

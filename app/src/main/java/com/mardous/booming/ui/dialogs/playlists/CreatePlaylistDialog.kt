@@ -34,6 +34,7 @@ import com.mardous.booming.coil.placeholderDrawableRes
 import com.mardous.booming.data.model.Song
 import com.mardous.booming.databinding.DialogCreatePlaylistBinding
 import com.mardous.booming.extensions.EXTRA_SONGS
+import com.mardous.booming.extensions.create
 import com.mardous.booming.extensions.extraNotNull
 import com.mardous.booming.extensions.showToast
 import com.mardous.booming.extensions.withArgs
@@ -67,11 +68,9 @@ class CreatePlaylistDialog : DialogFragment() {
             .setView(binding.root)
             .setPositiveButton(R.string.create_action, null)
             .setNegativeButton(android.R.string.cancel, null)
-            .create().apply {
-                setOnShowListener { 
-                    getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener {
-                        createPlaylist()
-                    }
+            .create { dialog ->
+                dialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener {
+                    createPlaylist()
                 }
             }
     }
