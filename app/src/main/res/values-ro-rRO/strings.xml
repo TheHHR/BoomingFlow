@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="action_play">Redare</string>
-    <string name="action_play_all">Redă tot</string>
     <string name="action_shuffle_play">Amestecare redare</string>
     <string name="action_queue_next">Coada următoare</string>
     <string name="shuffle_all_label">Amestecare toate</string>
@@ -9,10 +8,8 @@
     <string name="repeat_mode">Repeat mode</string>
     <string name="shuffle_button_tip">Tap for normal shuffle. Long press for advanced options.</string>
     <string name="action_play_pause">Redare/pauză</string>
-    <string name="action_pause">Întrerupeți</string>
     <string name="action_next">Următoarea</string>
     <string name="action_previous">Anterior</string>
-    <string name="action_cancel">Anulează</string>
     <string name="action_seek_backward">Seek backward</string>
     <string name="action_seek_forward">Seek forward</string>
     <string name="action_cycle_repeat">Mod repetare ciclu</string>
@@ -23,8 +20,6 @@
     <string name="create_action">Crează</string>
     <string name="search_label">Caută</string>
     <string name="search_hint">Caută în biblioteca ta…</string>
-    <string name="action_voice_search">Căutare vocală</string>
-    <string name="speech_not_supported">Dispozitivul dvs. nu acceptă introducere vorbire</string>
     <string name="search_artist_x_label">Căutare artist: %s</string>
     <string name="search_album_x_label">Căutare album: %s</string>
     <string name="search_list_x_label">Lista de căutare: %s</string>
@@ -32,8 +27,6 @@
     <string name="search_year_x_label">Anul de căutare: %s</string>
     <string name="search_in_folder_x">Search in folder: %s</string>
     <string name="search_last_added">Caută muzică recentă</string>
-    <string name="shuffle_mode_album">Amestecare album</string>
-    <string name="shuffle_mode_artist">Amestecare Artist</string>
     <string name="action_share">Distribuie</string>
     <string name="action_save">Salvează</string>
     <string name="back_action">Back</string>
@@ -45,15 +38,10 @@
     <string name="continue_action">Continuă</string>
     <string name="select_all_title">Selectează tot</string>
     <string name="x_selected">%d selectat</string>
-    <string name="preparing_playback_title">Preparing</string>
-    <string name="restoring_playback_state">Restoring playback state and queue…</string>
-    <string name="playback_stopped_title">Playback stopped</string>
     <string name="playing_notification_description">Notificarea de redare oferă acțiuni de redare/pauză etc.</string>
     <string name="playing_notification_name">Notificare de redare</string>
-    <string name="action_scan_directory">Scanare director</string>
     <string name="no_device_playlists">Nicio listă de redare</string>
     <string name="select_songs_title">Selectați melodii</string>
-    <string name="playlist_x_is_empty">Lista de redare %s este goală.</string>
     <string name="playlist_name_cannot_be_empty">Numele listei de redare nu poate fi gol</string>
     <string name="imported_playlist_x">Listă de redare importată \"%1$s\".</string>
     <string name="could_not_import_the_playlist_x">Nu s-a putut importa lista de redare \"%s\"</string>
@@ -61,8 +49,6 @@
     <string name="playlist_x_not_imported">Playlist %s nu a fost importat.</string>
     <string name="action_import_playlist">Importă playlist…</string>
     <string name="new_playlist_title">Playlist nou</string>
-    <string name="add_playlist_title">Adaugă la playlist</string>
-    <string name="rename_playlist_title">Redenumește playlist</string>
     <string name="action_edit_playlist">Edit playlist</string>
     <string name="action_delete_playlist">Șterge playlist</string>
     <string name="action_export_playlist">Exportă în fișier</string>
@@ -83,9 +69,7 @@
     <string name="delete_playlist_x"><![CDATA[Ștergeți playlist <b>%s</b>\?]]></string>
     <string name="delete_x_playlists"><![CDATA[Ștergeți <b>%d</b> liste?]]></string>
     <string name="created_playlist_x">Lista de redare creată \'%1$s\'.</string>
-    <string name="could_not_create_playlist">Nu s-a putut crea lista de redare.</string>
     <string name="playlist_exists">Lista de redare %s există deja.</string>
-    <string name="playlist_created">Playlist %s created successfully.</string>
     <string name="remove_song_from_playlist_title">Elimină melodia din playlist</string>
     <string name="remove_songs_from_playlist_title">Elimină melodiile din lista de redare</string>
     <string name="remove_song_x_from_playlist"><![CDATA[Eliminați melodia <b>%1$s</b> din lista de redare?]]></string>
@@ -115,7 +99,6 @@
     <string name="deleting_songs">Ștergere melodii, așteptați…</string>
     <string name="song_x_of_x">%1$d din %2$d • %3$s</string>
     <string name="no_equalizer">Niciun egalizator găsit.</string>
-    <string name="audio_focus_denied">Focalizare audio refuzată.</string>
     <string name="no_audio_ID">ID audio incorect.</string>
     <string name="playback_error_code">Playback error (%s).</string>
     <string name="unplayable_file">Nu s-a putut reda acest cântec.</string>
@@ -135,16 +118,10 @@
     <string name="welcome_to_x">Bun venit la %s</string>
     <string name="get_started">Începeți</string>
     <string name="select_storage_title">Selectați stocarea</string>
-    <string name="now_playing">Acum se redă</string>
     <string name="playing_queue_label">Lista de redare</string>
-    <string name="list_start">List start</string>
-    <string name="list_end">List end</string>
     <string name="clear_queue">Curăță coada</string>
-    <string name="action_move_to_current_track">Arată melodia curentă</string>
     <string name="action_add_to_favorites">Adaugă la Favorite</string>
     <string name="action_remove_from_favorites">Elimină din favorite</string>
-    <string name="added_to_favorites_label">Adăugat la Favorite</string>
-    <string name="removed_from_favorites_label">Eliminat din Favorite</string>
     <string name="toggle_favorite">Adaugă/Elimină din favorite</string>
     <string name="action_add_to_playlist">Adaugă la playlist</string>
     <string name="action_remove_from_playlist">Elimină din playlist</string>
@@ -153,7 +130,6 @@
     <string name="put_after_current_track">Pune după piesa curentă</string>
     <string name="set_artist_image">Setează imaginea Artist</string>
     <string name="reset_artist_image">Resetează imaginea Artist</string>
-    <string name="there_is_nothing_to_reset">Nu este nimic de resetat.</string>
     <string name="add_to_label">Adaugă la</string>
     <string name="go_to_label">Mergi la</string>
     <string name="action_go_to_album">Mergi la album</string>
@@ -173,7 +149,6 @@
     <string name="no_artists_label">Nici un artist</string>
     <string name="no_genres_label">Fără gen</string>
     <string name="empty_label">Golire</string>
-    <string name="nothing_to_see">Nimic de văzut</string>
     <string name="show_album_artists">Doar artiştii album</string>
     <string name="songs_label">Melodii</string>
     <string name="albums_label">Albume</string>
@@ -215,16 +190,13 @@
     <string name="sort_order_file_name">File name</string>
     <string name="sort_order_number_of_songs">Numărul de melodii</string>
     <string name="sort_order_number_of_albums">Număr de albume</string>
-    <string name="sort_order_last_played_date">Data ultimei redări</string>
     <string name="sort_order_track_list">Urmărire listă</string>
     <string name="sort_order_descending">Descrescător</string>
-    <string name="sort_order_ignore_articles">Ignoră articole</string>
     <string name="action_details">Detalii</string>
     <string name="action_set_as_start_directory">Setează ca director de pornire</string>
     <string name="start_directory_set">Start directory set to %s</string>
     <string name="action_go_to_start_directory">Du-te la directorul de pornire</string>
     <string name="action_hierarchy_view">Hierarchy view</string>
-    <string name="new_start_directory">Directorul de start nou: %s</string>
     <string name="action_scan">Scanare</string>
     <string name="scan_media">Scanare media</string>
     <string name="scan_media_message">In most cases, Android automatically detects and indexes media files on your device, so manually scanning is usually unnecessary.</string>
@@ -235,7 +207,6 @@
     <string name="restore_default">Restaurare implicită</string>
     <string name="remove_cover">Eliminați coperta</string>
     <string name="could_not_download_album_cover">Couldn’t descarcă un copertă de album potrivită.</string>
-    <string name="download_image">Descarcă imaginea</string>
     <string name="pick_from_local_storage">Alege din stocarea locală</string>
     <string name="about_x_title">Despre %s</string>
     <string name="yes">Da</string>
@@ -246,7 +217,6 @@
     <string name="label_file_format">Format</string>
     <string name="file_label">File</string>
     <string name="metadata_label">Metadata</string>
-    <string name="song">Melodie</string>
     <string name="title">Titlu</string>
     <string name="album">Album</string>
     <string name="artist">Artist</string>
@@ -373,7 +343,6 @@
     <string name="band_configuration_changed_successfully">The band configuration was successfully changed.</string>
     <string name="band_configuration_could_not_be_changed">The band configuration could not be changed.</string>
     <string name="share_eq_profiles">Share EQ Profiles</string>
-    <string name="there_is_nothing_to_export">Nu există nimic de exportat.</string>
     <string name="there_is_nothing_to_import">Nu este nimic de importat.</string>
     <string name="an_unexpected_error_occurred">An unexpected error occurred.</string>
     <string name="share_profiles">Share profiles</string>
@@ -421,7 +390,6 @@
     <string name="loudness_enhancer">Amplificator</string>
     <string name="sound_settings">Setări sunet</string>
     <string name="listening_on">Listening on</string>
-    <string name="casting_to">Casting to</string>
     <string name="volume_label">Volum</string>
     <string name="reset_balance">Reset balance</string>
     <string name="speed_and_pitch_label">Speed and pitch</string>
@@ -451,8 +419,6 @@
     <string name="download_lyrics">Descarcă versuri</string>
     <string name="write_lyrics_here">Scrie versuri aici</string>
     <string name="no_lyrics_found">Nu s-au găsit versuri</string>
-    <string name="lyrics_were_updated_successfully">Versurile au fost actualizate cu succes.</string>
-    <string name="failed_to_update_lyrics">Actualizarea versurilor a eșuat.</string>
     <string name="there_are_no_changes_to_save">There are no changes to save.</string>
     <string name="font_imported_successfully">Font imported successfully.</string>
     <string name="could_not_import_font">Could not import font.</string>
@@ -477,22 +443,10 @@
     <string name="app_shortcut_last_added_short">Ultima Adăugare</string>
     <string name="app_shortcut_favorites_short">Favorites</string>
     <!-- About page -->
-    <string name="action_about">Despre</string>
-    <string name="changelog">Jurnal modificări</string>
-    <string name="faq">FAQ</string>
     <string name="licenses">Licențe</string>
-    <string name="author">Autor</string>
-    <string name="mardous_summary">Lead Developer</string>
-    <string name="contributors">Contributors</string>
     <string name="translators_title">Translators</string>
     <string name="translators_summary">Thanks to those who make Booming Music available in many languages.</string>
-    <string name="view_profile_on_github">Vezi profilul pe GitHub</string>
-    <string name="write_an_email">Scrie un e-mail</string>
     <string name="support_development">Sprijină dezvoltarea</string>
-    <string name="help_with_translations">Ajutor cu traducerile</string>
-    <string name="help_with_translations_summary">Poti contribui la proiect ajutand la traducerea muzicii Booming in alte limbi.</string>
-    <string name="report_bugs">Raportează erori</string>
-    <string name="report_bugs_summary">Raportează erori sau cere noi caracteristici.</string>
     <string name="share_app">Distribuie această aplicație</string>
     <string name="share_app_summary">Poți ajuta această aplicație să crească dacă o împarți cu prietenii.</string>
     <string name="send_invitation_message">Trimite mesaj de invitație</string>
@@ -503,7 +457,6 @@
     <string name="saf_access_required_message">Booming Music requires permission to access these files. Please select the root folder where your music files are stored.</string>
     <string name="saf_show_files_button">Afișare fișiere</string>
     <string name="saf_error_uri">Nu se poate obține URL-ul SAF</string>
-    <string name="saf_write_failed">Scrierea fișierului a eșuat: %s</string>
     <string name="saf_delete_failed">Ștergerea fișierului a eșuat: %s</string>
     <string name="settings_title">Setări</string>
     <string name="appearance_title">Aspectul</string>
@@ -514,7 +467,6 @@
     <string name="lyrics_preferences_summary">Adjust font, spacing, and other options to personalize your lyrics view.</string>
     <string name="playback_title">Redare</string>
     <string name="playback_summary">Schimbați setările de sunet, seturile cu căști Bluetooth, etc.</string>
-    <string name="metadata_title">Metadate</string>
     <string name="library_title">Bibliotecă</string>
     <string name="library_summary">Setări pentru listele de redare și filtre de excludere/includere.</string>
     <string name="advanced_title">Avansat</string>
@@ -523,7 +475,6 @@
     <string name="about_title">Despre</string>
     <string name="about_summary">Booming Music %s, click pentru mai multe informații.</string>
     <!-- Preference headers -->
-    <string name="general_header">Generalități</string>
     <string name="library_header">Bibliotecă</string>
     <string name="album_cover_header">Copertă</string>
     <string name="exclusion_header">Excluderi</string>
@@ -543,7 +494,6 @@
     <string name="library_categories_summary">Configurați vizibilitatea și ordinea categoriilor bibliotecii.</string>
     <string name="remember_last_page_title">Memorează ultima pagină</string>
     <string name="remember_last_page_summary">Mergeți la ultima pagină deschisă la lansare.</string>
-    <string name="start_page_title">Pagină de pornire</string>
     <string name="tab_mode_title">Modul filă titlu</string>
     <string name="hold_tab_to_search_title">Hold tab to Search</string>
     <string name="hold_tab_to_search_summary">Long-press any navigation bar tab to open the search screen.</string>
@@ -606,7 +556,6 @@
     <string name="now_playing_corner_radius_title">Image corner radius</string>
     <string name="now_playing_corner_radius_summary">Defines how rounded the corners of the album art should appear.</string>
     <string name="carousel_effect_title">Carousel effect</string>
-    <string name="album_cover_effect_title">Efect copertă album</string>
     <string name="animate_controls_title">Controale animate</string>
     <string name="animate_controls_summary">Se joacă când se deschide panoul jucătorului.</string>
     <string name="swipe_up_queue_title">Swipe upwards to open queue</string>
@@ -671,7 +620,6 @@
     <string name="use_folder_album_cover_title">Utilizați imaginile din dosare</string>
     <string name="use_folder_album_cover_summary">Dacă fișierul audio nu conține o copertă încorporată. Imaginile ar putea dura puțin mai mult timp să se încarce.</string>
     <string name="online_artist_images_title">Descarcă imaginile artistului</string>
-    <string name="preferred_image_size_title">Preferred image size</string>
     <string name="online_album_covers_title">Download missing album covers</string>
     <string name="online_album_covers_summary">Downloaded images aren’t embedded into audio files; they’re only visible within the app. This depends on your metadata download policy.</string>
     <string name="delete_downloaded_lyrics_title">Șterge versurile descărcate</string>
@@ -711,9 +659,6 @@
     <string name="labeled">Etichetat</string>
     <string name="unlabeled">Neetichetat</string>
     <string name="selected">Selectate</string>
-    <string name="compact">Compact</string>
-    <string name="expanded">Extins</string>
-    <string name="simple">Simplu</string>
     <string name="add_after_playing_track">Adaugă după redarea piesei</string>
     <string name="add_tracks_sequentially">Adaugă piese secvențial</string>
     <string name="albums_shuffle">Albums shuffle</string>
@@ -729,9 +674,6 @@
     <string name="this_month">Luna aceasta</string>
     <string name="past_three_months">Ultimele trei luni</string>
     <string name="this_year">Anul acesta</string>
-    <string name="image_size_large">Mare (mai lent)</string>
-    <string name="image_size_medium">Mediu (implicit, recomandat)</string>
-    <string name="image_size_small">Mici (mai rapid, de calitate inferioară)</string>
     <string name="play_on_startup_mode_never">Never play on startup</string>
     <string name="play_on_startup_mode_minimized">Yes, with minimized player panel</string>
     <string name="play_on_startup_mode_expanded">Yes, with expanded player panel</string>
@@ -752,8 +694,6 @@
     <string name="every_fifteen_days">La fiecare cincisprezece zile</string>
     <string name="monthly">Lunar</string>
     <string name="never">Niciodată</string>
-    <string name="receive_experimental_updates_title">Primește actualizări experimentale</string>
-    <string name="receive_experimental_updates_summary">Vă rugăm să reţineţi că aceste actualizări sunt adesea foarte instabile şi sunt destinate utilizatorilor experimentaţi.</string>
     <string name="search_for_update_title">Căutare actualizare</string>
     <string name="last_update_search_x">Ultima verificare: %s</string>
     <string name="checking_please_wait">Verificare, te rugăm să aștepți…</string>

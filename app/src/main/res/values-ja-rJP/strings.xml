@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="action_play">再生</string>
-    <string name="action_play_all">すべて再生</string>
     <string name="action_shuffle_play">シャッフル再生</string>
     <string name="action_queue_next">次のキュー</string>
     <string name="shuffle_all_label">すべてシャッフル</string>
@@ -9,10 +8,8 @@
     <string name="repeat_mode">リピートモード</string>
     <string name="shuffle_button_tip">タップして通常のシャッフルを行います。長押しで詳細オプションを選択できます。</string>
     <string name="action_play_pause">再生/一時停止</string>
-    <string name="action_pause">一時停止</string>
     <string name="action_next">次へ</string>
     <string name="action_previous">前へ</string>
-    <string name="action_cancel">キャンセル</string>
     <string name="action_seek_backward">巻き戻し</string>
     <string name="action_seek_forward">早送り</string>
     <string name="action_cycle_repeat">くりかえしリピートモード</string>
@@ -23,8 +20,6 @@
     <string name="create_action">作成</string>
     <string name="search_label">検索</string>
     <string name="search_hint">ライブラリ内を検索…</string>
-    <string name="action_voice_search">音声検索</string>
-    <string name="speech_not_supported">お使いのデバイスは音声入力をサポートしていません</string>
     <string name="search_artist_x_label">検索アーティスト: %s</string>
     <string name="search_album_x_label">アルバムを検索: %s</string>
     <string name="search_list_x_label">検索リスト: %s</string>
@@ -32,8 +27,6 @@
     <string name="search_year_x_label">検索年: %s</string>
     <string name="search_in_folder_x">フォルダ内を検索：%s</string>
     <string name="search_last_added">最新の音楽を検索</string>
-    <string name="shuffle_mode_album">アルバムシャッフル</string>
-    <string name="shuffle_mode_artist">アーティストシャッフル</string>
     <string name="action_share">共有</string>
     <string name="action_save">保存展開</string>
     <string name="back_action">戻る</string>
@@ -45,15 +38,10 @@
     <string name="continue_action">続ける</string>
     <string name="select_all_title">すべて選択</string>
     <string name="x_selected">%d を選択しました</string>
-    <string name="preparing_playback_title">準備中</string>
-    <string name="restoring_playback_state">再生状態とキューを復元しています...</string>
-    <string name="playback_stopped_title">再生停止</string>
     <string name="playing_notification_description">再生通知は再生/一時停止などのアクションを提供します。</string>
     <string name="playing_notification_name">再生中の通知</string>
-    <string name="action_scan_directory">ディレクトリをスキャン</string>
     <string name="no_device_playlists">プレイリストがありません</string>
     <string name="select_songs_title">曲を選択</string>
-    <string name="playlist_x_is_empty">プレイリスト %s は空です。</string>
     <string name="playlist_name_cannot_be_empty">プレイリスト名を空にすることはできません</string>
     <string name="imported_playlist_x">インポートされたプレイリスト\"%1$s\"</string>
     <string name="could_not_import_the_playlist_x">プレイリスト\"%s\"をインポートできませんでした</string>
@@ -61,8 +49,6 @@
     <string name="playlist_x_not_imported">プレイリスト %s はインポートされていません。</string>
     <string name="action_import_playlist">プレイリストをインポート…</string>
     <string name="new_playlist_title">新規プレイリスト</string>
-    <string name="add_playlist_title">プレイリストに追加</string>
-    <string name="rename_playlist_title">プレイリストの名前を変更</string>
     <string name="action_edit_playlist">プレイリストの編集</string>
     <string name="action_delete_playlist">プレイリストを削除</string>
     <string name="action_export_playlist">ファイルにエクスポート</string>
@@ -83,9 +69,7 @@
     <string name="delete_playlist_x"><![CDATA[プレイリスト <b>%s</b> を削除しますか？]]></string>
     <string name="delete_x_playlists"><![CDATA[<b>%d</b> プレイリストを削除しますか？]]></string>
     <string name="created_playlist_x">プレイリスト「%1$s」を作成しました。</string>
-    <string name="could_not_create_playlist">プレイリストを作成できませんでした。</string>
     <string name="playlist_exists">プレイリスト %s は既に存在します。</string>
-    <string name="playlist_created">プレイリスト %s の作成に成功しました。</string>
     <string name="remove_song_from_playlist_title">プレイリストから曲を削除</string>
     <string name="remove_songs_from_playlist_title">プレイリストから曲を削除</string>
     <string name="remove_song_x_from_playlist"><![CDATA[プレイリストから曲 <b>%1$s</b> を削除しますか？]]></string>
@@ -115,7 +99,6 @@
     <string name="deleting_songs">音楽を削除しています。お待ち下さい…</string>
     <string name="song_x_of_x">%1$d の %2$d • %3$s</string>
     <string name="no_equalizer">イコライザーが見つかりません。</string>
-    <string name="audio_focus_denied">音声フォーカスが拒否されました。</string>
     <string name="no_audio_ID">音声IDが不正です。</string>
     <string name="playback_error_code">再生エラー (%s).</string>
     <string name="unplayable_file">この曲を再生できませんでした。</string>
@@ -135,16 +118,10 @@
     <string name="welcome_to_x">%s へようこそ</string>
     <string name="get_started">はじめよう</string>
     <string name="select_storage_title">ストレージを選択</string>
-    <string name="now_playing">再生中</string>
     <string name="playing_queue_label">キューを再生中</string>
-    <string name="list_start">リストの始め</string>
-    <string name="list_end">リストの終わり</string>
     <string name="clear_queue">キューをクリア</string>
-    <string name="action_move_to_current_track">現在のトラックを表示</string>
     <string name="action_add_to_favorites">お気に入りに追加</string>
     <string name="action_remove_from_favorites">お気に入りから削除</string>
-    <string name="added_to_favorites_label">お気に入りに追加しました</string>
-    <string name="removed_from_favorites_label">お気に入りから削除しました</string>
     <string name="toggle_favorite">お気に入りから追加/削除</string>
     <string name="action_add_to_playlist">プレイリストに追加</string>
     <string name="action_remove_from_playlist">プレイリストから削除</string>
@@ -153,7 +130,6 @@
     <string name="put_after_current_track">現在のトラックの後に追加する</string>
     <string name="set_artist_image">アーティスト画像を設定</string>
     <string name="reset_artist_image">アーティスト画像をリセット</string>
-    <string name="there_is_nothing_to_reset">リセットするものはありません。</string>
     <string name="add_to_label">追加先</string>
     <string name="go_to_label">移動</string>
     <string name="action_go_to_album">アルバムに移動</string>
@@ -173,7 +149,6 @@
     <string name="no_artists_label">アーティストなし</string>
     <string name="no_genres_label">ジャンルなし</string>
     <string name="empty_label">なし</string>
-    <string name="nothing_to_see">表示するものがありません</string>
     <string name="show_album_artists">アルバムアーティストのみ</string>
     <string name="songs_label">曲</string>
     <string name="albums_label">アルバム</string>
@@ -215,16 +190,13 @@
     <string name="sort_order_file_name">ファイル名</string>
     <string name="sort_order_number_of_songs">曲数</string>
     <string name="sort_order_number_of_albums">アルバムの数</string>
-    <string name="sort_order_last_played_date">最後に再生した日時</string>
     <string name="sort_order_track_list">トラックリスト</string>
     <string name="sort_order_descending">降順</string>
-    <string name="sort_order_ignore_articles">記事を無視</string>
     <string name="action_details">詳細</string>
     <string name="action_set_as_start_directory">開始ディレクトリに設定</string>
     <string name="start_directory_set">開始ディレクトリを %sに設定</string>
     <string name="action_go_to_start_directory">開始ディレクトリに移動</string>
     <string name="action_hierarchy_view">階層表示</string>
-    <string name="new_start_directory">新しい開始ディレクトリ: %s</string>
     <string name="action_scan">スキャン</string>
     <string name="scan_media">メディアをスキャン</string>
     <string name="scan_media_message">ほとんどの場合、Androidはデバイス上のメディアファイルを自動的に検出、インデックス化するので、手動でスキャンする必要はありません。</string>
@@ -235,7 +207,6 @@
     <string name="restore_default">既定に戻す</string>
     <string name="remove_cover">カバーを削除</string>
     <string name="could_not_download_album_cover">Couldn’t は一致するアルバムカバーをダウンロードします。</string>
-    <string name="download_image">画像をダウンロード</string>
     <string name="pick_from_local_storage">ローカルストレージから選択</string>
     <string name="about_x_title">%s について</string>
     <string name="yes">はい</string>
@@ -246,7 +217,6 @@
     <string name="label_file_format">フォーマット</string>
     <string name="file_label">ファイル</string>
     <string name="metadata_label">メタデータ</string>
-    <string name="song">曲</string>
     <string name="title">タイトル</string>
     <string name="album">アルバム</string>
     <string name="artist">アーティスト</string>
@@ -357,7 +327,6 @@
     <string name="band_configuration_changed_successfully">バンド構成が正常に変更されました</string>
     <string name="band_configuration_could_not_be_changed">バンド構成を変更できませんでした</string>
     <string name="share_eq_profiles">EQ プロファイルを共有</string>
-    <string name="there_is_nothing_to_export">エクスポートするものはありません。</string>
     <string name="there_is_nothing_to_import">インポートするものは何もありません。</string>
     <string name="an_unexpected_error_occurred">予期しないエラーが発生しました</string>
     <string name="share_profiles">プロファイルを共有</string>
@@ -405,7 +374,6 @@
     <string name="loudness_enhancer">アンプ</string>
     <string name="sound_settings">サウンドの設定</string>
     <string name="listening_on">再生中:</string>
-    <string name="casting_to">キャスト先</string>
     <string name="volume_label">音量</string>
     <string name="reset_balance">バランスをリセット</string>
     <string name="speed_and_pitch_label">速度とピッチ:</string>
@@ -435,8 +403,6 @@
     <string name="download_lyrics">歌詞をダウンロード</string>
     <string name="write_lyrics_here">ここに歌詞を書く</string>
     <string name="no_lyrics_found">歌詞が見つかりません</string>
-    <string name="lyrics_were_updated_successfully">歌詞が更新されました。</string>
-    <string name="failed_to_update_lyrics">歌詞の更新に失敗しました。</string>
     <string name="there_are_no_changes_to_save">保存する変更はありません。</string>
     <string name="font_imported_successfully">フォントが正常にインポートされました。</string>
     <string name="could_not_import_font">フォントをインポートできませんでした。</string>
@@ -461,22 +427,10 @@
     <string name="app_shortcut_last_added_short">最近追加された曲</string>
     <string name="app_shortcut_favorites_short">お気に入り</string>
     <!-- About page -->
-    <string name="action_about">アプリについて</string>
-    <string name="changelog">更新履歴</string>
-    <string name="faq">FAQ</string>
     <string name="licenses">ライセンス</string>
-    <string name="author">作成者</string>
-    <string name="mardous_summary">Lead Developer</string>
-    <string name="contributors">コントリビューター</string>
     <string name="translators_title">翻訳者</string>
     <string name="translators_summary">Booming Musicを多くの言語で利用可能にしてくれた人たちに感謝します。</string>
-    <string name="view_profile_on_github">GitHubでプロフィールを表示</string>
-    <string name="write_an_email">メールを書く</string>
     <string name="support_development">開発を支援する</string>
-    <string name="help_with_translations">翻訳を支援</string>
-    <string name="help_with_translations_summary">Booming Musicを他の言語に翻訳することで、プロジェクトに貢献できます。</string>
-    <string name="report_bugs">バグを報告</string>
-    <string name="report_bugs_summary">バグを報告するか、新機能をリクエストしてください。</string>
     <string name="share_app">このアプリを共有</string>
     <string name="share_app_summary">友達と共有すれば、このアプリの成長を助けることができます。</string>
     <string name="send_invitation_message">招待メッセージを送信</string>
@@ -487,7 +441,6 @@
     <string name="saf_access_required_message">Booming Musicはこれらのファイルへのアクセス許可を必要としています。音楽ファイルが保存されているルートフォルダを選択してください。</string>
     <string name="saf_show_files_button">ファイルを表示</string>
     <string name="saf_error_uri">SAF URIを取得できません</string>
-    <string name="saf_write_failed">ファイルの書き込みに失敗しました: %s</string>
     <string name="saf_delete_failed">ファイルの削除に失敗しました: %s</string>
     <string name="settings_title">設定</string>
     <string name="appearance_title">外観</string>
@@ -498,7 +451,6 @@
     <string name="lyrics_preferences_summary">フォント、間隔、その他のオプションを調整して、歌詞の表示をカスタマイズします。</string>
     <string name="playback_title">再生</string>
     <string name="playback_summary">サウンド設定、Bluetooth ヘッドセットなどを変更します。</string>
-    <string name="metadata_title">メタデータ</string>
     <string name="library_title">ライブラリ</string>
     <string name="library_summary">プレイリストと除外/追加フィルターの設定。</string>
     <string name="advanced_title">高度な設定</string>
@@ -507,7 +459,6 @@
     <string name="about_title">情報</string>
     <string name="about_summary">Booming Music %s、タッチして詳細を確認してください。</string>
     <!-- Preference headers -->
-    <string name="general_header">全般</string>
     <string name="library_header">ライブラリ</string>
     <string name="album_cover_header">カバー</string>
     <string name="exclusion_header">除外</string>
@@ -527,7 +478,6 @@
     <string name="library_categories_summary">ライブラリに表示するカテゴリとその順番を設定します。</string>
     <string name="remember_last_page_title">最後のページを記憶する</string>
     <string name="remember_last_page_summary">起動時に最後に開いたページに移動します。</string>
-    <string name="start_page_title">スタートページ</string>
     <string name="tab_mode_title">タブのタイトルモード</string>
     <string name="hold_tab_to_search_title">タブを長押しして検索</string>
     <string name="hold_tab_to_search_summary">ナビゲーションバーのいずれかのタブを長押しすると、検索画面が開きます。</string>
@@ -590,7 +540,6 @@
     <string name="now_playing_corner_radius_title">画像の角の丸み</string>
     <string name="now_playing_corner_radius_summary">アルバムカバーの角の丸みを調整する。</string>
     <string name="carousel_effect_title">カルーセル効果</string>
-    <string name="album_cover_effect_title">アルバムカバー効果</string>
     <string name="animate_controls_title">アニメーションコントロール</string>
     <string name="animate_controls_summary">プレーヤーパネルを開くときに再生されます。</string>
     <string name="swipe_up_queue_title">上へスワイプしてキューを開く</string>
@@ -655,7 +604,6 @@
     <string name="use_folder_album_cover_title">フォルダ画像を使用</string>
     <string name="use_folder_album_cover_summary">オーディオファイルに埋め込みカバーが含まれていない場合、画像の読み込みにはもう少し時間がかかることがあります。</string>
     <string name="online_artist_images_title">アーティスト画像をダウンロード</string>
-    <string name="preferred_image_size_title">優先画像サイズ</string>
     <string name="online_album_covers_title">不足しているアルバムカバーをダウンロード</string>
     <string name="online_album_covers_summary">ダウンロードした画像はオーディオファイルに埋め込まれていません。ダウンロードした画像はアプリ内でのみ表示されます。これはメタデータのダウンロードポリシーによって異なります。</string>
     <string name="delete_downloaded_lyrics_title">ダウンロードした歌詞を削除</string>
@@ -695,9 +643,6 @@
     <string name="labeled">ラベル付き</string>
     <string name="unlabeled">ラベルなし</string>
     <string name="selected">選択済み</string>
-    <string name="compact">コンパクト</string>
-    <string name="expanded">拡張</string>
-    <string name="simple">シンプル</string>
     <string name="add_after_playing_track">トラックを再生した後に追加</string>
     <string name="add_tracks_sequentially">トラックを順番に追加</string>
     <string name="albums_shuffle">アルバムシャッフル</string>
@@ -713,9 +658,6 @@
     <string name="this_month">今月</string>
     <string name="past_three_months">過去3ヶ月</string>
     <string name="this_year">年</string>
-    <string name="image_size_large">大 (遅い)</string>
-    <string name="image_size_medium">中 (デフォルトで推奨)</string>
-    <string name="image_size_small">小 (高速、低品質)</string>
     <string name="play_on_startup_mode_never">起動時に再生しない</string>
     <string name="play_on_startup_mode_minimized">はい、最小化されたプレイヤーパネルを使用</string>
     <string name="play_on_startup_mode_expanded">はい、拡張プレイヤーパネルを使用</string>
@@ -736,8 +678,6 @@
     <string name="every_fifteen_days">15日ごと</string>
     <string name="monthly">月ごと</string>
     <string name="never">一切なし</string>
-    <string name="receive_experimental_updates_title">実験的な更新を受け取る</string>
-    <string name="receive_experimental_updates_summary">これらのアップデートはしばしば非常に不安定であり、経験豊富なユーザーを対象としています。</string>
     <string name="search_for_update_title">アップデートを検索</string>
     <string name="last_update_search_x">最終確認： %s</string>
     <string name="checking_please_wait">確認中、お待ち下さい…</string>
@@ -776,10 +716,6 @@
     <string name="error_lastfm_rate_limit">リクエストが多すぎます。スクロブルする前に、しばらくお待ちください。</string>
     <string name="error_lastfm_generic">Last.fmで予期せぬエラーが発生しました。もう一度お試しください。</string>
     <string name="error_network_timeout">タイムアウトしました。インターネット接続を確認し、もう一度お試しください。</string>
-    <string name="github">GitHub</string>
-    <string name="telegram_community">Telegramコミュニティ</string>
-    <string name="telegram_community_summary">Telegramコミュニティに参加して、新リリースとニュースをご確認ください。</string>
-    <string name="support_my_work">ご支援ください</string>
     <string name="network_title">ネットワーク</string>
     <string name="network_summary">Last.fmとの連携、歌詞プロバイダー、メタデータのダウンロードなど、インターネット関連機能の管理。</string>
     <string name="images_title">画像</string>

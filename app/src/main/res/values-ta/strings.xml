@@ -3,7 +3,6 @@
     <string name="app_widget_card">அட்டை</string>
     <string name="app_widget_card_desc">குறைந்தபட்ச மற்றும் எளிமைப்படுத்தப்பட்ட பாணி</string>
     <string name="action_play">விளையாடு</string>
-    <string name="action_play_all">அனைத்தையும் விளையாடு</string>
     <string name="action_shuffle_play">கலக்கி விளையாடு</string>
     <string name="action_queue_next">அடுத்து வரிசை</string>
     <string name="shuffle_all_label">அனைத்தையும் கலக்கவும்</string>
@@ -11,10 +10,8 @@
     <string name="repeat_mode">மீண்டும் முறை</string>
     <string name="shuffle_button_tip">சாதாரண சஃபிளுக்கு தட்டவும். மேம்பட்ட விருப்பங்களுக்கு நீண்ட நேரம் அழுத்தவும்.</string>
     <string name="action_play_pause">விளையாடு/இடைநிறுத்தம்</string>
-    <string name="action_pause">இடைநிறுத்தம்</string>
     <string name="action_next">அடுத்தது</string>
     <string name="action_previous">முந்தைய</string>
-    <string name="action_cancel">ரத்துசெய்</string>
     <string name="action_seek_backward">பின்னோக்கி தேடுங்கள்</string>
     <string name="action_seek_forward">முன்னோக்கி தேடுங்கள்</string>
     <string name="action_cycle_repeat">சுழற்சி முறை</string>
@@ -25,8 +22,6 @@
     <string name="create_action">உருவாக்கு</string>
     <string name="search_label">தேடல்</string>
     <string name="search_hint">உங்கள் நூலகத்தில் தேடவும்…</string>
-    <string name="action_voice_search">குரல் தேடல்</string>
-    <string name="speech_not_supported">உங்கள் சாதனம் பேச்சு உள்ளீட்டை ஆதரிக்கவில்லை</string>
     <string name="search_artist_x_label">தேடல் கலைஞர்: %s</string>
     <string name="search_album_x_label">ஆல்பத்தைத் தேடவும்: %s</string>
     <string name="search_list_x_label">தேடல் பட்டியல்: %s</string>
@@ -35,8 +30,6 @@
     <string name="search_in_folder_x">கோப்புறையில் தேடவும்: %s</string>
     <string name="search_last_added">அண்மைக் கால இசையைத் தேடுங்கள்</string>
     <string name="search_playlists">பிளேலிச்ட்களைத் தேடுங்கள்</string>
-    <string name="shuffle_mode_album">ஆல்பம் கலக்கல்</string>
-    <string name="shuffle_mode_artist">கலைஞர் கலக்கல்</string>
     <string name="action_share">பங்கு</string>
     <string name="action_save">சேமி</string>
     <string name="back_action">பின்</string>
@@ -48,15 +41,10 @@
     <string name="continue_action">தொடரவும்</string>
     <string name="select_all_title">அனைத்தையும் தெரிவுசெய்</string>
     <string name="x_selected">%d தேர்ந்தெடுக்கப்பட்டது</string>
-    <string name="preparing_playback_title">தயாராகிறது</string>
-    <string name="restoring_playback_state">பின்னணி நிலை மற்றும் வரிசையை மீட்டெடுக்கிறது…</string>
-    <string name="playback_stopped_title">பிளேபேக் நிறுத்தப்பட்டது</string>
     <string name="playing_notification_description">விளையாடும் அறிவிப்பு விளையாட/இடைநிறுத்தம் போன்றவற்றுக்கான செயல்களை வழங்குகிறது.</string>
     <string name="playing_notification_name">அறிவிப்பை இயக்குகிறது</string>
-    <string name="action_scan_directory">கோப்பகத்தை வருடு செய்யவும்</string>
     <string name="no_device_playlists">பிளேலிச்ட்கள் இல்லை</string>
     <string name="select_songs_title">பாடல்களைத் தேர்ந்தெடுக்கவும்</string>
-    <string name="playlist_x_is_empty">பிளேலிச்ட் %s காலியாக உள்ளது.</string>
     <string name="playlist_name_cannot_be_empty">பிளேலிச்ட்டின் பெயர் காலியாக இருக்கக்கூடாது</string>
     <string name="imported_playlist_x">\"%1$s\" பிளேலிச்ட் இறக்குமதி செய்யப்பட்டது.</string>
     <string name="could_not_import_the_playlist_x">\"%s\" பிளேலிச்ட்டை இறக்குமதி செய்ய முடியவில்லை</string>
@@ -66,8 +54,6 @@
     <string name="select_playlists_title">பிளேலிச்ட்களைத் தேர்ந்தெடுக்கவும்</string>
     <string name="new_playlist_title">புதிய பிளேலிச்ட்</string>
     <string name="new_playlist_action">புதிய</string>
-    <string name="add_playlist_title">பிளேலிச்ட்டில் சேர்க்கவும்</string>
-    <string name="rename_playlist_title">பிளேலிச்ட்டை மறுபெயரிடவும்</string>
     <string name="action_edit_playlist">பிளேலிச்ட்டைத் திருத்து</string>
     <string name="action_delete_playlist">பிளேலிச்ட்டை நீக்கு</string>
     <string name="action_export_playlist">கோப்பிற்கு ஏற்றுமதி செய்யவும்</string>
@@ -88,12 +74,10 @@
     <string name="delete_playlist_x"><![CDATA[<b>%s</b> பிளேலிச்ட்டை நீக்கவா?]]></string>
     <string name="delete_x_playlists"><![CDATA[<b>%d</b> பிளேலிச்ட்களை நீக்கவா?]]></string>
     <string name="created_playlist_x">\'%1$s\' என்ற பிளேலிச்ட் உருவாக்கப்பட்டது.</string>
-    <string name="could_not_create_playlist">பிளேலிச்ட்டை உருவாக்க முடியவில்லை.</string>
     <string name="no_playlists_create_new">பிளேலிச்ட்டை உருவாக்க \"புதிய\" பொத்தானை அழுத்தவும்</string>
     <string name="no_playlists_that_match_x">\"%s\" உடன் பொருந்தக்கூடிய பிளேலிச்ட்கள் எதுவும் இல்லை</string>
     <string name="songs_added_to_playlists">பிளேலிச்ட்களில் பாடல்கள் சேர்க்கப்பட்டன.</string>
     <string name="playlist_exists">பிளேலிச்ட் %s ஏற்கனவே உள்ளது.</string>
-    <string name="playlist_created">பிளேலிச்ட் %s வெற்றிகரமாக உருவாக்கப்பட்டது.</string>
     <string name="remove_song_from_playlist_title">பிளேலிச்ட்டில் இருந்து பாடலை அகற்று</string>
     <string name="remove_songs_from_playlist_title">பிளேலிச்ட்டில் இருந்து பாடல்களை அகற்று</string>
     <string name="remove_song_x_from_playlist"><![CDATA[பிளேலிச்ட்டில் இருந்து <b>%1$s</b> பாடலை அகற்றவா?]]></string>
@@ -123,7 +107,6 @@
     <string name="deleting_songs">பாடல்களை நீக்குகிறது, காத்திருக்கவும்…</string>
     <string name="song_x_of_x">%1$d / %2$d • %3$s</string>
     <string name="no_equalizer">சமநிலைப்படுத்தல் இல்லை.</string>
-    <string name="audio_focus_denied">ஆடியோ கவனம் மறுக்கப்பட்டது.</string>
     <string name="no_audio_ID">மோசமான ஆடியோ அடையாளம்.</string>
     <string name="playback_error_code">பின்னணி பிழை (%s).</string>
     <string name="unplayable_file">இந்தப் பாடலைப் பிளே செய்ய முடியவில்லை.</string>
@@ -143,16 +126,10 @@
     <string name="welcome_to_x">%sக்கு வரவேற்கிறோம்</string>
     <string name="get_started">தொடங்குங்கள்</string>
     <string name="select_storage_title">சேமிப்பிடத்தைத் தேர்ந்தெடுக்கவும்</string>
-    <string name="now_playing">இப்போது விளையாடுகிறது</string>
     <string name="playing_queue_label">வரிசை விளையாடுகிறது</string>
-    <string name="list_start">பட்டியல் துவக்கம்</string>
-    <string name="list_end">பட்டியல் முடிவு</string>
     <string name="clear_queue">தெளிவான வரிசை</string>
-    <string name="action_move_to_current_track">தற்போதைய டிராக்கைக் காட்டு</string>
     <string name="action_add_to_favorites">பிடித்தவைகளில் சேர்க்கவும்</string>
     <string name="action_remove_from_favorites">பிடித்தவையிலிருந்து அகற்று</string>
-    <string name="added_to_favorites_label">பிடித்தவைகளில் சேர்க்கப்பட்டது</string>
-    <string name="removed_from_favorites_label">பிடித்தவையிலிருந்து அகற்றப்பட்டது</string>
     <string name="toggle_favorite">பிடித்தவையிலிருந்து சேர்/நீக்கு</string>
     <string name="action_add_to_playlist">பிளேலிச்ட்டில் சேர்க்கவும்</string>
     <string name="action_remove_from_playlist">பிளேலிச்ட்டில் இருந்து அகற்று</string>
@@ -161,7 +138,6 @@
     <string name="put_after_current_track">தற்போதைய பாதைக்குப் பிறகு வைக்கவும்</string>
     <string name="set_artist_image">கலைஞரின் படத்தை அமைக்கவும்</string>
     <string name="reset_artist_image">கலைஞரின் படத்தை மீட்டமைக்கவும்</string>
-    <string name="there_is_nothing_to_reset">மீட்டமைக்க எதுவும் இல்லை.</string>
     <string name="add_to_label">சேர்</string>
     <string name="go_to_label">செல்</string>
     <string name="action_go_to_album">ஆல்பத்திற்கு செல்க</string>
@@ -182,7 +158,6 @@
     <string name="no_genres_label">வகைகள் இல்லை</string>
     <string name="no_playlists_label">பிளேலிச்ட்கள் இல்லை</string>
     <string name="empty_label">காலி</string>
-    <string name="nothing_to_see">பார்க்க எதுவும் இல்லை</string>
     <string name="show_album_artists">ஆல்பம் கலைஞர்கள் மட்டுமே</string>
     <string name="songs_label">பாடல்கள்</string>
     <string name="albums_label">தொகுப்புகள்</string>
@@ -224,16 +199,13 @@
     <string name="sort_order_file_name">கோப்பு பெயர்</string>
     <string name="sort_order_number_of_songs">பாடல்களின் எண்ணிக்கை</string>
     <string name="sort_order_number_of_albums">ஆல்பங்களின் எண்ணிக்கை</string>
-    <string name="sort_order_last_played_date">கடைசியாக விளையாடிய தேதி</string>
     <string name="sort_order_track_list">தட பட்டியல்</string>
     <string name="sort_order_descending">இறங்கு</string>
-    <string name="sort_order_ignore_articles">கட்டுரைகளைப் புறக்கணிக்கவும்</string>
     <string name="action_details">விவரங்கள்</string>
     <string name="action_set_as_start_directory">தொடக்க கோப்பகமாக அமைக்கவும்</string>
     <string name="start_directory_set">தொடக்க கோப்பகம் %s என அமைக்கப்பட்டுள்ளது</string>
     <string name="action_go_to_start_directory">தொடக்க கோப்பகத்திற்குச் செல்லவும்</string>
     <string name="action_hierarchy_view">படிநிலை பார்வை</string>
-    <string name="new_start_directory">புதிய தொடக்க கோப்பகம்: %s</string>
     <string name="action_scan">வருடு செய்யவும்</string>
     <string name="scan_media">மீடியாவை வருடு செய்யவும்</string>
     <string name="scan_media_message">பெரும்பாலான சந்தர்ப்பங்களில், உங்கள் சாதனத்தில் உள்ள மீடியா கோப்புகளை ஆண்ட்ராய்டு தானாகவே கண்டறிந்து அட்டவணைப்படுத்துகிறது, எனவே கைமுறையாக வருடு செய்வது பொதுவாக தேவையற்றது.</string>
@@ -244,7 +216,6 @@
     <string name="restore_default">இயல்புநிலையை மீட்டமை</string>
     <string name="remove_cover">கவர் அகற்றவும்</string>
     <string name="could_not_download_album_cover">பொருந்தக்கூடிய ஆல்பம் அட்டையைப் பதிவிறக்க முடியவில்லை.</string>
-    <string name="download_image">படத்தைப் பதிவிறக்கவும்</string>
     <string name="pick_from_local_storage">உள்ளக சேமிப்பகத்திலிருந்து தேர்ந்தெடுக்கவும்</string>
     <string name="about_x_title">சுமார் %s</string>
     <string name="yes">ஆம்</string>
@@ -255,7 +226,6 @@
     <string name="label_file_format">வடிவம்</string>
     <string name="file_label">கோப்பு</string>
     <string name="metadata_label">மேனிலை தரவு</string>
-    <string name="song">பாடல்</string>
     <string name="title">தலைப்பு</string>
     <string name="album">ஆல்பம்</string>
     <string name="artist">கலைஞர்</string>
@@ -385,7 +355,6 @@
     <string name="band_configuration_changed_successfully">பேண்ட் உள்ளமைவு வெற்றிகரமாக மாற்றப்பட்டது.</string>
     <string name="band_configuration_could_not_be_changed">பேண்ட் உள்ளமைவை மாற்ற முடியவில்லை.</string>
     <string name="share_eq_profiles">EQ சுயவிவரங்களைப் பகிரவும்</string>
-    <string name="there_is_nothing_to_export">ஏற்றுமதி செய்ய எதுவும் இல்லை.</string>
     <string name="there_is_nothing_to_import">இறக்குமதி செய்ய எதுவும் இல்லை.</string>
     <string name="an_unexpected_error_occurred">எதிர்பாராத பிழை ஏற்பட்டது.</string>
     <string name="share_profiles">சுயவிவரங்களைப் பகிரவும்</string>
@@ -438,7 +407,6 @@
     <string name="eq_release_time">வெளியீடு</string>
     <string name="eq_threshold">வாசல்</string>
     <string name="eq_ratio">விகிதம்</string>
-    <string name="eq_expander_ratio">விரிவாக்க விகிதம்</string>
     <string name="eq_knee_width">முழங்கால் அகலம்</string>
     <string name="eq_noise_gate">இரைச்சல் வாயில்</string>
     <string name="eq_pre_gain">முன் ஆதாயம்</string>
@@ -446,7 +414,6 @@
     <string name="sound_settings">ஒலி அமைப்புகள்</string>
     <string name="advanced_settings">மேம்பட்ட அமைப்புகள்</string>
     <string name="listening_on">கேட்கிறது</string>
-    <string name="casting_to">நடிப்பதற்கு</string>
     <string name="volume_label">தொகுதி</string>
     <string name="reset_balance">சமநிலையை மீட்டமைக்கவும்</string>
     <string name="speed_and_pitch_label">விரைவு மற்றும் சுருதி</string>
@@ -485,8 +452,6 @@
     <string name="download_lyrics">பாடல் வரிகளைப் பதிவிறக்கவும்</string>
     <string name="write_lyrics_here">பாடல் வரிகளை இங்கே எழுதுங்கள்</string>
     <string name="no_lyrics_found">பாடல் வரிகள் எதுவும் கிடைக்கவில்லை</string>
-    <string name="lyrics_were_updated_successfully">பாடல் வரிகள் வெற்றிகரமாக புதுப்பிக்கப்பட்டன.</string>
-    <string name="failed_to_update_lyrics">பாடல் வரிகளைப் புதுப்பிக்க முடியவில்லை.</string>
     <string name="there_are_no_changes_to_save">சேமிக்க எந்த மாற்றமும் இல்லை.</string>
     <string name="font_imported_successfully">எழுத்துரு வெற்றிகரமாக இறக்குமதி செய்யப்பட்டது.</string>
     <string name="could_not_import_font">எழுத்துருவை இறக்குமதி செய்ய முடியவில்லை.</string>
@@ -528,26 +493,10 @@
     <string name="app_shortcut_top_tracks_short">சிறந்த தடங்கள்</string>
     <string name="app_shortcut_last_added_short">கடைசியாக சேர்க்கப்பட்டது</string>
     <string name="app_shortcut_favorites_short">பிடித்தவை</string>
-    <string name="action_about">பற்றி</string>
-    <string name="changelog">மாற்றபதிவு</string>
-    <string name="github">அறிவிலிமையம்</string>
-    <string name="faq">அடிக்கடி கேட்கப்படும் கேள்விகள்</string>
     <string name="licenses">உரிமங்கள்</string>
-    <string name="author">நூலாசிரியர்</string>
-    <string name="mardous_summary">முன்னணி உருவாக்குபவர்</string>
-    <string name="contributors">பங்களிப்பாளர்கள்</string>
     <string name="translators_title">மொழிபெயர்ப்பாளர்கள்</string>
     <string name="translators_summary">பூமிங் இசையை பல மொழிகளில் கிடைக்கச் செய்தவர்களுக்கு நன்றி.</string>
-    <string name="telegram_community">தந்தி சமூகம்</string>
-    <string name="telegram_community_summary">புதிய வெளியீடுகள் மற்றும் செய்திகளை உடனுக்குடன் தெரிந்துகொள்ள எங்கள் டெலிகிராம் சமூகத்தில் சேரவும்.</string>
-    <string name="view_profile_on_github">GitHub இல் சுயவிவரத்தைக் காண்க</string>
-    <string name="write_an_email">மின்னஞ்சல் எழுதவும்</string>
-    <string name="support_my_work">எனது பணியை ஆதரிக்கவும்</string>
     <string name="support_development">வளர்ச்சியை ஆதரிக்கவும்</string>
-    <string name="help_with_translations">மொழிபெயர்ப்புகளுக்கு உதவுங்கள்</string>
-    <string name="help_with_translations_summary">பூமிங் மியூசிக்கை பிற மொழிகளில் மொழிபெயர்க்க உதவுவதன் மூலம் திட்டத்தில் பங்களிக்கலாம்.</string>
-    <string name="report_bugs">பிழைகளைப் புகாரளிக்கவும்</string>
-    <string name="report_bugs_summary">பிழைகளைப் புகாரளிக்கவும் அல்லது புதிய அம்சங்களைக் கோரவும்.</string>
     <string name="share_app">இந்த பயன்பாட்டைப் பகிரவும்</string>
     <string name="share_app_summary">இந்த செயலியை நண்பர்களுடன் பகிர்ந்து கொண்டால் அதை வளர உதவலாம்.</string>
     <string name="send_invitation_message">அழைப்பு செய்தியை அனுப்பவும்</string>
@@ -556,7 +505,6 @@
     <string name="saf_access_required_message">பூமிங் இசைக்கு இந்தக் கோப்புகளை அணுக இசைவு தேவை. உங்கள் இசைக் கோப்புகள் சேமிக்கப்பட்டுள்ள ரூட் கோப்புறையைத் தேர்ந்தெடுக்கவும்.</string>
     <string name="saf_show_files_button">கோப்புகளைக் காட்டு</string>
     <string name="saf_error_uri">SAF யூரி ஐப் பெற முடியவில்லை</string>
-    <string name="saf_write_failed">கோப்பு எழுதுவதில் தோல்வி: %s</string>
     <string name="saf_delete_failed">கோப்பை நீக்குவதில் தோல்வி: %s</string>
     <string name="settings_title">அமைப்புகள்</string>
     <string name="appearance_title">தோற்றம்</string>
@@ -575,7 +523,6 @@
     <string name="advanced_summary">மேம்பட்ட பயனர்களுக்கான பயன்பாட்டு மொழி மற்றும் பிற அமைப்புகள்.</string>
     <string name="about_title">பற்றி</string>
     <string name="about_summary">பூம் மியூசிக் %s, மேலும் தகவலுக்கு தொடவும்.</string>
-    <string name="general_header">பொது</string>
     <string name="library_header">நூலகம்</string>
     <string name="album_cover_header">கவர்</string>
     <string name="exclusion_header">விலக்குகள்</string>
@@ -590,7 +537,6 @@
     <string name="update_title">புதுப்பிப்பு</string>
     <string name="images_title">படங்கள்</string>
     <string name="lastfm_title">Last.fm</string>
-    <string name="metadata_title">மேனிலை தரவு</string>
     <string name="general_theme_title">பொது கருப்பொருள்</string>
     <string name="pure_black_theme_title">α«ñα»éα«» α«òα«░α»üα«¬α»ìα«¬α»ü</string>
     <string name="use_custom_font_title">தனிப்பயன் எழுத்துருவைப் பயன்படுத்தவும்</string>
@@ -598,7 +544,6 @@
     <string name="library_categories_summary">நூலக வகைகளின் தெரிவுநிலை மற்றும் வரிசையை உள்ளமைக்கவும்.</string>
     <string name="remember_last_page_title">கடைசி பக்கத்தை நினைவில் கொள்க</string>
     <string name="remember_last_page_summary">துவக்கத்தில் கடைசியாக திறந்த பக்கத்திற்குச் செல்லவும்.</string>
-    <string name="start_page_title">தொடக்கப் பக்கம்</string>
     <string name="tab_mode_title">தாவல் தலைப்புகள் பயன்முறை</string>
     <string name="hold_tab_to_search_title">தேட தாவலை அழுத்திப் பிடிக்கவும்</string>
     <string name="hold_tab_to_search_summary">தேடல் திரையைத் திறக்க, எந்த வழிசெலுத்தல் பட்டி தாவலையும் நீண்ட நேரம் அழுத்தவும்.</string>
@@ -672,7 +617,6 @@
     <string name="now_playing_corner_radius_title">படத்தின் மூலையின் ஆரம்</string>
     <string name="now_playing_corner_radius_summary">ஆல்பம் கலையின் மூலைகள் எப்படி வட்டமாகத் தோன்ற வேண்டும் என்பதை வரையறுக்கிறது.</string>
     <string name="carousel_effect_title">கொணர்வி விளைவு</string>
-    <string name="album_cover_effect_title">ஆல்பம் கவர் விளைவு</string>
     <string name="animate_controls_title">அனிமேட் கட்டுப்பாடுகள்</string>
     <string name="animate_controls_summary">பிளேயர் பேனலைத் திறக்கும்போது இது இயக்கப்பட்டது.</string>
     <string name="swipe_up_queue_title">வரிசையைத் திறக்க மேல்நோக்கி ச்வைப் செய்யவும்</string>
@@ -760,7 +704,6 @@
     <string name="online_artist_images_title">கலைஞர் படங்களைப் பதிவிறக்கவும்</string>
     <string name="online_album_covers_title">விடுபட்ட ஆல்பம் அட்டைகளைப் பதிவிறக்கவும்</string>
     <string name="online_album_covers_summary">பதிவிறக்கம் செய்யப்பட்ட படங்கள் ஆடியோ கோப்புகளில் உட்பொதிக்கப்படவில்லை; அவை பயன்பாட்டில் மட்டுமே தெரியும்.</string>
-    <string name="preferred_image_size_title">விருப்பமான பட அளவு</string>
     <string name="lastfm_login_title">Last.fm இல் உள்நுழையவும்</string>
     <string name="lastfm_login_summary">ச்க்ரோபிளிங் மற்றும் இப்போது இயங்கும் புதுப்பிப்புகளை இயக்க, உங்கள் Last.fm கணக்கைக் கொண்டு அங்கீகரிக்கவும்.</string>
     <string name="lastfm_scrobbling_title">Last.fm ச்க்ரோபிளிங்கை இயக்கவும்</string>
@@ -797,9 +740,6 @@
     <string name="labeled">பெயரிடப்பட்டது</string>
     <string name="unlabeled">பெயரிடப்படாதது</string>
     <string name="selected">தேர்ந்தெடுக்கப்பட்டது</string>
-    <string name="compact">கச்சிதமான</string>
-    <string name="expanded">விரிவாக்கப்பட்டது</string>
-    <string name="simple">எளிமையானது</string>
     <string name="add_after_playing_track">டிராக்கை விளையாடிய பிறகு சேர்க்கவும்</string>
     <string name="add_tracks_sequentially">தடங்களை வரிசையாகச் சேர்க்கவும்</string>
     <string name="albums_shuffle">ஆல்பங்கள் கலக்கப்படுகின்றன</string>
@@ -815,9 +755,6 @@
     <string name="this_month">இந்த மாதம்</string>
     <string name="past_three_months">கடந்த மூன்று மாதங்கள்</string>
     <string name="this_year">இந்த ஆண்டு</string>
-    <string name="image_size_large">பெரிய (மெதுவான)</string>
-    <string name="image_size_medium">நடுத்தரம் (இயல்புநிலை, பரிந்துரைக்கப்படுகிறது)</string>
-    <string name="image_size_small">சிறியது (வேகமான, குறைந்த தரம்)</string>
     <string name="play_on_startup_mode_never">தொடக்கத்தில் விளையாட வேண்டாம்</string>
     <string name="play_on_startup_mode_minimized">ஆம், குறைக்கப்பட்ட பிளேயர் பேனலுடன்</string>
     <string name="play_on_startup_mode_expanded">ஆம், விரிவாக்கப்பட்ட பிளேயர் பேனலுடன்</string>
@@ -837,8 +774,6 @@
     <string name="every_fifteen_days">ஒவ்வொரு பதினைந்து நாட்களுக்கும்</string>
     <string name="monthly">மாதாந்திர</string>
     <string name="never">ஒருபோதும்</string>
-    <string name="receive_experimental_updates_title">சோதனை புதுப்பிப்புகளைப் பெறுங்கள்</string>
-    <string name="receive_experimental_updates_summary">இந்த புதுப்பிப்புகள் பெரும்பாலும் மிகவும் நிலையற்றவை மற்றும் பட்டறிவு வாய்ந்த பயனர்களுக்காக உருவாக்கப்பட்டவை என்பதை நினைவில் கொள்ளவும்.</string>
     <string name="search_for_update_title">புதுப்பிப்பைத் தேடுங்கள்</string>
     <string name="last_update_search_x">கடைசி சரிபார்ப்பு: %s</string>
     <string name="checking_please_wait">சரிபார்க்கிறது, காத்திருக்கவும்…</string>

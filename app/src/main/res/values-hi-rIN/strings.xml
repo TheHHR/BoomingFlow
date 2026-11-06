@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="action_play">प्ले</string>
-    <string name="action_play_all">सभी गीत चलायें</string>
     <string name="action_shuffle_play">फेरबदल खेल</string>
     <string name="action_queue_next">अगली कतार</string>
     <string name="shuffle_all_label">सभी को फेरबदल करें</string>
@@ -9,10 +8,8 @@
     <string name="repeat_mode">Repeat mode</string>
     <string name="shuffle_button_tip">Tap for normal shuffle. Long press for advanced options.</string>
     <string name="action_play_pause">चलाएं/रोकें</string>
-    <string name="action_pause">रोकें</string>
     <string name="action_next">अगला</string>
     <string name="action_previous">पहले का</string>
-    <string name="action_cancel">रद्द करना</string>
     <string name="action_seek_backward">Seek backward</string>
     <string name="action_seek_forward">Seek forward</string>
     <string name="action_cycle_repeat">चक्र दोहराव मोड</string>
@@ -23,8 +20,6 @@
     <string name="create_action">बनाएं</string>
     <string name="search_label">खोज</string>
     <string name="search_hint">अपनी लाइब्रेरी खोजें</string>
-    <string name="action_voice_search">आवाज खोज</string>
-    <string name="speech_not_supported">आपका डिवाइस स्पीच इनपुट का समर्थन नहीं करता है</string>
     <string name="search_artist_x_label">कलाकार खोजें: %s</string>
     <string name="search_album_x_label">एल्बम खोजें: %s</string>
     <string name="search_list_x_label">खोज सूची: %s</string>
@@ -32,8 +27,6 @@
     <string name="search_year_x_label">खोज वर्ष: %s</string>
     <string name="search_in_folder_x">फ़ोल्डर में खोजें: %s</string>
     <string name="search_last_added">नवीनतम संगीत खोजें</string>
-    <string name="shuffle_mode_album">एल्बम फेरबदल</string>
-    <string name="shuffle_mode_artist">कलाकार फेरबदल</string>
     <string name="action_share">शेयर</string>
     <string name="action_save">बचाना</string>
     <string name="back_action">Back</string>
@@ -45,15 +38,10 @@
     <string name="continue_action">जारी रखना</string>
     <string name="select_all_title">सबका चयन करें</string>
     <string name="x_selected">%d चुने हुए</string>
-    <string name="preparing_playback_title">Preparing</string>
-    <string name="restoring_playback_state">Restoring playback state and queue…</string>
-    <string name="playback_stopped_title">Playback stopped</string>
     <string name="playing_notification_description">प्लेइंग अधिसूचना प्ले/पॉज़ आदि के लिए क्रियाएं प्रदान करती है।</string>
     <string name="playing_notification_name">सूचना चल रही है</string>
-    <string name="action_scan_directory">निर्देशिका स्कैन करें</string>
     <string name="no_device_playlists">कोई प्लेलिस्ट नहीं</string>
     <string name="select_songs_title">गाने चुनें</string>
-    <string name="playlist_x_is_empty">प्लेलेस्ट %s खाली है।</string>
     <string name="playlist_name_cannot_be_empty">प्लेलिस्ट का नाम खाली नहीं छोड़ा जा सकता</string>
     <string name="imported_playlist_x">प्लेलिस्ट \"%1$s\" आयातित की गई.</string>
     <string name="could_not_import_the_playlist_x">प्लेलिस्ट \"%s\" आयात नहीं की जा सकी</string>
@@ -61,8 +49,6 @@
     <string name="playlist_x_not_imported">प्लेलिस्ट %s आयातित नहीं हुई.</string>
     <string name="action_import_playlist">प्लेलिस्ट आयात करें</string>
     <string name="new_playlist_title">नई प्लेलिस्ट</string>
-    <string name="add_playlist_title">प्लेलिस्ट में जोड़ें</string>
-    <string name="rename_playlist_title">प्लेलिस्ट का नाम बदलें</string>
     <string name="action_edit_playlist">Edit playlist</string>
     <string name="action_delete_playlist">प्लेलिस्ट हटाएं</string>
     <string name="action_export_playlist">फ़ाइल में निर्यात करें</string>
@@ -83,9 +69,7 @@
     <string name="delete_playlist_x"><![CDATA[प्लेलिस्ट हटाएँ <b>%s</b>\?]]></string>
     <string name="delete_x_playlists"><![CDATA[<b>%d</b> प्लेलिस्ट हटाना चाहते हैं?]]></string>
     <string name="created_playlist_x">प्लेलिस्ट \'%1$s\' बनाई गई.</string>
-    <string name="could_not_create_playlist">प्लेलिस्ट नहीं बनाई जा सकी.</string>
     <string name="playlist_exists">प्लेलिस्ट %s पहले से मौजूद है.</string>
-    <string name="playlist_created">Playlist %s created successfully.</string>
     <string name="remove_song_from_playlist_title">प्लेलिस्ट से गाना हटाएँ</string>
     <string name="remove_songs_from_playlist_title">प्लेलिस्ट से गाना हटाएँ</string>
     <string name="remove_song_x_from_playlist"><![CDATA[प्लेलिस्ट से <b>%1$s</b> गाना हटाना चाहते हैं?]]></string>
@@ -115,7 +99,6 @@
     <string name="deleting_songs">गाने हटा रहे हैं, रुको…</string>
     <string name="song_x_of_x">%1$d में से %2$d • %3$s</string>
     <string name="no_equalizer">कोई समानांतर नहीं मिला।</string>
-    <string name="audio_focus_denied">ऑडियो फोकस अस्वीकृत।</string>
     <string name="no_audio_ID">खराब ऑडियो आईडी।</string>
     <string name="playback_error_code">Playback error (%s).</string>
     <string name="unplayable_file">इस गाने को नहीं चला सका।</string>
@@ -135,16 +118,10 @@
     <string name="welcome_to_x">आपका स्वागत है %s</string>
     <string name="get_started">शुरू करें</string>
     <string name="select_storage_title">स्टोरेज चुनें</string>
-    <string name="now_playing">अब बज रहा है</string>
     <string name="playing_queue_label">कतार बजाना</string>
-    <string name="list_start">List start</string>
-    <string name="list_end">List end</string>
     <string name="clear_queue">कतार साफ़ करें</string>
-    <string name="action_move_to_current_track">वर्तमान ट्रैक दिखाएँ</string>
     <string name="action_add_to_favorites">पसंदीदा में जोड़े</string>
     <string name="action_remove_from_favorites">पसंद की सूची से हटाएँ</string>
-    <string name="added_to_favorites_label">पसंद की गई वस्तुओं में जोड़ा गया</string>
-    <string name="removed_from_favorites_label">पसंद की सूचि से हटाया गया</string>
     <string name="toggle_favorite">पसंदीदा में जोड़ें/हटाएं</string>
     <string name="action_add_to_playlist">प्लेलिस्ट में जोड़ें</string>
     <string name="action_remove_from_playlist">प्लेलिस्ट से हटाएँ</string>
@@ -153,7 +130,6 @@
     <string name="put_after_current_track">वर्तमान ट्रैक के बाद डालें</string>
     <string name="set_artist_image">कलाकार की तस्वीर सेट करो</string>
     <string name="reset_artist_image">कलाकार की तस्वीर रीसेट करें</string>
-    <string name="there_is_nothing_to_reset">रीसेट करने के लिए कुछ नहीं है।</string>
     <string name="add_to_label">जोड़ें</string>
     <string name="go_to_label">जाएँ</string>
     <string name="action_go_to_album">एल्बम पर जाए</string>
@@ -173,7 +149,6 @@
     <string name="no_artists_label">कोई कलाकार नहीं है</string>
     <string name="no_genres_label">कोई शैलियाँ नहीं</string>
     <string name="empty_label">खाली</string>
-    <string name="nothing_to_see">देखने के लिए कुछ नहीं है।</string>
     <string name="show_album_artists">केवल एल्बम कलाकार</string>
     <string name="songs_label">गाने</string>
     <string name="albums_label">एल्बम</string>
@@ -215,16 +190,13 @@
     <string name="sort_order_file_name">File name</string>
     <string name="sort_order_number_of_songs">गानों की संख्या</string>
     <string name="sort_order_number_of_albums">एल्बम की संख्या</string>
-    <string name="sort_order_last_played_date">अंतिम खेलने की तारीख</string>
     <string name="sort_order_track_list">ट्रैक सूची</string>
     <string name="sort_order_descending">उपलव्धी</string>
-    <string name="sort_order_ignore_articles">अनुच्छेदों को अनदेखा करें</string>
     <string name="action_details">जानकारी</string>
     <string name="action_set_as_start_directory">स्टार्ट डायरेक्टरी के रूप में सेट करें</string>
     <string name="start_directory_set">Start directory set to %s</string>
     <string name="action_go_to_start_directory">प्रारंभ निर्देशिका में जाएं</string>
     <string name="action_hierarchy_view">हाइरार्की व्यू</string>
-    <string name="new_start_directory">नया प्रारंभ डाइरेक्टरी: %s</string>
     <string name="action_scan">स्कैन करें</string>
     <string name="scan_media">मीडिया स्कैन करें</string>
     <string name="scan_media_message">ज़्यादातर मामलों में, एंड्रॉइड स्वचालित रूप से आपके डिवाइस पर मीडिया फ़ाइलों का पता लगाता है और उन्हें अनुक्रमित करता है, इसलिए मैन्युअल स्कैन करना आमतौर पर आवश्यक नहीं है।</string>
@@ -235,7 +207,6 @@
     <string name="restore_default">डिफ़ॉल्ट को पुनर्स्थापित करें</string>
     <string name="remove_cover">कवर हटाएँ</string>
     <string name="could_not_download_album_cover">संबंधित एल्बम कवर डाउनलोड नहीं कर सका।</string>
-    <string name="download_image">चित्र डाउनलोड करें</string>
     <string name="pick_from_local_storage">लोकल स्टोरेज से चुनें</string>
     <string name="about_x_title">%s के बारे में</string>
     <string name="yes">हाँ</string>
@@ -246,7 +217,6 @@
     <string name="label_file_format">फॉर्मेट</string>
     <string name="file_label">File</string>
     <string name="metadata_label">Metadata</string>
-    <string name="song">गाना</string>
     <string name="title">शीर्षक</string>
     <string name="album">एल्बम</string>
     <string name="artist">कलाकार</string>
@@ -365,7 +335,6 @@
     <string name="band_configuration_changed_successfully">The band configuration was successfully changed.</string>
     <string name="band_configuration_could_not_be_changed">The band configuration could not be changed.</string>
     <string name="share_eq_profiles">Share EQ Profiles</string>
-    <string name="there_is_nothing_to_export">नहीं है कुछ भी एक्सपोर्ट करने के लिए.</string>
     <string name="there_is_nothing_to_import">कुछ भी आयात करने के लिए नहीं है।</string>
     <string name="an_unexpected_error_occurred">An unexpected error occurred.</string>
     <string name="share_profiles">Share profiles</string>
@@ -413,7 +382,6 @@
     <string name="loudness_enhancer">एम्प्लीफायर</string>
     <string name="sound_settings">साउंड सेटिंग्स</string>
     <string name="listening_on">Listening on</string>
-    <string name="casting_to">Casting to</string>
     <string name="volume_label">वॉल्यूम</string>
     <string name="reset_balance">Reset balance</string>
     <string name="speed_and_pitch_label">Speed and pitch</string>
@@ -443,8 +411,6 @@
     <string name="download_lyrics">गाने के बोल डाउनलोड करें</string>
     <string name="write_lyrics_here">यहाँ गीत के बोल लिखें</string>
     <string name="no_lyrics_found">कोई गीत का बोल नहीं मिला</string>
-    <string name="lyrics_were_updated_successfully">गाने के बोल सफलतापूर्वक अपडेट कर दिए गए।</string>
-    <string name="failed_to_update_lyrics">गीत का अपडेट करना असफल रहा।</string>
     <string name="there_are_no_changes_to_save">There are no changes to save.</string>
     <string name="font_imported_successfully">Font imported successfully.</string>
     <string name="could_not_import_font">Could not import font.</string>
@@ -469,22 +435,10 @@
     <string name="app_shortcut_last_added_short">लास्ट एडेड</string>
     <string name="app_shortcut_favorites_short">Favorites</string>
     <!-- About page -->
-    <string name="action_about">के बारे में</string>
-    <string name="changelog">चेंजलाग</string>
-    <string name="faq">FAQ</string>
     <string name="licenses">लायसेंसेज़</string>
-    <string name="author">लेखक</string>
-    <string name="mardous_summary">Lead Developer</string>
-    <string name="contributors">Contributors</string>
     <string name="translators_title">अनुवादक</string>
     <string name="translators_summary">उन लोगों का धन्यवाद जिन्होंने बूमिंग म्यूजिक को कई भाषाओं में उपलब्ध कराया।</string>
-    <string name="view_profile_on_github">GitHub पर प्रोफ़ाइल देखें</string>
-    <string name="write_an_email">एक ईमेल लिखें</string>
     <string name="support_development">विकास का समर्थन करें</string>
-    <string name="help_with_translations">अनुवाद में मदद करें</string>
-    <string name="help_with_translations_summary">आप अन्य भाषाओं में बूमिंग म्यूजिक का अनुवाद करने में मदद करके परियोजना में योगदान कर सकते हैं।</string>
-    <string name="report_bugs">बग की रिपोर्ट करें</string>
-    <string name="report_bugs_summary">बग रिपोर्ट करें या नए फीचर्स का अनुरोध करें।</string>
     <string name="share_app">इस ऐप को शेयर करो</string>
     <string name="share_app_summary">आप इस ऐप को अपने दोस्तों के साथ शेयर करके इसे बढ़ने में मदद कर सकते हैं।</string>
     <string name="send_invitation_message">निमंत्रण संदेश भेजें</string>
@@ -495,7 +449,6 @@
     <string name="saf_access_required_message">बूमिंग म्यूजिक को इन फ़ाइलों तक पहुँचने के लिए अनुमति की आवश्यकता है। कृपया उस रूट फ़ोल्डर का चयन करें जहाँ आपके संगीत फ़ाइलें संग्रहीत हैं।</string>
     <string name="saf_show_files_button">फाइलें दिखाएँ</string>
     <string name="saf_error_uri">SAF URI प्राप्त नहीं कर सकते</string>
-    <string name="saf_write_failed">फाइल लेखन विफल: %s</string>
     <string name="saf_delete_failed">फाइल हटाने में विफल: %s</string>
     <string name="settings_title">सेटिंग्स</string>
     <string name="appearance_title">दिखावट</string>
@@ -506,7 +459,6 @@
     <string name="lyrics_preferences_summary">Adjust font, spacing, and other options to personalize your lyrics view.</string>
     <string name="playback_title">प्लेबैक</string>
     <string name="playback_summary">ध्वनि सेटिंग्स, ब्लूटूथ हेडसेट्स आदि को बदलें।</string>
-    <string name="metadata_title">मेटाडेटा</string>
     <string name="library_title">लायब्रेरी</string>
     <string name="library_summary">प्लेलिस्ट और निष्कासन/समावेशन फ़िल्टर के लिए सेटिंग्स।</string>
     <string name="advanced_title">आधुनिक</string>
@@ -515,7 +467,6 @@
     <string name="about_title">बारे में</string>
     <string name="about_summary">बूमिंग म्यूजिक %s, और जानकारी के लिए टैप करें.</string>
     <!-- Preference headers -->
-    <string name="general_header">जनरल</string>
     <string name="library_header">लायब्रेरी</string>
     <string name="album_cover_header">कवर</string>
     <string name="exclusion_header">बहिष्करण</string>
@@ -535,7 +486,6 @@
     <string name="library_categories_summary">लाइब्रेरी श्रेणियों की दृश्यता और क्रम को कॉन्फ़िगर करें।</string>
     <string name="remember_last_page_title">पिछली पेज याद रखना</string>
     <string name="remember_last_page_summary">लॉन्च पर अंतिम खोली गई पेज पर जाएं।</string>
-    <string name="start_page_title">शुरुआत पेज</string>
     <string name="tab_mode_title">टैब शीर्षक मोड</string>
     <string name="hold_tab_to_search_title">खोजने के लिए टैब दबाएं</string>
     <string name="hold_tab_to_search_summary">किसी भी नेविगेशन बार टैब को लंबे समय तक दबाने से खोज स्क्रीन खुल जाएगी।</string>
@@ -598,7 +548,6 @@
     <string name="now_playing_corner_radius_title">इमेज का कोना रेडियस</string>
     <string name="now_playing_corner_radius_summary">यह बताता है कि कैसे एल्बम की कला के कोनों को गोल होना चाहिए.</string>
     <string name="carousel_effect_title">कैरोसेल प्रभाव</string>
-    <string name="album_cover_effect_title">एल्बम कवर इफेक्ट</string>
     <string name="animate_controls_title">एनिमेट कंट्रोल्स</string>
     <string name="animate_controls_summary">यह प्लेयर पैनल खोलना पर बजाय जाता है।</string>
     <string name="swipe_up_queue_title">Swipe upwards to open queue</string>
@@ -663,7 +612,6 @@
     <string name="use_folder_album_cover_title">फोल्डर चित्रों का उपयोग करें</string>
     <string name="use_folder_album_cover_summary">यदि ऑडियो फ़ाइल में कोई एम्बेडेड कवर नहीं है। चित्रों को लोड होने में थोड़ा अधिक समय लग सकता है।</string>
     <string name="online_artist_images_title">कलाकारों की तस्वीरें डाउनलोड करें</string>
-    <string name="preferred_image_size_title">Preferred image size</string>
     <string name="online_album_covers_title">Download missing album covers</string>
     <string name="online_album_covers_summary">Downloaded images aren’t embedded into audio files; they’re only visible within the app. This depends on your metadata download policy.</string>
     <string name="delete_downloaded_lyrics_title">डाउनलोड की गई गाने के बोल हटाएं</string>
@@ -703,9 +651,6 @@
     <string name="labeled">लेबल्ड</string>
     <string name="unlabeled">अलेखित</string>
     <string name="selected">चुना हुआ</string>
-    <string name="compact">कॉम्पैक्ट</string>
-    <string name="expanded">बड़ा हुआ</string>
-    <string name="simple">सरल</string>
     <string name="add_after_playing_track">ट्रैक खेलने के बाद जोड़ें</string>
     <string name="add_tracks_sequentially">पटरियों को क्रमशः जोड़ें</string>
     <string name="albums_shuffle">एल्बम शफल</string>
@@ -721,9 +666,6 @@
     <string name="this_month">इस महीने</string>
     <string name="past_three_months">पिछले तीन महीने</string>
     <string name="this_year">इस साल</string>
-    <string name="image_size_large">बड़ा (धीमा)</string>
-    <string name="image_size_medium">माध्यम (डिफ़ॉल्ट, अनुशंसित)</string>
-    <string name="image_size_small">छोटा (तेज़, कम गुणवत्ता)</string>
     <string name="play_on_startup_mode_never">स्टार्टअप पर कभी न खेलें</string>
     <string name="play_on_startup_mode_minimized">हां, खिलाड़ी पैनल को कम करते हुए</string>
     <string name="play_on_startup_mode_expanded">हां, विस्तारित खिलाड़ी पैनल के साथ</string>
@@ -744,8 +686,6 @@
     <string name="every_fifteen_days">हर पंद्रह दिन में</string>
     <string name="monthly">मासिक</string>
     <string name="never">कभी नहीं</string>
-    <string name="receive_experimental_updates_title">प्रायोगिक अपडेट प्राप्त करें</string>
-    <string name="receive_experimental_updates_summary">कृपया ध्यान दें कि ये अपडेट अक्सर बहुत अस्थिर होते हैं और अनुभवी उपयोगकर्ताओं के लिए बनाए गए हैं।</string>
     <string name="search_for_update_title">अपडेट के लिए सर्च खोजें</string>
     <string name="last_update_search_x">अंतिम जाँच: %s</string>
     <string name="checking_please_wait">जांच कर रहे हैं, कृपया प्रतीक्षा करें…</string>

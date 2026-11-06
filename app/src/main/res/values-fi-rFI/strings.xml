@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="action_play">Toista</string>
-    <string name="action_play_all">Toista kaikki</string>
     <string name="action_shuffle_play">Sekoita toisto</string>
     <string name="action_queue_next">Jono seuraava</string>
     <string name="shuffle_all_label">Sekoita kaikki</string>
@@ -9,10 +8,8 @@
     <string name="repeat_mode">Toista tila</string>
     <string name="shuffle_button_tip">Napauta normaali sekoitus. Paina pitkään saadaksesi lisäasetuksia.</string>
     <string name="action_play_pause">Toista/Tauko</string>
-    <string name="action_pause">Tauko</string>
     <string name="action_next">Seuraava</string>
     <string name="action_previous">Edellinen</string>
-    <string name="action_cancel">Peruuta</string>
     <string name="action_seek_backward">Siirry taaksepäin</string>
     <string name="action_seek_forward">Siirry eteenpäin</string>
     <string name="action_cycle_repeat">Syklin toistotila</string>
@@ -23,8 +20,6 @@
     <string name="create_action">Luo</string>
     <string name="search_label">Etsi</string>
     <string name="search_hint">Hae kirjastosta…</string>
-    <string name="action_voice_search">Äänen haku</string>
-    <string name="speech_not_supported">Laitteesi ei tue puhesyötettä</string>
     <string name="search_artist_x_label">Etsi esittäjä: %s</string>
     <string name="search_album_x_label">Etsi albumia: %s</string>
     <string name="search_list_x_label">Hakulista: %s</string>
@@ -32,8 +27,6 @@
     <string name="search_year_x_label">Hakuvuosi: %s</string>
     <string name="search_in_folder_x">Etsi kansiosta: %s</string>
     <string name="search_last_added">Etsi uusinta musiikkia</string>
-    <string name="shuffle_mode_album">Albumin sekoitus</string>
-    <string name="shuffle_mode_artist">Esittäjän sekoitus</string>
     <string name="action_share">Jaa</string>
     <string name="action_save">Tallenna</string>
     <string name="back_action">Takaisin</string>
@@ -45,15 +38,10 @@
     <string name="continue_action">Jatka</string>
     <string name="select_all_title">Valitse kaikki</string>
     <string name="x_selected">%d valittu</string>
-    <string name="preparing_playback_title">Valmistellaan</string>
-    <string name="restoring_playback_state">Palautetaan soiton tila ja jono…</string>
-    <string name="playback_stopped_title">Toisto pysäytetty</string>
     <string name="playing_notification_description">Soitto-ilmoituksessa on toimintoja soitto/tauko jne.</string>
     <string name="playing_notification_name">Toistetaan ilmoitusta</string>
-    <string name="action_scan_directory">Skannaa kansio</string>
     <string name="no_device_playlists">Ei soittolistoja</string>
     <string name="select_songs_title">Valitse kappaleet</string>
-    <string name="playlist_x_is_empty">Soittolista %s on tyhjä.</string>
     <string name="playlist_name_cannot_be_empty">Soittolistan nimi ei voi olla tyhjä</string>
     <string name="imported_playlist_x">Tuotu soittolista \"%1$s\".</string>
     <string name="could_not_import_the_playlist_x">Soittolistan tuonti epäonnistui \"%s\"</string>
@@ -61,8 +49,6 @@
     <string name="playlist_x_not_imported">Soittolistaa %s ei tuotu.</string>
     <string name="action_import_playlist">Tuo soittolista…</string>
     <string name="new_playlist_title">Uusi soittolista</string>
-    <string name="add_playlist_title">Lisää soittolistaan</string>
-    <string name="rename_playlist_title">Nimeä soittolista uudelleen</string>
     <string name="action_edit_playlist">Muokkaa soittolistaa</string>
     <string name="action_delete_playlist">Poista soittolista</string>
     <string name="action_export_playlist">Vie tiedostoon</string>
@@ -83,9 +69,7 @@
     <string name="delete_playlist_x"><![CDATA[Poista soittolista <b>%s</b>\?]]></string>
     <string name="delete_x_playlists"><![CDATA[Delete <b>%d</b> playlists?]]></string>
     <string name="created_playlist_x">Luotu soittolista \'%1$s\'.</string>
-    <string name="could_not_create_playlist">Soittolistaa ei voitu luoda.</string>
     <string name="playlist_exists">Soittolista %s on jo olemassa.</string>
-    <string name="playlist_created">Soittolista %s luotiin onnistuneesti.</string>
     <string name="remove_song_from_playlist_title">Poista kappale soittolistalta</string>
     <string name="remove_songs_from_playlist_title">Poista kappaleet soittolistalta</string>
     <string name="remove_song_x_from_playlist"><![CDATA[Poistetaanko kappale <b>%1$s</b> soittolistalta?]]></string>
@@ -115,7 +99,6 @@
     <string name="deleting_songs">Poistetaan kappaleita, odota…</string>
     <string name="song_x_of_x">%1$d %2$d • %3$s</string>
     <string name="no_equalizer">Taajuuskorjainta ei löytynyt.</string>
-    <string name="audio_focus_denied">Äänen tarkennus estetty.</string>
     <string name="no_audio_ID">Virheellinen ääni-ID.</string>
     <string name="playback_error_code">Toistovirhe (%s).</string>
     <string name="unplayable_file">Kappaletta ei voitu toistaa.</string>
@@ -133,16 +116,10 @@
     <string name="granted">Myönnetty</string>
     <string name="get_started">Aloita Alusta</string>
     <string name="select_storage_title">Valitse tallennustila</string>
-    <string name="now_playing">Nyt soi</string>
     <string name="playing_queue_label">Soitetaan jonoa</string>
-    <string name="list_start">Listan alku</string>
-    <string name="list_end">Listan loppu</string>
     <string name="clear_queue">Tyhjennä jono</string>
-    <string name="action_move_to_current_track">Näytä nykyinen kappale</string>
     <string name="action_add_to_favorites">Lisää suosikkeihin</string>
     <string name="action_remove_from_favorites">Poista suosikeista</string>
-    <string name="added_to_favorites_label">Lisätty suosikkeihin</string>
-    <string name="removed_from_favorites_label">Poistettu suosikeista</string>
     <string name="toggle_favorite">Lisää/poista suosikeista</string>
     <string name="action_add_to_playlist">Lisää soittolistaan</string>
     <string name="action_remove_from_playlist">Poista soittolistalta</string>
@@ -151,7 +128,6 @@
     <string name="put_after_current_track">Laita nykyisen kappaleen jälkeen</string>
     <string name="set_artist_image">Aseta esittäjän kuva</string>
     <string name="reset_artist_image">Palauta esittäjän kuva</string>
-    <string name="there_is_nothing_to_reset">Ei ole mitään palautettavaa.</string>
     <string name="add_to_label">Lisää kohteeseen</string>
     <string name="go_to_label">Siirry kohteeseen</string>
     <string name="action_go_to_album">Siirry albumiin</string>
@@ -171,7 +147,6 @@
     <string name="no_artists_label">Ei artisteja</string>
     <string name="no_genres_label">Ei tyylilajeja</string>
     <string name="empty_label">Tyhjä</string>
-    <string name="nothing_to_see">Ei mitään nähtävää</string>
     <string name="show_album_artists">Vain levyn esittäjät</string>
     <string name="songs_label">Kappaleet</string>
     <string name="albums_label">Albumit</string>
@@ -213,16 +188,13 @@
     <string name="sort_order_file_name">Tiedoston nimi</string>
     <string name="sort_order_number_of_songs">Kappaleiden määrä</string>
     <string name="sort_order_number_of_albums">Albumien määrä</string>
-    <string name="sort_order_last_played_date">Viimeksi soitettu päivämäärä</string>
     <string name="sort_order_track_list">Kappaleiden luettelo</string>
     <string name="sort_order_descending">Laskeva</string>
-    <string name="sort_order_ignore_articles">Ohita artikkelit</string>
     <string name="action_details">Yksityiskohdat</string>
     <string name="action_set_as_start_directory">Aseta aloituskansioksi</string>
     <string name="start_directory_set">Start directory set to %s</string>
     <string name="action_go_to_start_directory">Siirry aloituskansioon</string>
     <string name="action_hierarchy_view">Hierarkian näkymä</string>
-    <string name="new_start_directory">Uusi aloituskansio: %s</string>
     <string name="action_scan">Skannaa</string>
     <string name="scan_media">Skannaa media</string>
     <string name="scan_media_message">Useimmissa tapauksissa Android tunnistaa automaattisesti ja indeksoi laitteellesi mediatiedostoja, joten manuaalinen skannaaminen on yleensä tarpeetonta.</string>
@@ -233,7 +205,6 @@
     <string name="restore_default">Palauta oletukset</string>
     <string name="remove_cover">Poista kansi</string>
     <string name="could_not_download_album_cover">Couldn’t lataa vastaava kansi.</string>
-    <string name="download_image">Lataa kuva</string>
     <string name="pick_from_local_storage">Valitse paikallisesta tallennustilasta</string>
     <string name="about_x_title">Tietoja %s</string>
     <string name="yes">Kyllä</string>
@@ -244,7 +215,6 @@
     <string name="label_file_format">Muoto</string>
     <string name="file_label">Tiedosto</string>
     <string name="metadata_label">Metatiedot</string>
-    <string name="song">Kappale</string>
     <string name="title">Otsikko</string>
     <string name="album">Albumi</string>
     <string name="artist">Esittäjä</string>
@@ -363,7 +333,6 @@
     <string name="band_configuration_changed_successfully">Taajuusasetuksen tallennus onnistui.</string>
     <string name="band_configuration_could_not_be_changed">Taajuusasetusta ei voitu muuttaa.</string>
     <string name="share_eq_profiles">jaa EQ-profiileja</string>
-    <string name="there_is_nothing_to_export">Ei ole mitään vietävää.</string>
     <string name="there_is_nothing_to_import">Ei ole mitään tuotavaa.</string>
     <string name="an_unexpected_error_occurred">Odottamaton virhe tapahtui.</string>
     <string name="share_profiles">Jaa profiileja</string>
@@ -411,7 +380,6 @@
     <string name="loudness_enhancer">Vahvistin</string>
     <string name="sound_settings">Äänen asetukset</string>
     <string name="listening_on">Listening on</string>
-    <string name="casting_to">Casting to</string>
     <string name="volume_label">Tilavuus</string>
     <string name="reset_balance">Reset balance</string>
     <string name="speed_and_pitch_label">Speed and pitch</string>
@@ -441,8 +409,6 @@
     <string name="download_lyrics">Lataa sanoitukset</string>
     <string name="write_lyrics_here">Kirjoita sanoitukset tähän</string>
     <string name="no_lyrics_found">Sanoituksia ei löytynyt</string>
-    <string name="lyrics_were_updated_successfully">Sanoitukset päivitettiin onnistuneesti.</string>
-    <string name="failed_to_update_lyrics">Sanojen päivitys epäonnistui.</string>
     <string name="there_are_no_changes_to_save">Tallennettavia muutoksia ei ole.</string>
     <string name="font_imported_successfully">Fontti tuotu onnistuneesti.</string>
     <string name="could_not_import_font">Fonttia ei voitu tuoda.</string>
@@ -467,22 +433,10 @@
     <string name="app_shortcut_last_added_short">Viimeksi Lisätty</string>
     <string name="app_shortcut_favorites_short">Suosikit</string>
     <!-- About page -->
-    <string name="action_about">Tietoja</string>
-    <string name="changelog">Muutosloki</string>
-    <string name="faq">FAQ</string>
     <string name="licenses">Lisenssit</string>
-    <string name="author">Tekijä</string>
-    <string name="mardous_summary">Lead Developer</string>
-    <string name="contributors">Avustajat</string>
     <string name="translators_title">Kääntäjät</string>
     <string name="translators_summary">Kiitos niille, jotka tekevät Booming musiikkia saatavilla monilla kielillä.</string>
-    <string name="view_profile_on_github">Näytä profiili GitHubissa</string>
-    <string name="write_an_email">Kirjoita sähköposti</string>
     <string name="support_development">Tue kehitystä</string>
-    <string name="help_with_translations">Auta käännösten kanssa</string>
-    <string name="help_with_translations_summary">Voit osallistua projektiin auttamalla kääntämään Booming Music muille kielille.</string>
-    <string name="report_bugs">Ilmoita virheistä</string>
-    <string name="report_bugs_summary">Ilmoita virheistä tai pyydä uusia ominaisuuksia.</string>
     <string name="share_app">Jaa tämä sovellus</string>
     <string name="share_app_summary">Voit auttaa tätä sovellusta kasvamaan, jos jaat sen ystäviesi kanssa.</string>
     <string name="send_invitation_message">Lähetä kutsu viesti</string>
@@ -493,7 +447,6 @@
     <string name="saf_access_required_message">Booming Music vaatii luvan käyttää näitä tiedostoja. Valitse pääkansio johon musiikkitiedostot on tallennettu.</string>
     <string name="saf_show_files_button">Näytä tiedostot</string>
     <string name="saf_error_uri">SAF URI ei saa</string>
-    <string name="saf_write_failed">Tiedoston kirjoittaminen epäonnistui: %s</string>
     <string name="saf_delete_failed">Tiedoston poisto epäonnistui: %s</string>
     <string name="settings_title">Asetukset</string>
     <string name="appearance_title">Ulkoasu</string>
@@ -504,7 +457,6 @@
     <string name="lyrics_preferences_summary">Säädä fontti-, väli- ja muita asetuksia sanoitusten näkymän personoimiseksi.</string>
     <string name="playback_title">Toisto</string>
     <string name="playback_summary">Muuta ääniasetuksia, Bluetooth-kuulokkeita jne.</string>
-    <string name="metadata_title">Metatiedot</string>
     <string name="library_title">Kirjasto</string>
     <string name="library_summary">Soittolistojen ja poissulkemis- ja sisällyttämissuodattimien asetukset.</string>
     <string name="advanced_title">Lisäasetukset</string>
@@ -513,7 +465,6 @@
     <string name="about_title">Tietoja</string>
     <string name="about_summary">Kukoistava musiikki %s, kosketa lisätietoja.</string>
     <!-- Preference headers -->
-    <string name="general_header">Yleiset</string>
     <string name="library_header">Kirjasto</string>
     <string name="album_cover_header">Kansi</string>
     <string name="exclusion_header">Poissulkemiset</string>
@@ -533,7 +484,6 @@
     <string name="library_categories_summary">Määritä kirjaston kategorioiden näkyvyys ja järjestys.</string>
     <string name="remember_last_page_title">Muista viimeinen sivu</string>
     <string name="remember_last_page_summary">Siirry viimeksi avatulle sivulle käynnistettäessä.</string>
-    <string name="start_page_title">Aloitussivu</string>
     <string name="tab_mode_title">Välilehden otsikot tila</string>
     <string name="hold_tab_to_search_title">Pidä välilehti pohjassa etsiäksesi</string>
     <string name="hold_tab_to_search_summary">Paina mitä tahansa navigointipalkkia pitkään avataksesi hakunäytön.</string>
@@ -596,7 +546,6 @@
     <string name="now_playing_corner_radius_title">Kuvan kulman säde</string>
     <string name="now_playing_corner_radius_summary">Määrittelee kuinka levyn kulmien tulisi olla pyöristettyjä.</string>
     <string name="carousel_effect_title">Karusellin vaikutus</string>
-    <string name="album_cover_effect_title">Albumin kansiefekti</string>
     <string name="animate_controls_title">Animoi kontrollit</string>
     <string name="animate_controls_summary">Se on pelattu, kun avataan pelaajapaneeli.</string>
     <string name="swipe_up_queue_title">Pyyhkäise ylöspäin avataksesi jonon</string>
@@ -661,7 +610,6 @@
     <string name="use_folder_album_cover_title">Käytä kansion kuvia</string>
     <string name="use_folder_album_cover_summary">Jos äänitiedosto ei sisällä upotettua kantta. Kuvat saattavat kestää hieman enemmän aikaa ladata.</string>
     <string name="online_artist_images_title">Lataa artistin kuvat</string>
-    <string name="preferred_image_size_title">Ensisijainen kuvan koko</string>
     <string name="online_album_covers_title">Lataa puuttuvat albumin kannet</string>
     <string name="online_album_covers_summary">Ladattuja kuvia ei ole upotettu äänitiedostoihin, ne näkyvät vain sovelluksessa. Tämä riippuu metadatan latauskäytännöstäsi.</string>
     <string name="delete_downloaded_lyrics_title">Poista ladatut sanoitukset</string>
@@ -701,9 +649,6 @@
     <string name="labeled">Merkitty</string>
     <string name="unlabeled">Nimeämätön</string>
     <string name="selected">Valittu</string>
-    <string name="compact">Kompakti</string>
-    <string name="expanded">Laajennettu</string>
-    <string name="simple">Yksinkertainen</string>
     <string name="add_after_playing_track">Lisää soivan kappaleen jälkeen</string>
     <string name="add_tracks_sequentially">Lisää kappaleita peräkkäin</string>
     <string name="albums_shuffle">Albumit sekoitus</string>
@@ -719,9 +664,6 @@
     <string name="this_month">Tässä kuussa</string>
     <string name="past_three_months">Viimeiset kolme kuukautta</string>
     <string name="this_year">Tänä vuonna</string>
-    <string name="image_size_large">Suuri (hitaampi)</string>
-    <string name="image_size_medium">Keskikokoinen (oletus, suositeltava)</string>
-    <string name="image_size_small">Pieni (nopeampi, heikkolaatuinen)</string>
     <string name="play_on_startup_mode_never">Älä koskaan toista käynnistettäessä</string>
     <string name="play_on_startup_mode_minimized">Kyllä, pienennetyn pelaajapaneelin avulla</string>
     <string name="play_on_startup_mode_expanded">Kyllä, laajennettu soittopaneeli</string>
@@ -742,8 +684,6 @@
     <string name="every_fifteen_days">Joka viides päivä</string>
     <string name="monthly">Kuukausittain</string>
     <string name="never">Ei Koskaan</string>
-    <string name="receive_experimental_updates_title">Vastaanota kokeellisia päivityksiä</string>
-    <string name="receive_experimental_updates_summary">Huomaa, että nämä päivitykset ovat usein hyvin epävakaita ja ne on tarkoitettu kokeneille käyttäjille.</string>
     <string name="search_for_update_title">Etsi päivityksiä</string>
     <string name="last_update_search_x">Viimeisin tarkistus: %s</string>
     <string name="checking_please_wait">Checking, please wait…</string>
@@ -812,8 +752,6 @@
         <item quantity="other">%d soittolistaa valittu</item>
     </plurals>
     <string name="eq_pro_mode">Eksperttitila</string>
-    <string name="telegram_community">Telegram yhteisö</string>
-    <string name="support_my_work">Tue työtäni</string>
     <string name="network_title">Verkko</string>
     <string name="images_title">Kuvat</string>
     <string name="lastfm_title">Last.fm</string>
@@ -881,14 +819,9 @@
     <string name="lyrics_show_transliteration_summary">Näytö translitteroidut sanoitukset, jos saaavilla.</string>
     <string name="app_version_x">Versio %s</string>
     <string name="app_description">Moderni suunnittelu. Puhdas ääni. Täysin sinun.</string>
-    <string name="more_contributors_title">Lisää osallistujia</string>
-    <string name="more_contributors_summary">Voit nähdä täyden listan osallistujista GitHub:ssa.</string>
     <string name="play_all_songs_when_searching_title">Soita kaikki kappaleet, kun etsitään</string>
     <string name="play_all_songs_when_searching_summary">Kun päällä, valitessa haetun kappaleen, se jonotta koko kirjaston. Kohde asetukselle Kun valitaan kappaletta.</string>
-    <string name="website">Verkkosivu</string>
     <string name="legal">Lakisääteiset</string>
-    <string name="terms_of_service">Käyttöehdot</string>
-    <string name="privacy_policy">Tietosuojakäytäntö</string>
     <string name="widget_settings_title">Widgettien asetukset</string>
     <string name="widget_show_progress_title">Näytä edistymistä</string>
     <string name="widget_show_progress_summary">Näyttää nykyisen biisin edistymistä.</string>

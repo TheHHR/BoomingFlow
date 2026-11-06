@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="action_play">播放</string>
-    <string name="action_play_all">播放全部</string>
     <string name="action_shuffle_play">隨機播放</string>
     <string name="action_queue_next">新增到下一曲</string>
     <string name="shuffle_all_label">全部隨機</string>
@@ -9,10 +8,8 @@
     <string name="repeat_mode">重複模式</string>
     <string name="shuffle_button_tip">輕觸開始普通隨機播放，按住查看進階選項。</string>
     <string name="action_play_pause">播放/暫停</string>
-    <string name="action_pause">暫停</string>
     <string name="action_next">下一首</string>
     <string name="action_previous">上一首</string>
-    <string name="action_cancel">取消</string>
     <string name="action_seek_backward">快退</string>
     <string name="action_seek_forward">快轉</string>
     <string name="action_cycle_repeat">切換重複模式</string>
@@ -23,8 +20,6 @@
     <string name="create_action">建立</string>
     <string name="search_label">搜尋</string>
     <string name="search_hint">搜尋音樂庫…</string>
-    <string name="action_voice_search">語音搜尋</string>
-    <string name="speech_not_supported">裝置不支援語音輸入</string>
     <string name="search_artist_x_label">搜尋藝人：%s</string>
     <string name="search_album_x_label">搜尋專輯：%s</string>
     <string name="search_list_x_label">在清單中搜尋：%s</string>
@@ -32,8 +27,6 @@
     <string name="search_year_x_label">搜尋年份：%s</string>
     <string name="search_in_folder_x">在資料夾中搜尋：%s</string>
     <string name="search_last_added">搜尋最新音樂</string>
-    <string name="shuffle_mode_album">按專輯隨機</string>
-    <string name="shuffle_mode_artist">按藝人隨機</string>
     <string name="action_share">分享</string>
     <string name="action_save">儲存</string>
     <string name="back_action">返回</string>
@@ -45,15 +38,10 @@
     <string name="continue_action">繼續</string>
     <string name="select_all_title">全選</string>
     <string name="x_selected">已選擇 %d</string>
-    <string name="preparing_playback_title">正在準備</string>
-    <string name="restoring_playback_state">正在還原播放狀態與佇列…</string>
-    <string name="playback_stopped_title">已停止播放</string>
     <string name="playing_notification_description">播放通知提供播放/暫停等操作。</string>
     <string name="playing_notification_name">播放通知</string>
-    <string name="action_scan_directory">掃描資料夾</string>
     <string name="no_device_playlists">無播放清單</string>
     <string name="select_songs_title">選擇歌曲</string>
-    <string name="playlist_x_is_empty">播放清單「%s」為空。</string>
     <string name="playlist_name_cannot_be_empty">播放清單名稱不能為空</string>
     <string name="imported_playlist_x">已匯入播放清單「%1$s」。</string>
     <string name="could_not_import_the_playlist_x">無法匯入播放清單「%s」</string>
@@ -61,8 +49,6 @@
     <string name="playlist_x_not_imported">未成功匯入播放清單「%s」。</string>
     <string name="action_import_playlist">匯入播放清單…</string>
     <string name="new_playlist_title">新播放清單</string>
-    <string name="add_playlist_title">新增到播放清單</string>
-    <string name="rename_playlist_title">重新命名播放清單</string>
     <string name="action_edit_playlist">編輯播放清單</string>
     <string name="action_delete_playlist">刪除播放清單</string>
     <string name="action_export_playlist">將播放清單匯出至檔案</string>
@@ -83,9 +69,7 @@
     <string name="delete_playlist_x"><![CDATA[刪除播放清單<b>「%s」</b>？]]></string>
     <string name="delete_x_playlists"><![CDATA[刪除 <b>%d</b> 個播放清單？]]></string>
     <string name="created_playlist_x">已建立播放清單「 %1$s」。</string>
-    <string name="could_not_create_playlist">無法建立播放清單。</string>
     <string name="playlist_exists">播放清單「%s」已經存在。</string>
-    <string name="playlist_created">已成功建立播放清單「%s」。</string>
     <string name="remove_song_from_playlist_title">從播放清單中移除歌曲</string>
     <string name="remove_songs_from_playlist_title">從播放清單中移除多首歌曲</string>
     <string name="remove_song_x_from_playlist"><![CDATA[將<b>「%1$s」</b>從播放清單中移除？]]></string>
@@ -115,7 +99,6 @@
     <string name="deleting_songs">正在刪除歌曲，請稍候…</string>
     <string name="song_x_of_x">%1$d / %2$d • %3$s</string>
     <string name="no_equalizer">找不到等化器。</string>
-    <string name="audio_focus_denied">音訊焦點被拒絕。</string>
     <string name="no_audio_ID">錯誤的音訊 ID。</string>
     <string name="playback_error_code">播放錯誤（%s）。</string>
     <string name="unplayable_file">無法播放這首歌曲。</string>
@@ -135,16 +118,10 @@
     <string name="welcome_to_x">歡迎使用 %s</string>
     <string name="get_started">開始使用</string>
     <string name="select_storage_title">選擇儲存空間</string>
-    <string name="now_playing">正在播放</string>
     <string name="playing_queue_label">播放佇列</string>
-    <string name="list_start">清單開頭</string>
-    <string name="list_end">清單末尾</string>
     <string name="clear_queue">清除佇列</string>
-    <string name="action_move_to_current_track">顯示目前曲目</string>
     <string name="action_add_to_favorites">新增到我的最愛</string>
     <string name="action_remove_from_favorites">從我的最愛中移除</string>
-    <string name="added_to_favorites_label">已新增到我的最愛</string>
-    <string name="removed_from_favorites_label">已從我的最愛中移除</string>
     <string name="toggle_favorite">加入/移出我的最愛</string>
     <string name="action_add_to_playlist">新增到播放清單</string>
     <string name="action_remove_from_playlist">從播放清單移除</string>
@@ -153,7 +130,6 @@
     <string name="put_after_current_track">置於目前曲目之後</string>
     <string name="set_artist_image">設定藝人圖片</string>
     <string name="reset_artist_image">重設藝人圖片</string>
-    <string name="there_is_nothing_to_reset">沒有要重設的內容。</string>
     <string name="add_to_label">新增到</string>
     <string name="go_to_label">前往</string>
     <string name="action_go_to_album">前往專輯</string>
@@ -173,7 +149,6 @@
     <string name="no_artists_label">無藝人</string>
     <string name="no_genres_label">無曲風</string>
     <string name="empty_label">空</string>
-    <string name="nothing_to_see">暫無內容</string>
     <string name="show_album_artists">僅專輯藝人</string>
     <string name="songs_label">歌曲</string>
     <string name="albums_label">專輯</string>
@@ -215,16 +190,13 @@
     <string name="sort_order_file_name">檔案名稱</string>
     <string name="sort_order_number_of_songs">歌曲數</string>
     <string name="sort_order_number_of_albums">專輯數</string>
-    <string name="sort_order_last_played_date">最後播放日期</string>
     <string name="sort_order_track_list">曲目清單</string>
     <string name="sort_order_descending">遞減</string>
-    <string name="sort_order_ignore_articles">排序時忽略開頭的冠詞 (如 The/A/An 等)</string>
     <string name="action_details">詳細資訊</string>
     <string name="action_set_as_start_directory">設定為起始目錄</string>
     <string name="start_directory_set">起始目錄已設定為 %s</string>
     <string name="action_go_to_start_directory">前往起始目錄</string>
     <string name="action_hierarchy_view">階層檢視</string>
-    <string name="new_start_directory">新的起始目錄：%s</string>
     <string name="action_scan">掃描</string>
     <string name="scan_media">掃描媒體</string>
     <string name="scan_media_message">Android 系統通常會自動偵測並索引裝置上的媒體檔案，所以一般情況下不需要手動掃描媒體。</string>
@@ -235,7 +207,6 @@
     <string name="restore_default">還原原始封面</string>
     <string name="remove_cover">移除封面</string>
     <string name="could_not_download_album_cover">無法下載符合的專輯封面。</string>
-    <string name="download_image">下載圖片</string>
     <string name="pick_from_local_storage">從本機儲存空間選擇</string>
     <string name="about_x_title">關於 %s</string>
     <string name="yes">是</string>
@@ -246,7 +217,6 @@
     <string name="label_file_format">格式</string>
     <string name="file_label">檔案</string>
     <string name="metadata_label">中繼資料</string>
-    <string name="song">歌曲</string>
     <string name="title">標題</string>
     <string name="album">專輯</string>
     <string name="artist">藝人</string>
@@ -356,7 +326,6 @@
     <string name="band_configuration_changed_successfully">已成功變更頻段設定。</string>
     <string name="band_configuration_could_not_be_changed">無法變更頻段設定。</string>
     <string name="share_eq_profiles">分享等化器設定檔</string>
-    <string name="there_is_nothing_to_export">沒有可以匯出的設定檔。</string>
     <string name="there_is_nothing_to_import">沒有可以匯入的設定檔。</string>
     <string name="an_unexpected_error_occurred">發生意外錯誤。</string>
     <string name="share_profiles">分享設定檔</string>
@@ -404,7 +373,6 @@
     <string name="loudness_enhancer">放大器</string>
     <string name="sound_settings">聲音設定</string>
     <string name="listening_on">播放裝置</string>
-    <string name="casting_to">投放到</string>
     <string name="volume_label">音量</string>
     <string name="reset_balance">重設平衡</string>
     <string name="speed_and_pitch_label">速度與音高</string>
@@ -434,8 +402,6 @@
     <string name="download_lyrics">下載歌詞</string>
     <string name="write_lyrics_here">在此輸入歌詞</string>
     <string name="no_lyrics_found">沒有找到歌詞</string>
-    <string name="lyrics_were_updated_successfully">已成功更新歌詞。</string>
-    <string name="failed_to_update_lyrics">更新歌詞失敗。</string>
     <string name="there_are_no_changes_to_save">沒有要儲存的變更。</string>
     <string name="font_imported_successfully">已成功匯入字型。</string>
     <string name="could_not_import_font">無法匯入字型。</string>
@@ -460,22 +426,10 @@
     <string name="app_shortcut_last_added_short">最近新增</string>
     <string name="app_shortcut_favorites_short">我的最愛</string>
     <!-- About page -->
-    <string name="action_about">關於</string>
-    <string name="changelog">更新日誌</string>
-    <string name="faq">常見問題</string>
     <string name="licenses">開放原始碼授權</string>
-    <string name="author">作者</string>
-    <string name="mardous_summary">主要開發者</string>
-    <string name="contributors">貢獻者</string>
     <string name="translators_title">譯者</string>
     <string name="translators_summary">感謝協助讓 Booming Music 支援多種語言的所有人。</string>
-    <string name="view_profile_on_github">在 GitHub 上查看個人檔案</string>
-    <string name="write_an_email">撰寫電子郵件</string>
     <string name="support_development">支持開發</string>
-    <string name="help_with_translations">協助翻譯</string>
-    <string name="help_with_translations_summary">協助將 Booming Music 翻譯成其他語言，為專案做出貢獻。</string>
-    <string name="report_bugs">回報問題</string>
-    <string name="report_bugs_summary">回報問題或提出新功能建議。</string>
     <string name="share_app">分享此應用程式</string>
     <string name="share_app_summary">分享給朋友，讓更多人使用 Booming Music。</string>
     <string name="send_invitation_message">傳送邀請訊息</string>
@@ -486,7 +440,6 @@
     <string name="saf_access_required_message">Booming Music 需要存取這些檔案的權限。請選擇儲存音樂檔案的根資料夾。</string>
     <string name="saf_show_files_button">顯示檔案</string>
     <string name="saf_error_uri">無法取得 SAF URI</string>
-    <string name="saf_write_failed">檔案寫入失敗：%s</string>
     <string name="saf_delete_failed">檔案刪除失敗：%s</string>
     <string name="settings_title">設定</string>
     <string name="appearance_title">外觀</string>
@@ -497,7 +450,6 @@
     <string name="lyrics_preferences_summary">調整字型、間距和其他選項，以自訂歌詞檢視。</string>
     <string name="playback_title">播放</string>
     <string name="playback_summary">變更聲音設定、藍牙耳機等項目。</string>
-    <string name="metadata_title">中繼資料</string>
     <string name="library_title">音樂庫</string>
     <string name="library_summary">播放清單以及排除、納入規則的設定。</string>
     <string name="advanced_title">進階</string>
@@ -506,7 +458,6 @@
     <string name="about_title">關於</string>
     <string name="about_summary">Booming Music %s，輕觸以取得更多資訊。</string>
     <!-- Preference headers -->
-    <string name="general_header">一般</string>
     <string name="library_header">音樂庫</string>
     <string name="album_cover_header">封面</string>
     <string name="exclusion_header">排除媒體</string>
@@ -526,7 +477,6 @@
     <string name="library_categories_summary">設定音樂庫分類的顯示與順序。</string>
     <string name="remember_last_page_title">記住上次開啟的頁面</string>
     <string name="remember_last_page_summary">啟動時前往最後開啟的畫面。</string>
-    <string name="start_page_title">啟動頁面</string>
     <string name="tab_mode_title">底部導覽列分頁標題</string>
     <string name="hold_tab_to_search_title">按住分頁以搜尋</string>
     <string name="hold_tab_to_search_summary">按住任何導覽列分頁以開啟搜尋畫面。</string>
@@ -589,7 +539,6 @@
     <string name="now_playing_corner_radius_title">圖片圓角半徑</string>
     <string name="now_playing_corner_radius_summary">定義專輯封面的圓角。</string>
     <string name="carousel_effect_title">輪播效果</string>
-    <string name="album_cover_effect_title">專輯封面效果</string>
     <string name="animate_controls_title">控制項動畫</string>
     <string name="animate_controls_summary">開啟播放器面板時顯示控制項動畫。</string>
     <string name="swipe_up_queue_title">向上滑動以開啟播放佇列</string>
@@ -654,7 +603,6 @@
     <string name="use_folder_album_cover_title">使用資料夾圖片</string>
     <string name="use_folder_album_cover_summary">當音訊檔案不包含內嵌封面時使用。圖片載入可能需要一些時間。</string>
     <string name="online_artist_images_title">下載藝人圖片</string>
-    <string name="preferred_image_size_title">圖片大小偏好</string>
     <string name="online_album_covers_title">下載缺少的專輯封面</string>
     <string name="online_album_covers_summary">下載的圖片不會嵌入到音訊檔案中；只會在應用程式內顯示。</string>
     <string name="delete_downloaded_lyrics_title">刪除下載的歌詞</string>
@@ -694,9 +642,6 @@
     <string name="labeled">顯示所有</string>
     <string name="unlabeled">隱藏</string>
     <string name="selected">僅顯示選取項</string>
-    <string name="compact">緊湊</string>
-    <string name="expanded">可展開</string>
-    <string name="simple">簡單</string>
     <string name="add_after_playing_track">目前播放曲目之後</string>
     <string name="add_tracks_sequentially">目前播放曲目加所有以此法插入的曲目之後</string>
     <string name="albums_shuffle">專輯隨機播放</string>
@@ -712,9 +657,6 @@
     <string name="this_month">本月</string>
     <string name="past_three_months">過去三個月</string>
     <string name="this_year">今年</string>
-    <string name="image_size_large">大（較慢）</string>
-    <string name="image_size_medium">中等（預設，推薦）</string>
-    <string name="image_size_small">小（快速，低品質）</string>
     <string name="play_on_startup_mode_never">啟動時不播放</string>
     <string name="play_on_startup_mode_minimized">播放並最小化播放面板</string>
     <string name="play_on_startup_mode_expanded">是，同時展開播放器面板</string>
@@ -735,8 +677,6 @@
     <string name="every_fifteen_days">每十五天</string>
     <string name="monthly">每月</string>
     <string name="never">永不</string>
-    <string name="receive_experimental_updates_title">接收實驗性更新</string>
-    <string name="receive_experimental_updates_summary">請注意，這些更新通常不穩定，僅建議有經驗的使用者使用。</string>
     <string name="search_for_update_title">檢查更新</string>
     <string name="last_update_search_x">上次檢查：%s</string>
     <string name="checking_please_wait">正在檢查，請稍候…</string>
@@ -760,7 +700,6 @@
     <string name="new_playlist_action">新增</string>
     <string name="lastfm_login_username">使用者名稱</string>
     <string name="lastfm_login_password">密碼</string>
-    <string name="github">GitHub</string>
     <string name="network_title">網路</string>
     <string name="images_title">圖片</string>
     <string name="lastfm_title">Last.fm</string>
@@ -774,7 +713,6 @@
     <string name="ttml_file_lyrics">TTML</string>
     <string name="lrc_file_lyrics">LRC</string>
     <string name="arranger">編曲</string>
-    <string name="telegram_community">Telegram 社群</string>
     <string name="channel_stereo_2_1">2.1 立體聲</string>
     <string name="channel_surround_5_0">5.0 環繞聲</string>
     <string name="channel_surround_5_1">5.1 環繞聲</string>
@@ -804,7 +742,6 @@
     <string name="eq_release_time">釋放時間</string>
     <string name="eq_threshold">臨界值</string>
     <string name="eq_ratio">壓縮比</string>
-    <string name="eq_expander_ratio">擴展比</string>
     <string name="eq_knee_width">拐點寬度</string>
     <string name="eq_noise_gate">雜訊門</string>
     <string name="eq_pre_gain">前置增益</string>
@@ -832,15 +769,6 @@
     <string name="error_listenbrainz_invalid_token">ListenBrainz Token 無效。</string>
     <string name="app_version_x">版本 %s</string>
     <string name="app_description">現代設計 · 純粹聲音 · 由你掌握</string>
-    <string name="more_contributors_title">更多貢獻者</string>
-    <string name="more_contributors_summary">在 GitHub 上查看完整的貢獻者名單。</string>
-    <string name="telegram_community_summary">加入我們的 Telegram 社群，接收版本更新與最新消息。</string>
-    <string name="support_my_work">支持我的開發工作</string>
-    <string name="contributor_dawid_description">多項關鍵功能的核心貢獻者與設計者。</string>
-    <string name="contributor_ray_description">參與開發多項令人期待的關鍵功能。</string>
-    <string name="contributor_ttop_description">本專案最早的貢獻者與測試人員。</string>
-    <string name="contributor_lenard_description">應用程式網站開發者與貢獻者。</string>
-    <string name="contributor_alex_description">本專案長期友人，協助提供重要 API 存取權。</string>
     <string name="network_summary">管理 Last.fm 整合、歌詞來源與中繼資料下載等網路功能。</string>
     <string name="widget_dynamic_colors_summary">讓小工具色彩配合目前曲目的封面。</string>
     <string name="lyrics_center_horizontally_title">歌詞水平置中</string>
@@ -892,10 +820,7 @@
     <string name="musicbrainz_no_results">在 MusicBrainz 上找不到結果。</string>
     <string name="musicbrainz_select_recording">選擇結果</string>
     <string name="sort_order_name">名稱</string>
-    <string name="website">網站</string>
     <string name="legal">法律資訊</string>
-    <string name="terms_of_service">服務條款</string>
-    <string name="privacy_policy">隱私權政策</string>
     <string name="app_widget_circle">圓形</string>
     <string name="app_widget_circle_desc">環繞控制項的圓形播放器</string>
     <string name="app_widget_cookie">餅乾形</string>

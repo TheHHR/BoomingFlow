@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="action_play">Afspil</string>
-    <string name="action_play_all">Afspil alle</string>
     <string name="action_shuffle_play">Bland afspilning</string>
     <string name="action_queue_next">Kø næste</string>
     <string name="shuffle_all_label">Bland alle</string>
@@ -9,10 +8,8 @@
     <string name="repeat_mode">Gentag tilstand</string>
     <string name="shuffle_button_tip">Tryk for normal blanding. Langt tryk for avancerede indstillinger.</string>
     <string name="action_play_pause">Afspil/Pause</string>
-    <string name="action_pause">Pause</string>
     <string name="action_next">Næste</string>
     <string name="action_previous">Forrige</string>
-    <string name="action_cancel">Annuller</string>
     <string name="action_seek_backward">Søg baglæns</string>
     <string name="action_seek_forward">Søg frem</string>
     <string name="action_cycle_repeat">Gentag cyklus tilstand</string>
@@ -23,8 +20,6 @@
     <string name="create_action">Opret</string>
     <string name="search_label">Søg</string>
     <string name="search_hint">Søg i dit bibliotek…</string>
-    <string name="action_voice_search">Stemme søgning</string>
-    <string name="speech_not_supported">Din enhed understøtter ikke taleinput</string>
     <string name="search_artist_x_label">Søgekunstner: %s</string>
     <string name="search_album_x_label">Søg album: %s</string>
     <string name="search_list_x_label">Søgeliste: %s</string>
@@ -32,8 +27,6 @@
     <string name="search_year_x_label">Søgeår: %s</string>
     <string name="search_in_folder_x">Søg i mappe: %s</string>
     <string name="search_last_added">Søg i seneste musik</string>
-    <string name="shuffle_mode_album">Albumblanding</string>
-    <string name="shuffle_mode_artist">Kunstner shuffle</string>
     <string name="action_share">Del</string>
     <string name="action_save">Gem</string>
     <string name="back_action">Tilbage</string>
@@ -45,15 +38,10 @@
     <string name="continue_action">Fortsæt</string>
     <string name="select_all_title">Vælg alle</string>
     <string name="x_selected">%d valgt</string>
-    <string name="preparing_playback_title">Forbereder</string>
-    <string name="restoring_playback_state">Gendanner afspilning tilstand og kø…</string>
-    <string name="playback_stopped_title">Afspilning stoppet</string>
     <string name="playing_notification_description">Afspilningsnotifikationen sørger for handlinger til spil/pause osv.</string>
     <string name="playing_notification_name">Afspiller notifikation</string>
-    <string name="action_scan_directory">Scan mappe</string>
     <string name="no_device_playlists">Ingen afspilningslister</string>
     <string name="select_songs_title">Vælg sange</string>
-    <string name="playlist_x_is_empty">Spilleliste %s er tom.</string>
     <string name="playlist_name_cannot_be_empty">Spillelistens navn må ikke være tomt</string>
     <string name="imported_playlist_x">Importeret afspilningsliste \"%1$s\".</string>
     <string name="could_not_import_the_playlist_x">Kunne ikke importere spillelisten \"%s\"</string>
@@ -61,8 +49,6 @@
     <string name="playlist_x_not_imported">Spilleliste %s ikke importeret.</string>
     <string name="action_import_playlist">Importér afspilningsliste…</string>
     <string name="new_playlist_title">Ny afspilningsliste</string>
-    <string name="add_playlist_title">Føj til afspilningsliste</string>
-    <string name="rename_playlist_title">Omdøb afspilningsliste</string>
     <string name="action_edit_playlist">Rediger afspilningsliste</string>
     <string name="action_delete_playlist">Slet afspilningsliste</string>
     <string name="action_export_playlist">Eksporter til fil</string>
@@ -83,9 +69,7 @@
     <string name="delete_playlist_x"><![CDATA[Slet afspilningsliste <b>%s</b>\?]]></string>
     <string name="delete_x_playlists"><![CDATA[Slet <b>%d</b> afspilningslister?]]></string>
     <string name="created_playlist_x">Oprettet afspilningsliste \'%1$s\'.</string>
-    <string name="could_not_create_playlist">Kunne ikke oprette afspilningsliste.</string>
     <string name="playlist_exists">Spilleliste %s findes allerede.</string>
-    <string name="playlist_created">Afspilningsliste %s blev oprettet.</string>
     <string name="remove_song_from_playlist_title">Fjern sang fra afspilningsliste</string>
     <string name="remove_songs_from_playlist_title">Fjern sange fra afspilningsliste</string>
     <string name="remove_song_x_from_playlist"><![CDATA[Fjern sangen <b>%1$s</b> fra spillelisten?]]></string>
@@ -115,7 +99,6 @@
     <string name="deleting_songs">Sletter sange, vent…</string>
     <string name="song_x_of_x">%1$d af %2$d • %3$s</string>
     <string name="no_equalizer">Ingen equalizer fundet.</string>
-    <string name="audio_focus_denied">Lydfokus nægtet.</string>
     <string name="no_audio_ID">Dårligt lyd- ID.</string>
     <string name="playback_error_code">Afspilningsfejl (%s).</string>
     <string name="unplayable_file">Denne sang kunne ikke afspilles.</string>
@@ -135,16 +118,10 @@
     <string name="welcome_to_x">Velkommen til %s</string>
     <string name="get_started">Kom I Gang</string>
     <string name="select_storage_title">Vælg lagerplads</string>
-    <string name="now_playing">Afspiller nu</string>
     <string name="playing_queue_label">Afspiller kø</string>
-    <string name="list_start">Liste start</string>
-    <string name="list_end">Liste slut</string>
     <string name="clear_queue">Ryd kø</string>
-    <string name="action_move_to_current_track">Vis aktuelle spor</string>
     <string name="action_add_to_favorites">Føj til favoritter</string>
     <string name="action_remove_from_favorites">Fjern fra favoritter</string>
-    <string name="added_to_favorites_label">Føjet til favoritter</string>
-    <string name="removed_from_favorites_label">Fjernet fra favoritter</string>
     <string name="toggle_favorite">Tilføj/Fjern fra favoritter</string>
     <string name="action_add_to_playlist">Føj til afspilningsliste</string>
     <string name="action_remove_from_playlist">Fjern fra afspilningsliste</string>
@@ -153,7 +130,6 @@
     <string name="put_after_current_track">Placér efter nuværende spor</string>
     <string name="set_artist_image">Sæt kunstner billede</string>
     <string name="reset_artist_image">Nulstil Kunstnerbillede</string>
-    <string name="there_is_nothing_to_reset">Der er intet at nulstille.</string>
     <string name="add_to_label">Føj til</string>
     <string name="go_to_label">Gå til</string>
     <string name="action_go_to_album">Gå til album</string>
@@ -173,7 +149,6 @@
     <string name="no_artists_label">Ingen kunstnere</string>
     <string name="no_genres_label">Ingen genrer</string>
     <string name="empty_label">Tom</string>
-    <string name="nothing_to_see">Intet at se</string>
     <string name="show_album_artists">Kun albumkunstnere</string>
     <string name="songs_label">Sange</string>
     <string name="albums_label">Albummer</string>
@@ -215,16 +190,13 @@
     <string name="sort_order_file_name">Fil navn</string>
     <string name="sort_order_number_of_songs">Antal sange</string>
     <string name="sort_order_number_of_albums">Antal albummer</string>
-    <string name="sort_order_last_played_date">Senest afspillet dato</string>
     <string name="sort_order_track_list">Sporliste</string>
     <string name="sort_order_descending">Faldende</string>
-    <string name="sort_order_ignore_articles">Ignorer artikler</string>
     <string name="action_details">Detaljer</string>
     <string name="action_set_as_start_directory">Angiv som startmappe</string>
     <string name="start_directory_set">Start directory set to %s</string>
     <string name="action_go_to_start_directory">Gå til startmappe</string>
     <string name="action_hierarchy_view">Hierarki visning</string>
-    <string name="new_start_directory">Ny startmappe: %s</string>
     <string name="action_scan">Skan</string>
     <string name="scan_media">Scan medier</string>
     <string name="scan_media_message">I de fleste tilfælde registrerer og indekserer Android automatisk mediefiler på din enhed, så manuelt scanning er normalt unødvendigt.</string>
@@ -235,7 +207,6 @@
     <string name="restore_default">Gendan standard</string>
     <string name="remove_cover">Fjern cover</string>
     <string name="could_not_download_album_cover">Couldn’t hente en matchende albumomslag.</string>
-    <string name="download_image">Download billede</string>
     <string name="pick_from_local_storage">Vælg fra lokalt lager</string>
     <string name="about_x_title">Om %s</string>
     <string name="yes">Ja</string>
@@ -246,7 +217,6 @@
     <string name="label_file_format">Formatér</string>
     <string name="file_label">Fil</string>
     <string name="metadata_label">Metadata</string>
-    <string name="song">Sang</string>
     <string name="title">Titel</string>
     <string name="album">Album</string>
     <string name="artist">Kunstner</string>
@@ -365,7 +335,6 @@
     <string name="band_configuration_changed_successfully">The band configuration was successfully changed.</string>
     <string name="band_configuration_could_not_be_changed">The band configuration could not be changed.</string>
     <string name="share_eq_profiles">Share EQ Profiles</string>
-    <string name="there_is_nothing_to_export">Der er intet at eksportere.</string>
     <string name="there_is_nothing_to_import">Der er intet at importere.</string>
     <string name="an_unexpected_error_occurred">An unexpected error occurred.</string>
     <string name="share_profiles">Share profiles</string>
@@ -413,7 +382,6 @@
     <string name="loudness_enhancer">Forstærker</string>
     <string name="sound_settings">Indstillinger for lyd</string>
     <string name="listening_on">Listening on</string>
-    <string name="casting_to">Casting to</string>
     <string name="volume_label">Lydstyrke</string>
     <string name="reset_balance">Reset balance</string>
     <string name="speed_and_pitch_label">Speed and pitch</string>
@@ -443,8 +411,6 @@
     <string name="download_lyrics">Download sangtekster</string>
     <string name="write_lyrics_here">Skriv sangtekster her</string>
     <string name="no_lyrics_found">Ingen sangtekster fundet</string>
-    <string name="lyrics_were_updated_successfully">Sangtekster blev opdateret.</string>
-    <string name="failed_to_update_lyrics">Kunne ikke opdatere sangtekster.</string>
     <string name="there_are_no_changes_to_save">Der er ingen ændringer at gemme.</string>
     <string name="font_imported_successfully">Skrifttype importeret.</string>
     <string name="could_not_import_font">Kunne ikke importere skrifttype.</string>
@@ -469,22 +435,10 @@
     <string name="app_shortcut_last_added_short">Sidst Tilføjet</string>
     <string name="app_shortcut_favorites_short">Favoritter</string>
     <!-- About page -->
-    <string name="action_about">Om</string>
-    <string name="changelog">Ændringslog</string>
-    <string name="faq">FAQ</string>
     <string name="licenses">Licenser</string>
-    <string name="author">Forfatter</string>
-    <string name="mardous_summary">Lead Developer</string>
-    <string name="contributors">Bidragydere</string>
     <string name="translators_title">Oversættere</string>
     <string name="translators_summary">Tak til dem, der gør Booming Musik tilgængelig på mange sprog.</string>
-    <string name="view_profile_on_github">Se profil på GitHub</string>
-    <string name="write_an_email">Skriv en e-mail</string>
     <string name="support_development">Støt udvikling</string>
-    <string name="help_with_translations">Hjælp med oversættelser</string>
-    <string name="help_with_translations_summary">Du kan bidrage til projektet ved at hjælpe med at oversætte Booming Music til andre sprog.</string>
-    <string name="report_bugs">Rapporter fejl</string>
-    <string name="report_bugs_summary">Rapporter fejl eller anmod om nye funktioner.</string>
     <string name="share_app">Del denne app</string>
     <string name="share_app_summary">Du kan hjælpe denne app med at vokse, hvis du deler den med venner.</string>
     <string name="send_invitation_message">Send invitationsbesked</string>
@@ -495,7 +449,6 @@
     <string name="saf_access_required_message">Booming Music kræver tilladelse til at få adgang til disse filer. Vælg rodmappen, hvor dine musikfiler er gemt.</string>
     <string name="saf_show_files_button">Vis filer</string>
     <string name="saf_error_uri">Kan ikke hente SAF URI</string>
-    <string name="saf_write_failed">Filskrivning mislykkedes: %s</string>
     <string name="saf_delete_failed">Sletning af fil mislykkedes: %s</string>
     <string name="settings_title">Indstillinger</string>
     <string name="appearance_title">Udseende</string>
@@ -506,7 +459,6 @@
     <string name="lyrics_preferences_summary">Juster skrifttype, afstand og andre muligheder for at tilpasse din sangtekstvisning.</string>
     <string name="playback_title">Afspilning</string>
     <string name="playback_summary">Skift lydindstillinger, Bluetooth-headsets, osv.</string>
-    <string name="metadata_title">Metadata</string>
     <string name="library_title">Bibliotek</string>
     <string name="library_summary">Indstillinger for afspilningslister og udelukkelse/inklusion filtre.</string>
     <string name="advanced_title">Avanceret</string>
@@ -515,7 +467,6 @@
     <string name="about_title">Om</string>
     <string name="about_summary">Booming Music %s, touch for more info.</string>
     <!-- Preference headers -->
-    <string name="general_header">Generelt</string>
     <string name="library_header">Bibliotek</string>
     <string name="album_cover_header">Omslag</string>
     <string name="exclusion_header">Udelukkelse</string>
@@ -535,7 +486,6 @@
     <string name="library_categories_summary">Indstil synlighed og rækkefølge af bibliotekskategorier.</string>
     <string name="remember_last_page_title">Husk sidste side</string>
     <string name="remember_last_page_summary">Gå til den sidst åbnede side ved start.</string>
-    <string name="start_page_title">Startside</string>
     <string name="tab_mode_title">Faneblad titler tilstand</string>
     <string name="hold_tab_to_search_title">Hold fanen nede for at søge</string>
     <string name="hold_tab_to_search_summary">Langt tryk på fanen navigationsbjælke for at åbne søgeskærmen.</string>
@@ -598,7 +548,6 @@
     <string name="now_playing_corner_radius_title">Billede hjørne radius</string>
     <string name="now_playing_corner_radius_summary">Definerer hvordan afrundet hjørnerne af albumillustrationen skal vises.</string>
     <string name="carousel_effect_title">Karrusel effekt</string>
-    <string name="album_cover_effect_title">Album cover effekt</string>
     <string name="animate_controls_title">Animér kontroller</string>
     <string name="animate_controls_summary">Det spilles, når du åbner afspillerpanelet.</string>
     <string name="swipe_up_queue_title">Stryg opad for at åbne kø</string>
@@ -663,7 +612,6 @@
     <string name="use_folder_album_cover_title">Brug mappebilleder</string>
     <string name="use_folder_album_cover_summary">Hvis lydfilen ikke indeholder et indlejret cover. Billeder kan tage lidt mere tid at indlæse.</string>
     <string name="online_artist_images_title">Download kunstnerbilleder</string>
-    <string name="preferred_image_size_title">Foretrukken billedstørrelse</string>
     <string name="online_album_covers_title">Download manglende albumomslag</string>
     <string name="online_album_covers_summary">Downloadede billeder er ikke indlejret i lydfiler; de er kun synlige i appen. Dette afhænger af din metadata download politik.</string>
     <string name="delete_downloaded_lyrics_title">Slet downloadede sangtekster</string>
@@ -703,9 +651,6 @@
     <string name="labeled">Mærket</string>
     <string name="unlabeled">Ikke Mærket</string>
     <string name="selected">Valgt</string>
-    <string name="compact">Kompakt</string>
-    <string name="expanded">Udvidet</string>
-    <string name="simple">Simpel</string>
     <string name="add_after_playing_track">Tilføj efter afspilning af spor</string>
     <string name="add_tracks_sequentially">Tilføj spor sekventielt</string>
     <string name="albums_shuffle">Blanding af albummer</string>
@@ -721,9 +666,6 @@
     <string name="this_month">Denne måned</string>
     <string name="past_three_months">Sidste tre måneder</string>
     <string name="this_year">Dette år</string>
-    <string name="image_size_large">Stor (langsommere)</string>
-    <string name="image_size_medium">Mellem (standard, anbefalet)</string>
-    <string name="image_size_small">Lille (hurtigere, lav kvalitet)</string>
     <string name="play_on_startup_mode_never">Afspil aldrig ved opstart</string>
     <string name="play_on_startup_mode_minimized">Ja, med minimeret afspillerpanel</string>
     <string name="play_on_startup_mode_expanded">Ja, med udvidet afspillerpanel</string>
@@ -744,8 +686,6 @@
     <string name="every_fifteen_days">Hver 15. dag</string>
     <string name="monthly">Månedligt</string>
     <string name="never">Aldrig</string>
-    <string name="receive_experimental_updates_title">Modtag eksperimentelle opdateringer</string>
-    <string name="receive_experimental_updates_summary">Bemærk, at disse opdateringer ofte er meget ustabile og er beregnet til erfarne brugere.</string>
     <string name="search_for_update_title">Søg efter opdatering</string>
     <string name="last_update_search_x">Sidste check: %s</string>
     <string name="checking_please_wait">Checking, please wait…</string>

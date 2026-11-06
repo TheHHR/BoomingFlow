@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="action_play">נגן</string>
-    <string name="action_play_all">נגן הכל</string>
     <string name="action_shuffle_play">ערבב ניגון</string>
     <string name="action_queue_next">הבא בתור</string>
     <string name="shuffle_all_label">ערבב הכל</string>
@@ -9,10 +8,8 @@
     <string name="repeat_mode">מצב חזרה</string>
     <string name="shuffle_button_tip">הקש להערבוב רגיל. לחיצה ארוכה תפתח אפשרויות מתקדמות.</string>
     <string name="action_play_pause">נגן/השהה</string>
-    <string name="action_pause">השהה</string>
     <string name="action_next">הבא</string>
     <string name="action_previous">הקודם</string>
-    <string name="action_cancel">ביטול</string>
     <string name="action_seek_backward">העבר אחורה</string>
     <string name="action_seek_forward">העבר קדימה</string>
     <string name="action_cycle_repeat">מצב חזרה מחזורי</string>
@@ -23,8 +20,6 @@
     <string name="create_action">יצירה</string>
     <string name="search_label">חיפוש</string>
     <string name="search_hint">חפש בספרייה שלך…</string>
-    <string name="action_voice_search">חיפוש קולי</string>
-    <string name="speech_not_supported">המכשיר שלך אינו תומך בקלט דיבור</string>
     <string name="search_artist_x_label">חיפוש אומן: %s</string>
     <string name="search_album_x_label">חיפוש אלבום: %s</string>
     <string name="search_list_x_label">רשימת חיפוש: %s</string>
@@ -32,8 +27,6 @@
     <string name="search_year_x_label">חיפוש שנה: %s</string>
     <string name="search_in_folder_x">חיפוש בתיקייה: %s</string>
     <string name="search_last_added">חיפוש מוזיקה עדכנית</string>
-    <string name="shuffle_mode_album">עירבוב אלבומים</string>
-    <string name="shuffle_mode_artist">ערבוב אומנים</string>
     <string name="action_share">שיתוף</string>
     <string name="action_save">שמירה</string>
     <string name="back_action">חזרה</string>
@@ -45,15 +38,10 @@
     <string name="continue_action">המשך</string>
     <string name="select_all_title">בחר הכל</string>
     <string name="x_selected">%d נבחר</string>
-    <string name="preparing_playback_title">בהכנה</string>
-    <string name="restoring_playback_state">משחזר את מצב הניגון ואת תור ההשמעה…</string>
-    <string name="playback_stopped_title">הניגון הופסק</string>
     <string name="playing_notification_description">התראת הניגון מספקת פעולות הפעלה/השהייה וכו\'.</string>
     <string name="playing_notification_name">התראה על הפעלה</string>
-    <string name="action_scan_directory">סרוק ספרייה</string>
     <string name="no_device_playlists">אין רשימות השמעה</string>
     <string name="select_songs_title">בחר שירים</string>
-    <string name="playlist_x_is_empty">רשימת ההשמעה %s ריקה.</string>
     <string name="playlist_name_cannot_be_empty">שם רשימת ההשמעה לא יכול להיות ריק</string>
     <string name="imported_playlist_x">רשימת ההשמעה \"%1$s\" יובאה.</string>
     <string name="could_not_import_the_playlist_x">לא ניתן היה לייבא את רשימת ההשמעה \"%s\"</string>
@@ -61,8 +49,6 @@
     <string name="playlist_x_not_imported">רשימת ההשמעה %s לא יובאה.</string>
     <string name="action_import_playlist">ייבוא רשימת השמעה…</string>
     <string name="new_playlist_title">רשימת השמעה חדשה</string>
-    <string name="add_playlist_title">הוסף לרשימת ההשמעה</string>
-    <string name="rename_playlist_title">שנה שם לרשימת ההשמעה</string>
     <string name="action_edit_playlist">ערוך רשימת השמעה</string>
     <string name="action_delete_playlist">מחיקת רשימת השמעה</string>
     <string name="action_export_playlist">ייצוא לקובץ</string>
@@ -83,9 +69,7 @@
     <string name="delete_playlist_x"><![CDATA[למחוק את רשימת ההשמעה <b>%s</b>\?]]></string>
     <string name="delete_x_playlists"><![CDATA[למחוק <b>%d</b> רשימות השמעה?]]></string>
     <string name="created_playlist_x">נוצרה רשימת ההשמעה \'%1$s\'.</string>
-    <string name="could_not_create_playlist">לא ניתן היה ליצור את רשימת ההשמעה.</string>
     <string name="playlist_exists">רשימת ההשמעה %s כבר קיימת.</string>
-    <string name="playlist_created">רשימת ההשמעה %s נוצרה בהצלחה.</string>
     <string name="remove_song_from_playlist_title">הסר שיר מרשימת ההשמעה</string>
     <string name="remove_songs_from_playlist_title">הסר שירים מרשימת ההשמעה</string>
     <string name="remove_song_x_from_playlist"><![CDATA[למחוק את השיר <b>%1$s</b> מרשימת ההשמעה?]]></string>
@@ -115,7 +99,6 @@
     <string name="deleting_songs">מוחק שירים, המתן…</string>
     <string name="song_x_of_x">%1$d מתוך %2$d • %3$s</string>
     <string name="no_equalizer">לא נמצא אקולייזר.</string>
-    <string name="audio_focus_denied">מיקוד שמע נדחה.</string>
     <string name="no_audio_ID">מזהה אודיו שגוי.</string>
     <string name="playback_error_code">שגיאת הפעלה (%s).</string>
     <string name="unplayable_file">לא הצלחנו לנגן את השיר הזה.</string>
@@ -135,16 +118,10 @@
     <string name="welcome_to_x">ברוך הבא ל-%s</string>
     <string name="get_started">בא נתחיל</string>
     <string name="select_storage_title">בחר אחסון</string>
-    <string name="now_playing">מנגן כעת</string>
     <string name="playing_queue_label">מנגן תור השמעה</string>
-    <string name="list_start">תחילת רשימה</string>
-    <string name="list_end">סוף רשימה</string>
     <string name="clear_queue">נקה תור השמעה</string>
-    <string name="action_move_to_current_track">הצג רצועה נוכחית</string>
     <string name="action_add_to_favorites">הוסף למעודפים</string>
     <string name="action_remove_from_favorites">הסר מהמועדפים</string>
-    <string name="added_to_favorites_label">נוסף למועדפים</string>
-    <string name="removed_from_favorites_label">הוסר מהמעודפים</string>
     <string name="toggle_favorite">הוספה/הסרה מהמועדפים</string>
     <string name="action_add_to_playlist">הוסף לרשימת ההשמעה</string>
     <string name="action_remove_from_playlist">הסר מרשימת השמעה</string>
@@ -153,7 +130,6 @@
     <string name="put_after_current_track">שים אחרי הרצועה הנוכחית</string>
     <string name="set_artist_image">הגדרת תמונת אומן</string>
     <string name="reset_artist_image">איפוס תמונת אומן</string>
-    <string name="there_is_nothing_to_reset">אין מה לאפס.</string>
     <string name="add_to_label">הוסף ל</string>
     <string name="go_to_label">עבור אל</string>
     <string name="action_go_to_album">מעבר לאלבום</string>
@@ -173,7 +149,6 @@
     <string name="no_artists_label">אין אומנים</string>
     <string name="no_genres_label">אין ז\'אנרים</string>
     <string name="empty_label">ריק</string>
-    <string name="nothing_to_see">אין מה להציג</string>
     <string name="show_album_artists">רק אומני אלבומים</string>
     <string name="songs_label">שירים</string>
     <string name="albums_label">אלבומים</string>
@@ -215,16 +190,13 @@
     <string name="sort_order_file_name">שם קובץ</string>
     <string name="sort_order_number_of_songs">מספר שירים</string>
     <string name="sort_order_number_of_albums">מספר האלבומים</string>
-    <string name="sort_order_last_played_date">תאריך האזנה אחרונה</string>
     <string name="sort_order_track_list">רשימת רצועות</string>
     <string name="sort_order_descending">סדר יורד</string>
-    <string name="sort_order_ignore_articles">התעלם מהמאמרים</string>
     <string name="action_details">פרטים</string>
     <string name="action_set_as_start_directory">הגדר כתיקיית התחלה</string>
     <string name="start_directory_set">Start directory set to %s</string>
     <string name="action_go_to_start_directory">הגדר כתיקיית התחלה</string>
     <string name="action_hierarchy_view">תצוגת היררכיה</string>
-    <string name="new_start_directory">ספריית התחלה חדשה: %s</string>
     <string name="action_scan">סרוק</string>
     <string name="scan_media">סרוק מדיה</string>
     <string name="scan_media_message">ברוב המקרים, אנדרואיד מזהה וממיין קבצי מדיה במכשיר שלך באופן אוטומטי, כך שסריקה ידנית אינה נחוצה בדרך כלל.</string>
@@ -235,7 +207,6 @@
     <string name="restore_default">שחזור ברירת מחדל</string>
     <string name="remove_cover">הסרת עטיפה</string>
     <string name="could_not_download_album_cover">לא ניתן היה להוריד עטיפת אלבום תואמת.</string>
-    <string name="download_image">הורדת תמונה</string>
     <string name="pick_from_local_storage">בחר מאחסון מקומי</string>
     <string name="about_x_title">‮אודות ‭%s</string>
     <string name="yes">כן</string>
@@ -246,7 +217,6 @@
     <string name="label_file_format">פורמט</string>
     <string name="file_label">קובץ</string>
     <string name="metadata_label">נתוני על</string>
-    <string name="song">שיר</string>
     <string name="title">כותרת</string>
     <string name="album">אלבום</string>
     <string name="artist">אומן</string>
@@ -373,7 +343,6 @@
     <string name="band_configuration_changed_successfully">The band configuration was successfully changed.</string>
     <string name="band_configuration_could_not_be_changed">The band configuration could not be changed.</string>
     <string name="share_eq_profiles">שיתוף פרופילים של EQ</string>
-    <string name="there_is_nothing_to_export">אין מה לייצא.</string>
     <string name="there_is_nothing_to_import">אין מה לייבא.</string>
     <string name="an_unexpected_error_occurred">אירעה שגיאה לא צפויה.</string>
     <string name="share_profiles">שיתוף פרופילים</string>
@@ -421,7 +390,6 @@
     <string name="loudness_enhancer">מגבר</string>
     <string name="sound_settings">הגדרות קול</string>
     <string name="listening_on">Listening on</string>
-    <string name="casting_to">Casting to</string>
     <string name="volume_label">עוצמת שמע</string>
     <string name="reset_balance">Reset balance</string>
     <string name="speed_and_pitch_label">Speed and pitch</string>
@@ -451,8 +419,6 @@
     <string name="download_lyrics">הורד מילים</string>
     <string name="write_lyrics_here">כתוב את מילות השיר כאן</string>
     <string name="no_lyrics_found">לא נמצאו מילות שיר</string>
-    <string name="lyrics_were_updated_successfully">מילות השיר עודכנו בהצלחה.</string>
-    <string name="failed_to_update_lyrics">נכשל בעדכון מילות השיר.</string>
     <string name="there_are_no_changes_to_save">אין שינויים שצריך לשמור.</string>
     <string name="font_imported_successfully">הגופן יובא בהצלחה.</string>
     <string name="could_not_import_font">לא ניתן היה לייבא את הגופן.</string>
@@ -477,22 +443,10 @@
     <string name="app_shortcut_last_added_short">נוסף לאחרונה</string>
     <string name="app_shortcut_favorites_short">מועדפים</string>
     <!-- About page -->
-    <string name="action_about">אודות</string>
-    <string name="changelog">יומן שינויים</string>
-    <string name="faq">FAQ</string>
     <string name="licenses">רשיונות</string>
-    <string name="author">יוצר</string>
-    <string name="mardous_summary">מפתח ראשי</string>
-    <string name="contributors">תורמים</string>
     <string name="translators_title">מתרגמים</string>
     <string name="translators_summary">תודה לאלו שעוזרים להפוך את Booming Music לזמין בשפות רבות.</string>
-    <string name="view_profile_on_github">צפה בפרופיל ב-GitHub</string>
-    <string name="write_an_email">כתוב אימייל</string>
     <string name="support_development">תמיכה בפיתוח</string>
-    <string name="help_with_translations">עזרה בתרגומים</string>
-    <string name="help_with_translations_summary">תרגום Booming Music לשפות אחרות הוא דרך נהדרת לתרום למיזם.</string>
-    <string name="report_bugs">דווח על באגים</string>
-    <string name="report_bugs_summary">דווח על באגים או בקש פיצ\'רים חדשים.</string>
     <string name="share_app">שיתוף יישומון זה</string>
     <string name="share_app_summary">תוכל לעזור לאפליקציה הזו לצמוח על ידי שיתוף לחברים.</string>
     <string name="send_invitation_message">שלח הודעת הזמנה</string>
@@ -503,7 +457,6 @@
     <string name="saf_access_required_message">האפליקציה Booming Music דורשת הרשאה לגישה לקבצים אלו. אנא בחר את התיקייה הראשית שבה מאוחסנים קבצי המוזיקה שלך.</string>
     <string name="saf_show_files_button">הצג קבצים</string>
     <string name="saf_error_uri">לא ניתן לקבל את מזהה ה-SAF</string>
-    <string name="saf_write_failed">כתיבת הקובץ נכשלה: ‎%s</string>
     <string name="saf_delete_failed">מחיקת הקובץ נכשל: %s</string>
     <string name="settings_title">הגדרות</string>
     <string name="appearance_title">מראה</string>
@@ -514,7 +467,6 @@
     <string name="lyrics_preferences_summary">התאם גופן, ריווח ואפשרויות נוספות כדי להתאים אישית את תצוגת מילות השיר שלך.</string>
     <string name="playback_title">השמעה</string>
     <string name="playback_summary">שנה את הגדרות הקול, אוזניות בלוטות\', וכו׳.</string>
-    <string name="metadata_title">נתוני על</string>
     <string name="library_title">ספרייה</string>
     <string name="library_summary">הגדרות לרשימות השמעה ולמסנני הכללה/הוצאה.</string>
     <string name="advanced_title">מתקדם</string>
@@ -523,7 +475,6 @@
     <string name="about_title">אודות</string>
     <string name="about_summary">Booming Music %s, גע לקבלת מידע נוסף.</string>
     <!-- Preference headers -->
-    <string name="general_header">כללי</string>
     <string name="library_header">ספרייה</string>
     <string name="album_cover_header">עטיפה</string>
     <string name="exclusion_header">החרגות</string>
@@ -543,7 +494,6 @@
     <string name="library_categories_summary">הגדר את הנראות והסדר של קטגוריות הספרייה.</string>
     <string name="remember_last_page_title">זכור את העמוד האחרון</string>
     <string name="remember_last_page_summary">עבור לעמוד האחרון שנפתח בעת ההפעלה.</string>
-    <string name="start_page_title">עמוד פתיחה</string>
     <string name="tab_mode_title">מצב כותרות ללשוניות</string>
     <string name="hold_tab_to_search_title">החזק את הלשונית כדי לחפש</string>
     <string name="hold_tab_to_search_summary">לחץ לחיצה ארוכה על כל לשונית בסרגל הניווט כדי לפתוח את מסך החיפוש.</string>
@@ -606,7 +556,6 @@
     <string name="now_playing_corner_radius_title">רדיוס פינות התמונה</string>
     <string name="now_playing_corner_radius_summary">מגדיר עד כמה פינות עטיפת האלבום יהיו מעוגלות.</string>
     <string name="carousel_effect_title">אפקט קרוסלה</string>
-    <string name="album_cover_effect_title">אפקט עטיפת האלבום</string>
     <string name="animate_controls_title">אנימציית בקרות</string>
     <string name="animate_controls_summary">הוא מתנגן כאשר פותחים את לוח הניגון.</string>
     <string name="swipe_up_queue_title">החלק למעלה כדי לפתוח את התור</string>
@@ -671,7 +620,6 @@
     <string name="use_folder_album_cover_title">השתמש בתמונות מהתיקייה</string>
     <string name="use_folder_album_cover_summary">אם קובץ השמע אינו מכיל עטיפה משובצת, התמונות עשויות להיטען מעט לאט יותר.</string>
     <string name="online_artist_images_title">הורדת תמונות אומן</string>
-    <string name="preferred_image_size_title">גודל תמונה מועדף</string>
     <string name="online_album_covers_title">הורד עטיפות אלבומים חסרות</string>
     <string name="online_album_covers_summary">התמונות שהורדו אינן משובצות בקובצי השמע; הן מוצגות רק בתוך האפליקציה. הפעולה תלויה במדיניות הורדת המטא־דאטה שלך.</string>
     <string name="delete_downloaded_lyrics_title">מחק מילים שהורדו</string>
@@ -711,9 +659,6 @@
     <string name="labeled">עם תווית</string>
     <string name="unlabeled">ללא תווית</string>
     <string name="selected">נבחר</string>
-    <string name="compact">קומפקטי</string>
-    <string name="expanded">מורחב</string>
-    <string name="simple">פשוט</string>
     <string name="add_after_playing_track">הוסף לאחר השיר המנוגן</string>
     <string name="add_tracks_sequentially">הוסף שירים ברצף</string>
     <string name="albums_shuffle">ערבוב אלבומים</string>
@@ -729,9 +674,6 @@
     <string name="this_month">החודש</string>
     <string name="past_three_months">שלושת החודשים האחרונים</string>
     <string name="this_year">השנה</string>
-    <string name="image_size_large">גדול (איטי יותר)</string>
-    <string name="image_size_medium">בינוני (ברירת מחדל, מומלץ)</string>
-    <string name="image_size_small">קטן (מהיר יותר, איכות נמוכה)</string>
     <string name="play_on_startup_mode_never">לעולם לא להפעיל בהפעלה</string>
     <string name="play_on_startup_mode_minimized">כן, עם לוח נגן ממוזער</string>
     <string name="play_on_startup_mode_expanded">כן, עם לוח נגן מורחב</string>
@@ -752,8 +694,6 @@
     <string name="every_fifteen_days">כל חמישה עשר ימים</string>
     <string name="monthly">חודשי</string>
     <string name="never">לעולם לא</string>
-    <string name="receive_experimental_updates_title">קבל עדכונים ניסיוניים</string>
-    <string name="receive_experimental_updates_summary">שים לב כי עדכונים אלו לעיתים קרובות אינם יציבים ומיועדים למשתמשים מנוסים.</string>
     <string name="search_for_update_title">חפש עדכון</string>
     <string name="last_update_search_x">בדיקה אחרונה: %s</string>
     <string name="checking_please_wait">בודק, נא המתן…</string>

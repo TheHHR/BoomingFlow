@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="action_play">Afspelen</string>
-    <string name="action_play_all">Alles afspelen</string>
     <string name="action_shuffle_play">Shuffle afspelen</string>
     <string name="action_queue_next">Volgende wachtrij</string>
     <string name="shuffle_all_label">Alles shuffelen</string>
@@ -9,10 +8,8 @@
     <string name="repeat_mode">Herhaal modus</string>
     <string name="shuffle_button_tip">Tik voor normale shuffel. Lang indrukken voor geavanceerde opties.</string>
     <string name="action_play_pause">Afspelen/pauzeren</string>
-    <string name="action_pause">Onderbreken</string>
     <string name="action_next">Volgende</string>
     <string name="action_previous">Vorige</string>
-    <string name="action_cancel">Annuleren</string>
     <string name="action_seek_backward">Achteruit zoeken</string>
     <string name="action_seek_forward">Vooruit zoeken</string>
     <string name="action_cycle_repeat">Cyclus herhaalmodus</string>
@@ -23,8 +20,6 @@
     <string name="create_action">Aanmaken</string>
     <string name="search_label">Zoeken</string>
     <string name="search_hint">Zoek in je bibliotheek…</string>
-    <string name="action_voice_search">Spraakgestuurd zoeken</string>
-    <string name="speech_not_supported">Uw apparaat ondersteunt geen spraakinvoer</string>
     <string name="search_artist_x_label">Zoek artiest: %s</string>
     <string name="search_album_x_label">Album zoeken: %s</string>
     <string name="search_list_x_label">Zoeklijst: %s</string>
@@ -32,8 +27,6 @@
     <string name="search_year_x_label">Zoekjaar: %s</string>
     <string name="search_in_folder_x">Zoek in map: %s</string>
     <string name="search_last_added">Zoek laatste muziek</string>
-    <string name="shuffle_mode_album">Album shuffle</string>
-    <string name="shuffle_mode_artist">Kunstenaar shuffle</string>
     <string name="action_share">Delen</string>
     <string name="action_save">Opslaan</string>
     <string name="back_action">Achterzijde</string>
@@ -45,15 +38,10 @@
     <string name="continue_action">Doorgaan</string>
     <string name="select_all_title">Alles selecteren</string>
     <string name="x_selected">%d geselecteerd</string>
-    <string name="preparing_playback_title">Voorbereiden</string>
-    <string name="restoring_playback_state">Afspeelstatus en wachtrij herstellen…</string>
-    <string name="playback_stopped_title">Afspelen gestopt</string>
     <string name="playing_notification_description">De afspeelmelding biedt acties voor afspelen/pauzeren etc.</string>
     <string name="playing_notification_name">Speelt melding</string>
-    <string name="action_scan_directory">Map scannen</string>
     <string name="no_device_playlists">Geen afspeellijsten</string>
     <string name="select_songs_title">Nummers selecteren</string>
-    <string name="playlist_x_is_empty">Afspeellijst %s is leeg.</string>
     <string name="playlist_name_cannot_be_empty">Afspeellijst naam kan niet leeg zijn</string>
     <string name="imported_playlist_x">Geïmporteerde afspeellijst \"%1$s\".</string>
     <string name="could_not_import_the_playlist_x">De afspeellijst \"%s\" kon niet worden geïmporteerd</string>
@@ -61,8 +49,6 @@
     <string name="playlist_x_not_imported">Afspeellijst %s niet geïmporteerd.</string>
     <string name="action_import_playlist">Importeer afspeellijst…</string>
     <string name="new_playlist_title">Nieuwe afspeellijst</string>
-    <string name="add_playlist_title">Toevoegen aan afspeellijst</string>
-    <string name="rename_playlist_title">Hernoem afspeellijst</string>
     <string name="action_edit_playlist">Afspeellijst bewerken</string>
     <string name="action_delete_playlist">Afspeellijst verwijderen</string>
     <string name="action_export_playlist">Exporteren naar bestand</string>
@@ -83,9 +69,7 @@
     <string name="delete_playlist_x"><![CDATA[Verwijder afspeellijst <b>%s</b>\?]]></string>
     <string name="delete_x_playlists"><![CDATA[Verwijder <b>%d</b> afspeellijsten?]]></string>
     <string name="created_playlist_x">Afspeellijst \'%1$s\' aangemaakt.</string>
-    <string name="could_not_create_playlist">Kan afspeellijst niet aanmaken.</string>
     <string name="playlist_exists">Afspeellijst %s bestaat al.</string>
-    <string name="playlist_created">Afspeellijst %s succesvol gemaakt.</string>
     <string name="remove_song_from_playlist_title">Verwijder nummer uit afspeellijst</string>
     <string name="remove_songs_from_playlist_title">Verwijder nummers uit afspeellijst</string>
     <string name="remove_song_x_from_playlist"><![CDATA[Verwijder het nummer <b>%1$s</b> uit de afspeellijst?]]></string>
@@ -115,7 +99,6 @@
     <string name="deleting_songs">Liedjes aan het verwijderen, gelieve te wachten…</string>
     <string name="song_x_of_x">%1$d van %2$d • %3$s</string>
     <string name="no_equalizer">Geen equalizer gevonden.</string>
-    <string name="audio_focus_denied">Audiofocus geweigerd.</string>
     <string name="no_audio_ID">Slecht audio ID.</string>
     <string name="playback_error_code">Fout bij afspelen (%s).</string>
     <string name="unplayable_file">Kan dit nummer niet afspelen.</string>
@@ -135,16 +118,10 @@
     <string name="welcome_to_x">Welkom bij %s</string>
     <string name="get_started">Nu inschrijven</string>
     <string name="select_storage_title">Opslag selecteren</string>
-    <string name="now_playing">Afspelende media</string>
     <string name="playing_queue_label">Wachtrij afspelen</string>
-    <string name="list_start">Lijst start</string>
-    <string name="list_end">Einde lijst</string>
     <string name="clear_queue">Wachtrij wissen</string>
-    <string name="action_move_to_current_track">Toon huidige track</string>
     <string name="action_add_to_favorites">Voeg aan favorieten toe</string>
     <string name="action_remove_from_favorites">Verwijderen uit favorieten</string>
-    <string name="added_to_favorites_label">Toegevoegd aan favorieten</string>
-    <string name="removed_from_favorites_label">Verwijderd uit favorieten</string>
     <string name="toggle_favorite">Toevoegen/Verwijderen uit favorieten</string>
     <string name="action_add_to_playlist">Toevoegen aan afspeellijst</string>
     <string name="action_remove_from_playlist">Verwijderen uit afspeellijst</string>
@@ -153,7 +130,6 @@
     <string name="put_after_current_track">Zet achter het huidige nummer</string>
     <string name="set_artist_image">Stel Artiest afbeelding in</string>
     <string name="reset_artist_image">Artiest afbeelding resetten</string>
-    <string name="there_is_nothing_to_reset">Er is niets om opnieuw in te stellen.</string>
     <string name="add_to_label">Toevoegen aan</string>
     <string name="go_to_label">Ga naar</string>
     <string name="action_go_to_album">Ga naar Album</string>
@@ -173,7 +149,6 @@
     <string name="no_artists_label">Geen artiesten</string>
     <string name="no_genres_label">Geen genres</string>
     <string name="empty_label">Leeg</string>
-    <string name="nothing_to_see">Niets te bekijken</string>
     <string name="show_album_artists">Alleen album artiesten</string>
     <string name="songs_label">Nummers</string>
     <string name="albums_label">Albums</string>
@@ -215,16 +190,13 @@
     <string name="sort_order_file_name">Bestandsnaam is vereist</string>
     <string name="sort_order_number_of_songs">Nummers aantal</string>
     <string name="sort_order_number_of_albums">Aantal albums</string>
-    <string name="sort_order_last_played_date">Laatst afgespeelde datum</string>
     <string name="sort_order_track_list">Track lijst</string>
     <string name="sort_order_descending">Aflopend</string>
-    <string name="sort_order_ignore_articles">Negeer artikelen</string>
     <string name="action_details">Beschrijving</string>
     <string name="action_set_as_start_directory">Stel in als beginmap</string>
     <string name="start_directory_set">Start directory set to %s</string>
     <string name="action_go_to_start_directory">Ga naar beginmap</string>
     <string name="action_hierarchy_view">Rangorde weergeven</string>
-    <string name="new_start_directory">Nieuwe beginmap: %s</string>
     <string name="action_scan">Scannen</string>
     <string name="scan_media">Media scannen</string>
     <string name="scan_media_message">In de meeste gevallen detecteert Android mediabestanden en indexeert deze automatisch op je apparaat, dus handmatig scannen is meestal niet nodig.</string>
@@ -235,7 +207,6 @@
     <string name="restore_default">Standaardwaarde herstellen</string>
     <string name="remove_cover">Verwijder omslag</string>
     <string name="could_not_download_album_cover">Kon geen bijpassende albumcover downloaden.</string>
-    <string name="download_image">Afbeelding downloaden</string>
     <string name="pick_from_local_storage">Kies uit lokale opslag</string>
     <string name="about_x_title">Over %s</string>
     <string name="yes">Ja</string>
@@ -246,7 +217,6 @@
     <string name="label_file_format">Formatteren</string>
     <string name="file_label">Bestand</string>
     <string name="metadata_label">Metagegevens</string>
-    <string name="song">Nummer</string>
     <string name="title">Aanspreektitel</string>
     <string name="album">Album</string>
     <string name="artist">Kunstenaar</string>
@@ -364,7 +334,6 @@
     <string name="band_configuration_changed_successfully">De band configuratie was succesvol aangepast.</string>
     <string name="band_configuration_could_not_be_changed">De band configuratie kon niet worden aangepast.</string>
     <string name="share_eq_profiles">Deel EQ Profielen</string>
-    <string name="there_is_nothing_to_export">Er is niets te exporteren.</string>
     <string name="there_is_nothing_to_import">Er is niets te importeren.</string>
     <string name="an_unexpected_error_occurred">Een onverwachte fout is opgetreden.</string>
     <string name="share_profiles">Deel profielen</string>
@@ -412,7 +381,6 @@
     <string name="loudness_enhancer">Versterker</string>
     <string name="sound_settings">Geluidsinstellingen</string>
     <string name="listening_on">Aan het luisteren op</string>
-    <string name="casting_to">Aan het casten naar</string>
     <string name="volume_label">Volume</string>
     <string name="reset_balance">Reset balance</string>
     <string name="speed_and_pitch_label">Snelheid en toonhoogte</string>
@@ -442,8 +410,6 @@
     <string name="download_lyrics">Download songteksten</string>
     <string name="write_lyrics_here">Schrijf songtekst hier</string>
     <string name="no_lyrics_found">Geen songteksten gevonden</string>
-    <string name="lyrics_were_updated_successfully">Songteksten zijn bijgewerkt.</string>
-    <string name="failed_to_update_lyrics">Songtekst bijwerken mislukt.</string>
     <string name="there_are_no_changes_to_save">Er zijn geen wijzigingen om op te slaan.</string>
     <string name="font_imported_successfully">Lettertype succesvol geïmporteerd.</string>
     <string name="could_not_import_font">Kan lettertype niet importeren.</string>
@@ -468,22 +434,10 @@
     <string name="app_shortcut_last_added_short">Laatst toegevoegd</string>
     <string name="app_shortcut_favorites_short">Favorieten</string>
     <!-- About page -->
-    <string name="action_about">Informatie</string>
-    <string name="changelog">Wijzigingslogboek</string>
-    <string name="faq">FAQ</string>
     <string name="licenses">Licenties</string>
-    <string name="author">Auteur</string>
-    <string name="mardous_summary">Hoofdontwikkelaar</string>
-    <string name="contributors">Bijdragers</string>
     <string name="translators_title">Vertalers</string>
     <string name="translators_summary">Dank aan degenen die Booming Music in veel talen beschikbaar maken.</string>
-    <string name="view_profile_on_github">Bekijk profiel op GitHub</string>
-    <string name="write_an_email">Schrijf een email</string>
     <string name="support_development">Ondersteun ontwikkeling</string>
-    <string name="help_with_translations">Help met vertalingen</string>
-    <string name="help_with_translations_summary">Je kunt bijdragen aan het project door Booming Music naar andere talen te vertalen.</string>
-    <string name="report_bugs">Meld bugs</string>
-    <string name="report_bugs_summary">Rapporteer bugs of verzoek nieuwe functies.</string>
     <string name="share_app">Deel deze app</string>
     <string name="share_app_summary">U kunt deze app helpen groeien als u het met vrienden deelt.</string>
     <string name="send_invitation_message">Stuur uitnodigingsbericht</string>
@@ -494,7 +448,6 @@
     <string name="saf_access_required_message">Booming Music vereist toestemming te krijgen tot deze bestanden. Selecteer de hoofdmap waar je muziekbestanden opgeslagen worden.</string>
     <string name="saf_show_files_button">Bestanden weergeven</string>
     <string name="saf_error_uri">Kan geen SAF URI verkrijgen</string>
-    <string name="saf_write_failed">Bestand schrijven mislukt: %s</string>
     <string name="saf_delete_failed">Bestand verwijderen mislukt: %s</string>
     <string name="settings_title">Instellingen</string>
     <string name="appearance_title">Uiterlijk</string>
@@ -505,7 +458,6 @@
     <string name="lyrics_preferences_summary">Pas lettertype, spaties en andere opties aan om je songtekst te personaliseren.</string>
     <string name="playback_title">Afspelen</string>
     <string name="playback_summary">Verander de geluidsinstellingen, Bluetooth-koptelefoons, enz.</string>
-    <string name="metadata_title">Metagegevens</string>
     <string name="library_title">Bibliotheek</string>
     <string name="library_summary">Instellingen voor afspeellijsten en uitsluitingen/integratiefilters.</string>
     <string name="advanced_title">Geavanceerd</string>
@@ -514,7 +466,6 @@
     <string name="about_title">Informatie</string>
     <string name="about_summary">Muziek %sblazen, aanraken voor meer info.</string>
     <!-- Preference headers -->
-    <string name="general_header">Algemeen</string>
     <string name="library_header">Bibliotheek</string>
     <string name="album_cover_header">Omslag</string>
     <string name="exclusion_header">Uitsluitingen</string>
@@ -534,7 +485,6 @@
     <string name="library_categories_summary">Configureer zichtbaarheid en volgorde van bibliotheek categorieën.</string>
     <string name="remember_last_page_title">Laatste pagina onthouden</string>
     <string name="remember_last_page_summary">Ga naar de laatst geopende pagina bij het opstarten.</string>
-    <string name="start_page_title">Start pagina</string>
     <string name="tab_mode_title">Tabblad titelmodus</string>
     <string name="hold_tab_to_search_title">Tabblad vasthouden om te zoeken</string>
     <string name="hold_tab_to_search_summary">Druk lang op elk tabblad in de navigatiebalk om het zoekscherm te openen.</string>
@@ -597,7 +547,6 @@
     <string name="now_playing_corner_radius_title">Hoekradius van afbeelding</string>
     <string name="now_playing_corner_radius_summary">Definieert hoe de hoeken van de albumcover moeten verschijnen.</string>
     <string name="carousel_effect_title">Carrousel effect</string>
-    <string name="album_cover_effect_title">Album omslageffect</string>
     <string name="animate_controls_title">Animeer bediening</string>
     <string name="animate_controls_summary">Wordt gespeeld bij het openen van het spelerspaneel.</string>
     <string name="swipe_up_queue_title">Veeg omhoog om wachtrij te openen</string>
@@ -662,7 +611,6 @@
     <string name="use_folder_album_cover_title">Gebruik mapafbeeldingen</string>
     <string name="use_folder_album_cover_summary">Als het audiobestand geen ingebouwde omslag bevat. Afbeeldingen kunnen wat meer tijd kosten om te laden.</string>
     <string name="online_artist_images_title">Download artiesten afbeeldingen</string>
-    <string name="preferred_image_size_title">Gewenste afbeeldingsgrootte</string>
     <string name="online_album_covers_title">Ontbrekende albumhoes downloaden</string>
     <string name="online_album_covers_summary">Gedownloade afbeeldingen zijn niet ingesloten in audiobestanden; ze zijn alleen zichtbaar binnen de app.</string>
     <string name="delete_downloaded_lyrics_title">Verwijder gedownloade songteksten</string>
@@ -702,9 +650,6 @@
     <string name="labeled">Etiketten</string>
     <string name="unlabeled">Ongelabeld</string>
     <string name="selected">Geselecteerd</string>
-    <string name="compact">Compacte</string>
-    <string name="expanded">Uitgebreid</string>
-    <string name="simple">Eenvoudig</string>
     <string name="add_after_playing_track">Toevoegen na het afspelen van nummer</string>
     <string name="add_tracks_sequentially">Tracks automatisch toevoegen</string>
     <string name="albums_shuffle">Albums shuffelen</string>
@@ -720,9 +665,6 @@
     <string name="this_month">Deze maand</string>
     <string name="past_three_months">Afgelopen drie maanden</string>
     <string name="this_year">Dit jaar</string>
-    <string name="image_size_large">Groot (langzamer)</string>
-    <string name="image_size_medium">Medium (standaard, aanbevolen)</string>
-    <string name="image_size_small">Klein (sneller, lage kwaliteit)</string>
     <string name="play_on_startup_mode_never">Nooit afspelen bij opstarten</string>
     <string name="play_on_startup_mode_minimized">Ja, met geminimaliseerd speler paneel</string>
     <string name="play_on_startup_mode_expanded">Ja, met uitgebreid speler paneel</string>
@@ -743,8 +685,6 @@
     <string name="every_fifteen_days">Om de 15 dagen</string>
     <string name="monthly">Maandelijks</string>
     <string name="never">Nooit</string>
-    <string name="receive_experimental_updates_title">Ontvang experimentele updates</string>
-    <string name="receive_experimental_updates_summary">Houd er rekening mee dat deze updates vaak zeer instabiel zijn en bedoeld zijn voor ervaren gebruikers.</string>
     <string name="search_for_update_title">Update zoeken</string>
     <string name="last_update_search_x">Laatste controle: %s</string>
     <string name="checking_please_wait">Controleren, gelieve te wachten…</string>
@@ -789,10 +729,6 @@
     <string name="error_lastfm_rate_limit">Te veel verzoeken. Wacht even voordat je weer verdergaat met scrobbelen.</string>
     <string name="error_lastfm_generic">Er is een onverwachte fout opgetreden bij Last.fm. Probeer het opnieuw.</string>
     <string name="error_network_timeout">Verbinding is verbroken. Controleer je internetverbinding en probeer het opnieuw.</string>
-    <string name="github">GitHub</string>
-    <string name="telegram_community">Telegram community</string>
-    <string name="telegram_community_summary">Word lid van onze Telegram-community om op de hoogte te blijven van nieuwe releases en nieuws.</string>
-    <string name="support_my_work">Steun mijn werk</string>
     <string name="network_title">Netwerk</string>
     <string name="network_summary">Beheer internetfuncties zoals Last.fm-integratie, aanbieders van songteksten en het downloaden van metadata.</string>
     <string name="images_title">Afbeeldingen</string>
@@ -873,7 +809,6 @@
     <string name="eq_release_time">Uitgave</string>
     <string name="eq_threshold">Drempel</string>
     <string name="eq_ratio">Ratio</string>
-    <string name="eq_expander_ratio">Expander ratio</string>
     <string name="eq_knee_width">Kniebreedte</string>
     <string name="eq_noise_gate">Noise Gate</string>
     <string name="eq_pre_gain">Vooramplificatie</string>
@@ -882,17 +817,7 @@
     <string name="rg_without_tag">Zonder tag</string>
     <string name="app_version_x">Versie %s</string>
     <string name="app_description">Modern ontwerp. Puur geluid. Volledig van u.</string>
-    <string name="website">Website</string>
     <string name="legal">Juridische kennisgeving</string>
-    <string name="terms_of_service">Servicevoorwaarden</string>
-    <string name="privacy_policy">Privacybeleid</string>
-    <string name="more_contributors_title">Meer contributeurs</string>
-    <string name="more_contributors_summary">U kunt de volledige lijst contributeurs zien op GitHub.</string>
-    <string name="contributor_dawid_description">Hoofdcontributeur en ontwerper van meerdere belangrijke appfuncties.</string>
-    <string name="contributor_ray_description">Heeft meerdere interessante en belangrijke functies bijgedragen.</string>
-    <string name="contributor_ttop_description">De allereerste contributeur en tester van het project.</string>
-    <string name="contributor_lenard_description">Ontwikkelaar van de app website en contributeur.</string>
-    <string name="contributor_alex_description">Goede vriend van het project die toegang tot essentiële APIs heeft gegeven.</string>
     <string name="lyrics_karaoke_style_title">Karaoke-stijl songteksten</string>
     <string name="lyrics_karaoke_style_summary">Schakelt een Karaoke-stijl effect in voor woord-voor-woord songteksten. Let op dat dit een experimentele functie is.</string>
     <string name="lyrics_show_translation_title">Toon vertaling</string>

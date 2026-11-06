@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="action_play">Ойнату</string>
-    <string name="action_play_all">Бәрін ойнату</string>
     <string name="action_shuffle_play">Кездейсоқ ретпен ойнату</string>
     <string name="action_queue_next">Келесі болып кезекке қосу</string>
     <string name="shuffle_all_label">Shuffle all</string>
@@ -9,10 +8,8 @@
     <string name="repeat_mode">Repeat mode</string>
     <string name="shuffle_button_tip">Tap for normal shuffle. Long press for advanced options.</string>
     <string name="action_play_pause">Play/Pause</string>
-    <string name="action_pause">Pause</string>
     <string name="action_next">Next</string>
     <string name="action_previous">Previous</string>
-    <string name="action_cancel">Cancel</string>
     <string name="action_seek_backward">Seek backward</string>
     <string name="action_seek_forward">Seek forward</string>
     <string name="action_cycle_repeat">Cycle repeat mode</string>
@@ -23,8 +20,6 @@
     <string name="create_action">Create</string>
     <string name="search_label">Search</string>
     <string name="search_hint">Search your library…</string>
-    <string name="action_voice_search">Voice search</string>
-    <string name="speech_not_supported">Your device doesn\'t support speech input</string>
     <string name="search_artist_x_label">Search artist: %s</string>
     <string name="search_album_x_label">Search album: %s</string>
     <string name="search_list_x_label">Search list: %s</string>
@@ -32,8 +27,6 @@
     <string name="search_year_x_label">Search year: %s</string>
     <string name="search_in_folder_x">Search in folder: %s</string>
     <string name="search_last_added">Search latest music</string>
-    <string name="shuffle_mode_album">Album shuffle</string>
-    <string name="shuffle_mode_artist">Artist shuffle</string>
     <string name="action_share">Share</string>
     <string name="action_save">Save</string>
     <string name="back_action">Back</string>
@@ -45,15 +38,10 @@
     <string name="continue_action">Continue</string>
     <string name="select_all_title">Select all</string>
     <string name="x_selected">%d selected</string>
-    <string name="preparing_playback_title">Preparing</string>
-    <string name="restoring_playback_state">Restoring playback state and queue…</string>
-    <string name="playback_stopped_title">Playback stopped</string>
     <string name="playing_notification_description">The playing notification provides actions for play/pause etc.</string>
     <string name="playing_notification_name">Playing notification</string>
-    <string name="action_scan_directory">Scan directory</string>
     <string name="no_device_playlists">No playlists</string>
     <string name="select_songs_title">Select songs</string>
-    <string name="playlist_x_is_empty">Playlist %s is empty.</string>
     <string name="playlist_name_cannot_be_empty">Playlist name can\'t be empty</string>
     <string name="imported_playlist_x">Imported playlist \"%1$s\".</string>
     <string name="could_not_import_the_playlist_x">Couldn\'t import the playlist \"%s\"</string>
@@ -61,8 +49,6 @@
     <string name="playlist_x_not_imported">Playlist %s not imported.</string>
     <string name="action_import_playlist">Import playlist…</string>
     <string name="new_playlist_title">New playlist</string>
-    <string name="add_playlist_title">Add to playlist</string>
-    <string name="rename_playlist_title">Rename playlist</string>
     <string name="action_edit_playlist">Edit playlist</string>
     <string name="action_delete_playlist">Delete playlist</string>
     <string name="action_export_playlist">Export to file</string>
@@ -83,9 +69,7 @@
     <string name="delete_playlist_x"><![CDATA[Delete playlist <b>%s</b>\?]]></string>
     <string name="delete_x_playlists"><![CDATA[Delete <b>%d</b> playlists?]]></string>
     <string name="created_playlist_x">Created playlist \'%1$s\'.</string>
-    <string name="could_not_create_playlist">Couldn\'t create playlist.</string>
     <string name="playlist_exists">Playlist %s already exists.</string>
-    <string name="playlist_created">Playlist %s created successfully.</string>
     <string name="remove_song_from_playlist_title">Remove song from playlist</string>
     <string name="remove_songs_from_playlist_title">Remove songs from playlist</string>
     <string name="remove_song_x_from_playlist"><![CDATA[Remove the song <b>%1$s</b> from the playlist?]]></string>
@@ -115,7 +99,6 @@
     <string name="deleting_songs">Deleting songs, wait…</string>
     <string name="song_x_of_x">%1$d of %2$d • %3$s</string>
     <string name="no_equalizer">No equalizer found.</string>
-    <string name="audio_focus_denied">Audio focus denied.</string>
     <string name="no_audio_ID">Bad audio ID.</string>
     <string name="playback_error_code">Playback error (%s).</string>
     <string name="unplayable_file">Couldn\'t play this song.</string>
@@ -135,16 +118,10 @@
     <string name="welcome_to_x">Welcome to %s</string>
     <string name="get_started">Get Started</string>
     <string name="select_storage_title">Select storage</string>
-    <string name="now_playing">Now playing</string>
     <string name="playing_queue_label">Playing queue</string>
-    <string name="list_start">List start</string>
-    <string name="list_end">List end</string>
     <string name="clear_queue">Clear queue</string>
-    <string name="action_move_to_current_track">Show current track</string>
     <string name="action_add_to_favorites">Add to Favorites</string>
     <string name="action_remove_from_favorites">Remove from Favorites</string>
-    <string name="added_to_favorites_label">Added to Favorites</string>
-    <string name="removed_from_favorites_label">Removed from Favorites</string>
     <string name="toggle_favorite">Add/Remove from Favorites</string>
     <string name="action_add_to_playlist">Add to playlist</string>
     <string name="action_remove_from_playlist">Remove from playlist</string>
@@ -153,7 +130,6 @@
     <string name="put_after_current_track">Put after current track</string>
     <string name="set_artist_image">Set Artist image</string>
     <string name="reset_artist_image">Reset Artist image</string>
-    <string name="there_is_nothing_to_reset">There is nothing to reset.</string>
     <string name="add_to_label">Add to</string>
     <string name="go_to_label">Go to</string>
     <string name="action_go_to_album">Go to Album</string>
@@ -173,7 +149,6 @@
     <string name="no_artists_label">No artists</string>
     <string name="no_genres_label">No genres</string>
     <string name="empty_label">Empty</string>
-    <string name="nothing_to_see">Nothing to see</string>
     <string name="show_album_artists">Only album artists</string>
     <string name="songs_label">Songs</string>
     <string name="albums_label">Albums</string>
@@ -215,16 +190,13 @@
     <string name="sort_order_file_name">File name</string>
     <string name="sort_order_number_of_songs">Number of songs</string>
     <string name="sort_order_number_of_albums">Number of albums</string>
-    <string name="sort_order_last_played_date">Last played date</string>
     <string name="sort_order_track_list">Track list</string>
     <string name="sort_order_descending">Descending</string>
-    <string name="sort_order_ignore_articles">Ignore articles</string>
     <string name="action_details">Details</string>
     <string name="action_set_as_start_directory">Set as start directory</string>
     <string name="start_directory_set">Start directory set to %s</string>
     <string name="action_go_to_start_directory">Go to start directory</string>
     <string name="action_hierarchy_view">Hierarchy view</string>
-    <string name="new_start_directory">New start directory: %s</string>
     <string name="action_scan">Scan</string>
     <string name="scan_media">Scan media</string>
     <string name="scan_media_message">In most cases, Android automatically detects and indexes media files on your device, so manually scanning is usually unnecessary.</string>
@@ -235,7 +207,6 @@
     <string name="restore_default">Restore default</string>
     <string name="remove_cover">Remove cover</string>
     <string name="could_not_download_album_cover">Couldn’t download a matching album cover.</string>
-    <string name="download_image">Download image</string>
     <string name="pick_from_local_storage">Pick from local storage</string>
     <string name="about_x_title">About %s</string>
     <string name="yes">Yes</string>
@@ -246,7 +217,6 @@
     <string name="label_file_format">Format</string>
     <string name="file_label">File</string>
     <string name="metadata_label">Metadata</string>
-    <string name="song">Song</string>
     <string name="title">Title</string>
     <string name="album">Album</string>
     <string name="artist">Artist</string>
@@ -365,7 +335,6 @@
     <string name="band_configuration_changed_successfully">The band configuration was successfully changed.</string>
     <string name="band_configuration_could_not_be_changed">The band configuration could not be changed.</string>
     <string name="share_eq_profiles">Share EQ Profiles</string>
-    <string name="there_is_nothing_to_export">There is nothing to export.</string>
     <string name="there_is_nothing_to_import">There is nothing to import.</string>
     <string name="an_unexpected_error_occurred">An unexpected error occurred.</string>
     <string name="share_profiles">Share profiles</string>
@@ -413,7 +382,6 @@
     <string name="loudness_enhancer">Amplifier</string>
     <string name="sound_settings">Sound settings</string>
     <string name="listening_on">Listening on</string>
-    <string name="casting_to">Casting to</string>
     <string name="volume_label">Volume</string>
     <string name="reset_balance">Reset balance</string>
     <string name="speed_and_pitch_label">Speed and pitch</string>
@@ -443,8 +411,6 @@
     <string name="download_lyrics">Download lyrics</string>
     <string name="write_lyrics_here">Write lyrics here</string>
     <string name="no_lyrics_found">No lyrics found</string>
-    <string name="lyrics_were_updated_successfully">Lyrics were updated successfully.</string>
-    <string name="failed_to_update_lyrics">Failed to update lyrics.</string>
     <string name="there_are_no_changes_to_save">There are no changes to save.</string>
     <string name="font_imported_successfully">Font imported successfully.</string>
     <string name="could_not_import_font">Could not import font.</string>
@@ -469,22 +435,10 @@
     <string name="app_shortcut_last_added_short">Last Added</string>
     <string name="app_shortcut_favorites_short">Favorites</string>
     <!-- About page -->
-    <string name="action_about">About</string>
-    <string name="changelog">Changelog</string>
-    <string name="faq">FAQ</string>
     <string name="licenses">Licenses</string>
-    <string name="author">Author</string>
-    <string name="mardous_summary">Lead Developer</string>
-    <string name="contributors">Contributors</string>
     <string name="translators_title">Translators</string>
     <string name="translators_summary">Thanks to those who make Booming Music available in many languages.</string>
-    <string name="view_profile_on_github">View profile on GitHub</string>
-    <string name="write_an_email">Write an email</string>
     <string name="support_development">Support development</string>
-    <string name="help_with_translations">Help with translations</string>
-    <string name="help_with_translations_summary">You can contribute to the project by helping translate Booming Music into other languages.</string>
-    <string name="report_bugs">Report bugs</string>
-    <string name="report_bugs_summary">Report bugs or request new features.</string>
     <string name="share_app">Share this app</string>
     <string name="share_app_summary">You can help this app grow if you share it with friends.</string>
     <string name="send_invitation_message">Send invitation message</string>
@@ -495,7 +449,6 @@
     <string name="saf_access_required_message">Booming Music requires permission to access these files. Please select the root folder where your music files are stored.</string>
     <string name="saf_show_files_button">Show files</string>
     <string name="saf_error_uri">Can\'t get SAF URI</string>
-    <string name="saf_write_failed">File write failed: %s</string>
     <string name="saf_delete_failed">File delete failed: %s</string>
     <string name="settings_title">Settings</string>
     <string name="appearance_title">Appearance</string>
@@ -506,7 +459,6 @@
     <string name="lyrics_preferences_summary">Adjust font, spacing, and other options to personalize your lyrics view.</string>
     <string name="playback_title">Playback</string>
     <string name="playback_summary">Change the sound settings, Bluetooth headsets, etc.</string>
-    <string name="metadata_title">Metadata</string>
     <string name="library_title">Library</string>
     <string name="library_summary">Settings for playlists and exclusion/inclusion filters.</string>
     <string name="advanced_title">Advanced</string>
@@ -515,7 +467,6 @@
     <string name="about_title">About</string>
     <string name="about_summary">Booming Music %s, touch for more info.</string>
     <!-- Preference headers -->
-    <string name="general_header">General</string>
     <string name="library_header">Library</string>
     <string name="album_cover_header">Cover</string>
     <string name="exclusion_header">Exclusions</string>
@@ -535,7 +486,6 @@
     <string name="library_categories_summary">Configure visibility and order of library categories.</string>
     <string name="remember_last_page_title">Remember last page</string>
     <string name="remember_last_page_summary">Go to the last opened page on launch.</string>
-    <string name="start_page_title">Start page</string>
     <string name="tab_mode_title">Tab titles mode</string>
     <string name="hold_tab_to_search_title">Hold tab to Search</string>
     <string name="hold_tab_to_search_summary">Long-press any navigation bar tab to open the search screen.</string>
@@ -598,7 +548,6 @@
     <string name="now_playing_corner_radius_title">Image corner radius</string>
     <string name="now_playing_corner_radius_summary">Defines how rounded the corners of the album art should appear.</string>
     <string name="carousel_effect_title">Carousel effect</string>
-    <string name="album_cover_effect_title">Album cover effect</string>
     <string name="animate_controls_title">Animate controls</string>
     <string name="animate_controls_summary">It\'s played when opening the player panel.</string>
     <string name="swipe_up_queue_title">Swipe upwards to open queue</string>
@@ -663,7 +612,6 @@
     <string name="use_folder_album_cover_title">Use folder images</string>
     <string name="use_folder_album_cover_summary">If the audio file does not contain an embedded cover. Images might take a bit more of time to load.</string>
     <string name="online_artist_images_title">Download artist images</string>
-    <string name="preferred_image_size_title">Preferred image size</string>
     <string name="online_album_covers_title">Download missing album covers</string>
     <string name="online_album_covers_summary">Downloaded images aren’t embedded into audio files; they’re only visible within the app. This depends on your metadata download policy.</string>
     <string name="delete_downloaded_lyrics_title">Delete downloaded lyrics</string>
@@ -703,9 +651,6 @@
     <string name="labeled">Labeled</string>
     <string name="unlabeled">Unlabeled</string>
     <string name="selected">Selected</string>
-    <string name="compact">Compact</string>
-    <string name="expanded">Expanded</string>
-    <string name="simple">Simple</string>
     <string name="add_after_playing_track">Add after playing track</string>
     <string name="add_tracks_sequentially">Add tracks sequentially</string>
     <string name="albums_shuffle">Albums shuffle</string>
@@ -721,9 +666,6 @@
     <string name="this_month">This month</string>
     <string name="past_three_months">Past three months</string>
     <string name="this_year">This year</string>
-    <string name="image_size_large">Large (slower)</string>
-    <string name="image_size_medium">Medium (default, recommended)</string>
-    <string name="image_size_small">Small (faster, low quality)</string>
     <string name="play_on_startup_mode_never">Never play on startup</string>
     <string name="play_on_startup_mode_minimized">Yes, with minimized player panel</string>
     <string name="play_on_startup_mode_expanded">Yes, with expanded player panel</string>
@@ -744,8 +686,6 @@
     <string name="every_fifteen_days">Every fifteen days</string>
     <string name="monthly">Monthly</string>
     <string name="never">Never</string>
-    <string name="receive_experimental_updates_title">Receive experimental updates</string>
-    <string name="receive_experimental_updates_summary">Please note that these updates are often very unstable and are intended for experienced users.</string>
     <string name="search_for_update_title">Search for update</string>
     <string name="last_update_search_x">Last check: %s</string>
     <string name="checking_please_wait">Checking, please wait…</string>

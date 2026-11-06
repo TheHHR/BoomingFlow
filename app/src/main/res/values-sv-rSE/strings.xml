@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="action_play">Spela</string>
-    <string name="action_play_all">Spela alla</string>
     <string name="action_shuffle_play">Blanda uppspelning</string>
     <string name="action_queue_next">Köa nästa</string>
     <string name="shuffle_all_label">Blanda alla</string>
@@ -9,10 +8,8 @@
     <string name="repeat_mode">Upprepningsläge</string>
     <string name="shuffle_button_tip">Tryck för normal blandning. Långtryck för avancerade alternativ.</string>
     <string name="action_play_pause">Spela/Pausa</string>
-    <string name="action_pause">Pausa</string>
     <string name="action_next">Nästa</string>
     <string name="action_previous">Föregående</string>
-    <string name="action_cancel">Avbryt</string>
     <string name="action_seek_backward">Sök bakåt</string>
     <string name="action_seek_forward">Sök framåt</string>
     <string name="action_cycle_repeat">Repetitionsläge (cykel)</string>
@@ -23,8 +20,6 @@
     <string name="create_action">Skapa</string>
     <string name="search_label">Sök</string>
     <string name="search_hint">Sök i ditt bibliotek…</string>
-    <string name="action_voice_search">Röstsökning</string>
-    <string name="speech_not_supported">Din enhet stöder inte talinmatning</string>
     <string name="search_artist_x_label">Sök efter artist: %s</string>
     <string name="search_album_x_label">Sök efter album: %s</string>
     <string name="search_list_x_label">Sök efter lista: %s</string>
@@ -32,8 +27,6 @@
     <string name="search_year_x_label">Sök efter år: %s</string>
     <string name="search_in_folder_x">Sök i mapp: %s</string>
     <string name="search_last_added">Sök senaste musik</string>
-    <string name="shuffle_mode_album">Blanda album</string>
-    <string name="shuffle_mode_artist">Blanda artister</string>
     <string name="action_share">Dela</string>
     <string name="action_save">Spara</string>
     <string name="back_action">Tillbaka</string>
@@ -45,15 +38,10 @@
     <string name="continue_action">Fortsätt</string>
     <string name="select_all_title">Markera alla</string>
     <string name="x_selected">%d vald</string>
-    <string name="preparing_playback_title">Förbereder</string>
-    <string name="restoring_playback_state">Återställer uppspelningsstatus och kö…</string>
-    <string name="playback_stopped_title">Uppspelning stoppad</string>
     <string name="playing_notification_description">Uppspelningsaviseringen innehåller åtgärder för att spela/pausa etc.</string>
     <string name="playing_notification_name">Spelar upp avisering</string>
-    <string name="action_scan_directory">Skanna katalog</string>
     <string name="no_device_playlists">Inga spellistor</string>
     <string name="select_songs_title">Välj låtar</string>
-    <string name="playlist_x_is_empty">Spellista %s är tom.</string>
     <string name="playlist_name_cannot_be_empty">Spellistans namn kan inte vara tomt</string>
     <string name="imported_playlist_x">Importerad spellista \"%1$s\".</string>
     <string name="could_not_import_the_playlist_x">Kunde inte importera spellistan \"%s\"</string>
@@ -61,8 +49,6 @@
     <string name="playlist_x_not_imported">Spellista %s inte importerad.</string>
     <string name="action_import_playlist">Importera spellista…</string>
     <string name="new_playlist_title">Ny spellista</string>
-    <string name="add_playlist_title">Lägg till i spellistan</string>
-    <string name="rename_playlist_title">Döp om spellista</string>
     <string name="action_edit_playlist">Redigera spellista</string>
     <string name="action_delete_playlist">Ta bort spellista</string>
     <string name="action_export_playlist">Exportera till fil</string>
@@ -83,9 +69,7 @@
     <string name="delete_playlist_x"><![CDATA[Ta bort spellista <b>%s</b>\?]]></string>
     <string name="delete_x_playlists"><![CDATA[Ta bort <b>%d</b> spellistor?]]></string>
     <string name="created_playlist_x">Skapade spellista \'%1$s\'.</string>
-    <string name="could_not_create_playlist">Det gick inte att skapa spellista.</string>
     <string name="playlist_exists">Spellista %s finns redan.</string>
-    <string name="playlist_created">Spellista %s har skapats.</string>
     <string name="remove_song_from_playlist_title">Ta bort låt från spellistan</string>
     <string name="remove_songs_from_playlist_title">Ta bort låtar från spellistan</string>
     <string name="remove_song_x_from_playlist"><![CDATA[Ta bort låten <b>%1$s</b> från spellistan?]]></string>
@@ -115,7 +99,6 @@
     <string name="deleting_songs">Tar bort låtar, vänta…</string>
     <string name="song_x_of_x">%1$d %2$d • %3$s</string>
     <string name="no_equalizer">Ingen equalizer hittades.</string>
-    <string name="audio_focus_denied">Ljudfokus nekad.</string>
     <string name="no_audio_ID">Dåligt ljud-ID.</string>
     <string name="playback_error_code">Uppspelningsfel (%s).</string>
     <string name="unplayable_file">Kunde inte spela den här låten.</string>
@@ -133,16 +116,10 @@
     <string name="granted">Beviljad</string>
     <string name="get_started">Kom igång</string>
     <string name="select_storage_title">Välj lagringsutrymme</string>
-    <string name="now_playing">Nu spelas</string>
     <string name="playing_queue_label">Spelkö</string>
-    <string name="list_start">Listans början</string>
-    <string name="list_end">Listans slut</string>
     <string name="clear_queue">Rensa kö</string>
-    <string name="action_move_to_current_track">Visa nuvarande spår</string>
     <string name="action_add_to_favorites">Lägg till i favoriter</string>
     <string name="action_remove_from_favorites">Ta bort från favoriter</string>
-    <string name="added_to_favorites_label">Lades till i favoriter</string>
-    <string name="removed_from_favorites_label">Borttagen från favoriter</string>
     <string name="toggle_favorite">Lägg till/ta bort från favoriter</string>
     <string name="action_add_to_playlist">Lägg till i spellistan</string>
     <string name="action_remove_from_playlist">Ta bort från spellistan</string>
@@ -151,7 +128,6 @@
     <string name="put_after_current_track">Sätt efter nuvarande spår</string>
     <string name="set_artist_image">Ställ in artistbild</string>
     <string name="reset_artist_image">Återställ konstnärsbild</string>
-    <string name="there_is_nothing_to_reset">Det finns inget att återställa.</string>
     <string name="add_to_label">Lägg till i</string>
     <string name="go_to_label">Gå till</string>
     <string name="action_go_to_album">Gå till album</string>
@@ -171,7 +147,6 @@
     <string name="no_artists_label">Inga artister</string>
     <string name="no_genres_label">Inga genrer</string>
     <string name="empty_label">Tom</string>
-    <string name="nothing_to_see">Inget att se</string>
     <string name="show_album_artists">Endast albumartister</string>
     <string name="songs_label">Låtar</string>
     <string name="albums_label">Album</string>
@@ -213,16 +188,13 @@
     <string name="sort_order_file_name">Filnamn</string>
     <string name="sort_order_number_of_songs">Antal låtar</string>
     <string name="sort_order_number_of_albums">Antal album</string>
-    <string name="sort_order_last_played_date">Senast spelad</string>
     <string name="sort_order_track_list">Spåra lista</string>
     <string name="sort_order_descending">Fallande</string>
-    <string name="sort_order_ignore_articles">Ignorera artiklar</string>
     <string name="action_details">Detaljer</string>
     <string name="action_set_as_start_directory">Ange som startkatalog</string>
     <string name="start_directory_set">Start directory set to %s</string>
     <string name="action_go_to_start_directory">Gå till startkatalogen</string>
     <string name="action_hierarchy_view">Hierarki vy</string>
-    <string name="new_start_directory">Ny startkatalog: %s</string>
     <string name="action_scan">Skanna</string>
     <string name="scan_media">Skanna media</string>
     <string name="scan_media_message">I de flesta fall upptäcker och indexerar Android automatiskt mediefiler på din enhet, så manuellt skanning är vanligtvis onödig.</string>
@@ -233,7 +205,6 @@
     <string name="restore_default">Återställ standard</string>
     <string name="remove_cover">Ta bort omslag</string>
     <string name="could_not_download_album_cover">Det gick inte att ladda ner ett passande skivomslag.</string>
-    <string name="download_image">Ladda ner bild</string>
     <string name="pick_from_local_storage">Välj från lokal lagring</string>
     <string name="about_x_title">Om %s</string>
     <string name="yes">Ja</string>
@@ -244,7 +215,6 @@
     <string name="label_file_format">Formatera</string>
     <string name="file_label">Fil</string>
     <string name="metadata_label">Metadata</string>
-    <string name="song">Lång</string>
     <string name="title">Titel</string>
     <string name="album">Album</string>
     <string name="artist">Konstnären</string>
@@ -362,7 +332,6 @@
     <string name="band_configuration_changed_successfully">Bandkonfigurationen har ändrats.</string>
     <string name="band_configuration_could_not_be_changed">Det gick inte att ändra bandkonfigurationen.</string>
     <string name="share_eq_profiles">Dela EQ Profiler</string>
-    <string name="there_is_nothing_to_export">Det finns inget att exportera.</string>
     <string name="there_is_nothing_to_import">Det finns inget att importera.</string>
     <string name="an_unexpected_error_occurred">Ett oväntat fel inträffade.</string>
     <string name="share_profiles">Dela profiler</string>
@@ -410,7 +379,6 @@
     <string name="loudness_enhancer">Förstärkare</string>
     <string name="sound_settings">Ljud inställningar</string>
     <string name="listening_on">Lyssna på</string>
-    <string name="casting_to">Strömma till</string>
     <string name="volume_label">Volym</string>
     <string name="reset_balance">Återställ balans</string>
     <string name="speed_and_pitch_label">Hastighet och tonhöjd</string>
@@ -440,8 +408,6 @@
     <string name="download_lyrics">Hämta låttexter</string>
     <string name="write_lyrics_here">Skriv låttext här</string>
     <string name="no_lyrics_found">Inga låttexter hittades</string>
-    <string name="lyrics_were_updated_successfully">Låttexter har uppdaterats.</string>
-    <string name="failed_to_update_lyrics">Det gick inte att uppdatera låttexter.</string>
     <string name="there_are_no_changes_to_save">Det finns inga ändringar att spara.</string>
     <string name="font_imported_successfully">Typsnitt importerades.</string>
     <string name="could_not_import_font">Kunde inte importera typsnitt.</string>
@@ -466,22 +432,10 @@
     <string name="app_shortcut_last_added_short">Senast tillagda</string>
     <string name="app_shortcut_favorites_short">Favoriter</string>
     <!-- About page -->
-    <string name="action_about">Om</string>
-    <string name="changelog">Ändringslogg</string>
-    <string name="faq">FAQ</string>
     <string name="licenses">Licenser</string>
-    <string name="author">Författare</string>
-    <string name="mardous_summary">Huvudutvecklare</string>
-    <string name="contributors">Bidragsgivare</string>
     <string name="translators_title">Översättare</string>
     <string name="translators_summary">Tack till dem som gör Booming Music tillgänglig på många språk.</string>
-    <string name="view_profile_on_github">Visa profil på GitHub</string>
-    <string name="write_an_email">Skriv en e-postadress</string>
     <string name="support_development">Stöd utvecklingen</string>
-    <string name="help_with_translations">Hjälp med översättningar</string>
-    <string name="help_with_translations_summary">Du kan bidra till projektet genom att hjälpa till att översätta Booming Music till andra språk.</string>
-    <string name="report_bugs">Rapportera buggar</string>
-    <string name="report_bugs_summary">Rapportera buggar eller begär nya funktioner.</string>
     <string name="share_app">Dela denna app</string>
     <string name="share_app_summary">Du kan hjälpa denna app växa om du delar den med vänner.</string>
     <string name="send_invitation_message">Skicka inbjudningsmeddelande</string>
@@ -492,7 +446,6 @@
     <string name="saf_access_required_message">Booming Music kräver behörighet att komma åt dessa filer. Välj rotmappen där dina musikfiler lagras.</string>
     <string name="saf_show_files_button">Visa filer</string>
     <string name="saf_error_uri">Kan inte hämta SAF URI</string>
-    <string name="saf_write_failed">Filskrivning misslyckades: %s</string>
     <string name="saf_delete_failed">Borttagning av fil misslyckades: %s</string>
     <string name="settings_title">Inställningar</string>
     <string name="appearance_title">Utseende</string>
@@ -503,7 +456,6 @@
     <string name="lyrics_preferences_summary">Justera typsnitt, avstånd och andra alternativ för att anpassa din låttextvy.</string>
     <string name="playback_title">Uppspelning</string>
     <string name="playback_summary">Ändra ljudinställningar, Bluetooth-headset etc.</string>
-    <string name="metadata_title">Metadata</string>
     <string name="library_title">Bibliotek</string>
     <string name="library_summary">Inställningar för spellistor och uteslutning/inkludering filter.</string>
     <string name="advanced_title">Avancerat</string>
@@ -512,7 +464,6 @@
     <string name="about_title">Om</string>
     <string name="about_summary">Booming Music %s, tryck för mer info.</string>
     <!-- Preference headers -->
-    <string name="general_header">Allmänt</string>
     <string name="library_header">Bibliotek</string>
     <string name="album_cover_header">Omslag</string>
     <string name="exclusion_header">Undantag</string>
@@ -532,7 +483,6 @@
     <string name="library_categories_summary">Konfigurera synlighet och ordning på bibliotekskategorier.</string>
     <string name="remember_last_page_title">Kom ihåg senaste sidan</string>
     <string name="remember_last_page_summary">Gå till den senast öppnade sidan vid lansering.</string>
-    <string name="start_page_title">Startsida</string>
     <string name="tab_mode_title">Fliken titlar läge</string>
     <string name="hold_tab_to_search_title">Håll fliken för att söka</string>
     <string name="hold_tab_to_search_summary">Tryck länge på en flik i navigationsfältet för att öppna sökskärmen.</string>
@@ -591,7 +541,6 @@
     <string name="now_playing_corner_radius_title">Bild hörnradie</string>
     <string name="now_playing_corner_radius_summary">Definierar hur rundade hörnen på skivomslaget ska se ut.</string>
     <string name="carousel_effect_title">Karusell effekt</string>
-    <string name="album_cover_effect_title">Omslagseffekt för album</string>
     <string name="animate_controls_title">Animera kontroller</string>
     <string name="animate_controls_summary">Det spelas när du öppnar spelarpanelen.</string>
     <string name="swipe_up_queue_title">Svep uppåt för att öppna kön</string>
@@ -656,7 +605,6 @@
     <string name="use_folder_album_cover_title">Använd mappbilder</string>
     <string name="use_folder_album_cover_summary">Om ljudfilen inte innehåller ett inbäddat omslag. Bilder kan ta lite mer tid att ladda.</string>
     <string name="online_artist_images_title">Ladda ner artistbilder</string>
-    <string name="preferred_image_size_title">Önskad bildstorlek</string>
     <string name="online_album_covers_title">Ladda ner saknade albumomslag</string>
     <string name="online_album_covers_summary">Nedladdade bilder är inte inbäddade i ljudfiler, de är bara synliga i appen.</string>
     <string name="delete_downloaded_lyrics_title">Ta bort hämtade låttexter</string>
@@ -696,9 +644,6 @@
     <string name="labeled">Etikett</string>
     <string name="unlabeled">Avmärkt</string>
     <string name="selected">Vald</string>
-    <string name="compact">Kompakt</string>
-    <string name="expanded">Utökat</string>
-    <string name="simple">Enkel</string>
     <string name="add_after_playing_track">Lägg till efter att spåret har spelats</string>
     <string name="add_tracks_sequentially">Lägg till spår sekventiellt</string>
     <string name="albums_shuffle">Album shufflas</string>
@@ -714,9 +659,6 @@
     <string name="this_month">Denna månad</string>
     <string name="past_three_months">Senaste tre månaderna</string>
     <string name="this_year">I år</string>
-    <string name="image_size_large">Stor (långsammare)</string>
-    <string name="image_size_medium">Medium (standard, rekommenderas)</string>
-    <string name="image_size_small">Liten (snabbare, låg kvalitet)</string>
     <string name="play_on_startup_mode_never">Spela aldrig vid uppstart</string>
     <string name="play_on_startup_mode_minimized">Ja, med minimerad spelarpanel</string>
     <string name="play_on_startup_mode_expanded">Ja, med utökad spelarpanel</string>
@@ -737,8 +679,6 @@
     <string name="every_fifteen_days">Var 15:e dag</string>
     <string name="monthly">Månadsvis</string>
     <string name="never">Aldrig</string>
-    <string name="receive_experimental_updates_title">Få experimentella uppdateringar</string>
-    <string name="receive_experimental_updates_summary">Observera att dessa uppdateringar ofta är mycket instabila och är avsedda för erfarna användare.</string>
     <string name="search_for_update_title">Sök efter uppdateringar</string>
     <string name="last_update_search_x">Senaste kontroll: %s</string>
     <string name="checking_please_wait">Kontrollerar, vänligen vänta…</string>
@@ -765,10 +705,6 @@
     <string name="error_lastfm_rate_limit">För många förfrågningar. Vänta ett ögonblick innan du försöker skrobba igen.</string>
     <string name="error_lastfm_generic">Ett oväntat fel uppstod med Last.fm. Försök igen.</string>
     <string name="error_network_timeout">Anslutningen är inte längre aktiv. Kontrollera din internetanslutning och försök igen.</string>
-    <string name="github">GitHub</string>
-    <string name="telegram_community">Telegram-community</string>
-    <string name="telegram_community_summary">Gå med i vår Telegram-community för att hålla dig uppdaterad om nya utgåvor och nyheter.</string>
-    <string name="support_my_work">Stöd mitt arbete</string>
     <string name="network_title">Nätverk</string>
     <string name="network_summary">Hantera internetfunktioner som Last.fm-integration, låttextleverantörer och nedladdning av metadata.</string>
     <string name="images_title">Bilder</string>
@@ -857,7 +793,6 @@
     <string name="eq_release_time">Avslut</string>
     <string name="eq_threshold">Tröskelvärde</string>
     <string name="eq_ratio">Ratio</string>
-    <string name="eq_expander_ratio">Expander-ratio</string>
     <string name="eq_knee_width">Knäbredd</string>
     <string name="eq_noise_gate">Brusgrind</string>
     <string name="eq_pre_gain">Förförstärkning</string>
@@ -876,16 +811,9 @@
     <string name="lyrics_resume_on_seek_summary">Återuppta uppspelningen automatiskt när man klickar på en rad.</string>
     <string name="app_version_x">Version %s</string>
     <string name="app_description">Modern design. Rent ljud. Helt och hållet din.</string>
-    <string name="more_contributors_title">Fler bidragsgivare</string>
-    <string name="more_contributors_summary">Du kan se den fullständiga listan över bidragsgivare på GitHub.</string>
     <string name="up_next">Härnäst</string>
     <string name="reorder_action">Ordna om</string>
     <string name="go_to_current_track">Gå till aktuellt spår</string>
-    <string name="contributor_dawid_description">Nyckelbidragsgivare och designer av flera centrala appfunktioner.</string>
-    <string name="contributor_ray_description">Bidrog med flera spännande och viktiga funktioner.</string>
-    <string name="contributor_ttop_description">Projektets allra första bidragsgivare och testare.</string>
-    <string name="contributor_lenard_description">Utvecklare av appens webbplats och bidragsgivare.</string>
-    <string name="contributor_alex_description">Långvarig vän till projektet som gav tillgång till viktiga API:er.</string>
     <string name="play_all_songs_when_searching_title">Spela upp alla låtar vid sökning</string>
     <string name="play_all_songs_when_searching_summary">När funktionen är aktiverad läggs hela biblioteket i kön när du väljer en låt du sökt fram. Detta styrs av inställningen för val av låt.</string>
     <string name="app_widget_circle">Cirkel</string>
@@ -911,10 +839,7 @@
     <string name="restore_from_backup">Återställ från säkerhetskopia</string>
     <string name="sort_order_name">Namn</string>
     <string name="restart_app_message">Appen startas om för att slutföra processen.</string>
-    <string name="website">Webbplats</string>
     <string name="legal">Juridisk information</string>
-    <string name="terms_of_service">Användarvillkor</string>
-    <string name="privacy_policy">Integritetspolicy</string>
     <string name="widget_settings_title">Widgetinställningar</string>
     <string name="widget_show_progress_title">Visa förlopp</string>
     <string name="widget_show_progress_summary">Visa hur långt man har kommit i det aktuella spåret.</string>

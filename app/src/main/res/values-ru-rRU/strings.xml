@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="action_play">Воспроизвести</string>
-    <string name="action_play_all">Воспроизвести все</string>
     <string name="action_shuffle_play">Перемешать воспроизведение</string>
     <string name="action_queue_next">Добавить следующим в очередь</string>
     <string name="shuffle_all_label">Перемешать все</string>
@@ -9,10 +8,8 @@
     <string name="repeat_mode">Повтор</string>
     <string name="shuffle_button_tip">Нажмите для обычного перемешивания. Удерживайте для дополнительных настроек.</string>
     <string name="action_play_pause">Воспроизвести/Пауза</string>
-    <string name="action_pause">Пауза</string>
     <string name="action_next">Следующий</string>
     <string name="action_previous">Предыдущий</string>
-    <string name="action_cancel">Отмена</string>
     <string name="action_seek_backward">Перемотка назад</string>
     <string name="action_seek_forward">Перемотка вперед</string>
     <string name="action_cycle_repeat">Цикл режимов повтора</string>
@@ -23,8 +20,6 @@
     <string name="create_action">Создать</string>
     <string name="search_label">Поиск</string>
     <string name="search_hint">Поиск по вашей библиотеке…</string>
-    <string name="action_voice_search">Голосовой поиск</string>
-    <string name="speech_not_supported">Ваше устройство не поддерживает голосовой ввод</string>
     <string name="search_artist_x_label">Поиск по исполнителю: %s</string>
     <string name="search_album_x_label">Поиск по альбому: %s</string>
     <string name="search_list_x_label">Поиск по списку: %s</string>
@@ -32,8 +27,6 @@
     <string name="search_year_x_label">Поиск по году: %s</string>
     <string name="search_in_folder_x">Найти в папке: %s</string>
     <string name="search_last_added">Поиск последней добавленной музыки</string>
-    <string name="shuffle_mode_album">Перемешать альбом</string>
-    <string name="shuffle_mode_artist">Перемещать исполнителя</string>
     <string name="action_share">Поделиться</string>
     <string name="action_save">Сохранить</string>
     <string name="back_action">Назад</string>
@@ -45,15 +38,10 @@
     <string name="continue_action">Продолжить</string>
     <string name="select_all_title">Выбрать все</string>
     <string name="x_selected">%d выбрано</string>
-    <string name="preparing_playback_title">Подготовка</string>
-    <string name="restoring_playback_state">Восстановление состояния воспроизведения и очереди…</string>
-    <string name="playback_stopped_title">Воспроизведение остановлено</string>
     <string name="playing_notification_description">Уведомление о воспроизведении предоставляет действия для воспроизведения/паузы и т. д.</string>
     <string name="playing_notification_name">Уведомление о воспроизведении</string>
-    <string name="action_scan_directory">Сканировать папку</string>
     <string name="no_device_playlists">Нет плейлистов</string>
     <string name="select_songs_title">Выбрать песни</string>
-    <string name="playlist_x_is_empty">Плейлист %s пуст.</string>
     <string name="playlist_name_cannot_be_empty">Название плейлиста не может быть пустым</string>
     <string name="imported_playlist_x">Импортирован плейлист \"%1$s\".</string>
     <string name="could_not_import_the_playlist_x">Не удалось импортировать плейлист \"%s\"</string>
@@ -61,8 +49,6 @@
     <string name="playlist_x_not_imported">Плейлист %s не импортирован.</string>
     <string name="action_import_playlist">Импортировать плейлист…</string>
     <string name="new_playlist_title">Новый плейлист</string>
-    <string name="add_playlist_title">Добавить в плейлист</string>
-    <string name="rename_playlist_title">Переименовать плейлист</string>
     <string name="action_edit_playlist">Редактировать плейлист</string>
     <string name="action_delete_playlist">Удалить плейлист</string>
     <string name="action_export_playlist">Экспортировать в файл</string>
@@ -83,9 +69,7 @@
     <string name="delete_playlist_x"><![CDATA[Удалить плейлист <b>%s</b>\?]]></string>
     <string name="delete_x_playlists"><![CDATA[Удалить <b>%d</b> плейлистов?]]></string>
     <string name="created_playlist_x">Создан плейлист \'%1$s\'.</string>
-    <string name="could_not_create_playlist">Не удалось создать плейлист.</string>
     <string name="playlist_exists">Плейлист %s уже существует.</string>
-    <string name="playlist_created">Плейлист %s успешно создан.</string>
     <string name="remove_song_from_playlist_title">Удалить песню из плейлиста</string>
     <string name="remove_songs_from_playlist_title">Удалить песни из плейлиста</string>
     <string name="remove_song_x_from_playlist"><![CDATA[Удалить песню <b>%1$s</b> из плейлиста?]]></string>
@@ -115,7 +99,6 @@
     <string name="deleting_songs">Удаление песен, подождите…</string>
     <string name="song_x_of_x">%1$d из %2$d • %3$s</string>
     <string name="no_equalizer">Эквалайзер не найден.</string>
-    <string name="audio_focus_denied">Доступ к аудио отклонен.</string>
     <string name="no_audio_ID">Неверный ID аудио.</string>
     <string name="playback_error_code">Ошибка воспроизведения (%s).</string>
     <string name="unplayable_file">Не удалось воспроизвести эту песню.</string>
@@ -135,16 +118,10 @@
     <string name="welcome_to_x">Добро пожаловать в %s</string>
     <string name="get_started">Начать</string>
     <string name="select_storage_title">Выберите хранилище</string>
-    <string name="now_playing">Сейчас играет</string>
     <string name="playing_queue_label">Очередь воспроизведения</string>
-    <string name="list_start">Начало списка</string>
-    <string name="list_end">Конец списка</string>
     <string name="clear_queue">Очистить очередь</string>
-    <string name="action_move_to_current_track">Показать текущий трек</string>
     <string name="action_add_to_favorites">Добавить в избранное</string>
     <string name="action_remove_from_favorites">Удалить из избранного</string>
-    <string name="added_to_favorites_label">Добавлено в избранное</string>
-    <string name="removed_from_favorites_label">Удалено из избранного</string>
     <string name="toggle_favorite">Добавить/Удалить из избранного</string>
     <string name="action_add_to_playlist">Добавить в плейлист</string>
     <string name="action_remove_from_playlist">Удалить из плейлиста</string>
@@ -153,7 +130,6 @@
     <string name="put_after_current_track">Поместить после текущего трека</string>
     <string name="set_artist_image">Установить изображение исполнителя</string>
     <string name="reset_artist_image">Сбросить изображение исполнителя</string>
-    <string name="there_is_nothing_to_reset">Нет ничего, чтобы сбросить.</string>
     <string name="add_to_label">Добавить в</string>
     <string name="go_to_label">Перейти к</string>
     <string name="action_go_to_album">Перейти к альбому</string>
@@ -173,7 +149,6 @@
     <string name="no_artists_label">Исполнителей нет</string>
     <string name="no_genres_label">Жанров нет</string>
     <string name="empty_label">Пусто</string>
-    <string name="nothing_to_see">Нечего смотреть</string>
     <string name="show_album_artists">Только исполнители альбомов</string>
     <string name="songs_label">Песни</string>
     <string name="albums_label">Альбомы</string>
@@ -215,16 +190,13 @@
     <string name="sort_order_file_name">Имя файла</string>
     <string name="sort_order_number_of_songs">Количество песен</string>
     <string name="sort_order_number_of_albums">Количество альбомов</string>
-    <string name="sort_order_last_played_date">Дата последнего воспроизведения</string>
     <string name="sort_order_track_list">Порядок треков</string>
     <string name="sort_order_descending">По убыванию</string>
-    <string name="sort_order_ignore_articles">Игнорировать статьи</string>
     <string name="action_details">Подробности</string>
     <string name="action_set_as_start_directory">Установить как начальную папку</string>
     <string name="start_directory_set">Начальная папка установлена по пути %s</string>
     <string name="action_go_to_start_directory">Перейти к начальной папке</string>
     <string name="action_hierarchy_view">Иерархический вид</string>
-    <string name="new_start_directory">Новая начальная папка: %s</string>
     <string name="action_scan">Сканировать</string>
     <string name="scan_media">Сканировать медиа</string>
     <string name="scan_media_message">В большинстве случаев Android автоматически обнаруживает и индексирует медиафайлы на вашем устройстве, поэтому ручное сканирование обычно не требуется.</string>
@@ -235,7 +207,6 @@
     <string name="restore_default">Восстановить по умолчанию</string>
     <string name="remove_cover">Удалить обложку</string>
     <string name="could_not_download_album_cover">Не удалось загрузить подходящую обложку альбома.</string>
-    <string name="download_image">Загрузить изображение</string>
     <string name="pick_from_local_storage">Выбрать из локального хранилища</string>
     <string name="about_x_title">О программе %s</string>
     <string name="yes">Да</string>
@@ -246,7 +217,6 @@
     <string name="label_file_format">Формат</string>
     <string name="file_label">Файл</string>
     <string name="metadata_label">Метаданные</string>
-    <string name="song">Песня</string>
     <string name="title">Название</string>
     <string name="album">Альбом</string>
     <string name="artist">Исполнитель</string>
@@ -380,7 +350,6 @@
     <string name="band_configuration_changed_successfully">Конфигурация полос успешно изменена.</string>
     <string name="band_configuration_could_not_be_changed">Не удалось изменить конфигурацию полос.</string>
     <string name="share_eq_profiles">Поделиться профилями эквалайзера</string>
-    <string name="there_is_nothing_to_export">Экспортировать нечего.</string>
     <string name="there_is_nothing_to_import">Импортировать нечего.</string>
     <string name="an_unexpected_error_occurred">Произошла непредвиденная ошибка.</string>
     <string name="share_profiles">Поделиться профилями</string>
@@ -428,7 +397,6 @@
     <string name="loudness_enhancer">Усилитель</string>
     <string name="sound_settings">Настройки звука</string>
     <string name="listening_on">Воспроизведение на</string>
-    <string name="casting_to">Трансляция на</string>
     <string name="volume_label">Громкость</string>
     <string name="reset_balance">Сбросить баланс</string>
     <string name="speed_and_pitch_label">Скорость и высота тона</string>
@@ -458,8 +426,6 @@
     <string name="download_lyrics">Загрузить текст песни</string>
     <string name="write_lyrics_here">Пишите тексты песен здесь</string>
     <string name="no_lyrics_found">Тексты песен не найдены</string>
-    <string name="lyrics_were_updated_successfully">Текст песни успешно обновлен.</string>
-    <string name="failed_to_update_lyrics">Не удалось обновить текст песни.</string>
     <string name="there_are_no_changes_to_save">Нет изменений для сохранения.</string>
     <string name="font_imported_successfully">Шрифт успешно импортирован.</string>
     <string name="could_not_import_font">Не удалось импортировать шрифт.</string>
@@ -484,22 +450,10 @@
     <string name="app_shortcut_last_added_short">Последние добавленные</string>
     <string name="app_shortcut_favorites_short">Избранное</string>
     <!-- About page -->
-    <string name="action_about">О программе</string>
-    <string name="changelog">Журнал изменений</string>
-    <string name="faq">FAQ</string>
     <string name="licenses">Лицензии</string>
-    <string name="author">Автор</string>
-    <string name="mardous_summary">Ведущий разработчик</string>
-    <string name="contributors">Участники</string>
     <string name="translators_title">Переводчики</string>
     <string name="translators_summary">Спасибо всем, кто помогает переводить Booming Music на разные языки.</string>
-    <string name="view_profile_on_github">Посмотреть профиль на GitHub</string>
-    <string name="write_an_email">Написать письмо</string>
     <string name="support_development">Поддержка разработки</string>
-    <string name="help_with_translations">Помощь с переводами</string>
-    <string name="help_with_translations_summary">Вы можете внести свой вклад в проект, помогая переводить Booming Music на другие языки.</string>
-    <string name="report_bugs">Сообщить об ошибках</string>
-    <string name="report_bugs_summary">Сообщайте об ошибках или запрашивайте новые функции.</string>
     <string name="share_app">Поделиться приложением</string>
     <string name="share_app_summary">Вы можете помочь этому приложению расти, поделившись им с друзьями.</string>
     <string name="send_invitation_message">Отправить приглашение</string>
@@ -510,7 +464,6 @@
     <string name="saf_access_required_message">Booming Music требует разрешения на доступ к этим файлам. Пожалуйста, выберите корневую папку, в которой хранятся ваши музыкальные файлы.</string>
     <string name="saf_show_files_button">Показать файлы</string>
     <string name="saf_error_uri">Не удалось получить URI SAF</string>
-    <string name="saf_write_failed">Ошибка записи файла: %s</string>
     <string name="saf_delete_failed">Ошибка удаления файла: %s</string>
     <string name="settings_title">Настройки</string>
     <string name="appearance_title">Внешний вид</string>
@@ -521,7 +474,6 @@
     <string name="lyrics_preferences_summary">Настройте шрифт, интервалы и другие параметры отображения текста.</string>
     <string name="playback_title">Воспроизведение</string>
     <string name="playback_summary">Измените настройки звука, Bluetooth-гарнитуры и т. д.</string>
-    <string name="metadata_title">Метаданные</string>
     <string name="library_title">Библиотека</string>
     <string name="library_summary">Настройки плейлистов и фильтров исключения/включения.</string>
     <string name="advanced_title">Дополнительно</string>
@@ -530,7 +482,6 @@
     <string name="about_title">О программе</string>
     <string name="about_summary">Booming Music %s, нажмите для получения дополнительной информации.</string>
     <!-- Preference headers -->
-    <string name="general_header">Общие положения</string>
     <string name="library_header">Библиотека</string>
     <string name="album_cover_header">Обложка</string>
     <string name="exclusion_header">Исключения</string>
@@ -550,7 +501,6 @@
     <string name="library_categories_summary">Настройте видимость и порядок категорий библиотеки.</string>
     <string name="remember_last_page_title">Запоминать последнюю страницу</string>
     <string name="remember_last_page_summary">Переходить на последнюю открытую страницу при запуске.</string>
-    <string name="start_page_title">Начальная страница</string>
     <string name="tab_mode_title">Режим заголовков вкладок</string>
     <string name="hold_tab_to_search_title">Удержание вкладки для поиска</string>
     <string name="hold_tab_to_search_summary">Удерживайте любую вкладку навигационной панели, чтобы открыть поиск.</string>
@@ -613,7 +563,6 @@
     <string name="now_playing_corner_radius_title">Радиус угла изображения</string>
     <string name="now_playing_corner_radius_summary">Определяет, насколько закругленными должны быть углы обложки альбома.</string>
     <string name="carousel_effect_title">Эффект карусели</string>
-    <string name="album_cover_effect_title">Эффект обложки альбома</string>
     <string name="animate_controls_title">Анимировать элементы управления</string>
     <string name="animate_controls_summary">Воспроизводится при открытии панели плеера.</string>
     <string name="swipe_up_queue_title">Свайп вверх для открытия очереди</string>
@@ -678,7 +627,6 @@
     <string name="use_folder_album_cover_title">Использовать изображения папок</string>
     <string name="use_folder_album_cover_summary">Если аудиофайл не содержит встроенную обложку. Загрузка изображений может занять немного больше времени.</string>
     <string name="online_artist_images_title">Загружать изображения исполнителей</string>
-    <string name="preferred_image_size_title">Предпочтительный размер изображений</string>
     <string name="online_album_covers_title">Скачивать недостающие обложки</string>
     <string name="online_album_covers_summary">Скачанные изображения не встраиваются в файлы, а видны только в приложении.</string>
     <string name="delete_downloaded_lyrics_title">Удалить загруженные тексты песен</string>
@@ -718,9 +666,6 @@
     <string name="labeled">С меткой</string>
     <string name="unlabeled">Без метки</string>
     <string name="selected">Выбрано</string>
-    <string name="compact">Компактный</string>
-    <string name="expanded">Развернуто</string>
-    <string name="simple">Простой</string>
     <string name="add_after_playing_track">Добавить после текущего трека</string>
     <string name="add_tracks_sequentially">Добавить треки последовательно</string>
     <string name="albums_shuffle">Перемешивание альбомов</string>
@@ -736,9 +681,6 @@
     <string name="this_month">Этот месяц</string>
     <string name="past_three_months">Последние три месяца</string>
     <string name="this_year">Этот год</string>
-    <string name="image_size_large">Большой (медленнее)</string>
-    <string name="image_size_medium">Средний (по умолчанию, рекомендуется)</string>
-    <string name="image_size_small">Маленький (быстрее, низкое качество)</string>
     <string name="play_on_startup_mode_never">Никогда не проигрывать при запуске</string>
     <string name="play_on_startup_mode_minimized">Да, со свернутой панелью</string>
     <string name="play_on_startup_mode_expanded">Да, с развернутой панелью</string>
@@ -759,8 +701,6 @@
     <string name="every_fifteen_days">Каждые пятнадцать дней</string>
     <string name="monthly">Ежемесячно</string>
     <string name="never">Никогда</string>
-    <string name="receive_experimental_updates_title">Получать экспериментальные обновления</string>
-    <string name="receive_experimental_updates_summary">Пожалуйста, обратите внимание, что эти обновления часто очень нестабильны и предназначены для опытных пользователей.</string>
     <string name="search_for_update_title">Поиск обновлений</string>
     <string name="last_update_search_x">Последняя проверка: %s</string>
     <string name="checking_please_wait">Проверка, пожалуйста, подождите…</string>
@@ -798,10 +738,6 @@
     <string name="error_lastfm_rate_limit">Слишком много запросов. Пожалуйста, подождите некоторое время перед следующей отправкой данных о прослушивании.</string>
     <string name="error_lastfm_generic">Произошла непредвиденная ошибка в работе Last.fm. Пожалуйста, попробуйте ещё раз.</string>
     <string name="error_network_timeout">Истекло время ожидания соединения. Проверьте подключение к интернету и повторите попытку.</string>
-    <string name="github">GitHub</string>
-    <string name="telegram_community">Telegram сообщество</string>
-    <string name="telegram_community_summary">Присоединяйтесь к нашему сообществу в Telegram, чтобы быть в курсе новых релизов и новостей.</string>
-    <string name="support_my_work">Поддержите мою работу</string>
     <string name="network_title">Сеть</string>
     <string name="network_summary">Настройка сетевых функций: интеграция с Last.fm, получение текстов песен, загрузка метаданных.</string>
     <string name="images_title">Изображения</string>
@@ -880,7 +816,6 @@
     <string name="eq_release_time">Восстановление</string>
     <string name="eq_threshold">Порог</string>
     <string name="eq_ratio">Соотношение</string>
-    <string name="eq_expander_ratio">Соотношение экспандера</string>
     <string name="eq_knee_width">Ширина колена</string>
     <string name="eq_noise_gate">Шумовой гейт</string>
     <string name="eq_pre_gain">Входное усиление</string>
@@ -891,8 +826,6 @@
     <string name="lyrics_resume_on_seek_summary">Автоматически возобновлять воспроизведение при нажатии на строку.</string>
     <string name="eq_attack_time">Время атаки</string>
     <string name="app_description">Современный дизайн. Чистый звук. Полностью ваш.</string>
-    <string name="more_contributors_title">Другие участники</string>
-    <string name="more_contributors_summary">Полный список участников можно посмотреть на GitHub.</string>
     <string name="lyrics_karaoke_style_title">Текст в стиле караоке</string>
     <string name="lyrics_karaoke_style_summary">Включает эффект караоке для текста с пословесной синхронизацией. Обратите внимание, что это экспериментальная функция.</string>
     <string name="lyrics_show_translation_title">Отображать перевод</string>
@@ -905,11 +838,6 @@
     <string name="up_next">Далее</string>
     <string name="reorder_action">Изменить порядок</string>
     <string name="go_to_current_track">Перейти к текущему треку</string>
-    <string name="contributor_dawid_description">Один из основных разработчиков и проектировщик ряда ключевых функций приложения.</string>
-    <string name="contributor_ray_description">Внёс вклад в реализацию ряда важных и интересных функций.</string>
-    <string name="contributor_ttop_description">Самый первый участник и тестировщик проекта.</string>
-    <string name="contributor_lenard_description">Разработчик сайта приложения и участник проекта.</string>
-    <string name="contributor_alex_description">Давний друг проекта, предоставивший доступ к важным API.</string>
     <string name="play_all_songs_when_searching_title">Воспроизводить все песни при поиске</string>
     <string name="play_all_songs_when_searching_summary">Если эта функция включена, выбор найденной композиции ставит в очередь всю медиатеку. Действие функции зависит от настройки, определяющей поведение при выборе композиции.</string>
     <string name="action_auto_fill_from_musicbrainz">Автоматическое заполнение из MusicBrainz</string>
@@ -919,9 +847,6 @@
     <string name="musicbrainz_no_results">Ничего не найдено на MusicBrainz.</string>
     <string name="musicbrainz_select_recording">Выберите запись</string>
     <string name="sort_order_name">Имя</string>
-    <string name="website">Сайт</string>
-    <string name="terms_of_service">Условия предоставления услуг</string>
-    <string name="privacy_policy">Политика конфиденциальности</string>
     <string name="legal">Правовое</string>
     <string name="app_widget_grid">Сетка</string>
     <string name="backup_app_version">Создано в</string>

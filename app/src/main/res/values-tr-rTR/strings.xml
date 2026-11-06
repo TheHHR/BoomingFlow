@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="action_play">Oynat</string>
-    <string name="action_play_all">Tümünü oynat</string>
     <string name="action_shuffle_play">Karıştırarak oynat</string>
     <string name="action_queue_next">Sıradakini çal</string>
     <string name="shuffle_all_label">Tümünü karıştır</string>
@@ -9,10 +8,8 @@
     <string name="repeat_mode">Tekrarlama modu</string>
     <string name="shuffle_button_tip">Normal karıştırma için dokunun. Gelişmiş seçenekler için uzun basın.</string>
     <string name="action_play_pause">Oynat/Duraklat</string>
-    <string name="action_pause">Duraklat</string>
     <string name="action_next">Sonraki</string>
     <string name="action_previous">Önceki</string>
-    <string name="action_cancel">İptal</string>
     <string name="action_seek_backward">Geri sar</string>
     <string name="action_seek_forward">İleri sar</string>
     <string name="action_cycle_repeat">Tekrarlama modunu değiştir</string>
@@ -23,8 +20,6 @@
     <string name="create_action">Oluştur</string>
     <string name="search_label">Ara</string>
     <string name="search_hint">Kütüphanenizde arayın…</string>
-    <string name="action_voice_search">Sesli arama</string>
-    <string name="speech_not_supported">Cihazınız sesli girişi desteklemiyor</string>
     <string name="search_artist_x_label">Sanatçıyı ara: %s</string>
     <string name="search_album_x_label">Albümü ara: %s</string>
     <string name="search_list_x_label">Listede ara: %s</string>
@@ -32,8 +27,6 @@
     <string name="search_year_x_label">Yılı ara: %s</string>
     <string name="search_in_folder_x">Klasörde ara: %s</string>
     <string name="search_last_added">Son eklenenleri ara</string>
-    <string name="shuffle_mode_album">Albüm karıştırma</string>
-    <string name="shuffle_mode_artist">Sanatçı karıştırma</string>
     <string name="action_share">Paylaş</string>
     <string name="action_save">Kaydet</string>
     <string name="back_action">Geri</string>
@@ -45,15 +38,10 @@
     <string name="continue_action">Devam et</string>
     <string name="select_all_title">Tümünü seç</string>
     <string name="x_selected">%d adet seçildi</string>
-    <string name="preparing_playback_title">Hazırlanıyor</string>
-    <string name="restoring_playback_state">Çalma durumu ve sırası geri yükleniyor…</string>
-    <string name="playback_stopped_title">Çalma durduruldu</string>
     <string name="playing_notification_description">Çalan şarkı bildirimi, oynatma/duraklatma gibi eylemler sunar.</string>
     <string name="playing_notification_name">Çalan şarkı bildirimi</string>
-    <string name="action_scan_directory">Dizini tara</string>
     <string name="no_device_playlists">Çalma listesi yok</string>
     <string name="select_songs_title">Şarkıları seç</string>
-    <string name="playlist_x_is_empty">%s çalma listesi boş.</string>
     <string name="playlist_name_cannot_be_empty">Çalma listesi adı boş olamaz</string>
     <string name="imported_playlist_x">\"%1$s\" çalma listesi içe aktarıldı.</string>
     <string name="could_not_import_the_playlist_x">\"%s\" çalma listesi içe aktarılamadı</string>
@@ -61,8 +49,6 @@
     <string name="playlist_x_not_imported">%s çalma listesi içe aktarılmadı.</string>
     <string name="action_import_playlist">Çalma listesi içe aktar…</string>
     <string name="new_playlist_title">Yeni çalma listesi</string>
-    <string name="add_playlist_title">Çalma listesine ekle</string>
-    <string name="rename_playlist_title">Çalma listesini yeniden adlandır</string>
     <string name="action_edit_playlist">Çalma listesini düzenle</string>
     <string name="action_delete_playlist">Çalma listesini sil</string>
     <string name="action_export_playlist">Dosyaya aktar</string>
@@ -83,9 +69,7 @@
     <string name="delete_playlist_x"><![CDATA[<b>%s</b> çalma listesi silinsin mi?]]></string>
     <string name="delete_x_playlists"><![CDATA[<b>%d</b> çalma listesi silinsin mi?]]></string>
     <string name="created_playlist_x">\'%1$s\' çalma listesi oluşturuldu.</string>
-    <string name="could_not_create_playlist">Çalma listesi oluşturulamadı.</string>
     <string name="playlist_exists">%s adında bir çalma listesi zaten var.</string>
-    <string name="playlist_created">Çalma listesi %s başarıyla oluşturuldu.</string>
     <string name="remove_song_from_playlist_title">Şarkıyı çalma listesinden kaldır</string>
     <string name="remove_songs_from_playlist_title">Şarkıları çalma listesinden kaldır</string>
     <string name="remove_song_x_from_playlist"><![CDATA[<b>%1$s</b> şarkısı çalma listesinden kaldırılsın mı?]]></string>
@@ -115,7 +99,6 @@
     <string name="deleting_songs">Şarkılar siliniyor, bekleyin…</string>
     <string name="song_x_of_x">%2$d / %1$d • %3$s</string>
     <string name="no_equalizer">Ekolayzer bulunamadı.</string>
-    <string name="audio_focus_denied">Ses odağı reddedildi.</string>
     <string name="no_audio_ID">Hatalı ses kimliği.</string>
     <string name="playback_error_code">Çalma hatası (%s).</string>
     <string name="unplayable_file">Bu şarkı çalınamadı.</string>
@@ -135,16 +118,10 @@
     <string name="welcome_to_x">%s\'a hoş geldiniz</string>
     <string name="get_started">Başlayın</string>
     <string name="select_storage_title">Depolama birimi seç</string>
-    <string name="now_playing">Şimdi Çalıyor</string>
     <string name="playing_queue_label">Çalma Sırası</string>
-    <string name="list_start">Liste başlangıcı</string>
-    <string name="list_end">Liste sonu</string>
     <string name="clear_queue">Sırayı temizle</string>
-    <string name="action_move_to_current_track">Çalan parçayı göster</string>
     <string name="action_add_to_favorites">Favorilere ekle</string>
     <string name="action_remove_from_favorites">Favorilerden kaldır</string>
-    <string name="added_to_favorites_label">Favorilere eklendi</string>
-    <string name="removed_from_favorites_label">Favorilerden kaldırıldı</string>
     <string name="toggle_favorite">Favorilere Ekle/Kaldır</string>
     <string name="action_add_to_playlist">Çalma listesine ekle</string>
     <string name="action_remove_from_playlist">Çalma listesinden kaldır</string>
@@ -153,7 +130,6 @@
     <string name="put_after_current_track">Çalan parçadan sonraya koy</string>
     <string name="set_artist_image">Sanatçı resmini ayarla</string>
     <string name="reset_artist_image">Sanatçı resmini sıfırla</string>
-    <string name="there_is_nothing_to_reset">Sıfırlanacak bir şey yok.</string>
     <string name="add_to_label">Ekle</string>
     <string name="go_to_label">Git</string>
     <string name="action_go_to_album">Albüme Git</string>
@@ -173,7 +149,6 @@
     <string name="no_artists_label">Sanatçı yok</string>
     <string name="no_genres_label">Tür yok</string>
     <string name="empty_label">Boş</string>
-    <string name="nothing_to_see">Görülecek bir şey yok</string>
     <string name="show_album_artists">Sadece albüm sanatçıları</string>
     <string name="songs_label">Şarkılar</string>
     <string name="albums_label">Albümler</string>
@@ -215,16 +190,13 @@
     <string name="sort_order_file_name">Dosya adı</string>
     <string name="sort_order_number_of_songs">Şarkı sayısı</string>
     <string name="sort_order_number_of_albums">Albüm sayısı</string>
-    <string name="sort_order_last_played_date">Son çalınma tarihi</string>
     <string name="sort_order_track_list">Parça listesi</string>
     <string name="sort_order_descending">Azalan</string>
-    <string name="sort_order_ignore_articles">Başlangıçtaki harf-i tarifleri yoksay</string>
     <string name="action_details">Ayrıntılar</string>
     <string name="action_set_as_start_directory">Başlangıç dizini olarak ayarla</string>
     <string name="start_directory_set">Start directory set to %s</string>
     <string name="action_go_to_start_directory">Başlangıç dizinine git</string>
     <string name="action_hierarchy_view">Hiyerarşi görünümü</string>
-    <string name="new_start_directory">Yeni başlangıç dizini: %s</string>
     <string name="action_scan">Tara</string>
     <string name="scan_media">Medyayı tara</string>
     <string name="scan_media_message">Çoğu durumda, Android cihazınızdaki medya dosyalarını otomatik olarak algılar ve dizine ekler, bu nedenle manuel tarama genellikle gereksizdir.</string>
@@ -235,7 +207,6 @@
     <string name="restore_default">Varsayılana geri yükle</string>
     <string name="remove_cover">Kapağı kaldır</string>
     <string name="could_not_download_album_cover">Eşleşen bir albüm kapağı indirilemedi.</string>
-    <string name="download_image">Görseli indir</string>
     <string name="pick_from_local_storage">Yerel depolamadan seç</string>
     <string name="about_x_title">%s Hakkında</string>
     <string name="yes">Evet</string>
@@ -246,7 +217,6 @@
     <string name="label_file_format">Biçim</string>
     <string name="file_label">File</string>
     <string name="metadata_label">Metadata</string>
-    <string name="song">Şarkı</string>
     <string name="title">Başlık</string>
     <string name="album">Albüm</string>
     <string name="artist">Sanatçı</string>
@@ -365,7 +335,6 @@
     <string name="band_configuration_changed_successfully">Bant yapılandırması başarıyla değiştirildi.</string>
     <string name="band_configuration_could_not_be_changed">Bant yapılandırması değiştirilemedi.</string>
     <string name="share_eq_profiles">Share EQ Profiles</string>
-    <string name="there_is_nothing_to_export">Dışa aktarılacak bir şey yok.</string>
     <string name="there_is_nothing_to_import">İçe aktarılacak bir şey yok.</string>
     <string name="an_unexpected_error_occurred">Beklenmeyen bir hata oluştu.</string>
     <string name="share_profiles">Profilleri paylaş</string>
@@ -413,7 +382,6 @@
     <string name="loudness_enhancer">Yükseltici</string>
     <string name="sound_settings">Ses ayarları</string>
     <string name="listening_on">Listening on</string>
-    <string name="casting_to">Casting to</string>
     <string name="volume_label">Ses Seviyesi</string>
     <string name="reset_balance">Reset balance</string>
     <string name="speed_and_pitch_label">Speed and pitch</string>
@@ -443,8 +411,6 @@
     <string name="download_lyrics">Şarkı sözlerini indir</string>
     <string name="write_lyrics_here">Şarkı sözlerini buraya yazın</string>
     <string name="no_lyrics_found">Şarkı sözü bulunamadı</string>
-    <string name="lyrics_were_updated_successfully">Şarkı sözleri başarıyla güncellendi.</string>
-    <string name="failed_to_update_lyrics">Şarkı sözleri güncellenemedi.</string>
     <string name="there_are_no_changes_to_save">Kaydedilecek bir değişiklik yok.</string>
     <string name="font_imported_successfully">Yazı tipi başarıyla içe aktarıldı.</string>
     <string name="could_not_import_font">Yazı tipi içe aktarılamadı.</string>
@@ -469,22 +435,10 @@
     <string name="app_shortcut_last_added_short">Son Eklenenler</string>
     <string name="app_shortcut_favorites_short">Favoriler</string>
     <!-- About page -->
-    <string name="action_about">Hakkında</string>
-    <string name="changelog">Değişiklik günlüğü</string>
-    <string name="faq">FAQ</string>
     <string name="licenses">Lisanslar</string>
-    <string name="author">Geliştirici</string>
-    <string name="mardous_summary">Lead Developer</string>
-    <string name="contributors">Destekçiler</string>
     <string name="translators_title">Çevirmenler</string>
     <string name="translators_summary">Booming Music\'i birçok dilde kullanılabilir hale getirenlere teşekkürler.</string>
-    <string name="view_profile_on_github">GitHub\'da profili görüntüle</string>
-    <string name="write_an_email">E-posta yaz</string>
     <string name="support_development">Geliştirmeyi destekle</string>
-    <string name="help_with_translations">Çevirilere yardım et</string>
-    <string name="help_with_translations_summary">Booming Music\'i diğer dillere çevirmeye yardımcı olarak projeye katkıda bulunabilirsiniz.</string>
-    <string name="report_bugs">Hataları bildir</string>
-    <string name="report_bugs_summary">Hataları bildirin veya yeni özellikler talep edin.</string>
     <string name="share_app">Bu uygulamayı paylaş</string>
     <string name="share_app_summary">Arkadaşlarınızla paylaşarak bu uygulamanın büyümesine yardımcı olabilirsiniz.</string>
     <string name="send_invitation_message">Davet mesajı gönder</string>
@@ -495,7 +449,6 @@
     <string name="saf_access_required_message">Booming Music\'in bu dosyalara erişmek için izne ihtiyacı var. Lütfen müzik dosyalarınızın depolandığı kök klasörü seçin.</string>
     <string name="saf_show_files_button">Dosyaları göster</string>
     <string name="saf_error_uri">SAF URI\'si alınamıyor</string>
-    <string name="saf_write_failed">Dosya yazma başarısız: %s</string>
     <string name="saf_delete_failed">Dosya silme başarısız: %s</string>
     <string name="settings_title">Ayarlar</string>
     <string name="appearance_title">Görünüm</string>
@@ -506,7 +459,6 @@
     <string name="lyrics_preferences_summary">Şarkı sözü görünümünüzü kişiselleştirmek için yazı tipi, aralık ve diğer seçenekleri ayarlayın.</string>
     <string name="playback_title">Çalma</string>
     <string name="playback_summary">Ses ayarlarını, Bluetooth kulaklıkları vb. değiştirin.</string>
-    <string name="metadata_title">Üstveri</string>
     <string name="library_title">Kütüphane</string>
     <string name="library_summary">Çalma listeleri ve hariç tutma/dahil etme filtreleri için ayarlar.</string>
     <string name="advanced_title">Gelişmiş</string>
@@ -515,7 +467,6 @@
     <string name="about_title">Hakkında</string>
     <string name="about_summary">Booming Music %s, daha fazla bilgi için dokunun.</string>
     <!-- Preference headers -->
-    <string name="general_header">Genel</string>
     <string name="library_header">Kütüphane</string>
     <string name="album_cover_header">Kapak</string>
     <string name="exclusion_header">Hariç Tutulanlar</string>
@@ -535,7 +486,6 @@
     <string name="library_categories_summary">Kütüphane kategorilerinin görünürlüğünü ve sırasını yapılandırın.</string>
     <string name="remember_last_page_title">Son sayfayı hatırla</string>
     <string name="remember_last_page_summary">Başlangıçta son açılan sayfaya git.</string>
-    <string name="start_page_title">Başlangıç sayfası</string>
     <string name="tab_mode_title">Sekme başlıkları modu</string>
     <string name="hold_tab_to_search_title">Aramak için sekmeye basılı tutun</string>
     <string name="hold_tab_to_search_summary">Arama ekranını açmak için herhangi bir gezinme çubuğu sekmesine uzun basın.</string>
@@ -598,7 +548,6 @@
     <string name="now_playing_corner_radius_title">Görsel köşe yarıçapı</string>
     <string name="now_playing_corner_radius_summary">Albüm kapağı köşelerinin ne kadar yuvarlak görüneceğini tanımlar.</string>
     <string name="carousel_effect_title">Atlıkarınca efekti</string>
-    <string name="album_cover_effect_title">Albüm kapağı efekti</string>
     <string name="animate_controls_title">Kontrolleri canlandır</string>
     <string name="animate_controls_summary">Çalar panelini açarken oynatılır.</string>
     <string name="swipe_up_queue_title">Sırayı açmak için yukarı kaydırın</string>
@@ -663,7 +612,6 @@
     <string name="use_folder_album_cover_title">Klasör görsellerini kullan</string>
     <string name="use_folder_album_cover_summary">Ses dosyası gömülü bir kapak içermiyorsa. Resimlerin yüklenmesi biraz daha uzun sürebilir.</string>
     <string name="online_artist_images_title">Sanatçı resimlerini indir</string>
-    <string name="preferred_image_size_title">Tercih edilen görsel boyutu</string>
     <string name="online_album_covers_title">Eksik albüm kapaklarını indir</string>
     <string name="online_album_covers_summary">İndirilen görseller ses dosyalarına gömülmez; yalnızca uygulama içinde görünürler. Bu, üstveri indirme politikanıza bağlıdır.</string>
     <string name="delete_downloaded_lyrics_title">İndirilen şarkı sözlerini sil</string>
@@ -703,9 +651,6 @@
     <string name="labeled">Etiketli</string>
     <string name="unlabeled">Etiketsiz</string>
     <string name="selected">Seçili</string>
-    <string name="compact">Kompakt</string>
-    <string name="expanded">Genişletilmiş</string>
-    <string name="simple">Basit</string>
     <string name="add_after_playing_track">Çalan parçadan sonra ekle</string>
     <string name="add_tracks_sequentially">Parçaları sırayla ekle</string>
     <string name="albums_shuffle">Albümleri karıştır</string>
@@ -721,9 +666,6 @@
     <string name="this_month">Bu ay</string>
     <string name="past_three_months">Son üç ay</string>
     <string name="this_year">Bu yıl</string>
-    <string name="image_size_large">Büyük (daha yavaş)</string>
-    <string name="image_size_medium">Orta (varsayılan, önerilen)</string>
-    <string name="image_size_small">Küçük (daha hızlı, düşük kalite)</string>
     <string name="play_on_startup_mode_never">Başlangıçta asla oynatma</string>
     <string name="play_on_startup_mode_minimized">Evet, küçültülmüş çalar paneliyle</string>
     <string name="play_on_startup_mode_expanded">Evet, genişletilmiş çalar paneliyle</string>
@@ -744,8 +686,6 @@
     <string name="every_fifteen_days">On beş günde bir</string>
     <string name="monthly">Aylık</string>
     <string name="never">Asla</string>
-    <string name="receive_experimental_updates_title">Deneysel güncellemeleri al</string>
-    <string name="receive_experimental_updates_summary">Lütfen bu güncellemelerin genellikle çok kararsız olduğunu ve deneyimli kullanıcılar için tasarlandığını unutmayın.</string>
     <string name="search_for_update_title">Güncelleme ara</string>
     <string name="last_update_search_x">Son kontrol: %s</string>
     <string name="checking_please_wait">Kontrol ediliyor, lütfen bekleyin…</string>

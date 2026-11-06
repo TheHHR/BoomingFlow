@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="action_play">Putar</string>
-    <string name="action_play_all">Putar semua</string>
     <string name="action_shuffle_play">Putar acak</string>
     <string name="action_queue_next">Antre berikutnya</string>
     <string name="shuffle_all_label">Acak semua</string>
@@ -9,10 +8,8 @@
     <string name="repeat_mode">Mode ulang</string>
     <string name="shuffle_button_tip">Ketuk untuk acak biasa. Tekan lama untuk opsi lanjutan.</string>
     <string name="action_play_pause">Putar/Jeda</string>
-    <string name="action_pause">Jeda</string>
     <string name="action_next">Berikutnya</string>
     <string name="action_previous">Sebelumnya</string>
-    <string name="action_cancel">Batal</string>
     <string name="action_seek_backward">Putar mundur</string>
     <string name="action_seek_forward">Putar maju</string>
     <string name="action_cycle_repeat">Ganti mode ulang</string>
@@ -23,8 +20,6 @@
     <string name="create_action">Buat</string>
     <string name="search_label">Cari</string>
     <string name="search_hint">Cari di perpustakaan Anda…</string>
-    <string name="action_voice_search">Pencarian suara</string>
-    <string name="speech_not_supported">Perangkat Anda tidak mendukung input suara</string>
     <string name="search_artist_x_label">Cari artis: %s</string>
     <string name="search_album_x_label">Cari album: %s</string>
     <string name="search_list_x_label">Cari daftar: %s</string>
@@ -32,8 +27,6 @@
     <string name="search_year_x_label">Cari tahun: %s</string>
     <string name="search_in_folder_x">Cari di folder: %s</string>
     <string name="search_last_added">Cari musik terbaru</string>
-    <string name="shuffle_mode_album">Acak album</string>
-    <string name="shuffle_mode_artist">Acak artis</string>
     <string name="action_share">Bagikan</string>
     <string name="action_save">Simpan</string>
     <string name="back_action">Kembali</string>
@@ -45,15 +38,10 @@
     <string name="continue_action">Lanjutkan</string>
     <string name="select_all_title">Pilih semua</string>
     <string name="x_selected">%d dipilih</string>
-    <string name="preparing_playback_title">Mempersiapkan</string>
-    <string name="restoring_playback_state">Memulihkan status pemutaran dan antrean…</string>
-    <string name="playback_stopped_title">Pemutaran dihentikan</string>
     <string name="playing_notification_description">Notifikasi pemutaran menyediakan tindakan untuk putar/jeda, dll.</string>
     <string name="playing_notification_name">Notifikasi pemutaran</string>
-    <string name="action_scan_directory">Pindai direktori</string>
     <string name="no_device_playlists">Tidak ada daftar putar</string>
     <string name="select_songs_title">Pilih lagu</string>
-    <string name="playlist_x_is_empty">Daftar putar %s kosong.</string>
     <string name="playlist_name_cannot_be_empty">Nama daftar putar tidak boleh kosong</string>
     <string name="imported_playlist_x">Daftar putar \"%1$s\" berhasil diimpor.</string>
     <string name="could_not_import_the_playlist_x">Gagal mengimpor daftar putar \"%s\"</string>
@@ -61,8 +49,6 @@
     <string name="playlist_x_not_imported">Daftar putar %s tidak diimpor.</string>
     <string name="action_import_playlist">Impor daftar putar…</string>
     <string name="new_playlist_title">Daftar putar baru</string>
-    <string name="add_playlist_title">Tambah ke daftar putar</string>
-    <string name="rename_playlist_title">Ganti nama daftar putar</string>
     <string name="action_edit_playlist">Edit daftar putar</string>
     <string name="action_delete_playlist">Hapus daftar putar</string>
     <string name="action_export_playlist">Ekspor ke file</string>
@@ -83,9 +69,7 @@
     <string name="delete_playlist_x"><![CDATA[Hapus daftar putar <b>%s</b>\?]]></string>
     <string name="delete_x_playlists"><![CDATA[Hapus <b>%d</b> daftar putar?]]></string>
     <string name="created_playlist_x">Daftar putar \'%1$s\' berhasil dibuat.</string>
-    <string name="could_not_create_playlist">Gagal membuat daftar putar.</string>
     <string name="playlist_exists">Daftar putar %s sudah ada.</string>
-    <string name="playlist_created">Daftar putar %s berhasil dibuat.</string>
     <string name="remove_song_from_playlist_title">Hapus lagu dari daftar putar</string>
     <string name="remove_songs_from_playlist_title">Hapus lagu-lagu dari daftar putar</string>
     <string name="remove_song_x_from_playlist"><![CDATA[Hapus lagu <b>%1$s</b> dari daftar putar?]]></string>
@@ -115,7 +99,6 @@
     <string name="deleting_songs">Menghapus lagu, harap tunggu…</string>
     <string name="song_x_of_x">%1$d dari %2$d • %3$s</string>
     <string name="no_equalizer">Tidak ada ekualiser yang ditemukan.</string>
-    <string name="audio_focus_denied">Fokus audio ditolak.</string>
     <string name="no_audio_ID">ID audio tidak valid.</string>
     <string name="playback_error_code">Kesalahan pemutaran (%s).</string>
     <string name="unplayable_file">Tidak dapat memutar lagu ini.</string>
@@ -135,16 +118,10 @@
     <string name="welcome_to_x">Selamat datang di %s</string>
     <string name="get_started">Mulai</string>
     <string name="select_storage_title">Pilih penyimpanan</string>
-    <string name="now_playing">Sedang diputar</string>
     <string name="playing_queue_label">Antrean pemutaran</string>
-    <string name="list_start">Awal daftar</string>
-    <string name="list_end">Akhir daftar</string>
     <string name="clear_queue">Bersihkan antrean</string>
-    <string name="action_move_to_current_track">Tampilkan lagu saat ini</string>
     <string name="action_add_to_favorites">Tambah ke Favorit</string>
     <string name="action_remove_from_favorites">Hapus dari Favorit</string>
-    <string name="added_to_favorites_label">Ditambahkan ke Favorit</string>
-    <string name="removed_from_favorites_label">Dihapus dari Favorit</string>
     <string name="toggle_favorite">Tambah/Hapus dari Favorit</string>
     <string name="action_add_to_playlist">Tambah ke daftar putar</string>
     <string name="action_remove_from_playlist">Hapus dari daftar putar</string>
@@ -153,7 +130,6 @@
     <string name="put_after_current_track">Tempatkan setelah lagu saat ini</string>
     <string name="set_artist_image">Atur gambar Artis</string>
     <string name="reset_artist_image">Reset gambar Artis</string>
-    <string name="there_is_nothing_to_reset">Tidak ada yang perlu direset.</string>
     <string name="add_to_label">Tambah ke</string>
     <string name="go_to_label">Pergi ke</string>
     <string name="action_go_to_album">Pergi ke Album</string>
@@ -173,7 +149,6 @@
     <string name="no_artists_label">Tidak ada artis</string>
     <string name="no_genres_label">Tidak ada genre</string>
     <string name="empty_label">Kosong</string>
-    <string name="nothing_to_see">Tidak ada yang ditampilkan</string>
     <string name="show_album_artists">Hanya artis album</string>
     <string name="songs_label">Lagu</string>
     <string name="albums_label">Album</string>
@@ -215,16 +190,13 @@
     <string name="sort_order_file_name">Nama file</string>
     <string name="sort_order_number_of_songs">Jumlah lagu</string>
     <string name="sort_order_number_of_albums">Jumlah album</string>
-    <string name="sort_order_last_played_date">Tanggal terakhir diputar</string>
     <string name="sort_order_track_list">Daftar lagu</string>
     <string name="sort_order_descending">Menurun</string>
-    <string name="sort_order_ignore_articles">Abaikan artikel</string>
     <string name="action_details">Detail</string>
     <string name="action_set_as_start_directory">Atur sebagai direktori awal</string>
     <string name="start_directory_set">Direktori awal diatur ke %s</string>
     <string name="action_go_to_start_directory">Pergi ke direktori awal</string>
     <string name="action_hierarchy_view">Tampilan hierarki</string>
-    <string name="new_start_directory">Direktori awal baru: %s</string>
     <string name="action_scan">Pindai</string>
     <string name="scan_media">Pindai media</string>
     <string name="scan_media_message">Dalam kebanyakan kasus, Android secara otomatis mendeteksi dan mengindeks file media di perangkat Anda, sehingga pemindaian manual biasanya tidak diperlukan.</string>
@@ -235,7 +207,6 @@
     <string name="restore_default">Pulihkan default</string>
     <string name="remove_cover">Hapus sampul</string>
     <string name="could_not_download_album_cover">Tidak dapat mengunduh sampul album yang sesuai.</string>
-    <string name="download_image">Unduh gambar</string>
     <string name="pick_from_local_storage">Pilih dari penyimpanan lokal</string>
     <string name="about_x_title">Tentang %s</string>
     <string name="yes">Ya</string>
@@ -246,7 +217,6 @@
     <string name="label_file_format">Format</string>
     <string name="file_label">Berkas</string>
     <string name="metadata_label">Metadata</string>
-    <string name="song">Lagu</string>
     <string name="title">Judul</string>
     <string name="album">Album</string>
     <string name="artist">Artis</string>
@@ -356,7 +326,6 @@
     <string name="band_configuration_changed_successfully">Konfigurasi band berhasil diubah.</string>
     <string name="band_configuration_could_not_be_changed">Konfigurasi band tidak dapat diubah.</string>
     <string name="share_eq_profiles">Bagikan Profil EQ</string>
-    <string name="there_is_nothing_to_export">Tidak ada yang perlu diekspor.</string>
     <string name="there_is_nothing_to_import">Tidak ada yang perlu diimpor.</string>
     <string name="an_unexpected_error_occurred">Terjadi kesalahan tak terduga.</string>
     <string name="share_profiles">Bagikan profil</string>
@@ -404,7 +373,6 @@
     <string name="loudness_enhancer">Penguat</string>
     <string name="sound_settings">Pengaturan suara</string>
     <string name="listening_on">Mendengarkan di</string>
-    <string name="casting_to">Casting ke</string>
     <string name="volume_label">Volume</string>
     <string name="reset_balance">Reset keseimbangan</string>
     <string name="speed_and_pitch_label">Kecepatan dan nada</string>
@@ -434,8 +402,6 @@
     <string name="download_lyrics">Unduh lirik</string>
     <string name="write_lyrics_here">Tulis lirik di sini</string>
     <string name="no_lyrics_found">Tidak ada lirik yang ditemukan</string>
-    <string name="lyrics_were_updated_successfully">Lirik berhasil diperbarui.</string>
-    <string name="failed_to_update_lyrics">Gagal memperbarui lirik.</string>
     <string name="there_are_no_changes_to_save">Tidak ada perubahan yang perlu disimpan.</string>
     <string name="font_imported_successfully">Font berhasil diimpor.</string>
     <string name="could_not_import_font">Tidak dapat mengimpor font.</string>
@@ -460,22 +426,10 @@
     <string name="app_shortcut_last_added_short">Terakhir Ditambahkan</string>
     <string name="app_shortcut_favorites_short">Favorit</string>
     <!-- About page -->
-    <string name="action_about">Tentang</string>
-    <string name="changelog">Catatan perubahan</string>
-    <string name="faq">FAQ</string>
     <string name="licenses">Lisensi</string>
-    <string name="author">Penulis</string>
-    <string name="mardous_summary">Pengembang Utama</string>
-    <string name="contributors">Kontributor</string>
     <string name="translators_title">Penerjemah</string>
     <string name="translators_summary">Terima kasih kepada mereka yang membuat Booming Music tersedia dalam berbagai bahasa.</string>
-    <string name="view_profile_on_github">Lihat profil di GitHub</string>
-    <string name="write_an_email">Tulis email</string>
     <string name="support_development">Dukung pengembangan</string>
-    <string name="help_with_translations">Bantu penerjemahan</string>
-    <string name="help_with_translations_summary">Anda dapat berkontribusi pada proyek ini dengan membantu menerjemahkan Booming Music ke dalam bahasa lain.</string>
-    <string name="report_bugs">Laporkan bug</string>
-    <string name="report_bugs_summary">Laporkan bug atau minta fitur baru.</string>
     <string name="share_app">Bagikan aplikasi ini</string>
     <string name="share_app_summary">Anda dapat membantu aplikasi ini berkembang jika Anda membagikannya kepada teman-teman.</string>
     <string name="send_invitation_message">Kirim pesan undangan</string>
@@ -486,7 +440,6 @@
     <string name="saf_access_required_message">Booming Music memerlukan izin untuk mengakses file-file ini. Silakan pilih folder utama tempat file musik Anda disimpan.</string>
     <string name="saf_show_files_button">Tampilkan file</string>
     <string name="saf_error_uri">Tidak dapat memperoleh URI SAF</string>
-    <string name="saf_write_failed">Penulisan file gagal: %s</string>
     <string name="saf_delete_failed">Penghapusan file gagal: %s</string>
     <string name="settings_title">Pengaturan</string>
     <string name="appearance_title">Tampilan</string>
@@ -497,7 +450,6 @@
     <string name="lyrics_preferences_summary">Sesuaikan font, jarak, dan opsi lainnya untuk mempersonalisasi tampilan lirik Anda.</string>
     <string name="playback_title">Pemutaran</string>
     <string name="playback_summary">Ubah pengaturan suara, headset Bluetooth, dll.</string>
-    <string name="metadata_title">Metadata</string>
     <string name="library_title">Perpustakaan</string>
     <string name="library_summary">Pengaturan untuk daftar putar dan filter pengecualian/penyertaan.</string>
     <string name="advanced_title">Lanjutan</string>
@@ -506,7 +458,6 @@
     <string name="about_title">Tentang</string>
     <string name="about_summary">Booming Music %s, sentuh untuk info lebih lanjut.</string>
     <!-- Preference headers -->
-    <string name="general_header">Umum</string>
     <string name="library_header">Perpustakaan</string>
     <string name="album_cover_header">Sampul</string>
     <string name="exclusion_header">Pengecualian</string>
@@ -526,7 +477,6 @@
     <string name="library_categories_summary">Konfigurasikan visibilitas dan urutan kategori perpustakaan.</string>
     <string name="remember_last_page_title">Ingat halaman terakhir</string>
     <string name="remember_last_page_summary">Buka halaman yang terakhir dibuka saat aplikasi dijalankan.</string>
-    <string name="start_page_title">Halaman awal</string>
     <string name="tab_mode_title">Mode judul tab</string>
     <string name="hold_tab_to_search_title">Tahan tab untuk Mencari</string>
     <string name="hold_tab_to_search_summary">Tekan lama tab bilah navigasi mana pun untuk membuka layar pencarian.</string>
@@ -589,7 +539,6 @@
     <string name="now_playing_corner_radius_title">Radius sudut gambar</string>
     <string name="now_playing_corner_radius_summary">Menentukan seberapa bulat sudut sampul album yang ditampilkan.</string>
     <string name="carousel_effect_title">Efek korsel</string>
-    <string name="album_cover_effect_title">Efek sampul album</string>
     <string name="animate_controls_title">Animasikan kontrol</string>
     <string name="animate_controls_summary">Diputar saat membuka panel pemutar.</string>
     <string name="swipe_up_queue_title">Geser ke atas untuk membuka antrean</string>
@@ -654,7 +603,6 @@
     <string name="use_folder_album_cover_title">Gunakan gambar folder</string>
     <string name="use_folder_album_cover_summary">Jika file audio tidak mengandung sampul yang tertanam. Gambar mungkin membutuhkan sedikit lebih lama untuk dimuat.</string>
     <string name="online_artist_images_title">Unduh gambar artis</string>
-    <string name="preferred_image_size_title">Ukuran gambar yang diutamakan</string>
     <string name="online_album_covers_title">Unduh sampul album yang tidak tersedia</string>
     <string name="online_album_covers_summary">Gambar yang diunduh tidak tertanam ke dalam file audio; gambar hanya terlihat di dalam aplikasi.</string>
     <string name="delete_downloaded_lyrics_title">Hapus lirik yang diunduh</string>
@@ -694,9 +642,6 @@
     <string name="labeled">Berlabel</string>
     <string name="unlabeled">Tanpa label</string>
     <string name="selected">Dipilih</string>
-    <string name="compact">Ringkas</string>
-    <string name="expanded">Diperluas</string>
-    <string name="simple">Sederhana</string>
     <string name="add_after_playing_track">Tambah setelah lagu yang diputar</string>
     <string name="add_tracks_sequentially">Tambah lagu secara berurutan</string>
     <string name="albums_shuffle">Acak album</string>
@@ -712,9 +657,6 @@
     <string name="this_month">Bulan ini</string>
     <string name="past_three_months">Tiga bulan terakhir</string>
     <string name="this_year">Tahun ini</string>
-    <string name="image_size_large">Besar (lebih lambat)</string>
-    <string name="image_size_medium">Sedang (default, disarankan)</string>
-    <string name="image_size_small">Kecil (lebih cepat, kualitas rendah)</string>
     <string name="play_on_startup_mode_never">Jangan pernah putar saat mulai</string>
     <string name="play_on_startup_mode_minimized">Ya, dengan panel pemutar diminimalkan</string>
     <string name="play_on_startup_mode_expanded">Ya, dengan panel pemutar diperluas</string>
@@ -735,8 +677,6 @@
     <string name="every_fifteen_days">Setiap lima belas hari</string>
     <string name="monthly">Bulanan</string>
     <string name="never">Tidak pernah</string>
-    <string name="receive_experimental_updates_title">Terima pembaruan eksperimental</string>
-    <string name="receive_experimental_updates_summary">Harap diperhatikan bahwa pembaruan ini seringkali sangat tidak stabil dan ditujukan untuk pengguna berpengalaman.</string>
     <string name="search_for_update_title">Cari pembaruan</string>
     <string name="last_update_search_x">Pemeriksaan terakhir: %s</string>
     <string name="checking_please_wait">Memeriksa, harap tunggu…</string>
@@ -781,10 +721,6 @@
     <string name="error_lastfm_rate_limit">Terlalu banyak permintaan. Harap tunggu sebentar sebelum melakukan scrobble lagi.</string>
     <string name="error_lastfm_generic">Terjadi kesalahan tak terduga dengan Last.fm. Silakan coba lagi.</string>
     <string name="error_network_timeout">Koneksi habis waktu. Periksa internet Anda dan coba lagi.</string>
-    <string name="github">GitHub</string>
-    <string name="telegram_community">Komunitas Telegram</string>
-    <string name="telegram_community_summary">Bergabunglah dengan komunitas Telegram kami untuk mendapatkan informasi terbaru tentang rilis dan berita baru.</string>
-    <string name="support_my_work">Dukung pekerjaan saya</string>
     <string name="network_title">Jaringan</string>
     <string name="network_summary">Kelola fitur internet seperti integrasi Last.fm, penyedia lirik, dan unduhan metadata.</string>
     <string name="images_title">Gambar</string>
@@ -853,7 +789,6 @@
     <string name="eq_release_time">Release</string>
     <string name="eq_threshold">Ambang</string>
     <string name="eq_ratio">Rasio</string>
-    <string name="eq_expander_ratio">Rasio expander</string>
     <string name="eq_knee_width">Lebar knee</string>
     <string name="eq_noise_gate">Gerbang kebisingan</string>
     <string name="eq_pre_gain">Pra-keuntungan</string>
@@ -863,8 +798,6 @@
     <string name="rg_without_tag">Tanpa tag</string>
     <string name="app_version_x">Versi %s</string>
     <string name="app_description">Desain modern. Suara murni. Sepenuhnya milik Anda.</string>
-    <string name="more_contributors_title">Kontributor lainnya</string>
-    <string name="more_contributors_summary">Anda dapat melihat daftar lengkap kontributor di GitHub.</string>
     <string name="lyrics_karaoke_style_title">Lirik bergaya karaoke</string>
     <string name="lyrics_karaoke_style_summary">Mengaktifkan efek bergaya karaoke untuk lirik yang tersinkron kata demi kata. Harap diperhatikan bahwa ini adalah fitur eksperimental.</string>
     <string name="lyrics_show_translation_title">Tampilkan terjemahan</string>
@@ -878,11 +811,6 @@
     <string name="up_next">Berikutnya</string>
     <string name="reorder_action">Pesan ulang</string>
     <string name="go_to_current_track">Buka trek saat ini</string>
-    <string name="contributor_dawid_description">Kontributor utama dan perancang beberapa fitur penting aplikasi.</string>
-    <string name="contributor_ray_description">Menghadirkan sejumlah fitur utama yang menarik.</string>
-    <string name="contributor_ttop_description">Kontributor dan penguji pertama proyek tersebut.</string>
-    <string name="contributor_lenard_description">Pengembang situs web aplikasi dan kontributor.</string>
-    <string name="contributor_alex_description">Sahabat lama proyek ini yang memberikan akses ke API penting.</string>
     <string name="play_all_songs_when_searching_title">Putar semua lagu saat mencari</string>
     <string name="play_all_songs_when_searching_summary">Saat diaktifkan, memilih lagu hasil pencarian akan memasukkan seluruh pustaka ke dalam antrean. Hal ini bergantung pada pengaturan pemilihan lagu.</string>
     <string name="app_widget_circle_desc">Pemutar berbentuk lingkaran dengan kontrol yang mengelilinginya</string>
@@ -907,10 +835,7 @@
     <string name="restore_from_backup">Pulihkan dari cadangan</string>
     <string name="sort_order_name">Nama</string>
     <string name="restart_app_message">Aplikasi akan dimulai ulang untuk menyelesaikan proses.</string>
-    <string name="website">Situs web</string>
     <string name="legal">Hukum</string>
-    <string name="terms_of_service">Ketentuan Layanan</string>
-    <string name="privacy_policy">Kebijakan Privasi</string>
     <string name="widget_settings_title">Pengaturan widget</string>
     <string name="widget_show_progress_title">Tampilkan progres</string>
     <string name="widget_show_progress_summary">Tampilkan progres trek yang sedang diputar.</string>

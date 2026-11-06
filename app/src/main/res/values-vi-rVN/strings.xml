@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="action_play">Phát</string>
-    <string name="action_play_all">Phát tất cả</string>
     <string name="action_shuffle_play">Phát ngẫu nhiên</string>
     <string name="action_queue_next">Phát ngay tiếp theo</string>
     <string name="shuffle_all_label">Phát ngẫu nhiên tất cả</string>
@@ -9,10 +8,8 @@
     <string name="repeat_mode">Chế độ lặp lại</string>
     <string name="shuffle_button_tip">Chạm để phát ngẫu nhiên. Nhấn giữ để xem các tùy chọn nâng cao.</string>
     <string name="action_play_pause">Phát/Tạm dừng</string>
-    <string name="action_pause">Tạm dừng</string>
     <string name="action_next">Tiếp theo</string>
     <string name="action_previous">Trước đó</string>
-    <string name="action_cancel">Huỷ bỏ</string>
     <string name="action_seek_backward">Tua ngược</string>
     <string name="action_seek_forward">Tua đi</string>
     <string name="action_cycle_repeat">Đổi chế độ lặp lại</string>
@@ -23,8 +20,6 @@
     <string name="create_action">Tạo mới</string>
     <string name="search_label">Tìm kiếm</string>
     <string name="search_hint">Tìm trong thư viện…</string>
-    <string name="action_voice_search">Tìm kiếm bằng giọng nói</string>
-    <string name="speech_not_supported">Thiết bị không hỗ trợ nhập liệu bằng giọng nói</string>
     <string name="search_artist_x_label">Tìm kiếm nghệ sĩ: %s</string>
     <string name="search_album_x_label">Tìm kiếm album: %s</string>
     <string name="search_list_x_label">Tìm trong danh sách: %s</string>
@@ -32,8 +27,6 @@
     <string name="search_year_x_label">Tìm theo năm: \"%s\"</string>
     <string name="search_in_folder_x">Tìm trong thư mục: %s</string>
     <string name="search_last_added">Tìm kiếm nhạc mới nhất</string>
-    <string name="shuffle_mode_album">Phát ngẫu nhiên album</string>
-    <string name="shuffle_mode_artist">Phát ngẫu nhiên nghệ sĩ</string>
     <string name="action_share">Chia sẻ</string>
     <string name="action_save">Lưu</string>
     <string name="back_action">Quay lại</string>
@@ -45,15 +38,10 @@
     <string name="continue_action">Tiếp tục</string>
     <string name="select_all_title">Chọn tất cả</string>
     <string name="x_selected">%d đã chọn</string>
-    <string name="preparing_playback_title">Chuẩn bị</string>
-    <string name="restoring_playback_state">Đang khôi phục danh sách phát và hàng chờ…</string>
-    <string name="playback_stopped_title">Đã dừng phát</string>
     <string name="playing_notification_description">Thông báo đang phát cung cấp các hành động như phát, tạm dừng,...</string>
     <string name="playing_notification_name">Thông báo đang phát</string>
-    <string name="action_scan_directory">Quét thư mục</string>
     <string name="no_device_playlists">Không có danh sách phát</string>
     <string name="select_songs_title">Chọn bài hát</string>
-    <string name="playlist_x_is_empty">Danh sách phát %s đang trống.</string>
     <string name="playlist_name_cannot_be_empty">Tên danh sách phát không được để trống</string>
     <string name="imported_playlist_x">Đã nhập danh sách phát \"%1$s\".</string>
     <string name="could_not_import_the_playlist_x">Không thể nhập danh sách phát \"%s\"</string>
@@ -61,8 +49,6 @@
     <string name="playlist_x_not_imported">Không thể nhập danh sách phát %s.</string>
     <string name="action_import_playlist">Nhập danh sách phát…</string>
     <string name="new_playlist_title">Danh sách phát mới</string>
-    <string name="add_playlist_title">Thêm vào danh sách phát</string>
-    <string name="rename_playlist_title">Đổi tên danh sách phát</string>
     <string name="action_edit_playlist">Chỉnh sửa danh sách phát</string>
     <string name="action_delete_playlist">Xoá danh sách phát</string>
     <string name="action_export_playlist">Lưu danh sách phát thành tệp</string>
@@ -83,9 +69,7 @@
     <string name="delete_playlist_x"><![CDATA[Xoá danh sách phát <b>%s</b>\?]]></string>
     <string name="delete_x_playlists"><![CDATA[Xoá các danh sách phát <b>%d</b>\?]]></string>
     <string name="created_playlist_x">Đã tạo danh sách phát \"%1$s\".</string>
-    <string name="could_not_create_playlist">Không thể tạo danh sách phát.</string>
     <string name="playlist_exists">Danh sách phát %s đã tồn tại.</string>
-    <string name="playlist_created">Danh sách phát %s đã được tạo thành công.</string>
     <string name="remove_song_from_playlist_title">Gỡ bỏ bài hát khỏi danh sách phát</string>
     <string name="remove_songs_from_playlist_title">Gỡ bỏ các bài hát khỏi danh sách phát</string>
     <string name="remove_song_x_from_playlist"><![CDATA[Gỡ bỏ bài hát <b>%1$s</b> khỏi danh sách phát?]]></string>
@@ -115,7 +99,6 @@
     <string name="deleting_songs">Đang xoá nhạc, vui lòng đợi…</string>
     <string name="song_x_of_x">%1$d of %2$d • %3$s</string>
     <string name="no_equalizer">Không tìm thấy bộ chỉnh âm (Equalizer).</string>
-    <string name="audio_focus_denied">Quyền ưu tiên âm thanh bị từ chối.</string>
     <string name="no_audio_ID">ID âm thanh không hợp lệ.</string>
     <string name="playback_error_code">Lỗi phát lại (%s).</string>
     <string name="unplayable_file">Không thể phát bài hát này.</string>
@@ -135,16 +118,10 @@
     <string name="welcome_to_x">Chào mừng tới %s</string>
     <string name="get_started">Bắt đầu</string>
     <string name="select_storage_title">Chọn nơi lưu trữ</string>
-    <string name="now_playing">Đang phát</string>
     <string name="playing_queue_label">Danh sách chờ phát</string>
-    <string name="list_start">List start</string>
-    <string name="list_end">List end</string>
     <string name="clear_queue">Xoá hàng đợi</string>
-    <string name="action_move_to_current_track">Hiện bài hát hiện tại</string>
     <string name="action_add_to_favorites">Thêm vào mục Yêu thích</string>
     <string name="action_remove_from_favorites">Xoá khỏi mục Yêu thích</string>
-    <string name="added_to_favorites_label">Đã thêm vào mục Yêu thích</string>
-    <string name="removed_from_favorites_label">Đã xoá khỏi mục Yêu thích</string>
     <string name="toggle_favorite">Thêm/Xoá khỏi mục Yêu thích</string>
     <string name="action_add_to_playlist">Add to playlist</string>
     <string name="action_remove_from_playlist">Xoá khỏi danh sách phát</string>
@@ -153,7 +130,6 @@
     <string name="put_after_current_track">Đặt sau bài hát hiện tại</string>
     <string name="set_artist_image">Set Artist image</string>
     <string name="reset_artist_image">Reset Artist image</string>
-    <string name="there_is_nothing_to_reset">Không có gì để thiết lập lại.</string>
     <string name="add_to_label">Thêm vào</string>
     <string name="go_to_label">Go to</string>
     <string name="action_go_to_album">Go to Album</string>
@@ -173,7 +149,6 @@
     <string name="no_artists_label">Không có nghệ sĩ</string>
     <string name="no_genres_label">Không có thế loại</string>
     <string name="empty_label">Trống</string>
-    <string name="nothing_to_see">Không có gì để xem</string>
     <string name="show_album_artists">Chỉ album của nghệ sĩ</string>
     <string name="songs_label">Bài hát</string>
     <string name="albums_label">Album</string>
@@ -215,16 +190,13 @@
     <string name="sort_order_file_name">Tên tệp (file)</string>
     <string name="sort_order_number_of_songs">Số lượng bài hát</string>
     <string name="sort_order_number_of_albums">Số lượng album</string>
-    <string name="sort_order_last_played_date">Phát lần cuối</string>
     <string name="sort_order_track_list">Danh sách bài hát</string>
     <string name="sort_order_descending">Giảm dần</string>
-    <string name="sort_order_ignore_articles">Bỏ qua các mạo từ</string>
     <string name="action_details">Chi tiết</string>
     <string name="action_set_as_start_directory">Đặt làm thư mục khỏi chạy</string>
     <string name="start_directory_set">Thư mục được đặt thành %s</string>
     <string name="action_go_to_start_directory">Đi tới thư mục</string>
     <string name="action_hierarchy_view">Xem theo cấu trúc thư mục</string>
-    <string name="new_start_directory">Thư mục bắt dầu: %s</string>
     <string name="action_scan">Quét</string>
     <string name="scan_media">Quét thư viện</string>
     <string name="scan_media_message">Trong hầu hết các trường hợp, Android tự động phát hiện và lập chỉ mục các tệp phương tiện trên thiết bị của bạn, vì vậy việc quét thủ công thường là không cần thiết.</string>
@@ -235,7 +207,6 @@
     <string name="restore_default">Khôi phục mặc định</string>
     <string name="remove_cover">Xoá ảnh bìa</string>
     <string name="could_not_download_album_cover">Không thể tải xuống ảnh bìa album phù hợp.</string>
-    <string name="download_image">Tải hình ảnh</string>
     <string name="pick_from_local_storage">Chọn từ bộ nhớ cục bộ</string>
     <string name="about_x_title">Về %s</string>
     <string name="yes">Đồng ý</string>
@@ -246,7 +217,6 @@
     <string name="label_file_format">Định dạng</string>
     <string name="file_label">Tệp</string>
     <string name="metadata_label">Siêu dữ liệu (metadata)</string>
-    <string name="song">Bài hát</string>
     <string name="title">Tiêu đề</string>
     <string name="album">Album</string>
     <string name="artist">Nghệ sĩ</string>
@@ -357,7 +327,6 @@
     <string name="band_configuration_changed_successfully">Cấu hình băng tần đã được thay đổi thành công.</string>
     <string name="band_configuration_could_not_be_changed">Không thể thay đổi dải tần.</string>
     <string name="share_eq_profiles">Chia sẻ cấu hình EQ</string>
-    <string name="there_is_nothing_to_export">Không có gì để xuất.</string>
     <string name="there_is_nothing_to_import">Không có gì để nhập.</string>
     <string name="an_unexpected_error_occurred">Đã xảy ra lỗi không mong muốn.</string>
     <string name="share_profiles">Chia sẻ cấu hình</string>
@@ -405,7 +374,6 @@
     <string name="loudness_enhancer">Amplifier</string>
     <string name="sound_settings">Cài đặt âm thanh</string>
     <string name="listening_on">Nghe trên</string>
-    <string name="casting_to">Đang truyền sang</string>
     <string name="volume_label">Volume</string>
     <string name="reset_balance">Reset balance</string>
     <string name="speed_and_pitch_label">Tốc độ và cao độ</string>
@@ -435,8 +403,6 @@
     <string name="download_lyrics">Tải xuống lời bài hát</string>
     <string name="write_lyrics_here">Viết lời bài hát vào đây</string>
     <string name="no_lyrics_found">Không tìm thấy lời bài hát</string>
-    <string name="lyrics_were_updated_successfully">Cập nhật lời bái hát thành công.</string>
-    <string name="failed_to_update_lyrics">Cập nhật lời bài hát thất bại.</string>
     <string name="there_are_no_changes_to_save">Không có thay đổi nào để lưu.</string>
     <string name="font_imported_successfully">Thêm phông chữ thành công.</string>
     <string name="could_not_import_font">Không thể thêm font chữ.</string>
@@ -461,22 +427,10 @@
     <string name="app_shortcut_last_added_short">Đã thêm gần đây</string>
     <string name="app_shortcut_favorites_short">Ưa thích</string>
     <!-- About page -->
-    <string name="action_about">Giới thiệu</string>
-    <string name="changelog">Nhật ký thay đổi</string>
-    <string name="faq">FAQ</string>
     <string name="licenses">Các giấy phép</string>
-    <string name="author">Tác giả</string>
-    <string name="mardous_summary">Nhà phát triển chính</string>
-    <string name="contributors">Người đóng góp</string>
     <string name="translators_title">Người dịch</string>
     <string name="translators_summary">Cảm ơn những người đã giúp Booming Music hỗ trợ nhiều ngôn ngữ.</string>
-    <string name="view_profile_on_github">Xem hồ sơ trên GitHub</string>
-    <string name="write_an_email">Viết một email</string>
     <string name="support_development">Hỗ trợ phát triển</string>
-    <string name="help_with_translations">Hỗ trợ dịch thuật</string>
-    <string name="help_with_translations_summary">Bạn có thể đóng góp cho dự án bằng cách hỗ trợ dịch thuật Booming Music sang các ngôn ngữ khác.</string>
-    <string name="report_bugs">Báo cáo lỗi</string>
-    <string name="report_bugs_summary">Báo cáo lỗi hoặc yêu cầu tính năng mới.</string>
     <string name="share_app">Chia sẻ ứng dụng này</string>
     <string name="share_app_summary">Bạn có thể giúp ứng dụng này phát triển bằng cách chia sẻ với bạn bè.</string>
     <string name="send_invitation_message">Gửi lời mời</string>
@@ -487,7 +441,6 @@
     <string name="saf_access_required_message">Booming Music cần quyền truy cập vào các tệp này. Vui lòng chọn thư mục gốc nơi lưu trữ các tệp nhạc của bạn.</string>
     <string name="saf_show_files_button">Hiển thị tệp</string>
     <string name="saf_error_uri">Can\'t get SAF URI</string>
-    <string name="saf_write_failed">File write failed: %s</string>
     <string name="saf_delete_failed">Xóa tệp thất bại: %s</string>
     <string name="settings_title">Cài đặt</string>
     <string name="appearance_title">Giao diện</string>
@@ -498,7 +451,6 @@
     <string name="lyrics_preferences_summary">Adjust font, spacing, and other options to personalize your lyrics view.</string>
     <string name="playback_title">Phát lại</string>
     <string name="playback_summary">Thay đổi cài đặt âm thanh, tai nghe Bluetooth, v.v.</string>
-    <string name="metadata_title">Metadata</string>
     <string name="library_title">Thư viện</string>
     <string name="library_summary">Settings for playlists and exclusion/inclusion filters.</string>
     <string name="advanced_title">Nâng cao</string>
@@ -507,7 +459,6 @@
     <string name="about_title">About</string>
     <string name="about_summary">Booming Music %s, bấm để tìm hiểu thêm.</string>
     <!-- Preference headers -->
-    <string name="general_header">Chung</string>
     <string name="library_header">Thư viện</string>
     <string name="album_cover_header">Cover</string>
     <string name="exclusion_header">Exclusions</string>
@@ -527,7 +478,6 @@
     <string name="library_categories_summary">Configure visibility and order of library categories.</string>
     <string name="remember_last_page_title">Remember last page</string>
     <string name="remember_last_page_summary">Go to the last opened page on launch.</string>
-    <string name="start_page_title">Trang bắt đầu</string>
     <string name="tab_mode_title">Tab titles mode</string>
     <string name="hold_tab_to_search_title">Hold tab to Search</string>
     <string name="hold_tab_to_search_summary">Long-press any navigation bar tab to open the search screen.</string>
@@ -590,7 +540,6 @@
     <string name="now_playing_corner_radius_title">Bán kính bo góc của hình ảnh</string>
     <string name="now_playing_corner_radius_summary">Defines how rounded the corners of the album art should appear.</string>
     <string name="carousel_effect_title">Carousel effect</string>
-    <string name="album_cover_effect_title">Album cover effect</string>
     <string name="animate_controls_title">Animate controls</string>
     <string name="animate_controls_summary">It\'s played when opening the player panel.</string>
     <string name="swipe_up_queue_title">Vuốt lên để mở danh sách chờ</string>
@@ -655,7 +604,6 @@
     <string name="use_folder_album_cover_title">Use folder images</string>
     <string name="use_folder_album_cover_summary">If the audio file does not contain an embedded cover. Images might take a bit more of time to load.</string>
     <string name="online_artist_images_title">Tải xuống ảnh nghệ sĩ</string>
-    <string name="preferred_image_size_title">Preferred image size</string>
     <string name="online_album_covers_title">Tải xuống ảnh bìa album bị thiếu</string>
     <string name="online_album_covers_summary">Downloaded images aren’t embedded into audio files; they’re only visible within the app. This depends on your metadata download policy.</string>
     <string name="delete_downloaded_lyrics_title">Delete downloaded lyrics</string>
@@ -695,9 +643,6 @@
     <string name="labeled">Labeled</string>
     <string name="unlabeled">Unlabeled</string>
     <string name="selected">Selected</string>
-    <string name="compact">Compact</string>
-    <string name="expanded">Expanded</string>
-    <string name="simple">Đơn giản</string>
     <string name="add_after_playing_track">Thêm sau khi phát nhạc</string>
     <string name="add_tracks_sequentially">Add tracks sequentially</string>
     <string name="albums_shuffle">Phát ngẫu nhiên album</string>
@@ -713,9 +658,6 @@
     <string name="this_month">Tháng này</string>
     <string name="past_three_months">3 tháng qua</string>
     <string name="this_year">Năm nay</string>
-    <string name="image_size_large">Lớn (chậm hơn)</string>
-    <string name="image_size_medium">Trung bình (mặc định, khuyến khích)</string>
-    <string name="image_size_small">Nhỏ (nhanh hơn, chất lượng thấp)</string>
     <string name="play_on_startup_mode_never">Không phát khi khởi động</string>
     <string name="play_on_startup_mode_minimized">Yes, with minimized player panel</string>
     <string name="play_on_startup_mode_expanded">Yes, with expanded player panel</string>
@@ -736,8 +678,6 @@
     <string name="every_fifteen_days">Mỗi 15 ngày</string>
     <string name="monthly">Hàng tháng</string>
     <string name="never">Không bao giờ</string>
-    <string name="receive_experimental_updates_title">Receive experimental updates</string>
-    <string name="receive_experimental_updates_summary">Please note that these updates are often very unstable and are intended for experienced users.</string>
     <string name="search_for_update_title">Kiểm tra bản cập nhật</string>
     <string name="last_update_search_x">Lần cuối kiểm tra: %s</string>
     <string name="checking_please_wait">Đang kiểm tra, vui lòng chờ…</string>
@@ -782,10 +722,6 @@
     <string name="error_lastfm_rate_limit">Quá nhiều yêu cầu. Vui lòng đợi một chút trước khi tiếp tục scrobble.</string>
     <string name="error_lastfm_generic">Đã xảy ra lỗi với Last.fm. Vui lòng thử lại.</string>
     <string name="error_network_timeout">Kết nối bị gián đoạn. Vui lòng kiểm tra kết nối internet và thử lại.</string>
-    <string name="github">GitHub</string>
-    <string name="telegram_community">Cộng đồng Telegram</string>
-    <string name="telegram_community_summary">Tham gia vào cộng động Telegram của chúng tôi để cập nhật những cập nhật và thông tin mới nhất.</string>
-    <string name="support_my_work">Ủng hộ chúng tôi</string>
     <string name="network_title">Mạng</string>
     <string name="network_summary">Quản lý các tính năng internet như tích hợp Last.fm, các nhà cung cấp lời bài hát và siêu dữ liệu.</string>
     <string name="images_title">Hình ảnh</string>

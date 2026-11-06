@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="action_play">Hrát</string>
-    <string name="action_play_all">Přehrát vše</string>
     <string name="action_shuffle_play">Zamíchat přehrávání</string>
     <string name="action_queue_next">Další fronta</string>
     <string name="shuffle_all_label">Zamíchat vše</string>
@@ -9,10 +8,8 @@
     <string name="repeat_mode">Režim opakování</string>
     <string name="shuffle_button_tip">Klepněte pro normální zamíchání. Dlouze stiskněte pro pokročilé možnosti.</string>
     <string name="action_play_pause">Přehrát/pozastavit</string>
-    <string name="action_pause">Pozastavit</string>
     <string name="action_next">Další</string>
     <string name="action_previous">Předchozí</string>
-    <string name="action_cancel">Zrušit</string>
     <string name="action_seek_backward">Posunout zpět</string>
     <string name="action_seek_forward">Posunout vpřed</string>
     <string name="action_cycle_repeat">Režim opakování cyklu</string>
@@ -23,8 +20,6 @@
     <string name="create_action">Vytvořit</string>
     <string name="search_label">Hledat</string>
     <string name="search_hint">Hledat v knihovně…</string>
-    <string name="action_voice_search">Hlasové vyhledávání</string>
-    <string name="speech_not_supported">Vaše zařízení nepodporuje vkládání řeči</string>
     <string name="search_artist_x_label">Hledat umělce: %s</string>
     <string name="search_album_x_label">Hledat album: %s</string>
     <string name="search_list_x_label">Vyhledávací seznam: %s</string>
@@ -32,8 +27,6 @@
     <string name="search_year_x_label">Rok hledání: %s</string>
     <string name="search_in_folder_x">Hledat ve složce: %s</string>
     <string name="search_last_added">Hledat nejnovější hudbu</string>
-    <string name="shuffle_mode_album">Zamíchání alb</string>
-    <string name="shuffle_mode_artist">Zamíchání umělce</string>
     <string name="action_share">Sdílet</string>
     <string name="action_save">Uložit</string>
     <string name="back_action">Zpět</string>
@@ -45,15 +38,10 @@
     <string name="continue_action">Pokračovat</string>
     <string name="select_all_title">Vybrat vše</string>
     <string name="x_selected">%d vybráno</string>
-    <string name="preparing_playback_title">Příprava</string>
-    <string name="restoring_playback_state">Obnovení stavu přehrávání a fronty…</string>
-    <string name="playback_stopped_title">Přehrávání zastaveno</string>
     <string name="playing_notification_description">Oznámení o přehrávání obsahuje akce pro přehrávání/pozastavení, atd.</string>
     <string name="playing_notification_name">Oznámení o přehrávání</string>
-    <string name="action_scan_directory">Skenovat adresář</string>
     <string name="no_device_playlists">Žádné playlisty</string>
     <string name="select_songs_title">Vybrat skladby</string>
-    <string name="playlist_x_is_empty">Seznam skladeb %s je prázdný.</string>
     <string name="playlist_name_cannot_be_empty">Název playlistu nemůže být prázdný</string>
     <string name="imported_playlist_x">Importován playlist \"%1$s\".</string>
     <string name="could_not_import_the_playlist_x">Nelze importovat playlist \"%s\"</string>
@@ -61,8 +49,6 @@
     <string name="playlist_x_not_imported">Playlist %s nebyl importován.</string>
     <string name="action_import_playlist">Importovat playlist…</string>
     <string name="new_playlist_title">Nový seznam skladeb</string>
-    <string name="add_playlist_title">Přidat do playlistu</string>
-    <string name="rename_playlist_title">Přejmenovat seznam skladeb</string>
     <string name="action_edit_playlist">Upravit seznam skladeb</string>
     <string name="action_delete_playlist">Odstranit seznam skladeb</string>
     <string name="action_export_playlist">Exportovat do souboru</string>
@@ -83,9 +69,7 @@
     <string name="delete_playlist_x"><![CDATA[Smazat playlist <b>%s</b>\?]]></string>
     <string name="delete_x_playlists"><![CDATA[Smazat <b>%d</b> playlistů?]]></string>
     <string name="created_playlist_x">Vytvořen playlist \'%1$s\'.</string>
-    <string name="could_not_create_playlist">Nelze vytvořit seznam skladeb.</string>
     <string name="playlist_exists">Playlist %s již existuje.</string>
-    <string name="playlist_created">Seznam skladeb %s byl úspěšně vytvořen.</string>
     <string name="remove_song_from_playlist_title">Odstranit skladbu ze seznamu skladeb</string>
     <string name="remove_songs_from_playlist_title">Odstranit skladby ze seznamu skladeb</string>
     <string name="remove_song_x_from_playlist"><![CDATA[Odstranit skladbu <b>%1$s</b> ze seznamu skladeb?]]></string>
@@ -115,7 +99,6 @@
     <string name="deleting_songs">Mazání skladeb, počkejte…</string>
     <string name="song_x_of_x">%1$d z %2$d • %3$s</string>
     <string name="no_equalizer">Nebyl nalezen žádný ekvalizér.</string>
-    <string name="audio_focus_denied">Zaměření na zvuk odepřeno.</string>
     <string name="no_audio_ID">Špatné audio ID.</string>
     <string name="playback_error_code">Chyba přehrávání (%s).</string>
     <string name="unplayable_file">Nelze přehrát tuto skladbu.</string>
@@ -135,16 +118,10 @@
     <string name="welcome_to_x">Vítejte v %s</string>
     <string name="get_started">Začněte</string>
     <string name="select_storage_title">Vyberte úložiště</string>
-    <string name="now_playing">Právě hraje</string>
     <string name="playing_queue_label">Fronta přehrávání</string>
-    <string name="list_start">Začátek seznamu</string>
-    <string name="list_end">Konec seznamu</string>
     <string name="clear_queue">Vymazat frontu</string>
-    <string name="action_move_to_current_track">Zobrazit aktuální skladbu</string>
     <string name="action_add_to_favorites">Přidat do oblíbených</string>
     <string name="action_remove_from_favorites">Odebrat z oblíbených</string>
-    <string name="added_to_favorites_label">Přidáno k oblíbeným</string>
-    <string name="removed_from_favorites_label">Odebráno z oblíbených</string>
     <string name="toggle_favorite">Přidat/Odebrat z oblíbených</string>
     <string name="action_add_to_playlist">Přidat do playlistu</string>
     <string name="action_remove_from_playlist">Odstranit ze seznamu skladeb</string>
@@ -153,7 +130,6 @@
     <string name="put_after_current_track">Vložit po aktuální skladbě</string>
     <string name="set_artist_image">Nastavit obrázek interpreta</string>
     <string name="reset_artist_image">Obnovit obrázek interpreta</string>
-    <string name="there_is_nothing_to_reset">Není co obnovit.</string>
     <string name="add_to_label">Přidat do</string>
     <string name="go_to_label">Přejít na</string>
     <string name="action_go_to_album">Přejít na album</string>
@@ -173,7 +149,6 @@
     <string name="no_artists_label">Žádní umělci</string>
     <string name="no_genres_label">Žádné žánry</string>
     <string name="empty_label">Prázdné</string>
-    <string name="nothing_to_see">Nic k zobrazení</string>
     <string name="show_album_artists">Pouze umělci alba</string>
     <string name="songs_label">Skladby</string>
     <string name="albums_label">Alba</string>
@@ -215,16 +190,13 @@
     <string name="sort_order_file_name">Název souboru</string>
     <string name="sort_order_number_of_songs">Počet skladeb</string>
     <string name="sort_order_number_of_albums">Počet alb</string>
-    <string name="sort_order_last_played_date">Datum posledního hraní</string>
     <string name="sort_order_track_list">Seznam skladeb</string>
     <string name="sort_order_descending">sestupně</string>
-    <string name="sort_order_ignore_articles">Ignorovat články</string>
     <string name="action_details">Detaily</string>
     <string name="action_set_as_start_directory">Nastavit jako počáteční adresář</string>
     <string name="start_directory_set">Start directory set to %s</string>
     <string name="action_go_to_start_directory">Přejít na počáteční adresář</string>
     <string name="action_hierarchy_view">Hierarchie</string>
-    <string name="new_start_directory">Nový adresář: %s</string>
     <string name="action_scan">Skenovat</string>
     <string name="scan_media">Skenovat média</string>
     <string name="scan_media_message">Ve většině případů Android automaticky detekuje a indexuje mediální soubory ve vašem zařízení, takže ruční skenování je obvykle zbytečné.</string>
@@ -235,7 +207,6 @@
     <string name="restore_default">Obnovit výchozí</string>
     <string name="remove_cover">Odstranit obal</string>
     <string name="could_not_download_album_cover">Nelze’stáhnout odpovídající obal alba.</string>
-    <string name="download_image">Stáhnout obrázek</string>
     <string name="pick_from_local_storage">Vybrat z místního úložiště</string>
     <string name="about_x_title">O %s</string>
     <string name="yes">Ano</string>
@@ -246,7 +217,6 @@
     <string name="label_file_format">Formát</string>
     <string name="file_label">Soubor</string>
     <string name="metadata_label">Metadata</string>
-    <string name="song">Skladba</string>
     <string name="title">Hlava 1 – Celkem</string>
     <string name="album">Album</string>
     <string name="artist">Umělec</string>
@@ -381,7 +351,6 @@
     <string name="band_configuration_changed_successfully">The band configuration was successfully changed.</string>
     <string name="band_configuration_could_not_be_changed">The band configuration could not be changed.</string>
     <string name="share_eq_profiles">Share EQ Profiles</string>
-    <string name="there_is_nothing_to_export">Není co exportovat.</string>
     <string name="there_is_nothing_to_import">Není co importovat.</string>
     <string name="an_unexpected_error_occurred">An unexpected error occurred.</string>
     <string name="share_profiles">Share profiles</string>
@@ -429,7 +398,6 @@
     <string name="loudness_enhancer">Zesilovač</string>
     <string name="sound_settings">Nastavení zvuku</string>
     <string name="listening_on">Listening on</string>
-    <string name="casting_to">Casting to</string>
     <string name="volume_label">Objem</string>
     <string name="reset_balance">Reset balance</string>
     <string name="speed_and_pitch_label">Speed and pitch</string>
@@ -459,8 +427,6 @@
     <string name="download_lyrics">Stáhnout texty</string>
     <string name="write_lyrics_here">Zde napište texty</string>
     <string name="no_lyrics_found">Nenalezeny žádné texty</string>
-    <string name="lyrics_were_updated_successfully">Texty byly úspěšně aktualizovány.</string>
-    <string name="failed_to_update_lyrics">Aktualizace textů se nezdařila.</string>
     <string name="there_are_no_changes_to_save">Neexistují žádné změny k uložení.</string>
     <string name="font_imported_successfully">Písmo bylo úspěšně importováno.</string>
     <string name="could_not_import_font">Písmo nelze importovat.</string>
@@ -485,22 +451,10 @@
     <string name="app_shortcut_last_added_short">Naposledy přidané</string>
     <string name="app_shortcut_favorites_short">Oblíbené</string>
     <!-- About page -->
-    <string name="action_about">O aplikaci</string>
-    <string name="changelog">Seznam změn</string>
-    <string name="faq">FAQ</string>
     <string name="licenses">Licence</string>
-    <string name="author">Autor</string>
-    <string name="mardous_summary">Lead Developer</string>
-    <string name="contributors">Přispěvatelé</string>
     <string name="translators_title">Překladatelé</string>
     <string name="translators_summary">Díky těm, kteří zpřístupňují Booming Music v mnoha jazycích.</string>
-    <string name="view_profile_on_github">Zobrazit profil na GitHub</string>
-    <string name="write_an_email">Napsat e-mail</string>
     <string name="support_development">Podpořte vývoj</string>
-    <string name="help_with_translations">Pomoc s překlady</string>
-    <string name="help_with_translations_summary">Můžete přispět k projektu tím, že pomůžete přeložit hudbu Booming do jiných jazyků.</string>
-    <string name="report_bugs">Nahlásit chyby</string>
-    <string name="report_bugs_summary">Nahlásit chyby nebo požádat o nové funkce.</string>
     <string name="share_app">Sdílet tuto aplikaci</string>
     <string name="share_app_summary">Můžete pomoci této aplikaci růst, pokud ji sdílíte s přáteli.</string>
     <string name="send_invitation_message">Odeslat pozvánku</string>
@@ -511,7 +465,6 @@
     <string name="saf_access_required_message">Booming Music vyžaduje oprávnění pro přístup k těmto souborům. Prosím vyberte kořenovou složku, kde jsou vaše hudební soubory uloženy.</string>
     <string name="saf_show_files_button">Zobrazit soubory</string>
     <string name="saf_error_uri">Nelze získat SAF URI</string>
-    <string name="saf_write_failed">Zápis souboru se nezdařil: %s</string>
     <string name="saf_delete_failed">Odstranění souboru se nezdařilo: %s</string>
     <string name="settings_title">Nastavení</string>
     <string name="appearance_title">Vzhled</string>
@@ -522,7 +475,6 @@
     <string name="lyrics_preferences_summary">Upravte font, mezery a další možnosti pro přizpůsobení zobrazení textu.</string>
     <string name="playback_title">Přehrát</string>
     <string name="playback_summary">Změnit nastavení zvuku, sluchátka Bluetooth, atd.</string>
-    <string name="metadata_title">Metadata</string>
     <string name="library_title">Knihovna</string>
     <string name="library_summary">Nastavení seznamů skladeb a filtrů pro vyloučení/zahrnutí.</string>
     <string name="advanced_title">Rozšířené</string>
@@ -531,7 +483,6 @@
     <string name="about_title">O aplikaci</string>
     <string name="about_summary">Boomování hudby %s, klepněte pro více informací.</string>
     <!-- Preference headers -->
-    <string name="general_header">Obecná ustanovení</string>
     <string name="library_header">Knihovna</string>
     <string name="album_cover_header">Kryt</string>
     <string name="exclusion_header">Vyloučení</string>
@@ -551,7 +502,6 @@
     <string name="library_categories_summary">Nastavení viditelnosti a pořadí kategorií knihovny.</string>
     <string name="remember_last_page_title">Zapamatovat poslední stránku</string>
     <string name="remember_last_page_summary">Přejít na poslední otevřenou stránku při spuštění.</string>
-    <string name="start_page_title">Úvodní stránka</string>
     <string name="tab_mode_title">Režim názvů karet</string>
     <string name="hold_tab_to_search_title">Podržte kartu pro hledání</string>
     <string name="hold_tab_to_search_summary">Dlouhým stiskem na kterékoli navigační liště otevřete obrazovku vyhledávání.</string>
@@ -614,7 +564,6 @@
     <string name="now_playing_corner_radius_title">Poloměr rohů obrázku</string>
     <string name="now_playing_corner_radius_summary">Určuje, jak by se měly objevit zaoblené rohy obalu alba.</string>
     <string name="carousel_effect_title">Kolotoč efekt</string>
-    <string name="album_cover_effect_title">Efekt obalu alba</string>
     <string name="animate_controls_title">Animovat kontroly</string>
     <string name="animate_controls_summary">Přehrává se při otevírání panelu hráčů.</string>
     <string name="swipe_up_queue_title">Přejetím nahoru otevřete frontu</string>
@@ -679,7 +628,6 @@
     <string name="use_folder_album_cover_title">Použít obrázky složek</string>
     <string name="use_folder_album_cover_summary">Pokud zvukový soubor neobsahuje vložený obal. Obrázky mohou trvat trochu déle.</string>
     <string name="online_artist_images_title">Stáhnout obrázky umělců</string>
-    <string name="preferred_image_size_title">Upřednostňovaná velikost obrázku</string>
     <string name="online_album_covers_title">Stáhnout chybějící obaly alba</string>
     <string name="online_album_covers_summary">Stažené obrázky nejsou vloženy do zvukových souborů; jsou viditelné pouze v aplikaci. To závisí na zásadách stahování metadat.</string>
     <string name="delete_downloaded_lyrics_title">Odstranit stažené texty</string>
@@ -719,9 +667,6 @@
     <string name="labeled">Označeno</string>
     <string name="unlabeled">Neoznačeno</string>
     <string name="selected">Vybrané</string>
-    <string name="compact">Kompaktní</string>
-    <string name="expanded">Rozšířené</string>
-    <string name="simple">Jednoduchý</string>
     <string name="add_after_playing_track">Přidat po přehrávání skladby</string>
     <string name="add_tracks_sequentially">Přidat postupně skladby</string>
     <string name="albums_shuffle">Zamíchat alba</string>
@@ -737,9 +682,6 @@
     <string name="this_month">Tento měsíc</string>
     <string name="past_three_months">Minulé tři měsíce</string>
     <string name="this_year">Tento rok</string>
-    <string name="image_size_large">Velký (pomalejší)</string>
-    <string name="image_size_medium">Střední (výchozí, doporučeno)</string>
-    <string name="image_size_small">Malé (rychlejší, nízká kvalita)</string>
     <string name="play_on_startup_mode_never">Nikdy nehrát při startu</string>
     <string name="play_on_startup_mode_minimized">Ano, s minimalizovaným hráčem</string>
     <string name="play_on_startup_mode_expanded">Ano, s rozšířeným panelem</string>
@@ -760,8 +702,6 @@
     <string name="every_fifteen_days">Každých patnáct dní</string>
     <string name="monthly">Měsíčně</string>
     <string name="never">Nikdy</string>
-    <string name="receive_experimental_updates_title">Přijímat experimentální aktualizace</string>
-    <string name="receive_experimental_updates_summary">Vezměte prosím na vědomí, že tyto aktualizace jsou často velmi nestabilní a jsou určeny pro zkušené uživatele.</string>
     <string name="search_for_update_title">Hledat aktualizace</string>
     <string name="last_update_search_x">Poslední kontrola: %s</string>
     <string name="checking_please_wait">Kontroluje, počkejte prosím…</string>

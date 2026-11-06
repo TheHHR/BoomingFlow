@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="action_play">Reprodueix</string>
-    <string name="action_play_all">Reprodueix-ho tot</string>
     <string name="action_shuffle_play">Reproducció aleatòria</string>
     <string name="action_queue_next">Afegeix a la cua</string>
     <string name="shuffle_all_label">Barreja-ho tot</string>
@@ -9,10 +8,8 @@
     <string name="repeat_mode">Mode repetició</string>
     <string name="shuffle_button_tip">Cliqueu per fer una barreja normal. Mantingueu premut per accedir a opcions avançades.</string>
     <string name="action_play_pause">Reprodueix/Pausa</string>
-    <string name="action_pause">Pausa</string>
     <string name="action_next">Següent</string>
     <string name="action_previous">Anterior</string>
-    <string name="action_cancel">Cancel·la</string>
     <string name="action_seek_backward">Rebobina</string>
     <string name="action_seek_forward">Avança</string>
     <string name="action_cycle_repeat">Alterna mode de repetició</string>
@@ -23,8 +20,6 @@
     <string name="create_action">Crea</string>
     <string name="search_label">Cerca</string>
     <string name="search_hint">Cerca a la biblioteca…</string>
-    <string name="action_voice_search">Cerca per veu</string>
-    <string name="speech_not_supported">El vostre dispositiu no admet entrada de veu</string>
     <string name="search_artist_x_label">Cerca artista: %s</string>
     <string name="search_album_x_label">Cerca àlbum: %s</string>
     <string name="search_list_x_label">Cerca llista: %s</string>
@@ -32,8 +27,6 @@
     <string name="search_year_x_label">Cerca any: %s</string>
     <string name="search_in_folder_x">Cerca en carpeta: %s</string>
     <string name="search_last_added">Cerca música recent</string>
-    <string name="shuffle_mode_album">Barreja l\'àlbum</string>
-    <string name="shuffle_mode_artist">Barreja l\'artista</string>
     <string name="action_share">Comparteix</string>
     <string name="action_save">Desa</string>
     <string name="back_action">Torna</string>
@@ -45,15 +38,10 @@
     <string name="continue_action">Continua</string>
     <string name="select_all_title">Selecciona-ho tot</string>
     <string name="x_selected">%d seleccionat(s)</string>
-    <string name="preparing_playback_title">S\'està preparant</string>
-    <string name="restoring_playback_state">S\'està restablint l\'estat de reproducció i la cua…</string>
-    <string name="playback_stopped_title">S\'ha aturat la reproducció</string>
     <string name="playing_notification_description">La notificació de reproducció permet accions com ara reprodueix o pausa.</string>
     <string name="playing_notification_name">Notificació de reproducció</string>
-    <string name="action_scan_directory">Escaneja l\'adreça</string>
     <string name="no_device_playlists">No hi ha llistes de reproducció</string>
     <string name="select_songs_title">Selecciona cançons</string>
-    <string name="playlist_x_is_empty">La llista %s és buida.</string>
     <string name="playlist_name_cannot_be_empty">Cal un nom per a la llista</string>
     <string name="imported_playlist_x">Llista importada «%1$s».</string>
     <string name="could_not_import_the_playlist_x">No s\'ha pogut importar la llista «%s»</string>
@@ -61,8 +49,6 @@
     <string name="playlist_x_not_imported">La llista %s no s\'ha importat.</string>
     <string name="action_import_playlist">Importa la llista…</string>
     <string name="new_playlist_title">Llista nova</string>
-    <string name="add_playlist_title">Afegeix a la llista</string>
-    <string name="rename_playlist_title">Canvia el nom a la llista de reproducció</string>
     <string name="action_edit_playlist">Edita la llista</string>
     <string name="action_delete_playlist">Esborra la llista</string>
     <string name="action_export_playlist">Exporta la llista</string>
@@ -83,9 +69,7 @@
     <string name="delete_playlist_x"><![CDATA[Voleu esborrar la llista <b>%s</b>\?]]></string>
     <string name="delete_x_playlists"><![CDATA[Voleu esborrar <b>%d</b> llistes?]]></string>
     <string name="created_playlist_x">S\'ha creat la llista de reproducció «%1$s».</string>
-    <string name="could_not_create_playlist">No s\'ha pogut crear la llista de reproducció.</string>
     <string name="playlist_exists">La llista «%s» ja existeix.</string>
-    <string name="playlist_created">La llista %s s\'ha creat correctament.</string>
     <string name="remove_song_from_playlist_title">Treu la cançó de la llista</string>
     <string name="remove_songs_from_playlist_title">Treu les cançons de la llista</string>
     <string name="remove_song_x_from_playlist"><![CDATA[Voleu treure la cançó «<b>%1$s</b>» de la llista?]]></string>
@@ -115,7 +99,6 @@
     <string name="deleting_songs">S\'estan eliminant les cançons, espereu…</string>
     <string name="song_x_of_x">%1$d de %2$d • %3$s</string>
     <string name="no_equalizer">No s\'ha trobat cap equalitzador.</string>
-    <string name="audio_focus_denied">S\'ha denegat el focus d\'àudio.</string>
     <string name="no_audio_ID">ID d\'àudio incorrecte.</string>
     <string name="playback_error_code">Error de reproducció (%s).</string>
     <string name="unplayable_file">No s\'ha pogut reproduir la cançó.</string>
@@ -135,16 +118,10 @@
     <string name="welcome_to_x">Us donem la benvinguda a %s</string>
     <string name="get_started">Comença</string>
     <string name="select_storage_title">Selecciona l\'emmagatzematge</string>
-    <string name="now_playing">Ara sona</string>
     <string name="playing_queue_label">Cua de reproducció</string>
-    <string name="list_start">Inici de la llista</string>
-    <string name="list_end">Fi de la llista</string>
     <string name="clear_queue">Buida la cua</string>
-    <string name="action_move_to_current_track">Mostra la pista actual</string>
     <string name="action_add_to_favorites">Afegeix a Preferits</string>
     <string name="action_remove_from_favorites">Treu de Preferits</string>
-    <string name="added_to_favorites_label">S\'ha afegit a Preferits</string>
-    <string name="removed_from_favorites_label">S\'ha tret de Preferits</string>
     <string name="toggle_favorite">Afegeix/Treu de Preferits</string>
     <string name="action_add_to_playlist">Afegeix a la llista</string>
     <string name="action_remove_from_playlist">Treu de la llista</string>
@@ -153,7 +130,6 @@
     <string name="put_after_current_track">Col·loca després de la pista actual</string>
     <string name="set_artist_image">Estableix la imatge de l\'artista</string>
     <string name="reset_artist_image">Restableix la imatge de l\'artista</string>
-    <string name="there_is_nothing_to_reset">No hi ha res a restablir.</string>
     <string name="add_to_label">Afegeix a</string>
     <string name="go_to_label">Ves a</string>
     <string name="action_go_to_album">Ves a l\'Àlbum</string>
@@ -173,7 +149,6 @@
     <string name="no_artists_label">No hi ha artistes</string>
     <string name="no_genres_label">No hi ha gèneres</string>
     <string name="empty_label">No hi ha res</string>
-    <string name="nothing_to_see">No hi ha res a veure</string>
     <string name="show_album_artists">Només artistes de l\'àlbum</string>
     <string name="songs_label">Cançons</string>
     <string name="albums_label">Àlbums</string>
@@ -215,16 +190,13 @@
     <string name="sort_order_file_name">Nom del fitxer</string>
     <string name="sort_order_number_of_songs">Nombre de cançons</string>
     <string name="sort_order_number_of_albums">Nombre d\'àlbums</string>
-    <string name="sort_order_last_played_date">Data de la darrera reproducció</string>
     <string name="sort_order_track_list">Llista de pistes</string>
     <string name="sort_order_descending">Descendent</string>
-    <string name="sort_order_ignore_articles">Ignora els articles</string>
     <string name="action_details">Detalls</string>
     <string name="action_set_as_start_directory">Estableix com a adreça d\'inici</string>
     <string name="start_directory_set">Adreça d\'inici fixada a %s</string>
     <string name="action_go_to_start_directory">Ves a l\'adreça d\'inici</string>
     <string name="action_hierarchy_view">Vista jeràrquica</string>
-    <string name="new_start_directory">Nova adreça d\'inici: %s</string>
     <string name="action_scan">Cerca</string>
     <string name="scan_media">Cerca fitxers multimèdia</string>
     <string name="scan_media_message">En general, Android detecta i indexa automàticament els fitxers multimèdia del vostre dispositiu. Per tant, no sol caldre cercar-los manualment.</string>
@@ -235,7 +207,6 @@
     <string name="restore_default">Restableix-ho per defecte</string>
     <string name="remove_cover">Treu la portada</string>
     <string name="could_not_download_album_cover">No s\'ha pogut descarregar una portada escaient.</string>
-    <string name="download_image">Descarrega la imatge</string>
     <string name="pick_from_local_storage">Tria des de l\'emmagatzematge intern</string>
     <string name="about_x_title">Quant a %s</string>
     <string name="yes">Sí</string>
@@ -246,7 +217,6 @@
     <string name="label_file_format">Format</string>
     <string name="file_label">Fitxer</string>
     <string name="metadata_label">Metadades</string>
-    <string name="song">Cançó</string>
     <string name="title">Títol</string>
     <string name="album">Àlbum</string>
     <string name="artist">Artista</string>
@@ -373,7 +343,6 @@
     <string name="band_configuration_changed_successfully">La configuració de banda s\'ha canviat correctament.</string>
     <string name="band_configuration_could_not_be_changed">No s\'ha pogut canviar la configuració de banda.</string>
     <string name="share_eq_profiles">Comparteix perfils d\'equalització</string>
-    <string name="there_is_nothing_to_export">No hi ha res a exportar.</string>
     <string name="there_is_nothing_to_import">No hi ha res a importar.</string>
     <string name="an_unexpected_error_occurred">S\'ha produït un error inesperat.</string>
     <string name="share_profiles">Comparteix perfils</string>
@@ -421,7 +390,6 @@
     <string name="loudness_enhancer">Amplificador</string>
     <string name="sound_settings">Configuració de so</string>
     <string name="listening_on">S\'està escoltant a</string>
-    <string name="casting_to">S\'està emetent a</string>
     <string name="volume_label">Volum</string>
     <string name="reset_balance">Restableix el balanç</string>
     <string name="speed_and_pitch_label">Velocitat i to</string>
@@ -451,8 +419,6 @@
     <string name="download_lyrics">Descarrega la lletra</string>
     <string name="write_lyrics_here">Escriviu la lletra aquí</string>
     <string name="no_lyrics_found">No s\'ha trobat cap lletra</string>
-    <string name="lyrics_were_updated_successfully">La lletra s\'ha actualitzat correctament.</string>
-    <string name="failed_to_update_lyrics">No s\'ha pogut actualitzar la lletra.</string>
     <string name="there_are_no_changes_to_save">No hi ha canvis a desar.</string>
     <string name="font_imported_successfully">S\'ha importat la font de text correctament.</string>
     <string name="could_not_import_font">No s\'ha pogut importar la font de text.</string>
@@ -477,22 +443,10 @@
     <string name="app_shortcut_last_added_short">Afegit recentment</string>
     <string name="app_shortcut_favorites_short">Preferits</string>
     <!-- About page -->
-    <string name="action_about">Quant a</string>
-    <string name="changelog">Registre de canvis</string>
-    <string name="faq">Preguntes freqüents</string>
     <string name="licenses">Llicències</string>
-    <string name="author">Autor</string>
-    <string name="mardous_summary">Desenvolupador principal</string>
-    <string name="contributors">Col·laboradors</string>
     <string name="translators_title">Traductors</string>
     <string name="translators_summary">Gràcies a tothom que fa possible que Booming Music estigui disponible en tants idiomes.</string>
-    <string name="view_profile_on_github">Mostra el perfil a Github</string>
-    <string name="write_an_email">Escriviu un correu electrònic</string>
     <string name="support_development">Suport al desenvolupament</string>
-    <string name="help_with_translations">Ajuda amb les traduccions</string>
-    <string name="help_with_translations_summary">Podeu contribuir al projecte ajudant a traduir Booming Music a altres idiomes.</string>
-    <string name="report_bugs">Informa d\'un error</string>
-    <string name="report_bugs_summary">Informeu d\'errors o proposeu noves funcions.</string>
     <string name="share_app">Comparteix aquesta aplicació</string>
     <string name="share_app_summary">Podeu ajudar a fer créixer aquesta aplicació si la compartiu amb amics.</string>
     <string name="send_invitation_message">Envia missatge d\'invitació</string>
@@ -503,7 +457,6 @@
     <string name="saf_access_required_message">Cal permís per accedir a aquells fitxers. Seleccioneu una adreça on tingueu els fitxers de música.</string>
     <string name="saf_show_files_button">Mostra els fitxers</string>
     <string name="saf_error_uri">No es pot obtenir l\'URI SAF</string>
-    <string name="saf_write_failed">Error en escriure el fitxer: %s</string>
     <string name="saf_delete_failed">Error en esborrar el fitxer: %s</string>
     <string name="settings_title">Configuració</string>
     <string name="appearance_title">Aparença</string>
@@ -514,7 +467,6 @@
     <string name="lyrics_preferences_summary">Ajusta la lletra, l\'interlineat i altres opcions per fer-te teves les lletres.</string>
     <string name="playback_title">Reproducció</string>
     <string name="playback_summary">Canvieu la configuració de so, els auriculars Bluetooth, etc.</string>
-    <string name="metadata_title">Metadades</string>
     <string name="library_title">Biblioteca</string>
     <string name="library_summary">Configuració de llistes de reproducció i filtres d\'exclusió/inclusió.</string>
     <string name="advanced_title">Avançat</string>
@@ -523,7 +475,6 @@
     <string name="about_title">Quant a</string>
     <string name="about_summary">Booming Music %s, toqueu per a més informació.</string>
     <!-- Preference headers -->
-    <string name="general_header">General</string>
     <string name="library_header">Biblioteca</string>
     <string name="album_cover_header">Portada</string>
     <string name="exclusion_header">Exclusions</string>
@@ -543,7 +494,6 @@
     <string name="library_categories_summary">Configureu la visibilitat i l\'ordre de les categories de la biblioteca.</string>
     <string name="remember_last_page_title">Recorda la darrera pàgina</string>
     <string name="remember_last_page_summary">Ves a l\'última pàgina oberta en obrir l\'aplicació.</string>
-    <string name="start_page_title">Pàgina d\'inici</string>
     <string name="tab_mode_title">Mode de títols d\'etiquetes</string>
     <string name="hold_tab_to_search_title">Mantén premut per cercar</string>
     <string name="hold_tab_to_search_summary">Obriu la pantalla de cerca en mantenir premuda qualsevol barra de navegació.</string>
@@ -606,7 +556,6 @@
     <string name="now_playing_corner_radius_title">Radi dels cantons de la imatge</string>
     <string name="now_playing_corner_radius_summary">Defineix com d\'arrodonits haurien d\'aparèixer els cantons de la imatge de l\'àlbum.</string>
     <string name="carousel_effect_title">Efecte carrusel</string>
-    <string name="album_cover_effect_title">Efecte de portada d\'àlbum</string>
     <string name="animate_controls_title">Animació dels controls</string>
     <string name="animate_controls_summary">S\'executa en obrir el panell de reproducció.</string>
     <string name="swipe_up_queue_title">Llisca amunt per obrir la cua</string>
@@ -671,7 +620,6 @@
     <string name="use_folder_album_cover_title">Fes servir imatges de carpetes</string>
     <string name="use_folder_album_cover_summary">Si el fitxer d\'àudio no conté una portada incorporada, les imatges podrien trigar més a carregar.</string>
     <string name="online_artist_images_title">Descarrega imatges dels artistes</string>
-    <string name="preferred_image_size_title">Mida d\'imatge preferida</string>
     <string name="online_album_covers_title">Descarrega portades d\'àlbum que falten</string>
     <string name="online_album_covers_summary">Les imatges descarregades no s\'integren als fitxers d\'àudio; només són visibles a l\'aplicació.</string>
     <string name="delete_downloaded_lyrics_title">Esborra les lletres descarregades</string>
@@ -711,9 +659,6 @@
     <string name="labeled">Amb etiqueta</string>
     <string name="unlabeled">Sense etiqueta</string>
     <string name="selected">Seleccionat</string>
-    <string name="compact">Compacte</string>
-    <string name="expanded">Ampliat</string>
-    <string name="simple">Simple</string>
     <string name="add_after_playing_track">Afegeix després de la pista actual</string>
     <string name="add_tracks_sequentially">Afegeix les pistes de manera seqüencial</string>
     <string name="albums_shuffle">Barreja els àlbums</string>
@@ -729,9 +674,6 @@
     <string name="this_month">Aquest mes</string>
     <string name="past_three_months">Últims tres mesos</string>
     <string name="this_year">Aquest any</string>
-    <string name="image_size_large">Grossa (més lenta)</string>
-    <string name="image_size_medium">Mitjana (per defecte, recomanada)</string>
-    <string name="image_size_small">Petita (més ràpida, baixa qualitat)</string>
     <string name="play_on_startup_mode_never">No reproduir mai en iniciar</string>
     <string name="play_on_startup_mode_minimized">Sí, amb el reproductor minimitzat</string>
     <string name="play_on_startup_mode_expanded">Sí, amb el reproductor expandit</string>
@@ -752,8 +694,6 @@
     <string name="every_fifteen_days">Cada quinze dies</string>
     <string name="monthly">Mensualment</string>
     <string name="never">Mai</string>
-    <string name="receive_experimental_updates_title">Obtenir actualitzacions experimentals</string>
-    <string name="receive_experimental_updates_summary">Cal saber que aquestes actualitzacions sovint són molt inestables i, per això, van dirigides a usuaris experts.</string>
     <string name="search_for_update_title">Cerca una actualització</string>
     <string name="last_update_search_x">Darrera comprovació: %s</string>
     <string name="checking_please_wait">S\'està comprovant, espereu…</string>
@@ -782,11 +722,9 @@
     <string name="channel_surround_13_1">Envoltant 13.1</string>
     <string name="lastfm_login_username">Nom d\'usuari</string>
     <string name="lastfm_login_password">Contrasenya</string>
-    <string name="github">GitHub</string>
     <string name="network_title">Xarxa</string>
     <string name="images_title">Imatges</string>
     <string name="lastfm_title">Last.fm</string>
-    <string name="telegram_community">Comunitat al Telegram</string>
     <string name="network_features_title">Activa les funcionalitats de xarxa</string>
     <string name="use_lrclib_provider_title">Usa el proveïdor LRCLib</string>
     <string name="use_betterlyrics_provider_title">Usa el proveïdor BetterLyrics</string>
@@ -826,8 +764,6 @@
     <string name="error_listenbrainz_generic">Hi ha hagut un error amb ListenBrainz.</string>
     <string name="error_listenbrainz_invalid_token">Clau de ListenBrainz invàlida.</string>
     <string name="sleep_timer_x_secs">%d segons</string>
-    <string name="telegram_community_summary">Uniu-vos a la nostra comunitat de Telegram per estar al dia d\'actualitzacions i notícies.</string>
-    <string name="support_my_work">Dona\'m suport</string>
     <string name="network_summary">Gestioneu funcions d\'internet com ara la integració de Last.fm, els proveïdors de lletres i descàrregues de metadades.</string>
     <string name="widget_dynamic_colors_title">Colors dinàmics</string>
     <string name="widget_dynamic_colors_summary">Adapta els colors del widget a la portada de la pista actual.</string>
