@@ -427,9 +427,6 @@ class ArtistDetailFragment : AbsMainActivityFragment(R.layout.fragment_artist_de
         menuItem: MenuItem,
         sharedElements: Array<Pair<View, String>>?
     ): Boolean {
-        if (menuItem.itemId == R.id.action_go_to_artist) {
-            return true
-        }
         return song.onSongMenu(this, menuItem)
     }
 

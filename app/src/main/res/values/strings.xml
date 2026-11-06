@@ -206,7 +206,6 @@
     <string name="go_to_label">Go to</string>
     <string name="action_go_to_album">Go to Album</string>
     <string name="action_go_to_artist">Go to Artist</string>
-    <string name="action_go_to_genre">Go to Genre</string>
     <string name="added_title_to_playing_queue">"Added 1 title to the playing queue."</string>
     <string name="added_x_titles_to_playing_queue">Added %1$d titles to the playing queue.</string>
     <string name="similar_artists">Similar artists</string>
@@ -1144,7 +1143,6 @@
     <string name="merge_artists_summary">Other spellings become aliases of the selected artist. No tags are changed.</string>
     <string name="artists_merged_toast">Merged into %1$s</string>
     <string name="merged_aliases_body">This page also includes: %1$s</string>
-    <string name="go_to_artist_label">Go to artist</string>
     <string name="merged_artists_title">Merged artists</string>
     <string name="merged_artists_summary">Alias spellings redirect to their canonical artist</string>
     <string name="merged_artists_hint">alias - canonical, e.g. djali - DJ ALI</string>

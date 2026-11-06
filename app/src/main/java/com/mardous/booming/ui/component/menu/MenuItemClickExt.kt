@@ -85,29 +85,8 @@ fun Song.onSongMenu(
             true
         }
 
-        R.id.action_go_to_album -> {
-            val navController = fragment.findActivityNavController(R.id.fragment_container)
-            navController.navigate(R.id.nav_album_detail, albumDetailArgs(this.albumId))
-            true
-        }
-
         R.id.menu_go_to -> {
             showGoToMenu(fragment)
-        }
-
-        R.id.action_go_to_artist -> {
-            val navController = fragment.findActivityNavController(R.id.fragment_container)
-            navController.navigate(R.id.nav_artist_detail, artistDetailArgs(this))
-            true
-        }
-
-        R.id.action_go_to_genre -> {
-            val libraryViewModel = fragment.getActivityViewModel<LibraryViewModel>()
-            libraryViewModel.genreBySong(this).observe(fragment.viewLifecycleOwner) {
-                val navController = fragment.findActivityNavController(R.id.fragment_container)
-                navController.navigate(R.id.nav_genre_detail, genreDetailArgs(it))
-            }
-            true
         }
 
         R.id.action_share -> {

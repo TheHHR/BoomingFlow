@@ -321,15 +321,6 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) : Fragment(layoutRes
                 true
             }
 
-            R.id.action_go_to_album,
-            R.id.action_go_to_artist,
-            R.id.action_go_to_genre -> {
-                // Reached only via defunct submenu entries kept for back
-                // compat: the combined menu is the single entry point.
-                currentSong?.let { showPlayerGoToMenu(it) }
-                true
-            }
-
             R.id.action_equalizer -> {
                 if (currentFragment(R.id.fragment_container) is EqualizerFragment) {
                     (activity as? MainActivity)?.collapsePanel()
