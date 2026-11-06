@@ -83,10 +83,6 @@ inline fun <R> Fragment.requestContext(crossinline consumer: (Context) -> R) =
 inline fun <R> Fragment.requestView(crossinline consumer: (View) -> R) =
     view?.let(consumer)
 
-inline fun Fragment.runOnUi(crossinline consumer: (View) -> Unit) {
-    view?.let { it.post { consumer(it) } }
-}
-
 inline fun <T : Fragment> T.withArgs(argsBuilder: Bundle.() -> Unit): T =
     this.apply { arguments = Bundle().apply(argsBuilder) }
 

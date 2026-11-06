@@ -174,10 +174,6 @@ object Preferences : KoinComponent {
         ignoredArtists = updated.distinctBy { it.lowercase() }
     }
 
-    fun removeIgnoredArtist(name: String) {
-        ignoredArtists = ignoredArtists.filterNot { it.equals(name.trim(), ignoreCase = true) }
-    }
-
     fun isIgnoredArtist(name: String): Boolean =
         ignoredArtists.any { it.equals(name.trim(), ignoreCase = true) }
 

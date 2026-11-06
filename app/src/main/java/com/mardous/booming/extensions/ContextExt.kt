@@ -44,7 +44,6 @@ import androidx.core.content.getSystemService
 import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import com.google.android.material.color.MaterialColors
-import com.google.android.material.shape.ShapeAppearanceModel
 import com.mardous.booming.extensions.files.readString
 import com.mardous.booming.extensions.resources.getDrawableCompat
 import com.mardous.booming.extensions.resources.getTinted
@@ -152,9 +151,6 @@ fun Context.readStringFromAsset(assetName: String): String? =
 
 fun Context.getTintedDrawable(@DrawableRes resId: Int, @ColorInt color: Int): Drawable? =
     getDrawableCompat(resId).getTinted(color)
-
-fun Context.getShapeAppearanceModel(shapeAppearanceId: Int, shapeAppearanceOverlayId: Int = 0) =
-    ShapeAppearanceModel.builder(this, shapeAppearanceId, shapeAppearanceOverlayId).build()
 
 fun Context.getNavigationBarHeight(): Int {
     var result = 0
