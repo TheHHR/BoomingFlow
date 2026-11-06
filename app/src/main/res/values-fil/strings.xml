@@ -145,7 +145,6 @@
     <string name="go_to_label">Pumunta sa</string>
     <string name="action_go_to_album">Pumunta sa album</string>
     <string name="action_go_to_artist">Pumunta sa Artist</string>
-    <string name="action_go_to_genre">Pumunta sa Genre</string>
     <string name="added_title_to_playing_queue">Nagdagdag ng 1 pamagat sa pila ng pagpapatugtog.</string>
     <string name="added_x_titles_to_playing_queue">Nagdagdag ng %1$d na pamagat sa pila ng pagpapatugtog.</string>
     <string name="similar_artists">Mga katulad na artist</string>

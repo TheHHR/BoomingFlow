@@ -134,7 +134,6 @@
     <string name="go_to_label">Mergi la</string>
     <string name="action_go_to_album">Mergi la album</string>
     <string name="action_go_to_artist">Mergi la Artist</string>
-    <string name="action_go_to_genre">Mergi la Gen</string>
     <string name="added_title_to_playing_queue">S-a adăugat un titlu la lista de redare.</string>
     <string name="added_x_titles_to_playing_queue">%1$d a fost adăugat la lista de redare.</string>
     <string name="similar_artists">Artişti similari</string>

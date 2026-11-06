@@ -134,7 +134,6 @@
     <string name="go_to_label">Μετάβαση σε</string>
     <string name="action_go_to_album">Μετάβαση στο άλμπουμ</string>
     <string name="action_go_to_artist">Μετάβαση στον καλλιτέχνη</string>
-    <string name="action_go_to_genre">Μετάβαση στο είδος</string>
     <string name="added_title_to_playing_queue">Προστέθηκε ένας τίτλος στην ουρά αναπαραγωγής.</string>
     <string name="added_x_titles_to_playing_queue">Προστέθηκε %1$d τίτλοι στην ουρά αναπαραγωγής.</string>
     <string name="similar_artists">Παρόμοιοι καλλιτέχνες</string>

@@ -134,7 +134,6 @@
     <string name="go_to_label">Ves a</string>
     <string name="action_go_to_album">Ves a l\'Àlbum</string>
     <string name="action_go_to_artist">Ves a l\'Artista</string>
-    <string name="action_go_to_genre">Ves al Gènere</string>
     <string name="added_title_to_playing_queue">S\'ha afegit 1 títol a la cua de reproducció.</string>
     <string name="added_x_titles_to_playing_queue">S\'han afegit %1$d títols a la cua de reproducció.</string>
     <string name="similar_artists">Artistes similars</string>

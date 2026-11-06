@@ -131,7 +131,6 @@
     <string name="go_to_label">Ir a</string>
     <string name="action_go_to_album">Ir al álbum</string>
     <string name="action_go_to_artist">Ir al artista</string>
-    <string name="action_go_to_genre">Ir al género</string>
     <string name="added_title_to_playing_queue">Añadido 1 título a la cola de reproducción.</string>
     <string name="added_x_titles_to_playing_queue">Añadidos títulos %1$d a la cola de reproducción.</string>
     <string name="similar_artists">Artistas similares</string>

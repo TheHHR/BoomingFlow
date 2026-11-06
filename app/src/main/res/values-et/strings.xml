@@ -192,7 +192,6 @@
     <string name="show_album_artists">Vaid albumi esitajad</string>
     <string name="action_go_to_album">Suundu albumi juurde</string>
     <string name="action_go_to_artist">Suundu esitaja juurde</string>
-    <string name="action_go_to_genre">Suundu žanri juurde</string>
     <string name="album_artists_label">Albumi esitajad</string>
     <string name="last_added_label">Viimati lisatud</string>
     <string name="top_tracks_label">Populaarsed lood</string>

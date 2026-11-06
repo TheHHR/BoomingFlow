@@ -142,7 +142,6 @@
     <string name="go_to_label">رفتن به</string>
     <string name="action_go_to_album">به آلبوم بروید</string>
     <string name="action_go_to_artist">به هنرمند بروید</string>
-    <string name="action_go_to_genre">به ژانر بروید</string>
     <string name="added_title_to_playing_queue">1 عنوان به صف پخش اضافه شد.</string>
     <string name="added_x_titles_to_playing_queue">عناوین %1$d را به صف پخش اضافه کرد.</string>
     <string name="similar_artists">هنرمندان مشابه</string>

@@ -134,7 +134,6 @@
     <string name="go_to_label">जाएँ</string>
     <string name="action_go_to_album">एल्बम पर जाए</string>
     <string name="action_go_to_artist">कलाïकार के पास जाएं</string>
-    <string name="action_go_to_genre">श्रेणी पर जाएं</string>
     <string name="added_title_to_playing_queue">खेलने की कतार में 1 शीर्षक जोड़ा गया है।</string>
     <string name="added_x_titles_to_playing_queue">%1$d शीर्षक खेलने की कतार में जोड़े गए।</string>
     <string name="similar_artists">समान कलाकार</string>

@@ -132,7 +132,6 @@
     <string name="go_to_label">Gå till</string>
     <string name="action_go_to_album">Gå till album</string>
     <string name="action_go_to_artist">Gå till Artist</string>
-    <string name="action_go_to_genre">Gå till Genre</string>
     <string name="added_title_to_playing_queue">Lade till 1 titel till spelkön.</string>
     <string name="added_x_titles_to_playing_queue">Lade till %1$d titlar i uppspelningskön.</string>
     <string name="similar_artists">Liknande artister</string>

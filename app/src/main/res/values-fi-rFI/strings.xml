@@ -132,7 +132,6 @@
     <string name="go_to_label">Siirry kohteeseen</string>
     <string name="action_go_to_album">Siirry albumiin</string>
     <string name="action_go_to_artist">Siirry esittäjälle</string>
-    <string name="action_go_to_genre">Siirry tyyliin</string>
     <string name="added_title_to_playing_queue">Lisätty 1 otsikko soittojonoon.</string>
     <string name="added_x_titles_to_playing_queue">Lisätty %1$d otsikkoa soittojonoon.</string>
     <string name="similar_artists">Samankaltaisia artisteja</string>

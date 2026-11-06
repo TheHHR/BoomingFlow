@@ -142,7 +142,6 @@
     <string name="go_to_label">செல்</string>
     <string name="action_go_to_album">ஆல்பத்திற்கு செல்க</string>
     <string name="action_go_to_artist">கலைஞரிடம் செல்லுங்கள்</string>
-    <string name="action_go_to_genre">வகைக்குச் செல்லவும்</string>
     <string name="added_title_to_playing_queue">விளையாடும் வரிசையில் 1 தலைப்பு சேர்க்கப்பட்டது.</string>
     <string name="added_x_titles_to_playing_queue">விளையாடும் வரிசையில் %1$d தலைப்புகள் சேர்க்கப்பட்டன.</string>
     <string name="similar_artists">இதே போன்ற கலைஞர்கள்</string>

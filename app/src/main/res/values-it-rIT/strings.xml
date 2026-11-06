@@ -134,7 +134,6 @@
     <string name="go_to_label">Vai a</string>
     <string name="action_go_to_album">Vai all\'album</string>
     <string name="action_go_to_artist">Vai all\'artista</string>
-    <string name="action_go_to_genre">Vai al genere</string>
     <string name="added_title_to_playing_queue">Aggiunto 1 titolo alla coda di riproduzione.</string>
     <string name="added_x_titles_to_playing_queue">Aggiunti %1$d titoli alla coda di riproduzione.</string>
     <string name="similar_artists">Artisti simili</string>

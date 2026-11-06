@@ -134,7 +134,6 @@
     <string name="go_to_label">转至</string>
     <string name="action_go_to_album">转至专辑</string>
     <string name="action_go_to_artist">转至艺人</string>
-    <string name="action_go_to_genre">转至流派</string>
     <string name="added_title_to_playing_queue">已添加 1 首歌到播放队列。</string>
     <string name="added_x_titles_to_playing_queue">已添加 %1$d 首歌到播放队列。</string>
     <string name="similar_artists">相似艺人</string>
