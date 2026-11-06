@@ -787,7 +787,7 @@ private fun ViewGroup.applyDialogCheckAccent(@ColorInt checkedColor: Int) {
 }
 
 /** [MaterialAlertDialogBuilder.show] followed by [AlertDialog.applyPlayerAccent]. */
-fun MaterialAlertDialogBuilder.showAccent(): AlertDialog = show().applyPlayerAccent()
+fun MaterialAlertDialogBuilder.showAccent(): AlertDialog = show().apply { applyPlayerAccent() }
 
 /**
  * Applies the player accent to a checkbox/radio button: the checked state
@@ -820,10 +820,11 @@ fun CompoundButton.applyPlayerAccent(@ColorInt accent: Int) {
 
 /**
  * Tints the snackbar action text with the player accent. No-op when
- * "Follow player color" is off.
+ * "Follow player color" is off. Chainable, so it can sit between the
+ * builder chain and [Snackbar.show].
  */
-fun Snackbar.applyPlayerAccent() {
-    if (!Preferences.followPlayerColor) return
+fun Snackbar.applyPlayerAccent(): Snackbar = apply {
+    if (!Preferences.followPlayerColor) return@apply
     val accent = PlayerAccentState.accentColor.value.takeIf { it != 0 }
         ?: AccentSchemes.NEUTRAL_ACCENT
     setActionTextColor(AccentSchemes.viewScheme(accent, context.isNightMode).primary)
