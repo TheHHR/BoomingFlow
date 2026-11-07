@@ -186,4 +186,9 @@
         android:layout_height="match_parent"
         android:visibility="gone" />
 
+    <androidx.compose.ui.platform.ComposeView
+        android:id="@+id/queueDrawerView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

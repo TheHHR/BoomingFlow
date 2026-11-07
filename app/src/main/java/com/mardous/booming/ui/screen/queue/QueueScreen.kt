@@ -89,7 +89,6 @@ import com.mardous.booming.extensions.showToast
 import com.mardous.booming.extensions.utilities.buildInfoString
 import com.mardous.booming.playback.QUEUE_DEBOUNCE
 import com.mardous.booming.ui.component.compose.AnimatedEqBars
-import com.mardous.booming.ui.component.compose.BottomSheetDialogSurface
 import com.mardous.booming.ui.component.compose.MediaImage
 import com.mardous.booming.ui.component.compose.ObserveAsEvent
 import com.mardous.booming.ui.component.compose.SmallHeader
@@ -111,6 +110,9 @@ import kotlin.time.Duration.Companion.milliseconds
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun QueueScreen(
+    dragHandle: (@Composable () -> Unit)? = null,
+    headerModifier: Modifier = Modifier,
+    contentModifier: Modifier = Modifier,
     onAddToPlaylistClick: (List<Song>) -> Unit,
     onDeleteSongClick: (Song) -> Unit,
     onShareClick: (Song) -> Unit,
@@ -198,8 +200,18 @@ fun QueueScreen(
             }
     }
 
-    BottomSheetDialogSurface(
-        title = {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .then(contentModifier)
+    ) {
+        Column(
+            modifier = headerModifier
+                .fillMaxWidth()
+                .padding(start = 16.dp, end = 16.dp, bottom = 8.dp)
+        ) {
+            dragHandle?.invoke()
+
             SmallHeader(
                 title = currentSong.title,
                 subtitle = currentSong.displayArtistName(),
@@ -325,10 +337,13 @@ fun QueueScreen(
                     colors = MenuDefaults.dropDownMenuColors(themeColors.surfaceContainerHigh)
                 )
             }
-        },
-        headingContentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 8.dp)
-    ) {
-        Box {
+        }
+
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+        ) {
             LazyColumnScrollbar(
                 state = listState,
                 settings = ScrollbarSettings(
