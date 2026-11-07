@@ -182,15 +182,6 @@
             app:layout="@layout/list_item_view"
             app:key="download_quality"/>
 
-        <SwitchPreferenceCompat
-            app:iconSpaceReserved="true"
-            app:title="@string/use_jiosaavn_provider_title"
-            app:summary="@string/use_jiosaavn_provider_summary"
-            app:defaultValue="true"
-            app:layout="@layout/list_item_view"
-            app:widgetLayout="@layout/preference_switch"
-            app:key="jiosaavn_enabled"/>
-
     </PreferenceCategory>
 
     <PreferenceCategory

@@ -535,20 +535,7 @@ class SongDownloader(
     }
 
     private suspend fun performDownload(task: DownloadTask) {
-        // Hi-Fi quality: prefer a JioSaavn 320 kbps AAC source when the
-        // provider is enabled and a strict match exists; YouTube tiers
-        // remain the fallback.
-        val hifiDownload = Preferences.downloadQuality.equals("Hi-Fi", ignoreCase = true) &&
-                com.mardous.booming.data.model.network.NetworkFeature.Audio.JioSaavn.isAvailable &&
-                task.title.isNotBlank()
-        val streamUrl = if (hifiDownload) {
-            com.mardous.booming.online.jiosaavn.JioSaavnStreamProvider.resolveStream(
-                title = task.title,
-                artist = task.artist
-            )?.url
-        } else {
-            null
-        } ?: YouTubeMusic.getStreamUrl(
+        val streamUrl = YouTubeMusic.getStreamUrl(
             videoId = task.videoId,
             forceHighQuality = true,
             overridePreferOpus = task.format.preferOpus,

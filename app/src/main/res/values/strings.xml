@@ -1015,14 +1015,14 @@
     <string name="uncaught_error_send">Send report</string>
     <string name="streaming_title">Streaming</string>
     <string name="stream_quality_title">Stream quality</string>
-    <string name="stream_quality_hifi">AAC 320 kbps (JioSaavn Hi-Fi)</string>
     <string name="stream_quality_opus">Opus (~160 kbps, efficient)</string>
     <string name="stream_quality_aac">AAC (~256 kbps, best fidelity)</string>
     <string name="stream_quality_data_saver">Data saver (lowest)</string>
     <string name="download_quality_title">Download quality</string>
     <string name="download_quality_summary">Quality used for downloaded songs.</string>
-    <string name="use_jiosaavn_provider_title">JioSaavn Hi-Fi</string>
-    <string name="use_jiosaavn_provider_summary">Match songs on JioSaavn for 320 kbps AAC streams and downloads. Requires a strict title/artist match.</string>
+    <string name="download_quality_opus">Opus ~160 kbps (best overall)</string>
+    <string name="download_quality_aac">AAC 128-256 kbps (.m4a, best compatibility)</string>
+    <string name="download_quality_data_saver">AAC ~48 kbps (smallest)</string>
     <string name="spotify_login_title">Sign in to Spotify</string>
     <string name="spotify_login_summary">Sign in with your Spotify account in a browser window</string>
     <string name="spotify_token_title">Spotify token login</string>

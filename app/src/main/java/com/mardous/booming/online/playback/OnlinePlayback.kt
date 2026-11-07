@@ -120,10 +120,6 @@ fun buildOnlineQueueItem(
     val mediaId = onlineMediaId(videoId)
     val artworkUri = thumbnailUrl?.let(Uri::parse)
     val playUri = localUri ?: onlineContentUri(videoId)
-    // Hi-Fi provider matching needs the song's real metadata later.
-    com.mardous.booming.online.jiosaavn.JioSaavnStreamProvider.rememberMetadata(
-        videoId, title, artist, durationMs
-    )
     val mediaItem = MediaItem.Builder()
         .setUri(playUri)
         .setMediaId(mediaId)

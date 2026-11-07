@@ -63,12 +63,6 @@ sealed class NetworkFeature(
         object PaxsenixNetease : Lyrics(PAXSENIX_NETEASE_ENABLED_KEY, true)
     }
 
-    /** Hi-Fi audio source providers (alternative to the YouTube stream). */
-    sealed class Audio(preferenceKey: String, isOnByDefault: Boolean) :
-        NetworkFeature(preferenceKey, isOnByDefault) {
-        object JioSaavn : Audio(JIOSAAVN_ENABLED_KEY, true)
-    }
-
     sealed class Lastfm(preferenceKey: String, isOnByDefault: Boolean) :
         NetworkFeature(preferenceKey, isOnByDefault) {
         object Scrobbling : Lastfm(LASTFM_SCROBBLING_ENABLED_KEY, false)
@@ -119,7 +113,6 @@ sealed class NetworkFeature(
         const val YOULYPLUS_ENABLED_KEY = "youlyplus_enabled"
         const val SYNCLRC_ENABLED_KEY = "synclrc_enabled"
         const val PAXSENIX_NETEASE_ENABLED_KEY = "paxsenix_netease_enabled"
-        const val JIOSAAVN_ENABLED_KEY = "jiosaavn_enabled"
         const val LASTFM_SCROBBLING_ENABLED_KEY = "lastfm_scrobbling_enabled"
         const val LASTFM_NOW_PLAYING_ENABLED_KEY = "lastfm_now_playing_enabled"
         const val LASTFM_INFO_ENABLED_KEY = "lastfm_info_enabled"
