@@ -511,9 +511,6 @@
     <string name="lyrics_syllable_mode_title">Послівний текст пісні</string>
     <string name="lyrics_syllable_mode_summary">Дозволяє показувати текст пісень із послівним синхронізуванням. Залежить від наявності тексту та сумісного формату, як-от LRC або TTML.</string>
     <string name="lyrics_effects_note">Покращені ефекти роблять картинку якіснішою, але можуть споживати більше системних ресурсів та заряду акумулятора.</string>
-    <string name="lyrics_background_effect_title">Ефект тла</string>
-    <string name="lyrics_background_gradient">Градієнт</string>
-    <string name="lyrics_background_blur">Розмиття</string>
     <string name="lyrics_blur_effect_title">Ефект розмиття</string>
     <string name="lyrics_blur_effect_summary">Розмити рядки тексту пісні, що розташовані поруч із поточним.</string>
     <string name="lyrics_shadow_effect_title">Ефект тіні</string>
@@ -528,10 +525,6 @@
     <string name="synced_font_size_player_summary">Налаштувати розмір шрифту для синхронізованого тексту пісні, що показується поверх обкладинки альбому на екрані програвача.</string>
     <string name="unsynced_font_size_player_title">Розмір шрифту несинхронізованого тексту пісень (програвач)</string>
     <string name="unsynced_font_size_player_summary">Налаштувати розмір шрифту для несинхронізованого тексту пісень, що показується поверх обкладинки альбому на екрані програвача.</string>
-    <string name="synced_font_size_full_title">Розмір шрифту синхронізованого тексту (повний екран)</string>
-    <string name="synced_font_size_full_summary">Налаштувати розмір шрифту для синхронізованого тексту пісні в повноекранному режимі тексту пісні.</string>
-    <string name="unsynced_font_size_full_title">Розмір шрифту несинхронізованого тексту пісні (повний екран)</string>
-    <string name="unsynced_font_size_full_summary">Налаштувати розмір шрифту для несинхронізованого тексту пісень у повноекранному режимі тексту пісні.</string>
 
 
 

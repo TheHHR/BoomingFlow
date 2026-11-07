@@ -503,9 +503,6 @@
     <string name="lyrics_syllable_mode_title">Letras palabra a palabra</string>
     <string name="lyrics_syllable_mode_summary">Permite mostrar letras sincronizadas palabra a palabra. Depende de la disponibilidad de las letras y de un formato compatible como LRC o TTML.</string>
     <string name="lyrics_effects_note">Los efectos avanzados mejoran la experiencia visual pero podrían aumentar el consumo de recursos y/o batería.</string>
-    <string name="lyrics_background_effect_title">Efecto de fondo</string>
-    <string name="lyrics_background_gradient">Gradiente</string>
-    <string name="lyrics_background_blur">Difuminado</string>
     <string name="lyrics_blur_effect_title">Efecto de desenfoque</string>
     <string name="lyrics_blur_effect_summary">Desenfoca las líneas de texto adyacentes a la actual.</string>
     <string name="lyrics_shadow_effect_title">Efecto de sombra</string>
@@ -520,10 +517,6 @@
     <string name="synced_font_size_player_summary">Ajusta el tamaño de fuente de la letra sincronizada mostrada sobre la carátula del reproductor.</string>
     <string name="unsynced_font_size_player_title">Tamaño de la letra no sincronizada (reproductor)</string>
     <string name="unsynced_font_size_player_summary">Ajusta el tamaño de fuente de la letra no sincronizada mostrada sobre la carátula del reproductor.</string>
-    <string name="synced_font_size_full_title">Tamaño de la letra sincronizada (pantalla completa)</string>
-    <string name="synced_font_size_full_summary">Ajusta el tamaño de fuente de la letra sincronizada mostrada a pantalla completa.</string>
-    <string name="unsynced_font_size_full_title">Tamaño de la letra no sincronizada (pantalla completa)</string>
-    <string name="unsynced_font_size_full_summary">Ajusta el tamaño de fuente de la letra no sincronizada mostrada a pantalla completa.</string>
     <string name="ignore_blank_lines_title">Ignorar líneas vacías</string>
     <string name="ignore_blank_lines_summary">Ignora las líneas vacías en los archivos LRC en lugar de mostrarlas como burbujas animadas.</string>
     <string name="treat_all_lyrics_files_as_utf8_title">Tratar todos los archivos de letras como UTF-8</string>

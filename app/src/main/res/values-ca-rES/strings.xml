@@ -504,9 +504,6 @@
     <string name="lyrics_syllable_mode_title">Lletra fil per randa</string>
     <string name="lyrics_syllable_mode_summary">Permet mostrar la lletra sincronitzada paraula per paraula. Depèn de la disponibilitat de la lletra i d\'un format compatible com LRC o TTML.</string>
     <string name="lyrics_effects_note">Els efectes avançats realcen l\'experiència visual, però poden consumir més recursos i bateria.</string>
-    <string name="lyrics_background_effect_title">Efecte de fons</string>
-    <string name="lyrics_background_gradient">Degradat</string>
-    <string name="lyrics_background_blur">Difuminat</string>
     <string name="lyrics_blur_effect_title">Efecte difuminat</string>
     <string name="lyrics_blur_effect_summary">Difumina les línies de lletra adjacents a l\'actual.</string>
     <string name="lyrics_shadow_effect_title">Efecte d\'ombra</string>
@@ -521,10 +518,6 @@
     <string name="synced_font_size_player_summary">Ajusta la mida de la lletra sincronitzada mostrada a sobre la portada de l\'àlbum en el reproductor.</string>
     <string name="unsynced_font_size_player_title">Mida de la lletra sense sincronitzar (reproductor)</string>
     <string name="unsynced_font_size_player_summary">Ajusta la mida de la lletra sense sincronitzar mostrada a sobre la portada de l\'àlbum en el reproductor.</string>
-    <string name="synced_font_size_full_title">Mida de la lletra sincronitzada (pantalla completa)</string>
-    <string name="synced_font_size_full_summary">Ajusta la mida de la lletra sincronitzada en pantalla completa.</string>
-    <string name="unsynced_font_size_full_title">Mida de la lletra sense sincronitzar (pantalla completa)</string>
-    <string name="unsynced_font_size_full_summary">Ajusta la mida de la lletra sense sincronitzar en pantalla completa.</string>
 
 
 

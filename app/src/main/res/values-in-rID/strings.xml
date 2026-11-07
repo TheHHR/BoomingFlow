@@ -487,9 +487,6 @@
     <string name="lyrics_syllable_mode_title">Lirik kata per kata</string>
     <string name="lyrics_syllable_mode_summary">Memungkinkan tampilan lirik dengan sinkronisasi kata per kata. Bergantung pada ketersediaan lirik dan format yang kompatibel seperti LRC atau TTML.</string>
     <string name="lyrics_effects_note">Efek lanjutan meningkatkan pengalaman visual tetapi mungkin memerlukan lebih banyak sumber daya sistem dan baterai.</string>
-    <string name="lyrics_background_effect_title">Efek latar belakang</string>
-    <string name="lyrics_background_gradient">Gradien</string>
-    <string name="lyrics_background_blur">Mengaburkan</string>
     <string name="lyrics_blur_effect_title">Efek blur</string>
     <string name="lyrics_blur_effect_summary">Mengaburkan baris lirik yang berdekatan dengan baris saat ini.</string>
     <string name="lyrics_shadow_effect_title">Efek bayangan</string>
@@ -504,10 +501,6 @@
     <string name="synced_font_size_player_summary">Sesuaikan ukuran font untuk lirik tersinkronisasi yang ditampilkan di atas sampul album pada layar pemutar.</string>
     <string name="unsynced_font_size_player_title">Ukuran font lirik tidak tersinkronisasi (pemutar)</string>
     <string name="unsynced_font_size_player_summary">Sesuaikan ukuran font untuk lirik tidak tersinkronisasi yang ditampilkan di atas sampul album pada layar pemutar.</string>
-    <string name="synced_font_size_full_title">Ukuran font lirik tersinkronisasi (tampilan penuh)</string>
-    <string name="synced_font_size_full_summary">Sesuaikan ukuran font untuk lirik tersinkronisasi pada layar lirik penuh.</string>
-    <string name="unsynced_font_size_full_title">Ukuran font lirik tidak tersinkronisasi (tampilan penuh)</string>
-    <string name="unsynced_font_size_full_summary">Sesuaikan ukuran font untuk lirik tidak tersinkronisasi pada layar lirik penuh.</string>
 
 
 

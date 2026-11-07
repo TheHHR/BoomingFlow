@@ -156,11 +156,6 @@
     </fragment>
 
     <fragment
-        android:id="@+id/nav_lyrics"
-        android:name="com.mardous.booming.ui.screen.lyrics.LyricsFragment"
-        android:label="LyricsFragment"/>
-
-    <fragment
         android:id="@+id/nav_lyrics_editor"
         android:name="com.mardous.booming.ui.screen.lyrics.LyricsEditorFragment"
         android:label="LyricsEditorFragment">

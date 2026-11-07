@@ -496,9 +496,6 @@
     <string name="lyrics_syllable_mode_title">Kelime kelime şarkı sözleri</string>
     <string name="lyrics_syllable_mode_summary">Şarkı sözlerinin kelime kelime senkronizasyonla görüntülenmesini sağlar. Şarkı sözlerinin mevcudiyetine ve LRC veya TTML gibi uyumlu bir formata bağlıdır.</string>
     <string name="lyrics_effects_note">Gelişmiş efektler görsel deneyimi iyileştirir ancak daha fazla sistem kaynağı ve pil gerektirebilir.</string>
-    <string name="lyrics_background_effect_title">Background effect</string>
-    <string name="lyrics_background_gradient">Gradient</string>
-    <string name="lyrics_background_blur">Blur</string>
     <string name="lyrics_blur_effect_title">Bulanıklaştırma efekti</string>
     <string name="lyrics_blur_effect_summary">Mevcut satıra bitişik şarkı sözü satırlarını bulanıklaştır.</string>
     <string name="lyrics_shadow_effect_title">Gölge efekti</string>
@@ -513,10 +510,6 @@
     <string name="synced_font_size_player_summary">Oynatıcı ekranında albüm kapağı üzerinde gösterilen senkronize şarkı sözlerinin yazı tipi boyutunu ayarla.</string>
     <string name="unsynced_font_size_player_title">Oynatıcıda senkronize olmayan şarkı sözleri yazı tipi boyutu</string>
     <string name="unsynced_font_size_player_summary">Oynatıcı ekranında albüm kapağı üzerinde gösterilen senkronize olmayan şarkı sözlerinin yazı tipi boyutunu ayarla.</string>
-    <string name="synced_font_size_full_title">Tam ekran görünümde senkronize şarkı sözleri yazı tipi boyutu</string>
-    <string name="synced_font_size_full_summary">Tam şarkı sözleri ekranında senkronize şarkı sözlerinin yazı tipi boyutunu ayarla.</string>
-    <string name="unsynced_font_size_full_title">Tam ekran görünümde senkronize olmayan şarkı sözleri yazı tipi boyutu</string>
-    <string name="unsynced_font_size_full_summary">Tam şarkı sözleri ekranında senkronize olmayan şarkı sözlerinin yazı tipi boyutunu ayarla.</string>
 
 
 

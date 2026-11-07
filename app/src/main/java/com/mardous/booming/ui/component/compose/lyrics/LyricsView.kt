@@ -86,7 +86,7 @@ fun LyricsView(
     fadingEdges: FadingEdges,
     contentColor: Color,
     isPowerSaveMode: Boolean,
-    hasBackgroundEffects: Boolean,
+    isExpanded: Boolean = false,
     modifier: Modifier = Modifier,
     onSeekTo: (Long) -> Unit
 ) {
@@ -99,7 +99,7 @@ fun LyricsView(
 
     val lineSpacing = settings.lineSpacing.dp
 
-    val disableAdvancedEffects = isPowerSaveMode || hasBackgroundEffects.not()
+    val disableAdvancedEffects = isPowerSaveMode
     var disableBlurEffect by remember { mutableStateOf(disableAdvancedEffects) }
     if (isInDragGesture) {
         disableBlurEffect = true
@@ -188,7 +188,7 @@ fun LyricsView(
         }
 
         val provider = state.lyrics?.provider
-        if (settings.mode == LyricsViewSettings.Mode.Full && !provider.isNullOrEmpty()) {
+        if (isExpanded && !provider.isNullOrEmpty()) {
             item("LyricsProvider") {
                 Box(
                     contentAlignment = Alignment.Center,

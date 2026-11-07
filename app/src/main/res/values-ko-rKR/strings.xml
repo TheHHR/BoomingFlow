@@ -488,9 +488,6 @@
     <string name="lyrics_syllable_mode_title">단어별 가사</string>
     <string name="lyrics_syllable_mode_summary">단어 단위 동기화 가사를 표시합니다(LRC/TTML 지원 시).</string>
     <string name="lyrics_effects_note">고급 효과는 시각적 경험을 향상시키지만 배터리를 더 소모할 수 있습니다.</string>
-    <string name="lyrics_background_effect_title">배경 효과</string>
-    <string name="lyrics_background_gradient">그라데이션</string>
-    <string name="lyrics_background_blur">블러</string>
     <string name="lyrics_blur_effect_title">블러 효과</string>
     <string name="lyrics_blur_effect_summary">현재 줄 주변 가사를 흐리게 처리합니다.</string>
     <string name="lyrics_shadow_effect_title">그림자 효과</string>
@@ -505,10 +502,6 @@
     <string name="synced_font_size_player_summary">플레이어 화면의 동기 가사 크기를 조정합니다.</string>
     <string name="unsynced_font_size_player_title">일반 가사 크기 (플레이어)</string>
     <string name="unsynced_font_size_player_summary">플레이어 화면의 일반 가사 크기를 조정합니다.</string>
-    <string name="synced_font_size_full_title">동기 가사 크기 (전체 화면)</string>
-    <string name="synced_font_size_full_summary">전체 가사 화면의 동기 가사 크기를 조정합니다.</string>
-    <string name="unsynced_font_size_full_title">일반 가사 크기 (전체 화면)</string>
-    <string name="unsynced_font_size_full_summary">전체 가사 화면의 일반 가사 크기를 조정합니다.</string>
 
 
 

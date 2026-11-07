@@ -504,9 +504,6 @@
     <string name="lyrics_syllable_mode_title">Letras palavra por palavra</string>
     <string name="lyrics_syllable_mode_summary">Permite exibir letras com sincronização palavra por palavra. Depende da disponibilidade da letra e de um formato compatível, como LRC ou TTML.</string>
     <string name="lyrics_effects_note">Efeitos avançados melhoram a experiência visual, mas podem exigir mais recursos de sistema e bateria.</string>
-    <string name="lyrics_background_effect_title">Efeito de fundo</string>
-    <string name="lyrics_background_gradient">Gradiente</string>
-    <string name="lyrics_background_blur">Desfoque</string>
     <string name="lyrics_blur_effect_title">Efeito de desfoque</string>
     <string name="lyrics_blur_effect_summary">Desfocar as linhas da letra adjacentes à atual.</string>
     <string name="lyrics_shadow_effect_title">Efeito de sombra</string>
@@ -521,10 +518,6 @@
     <string name="synced_font_size_player_summary">Ajusta o tamanho da fonte das letras sincronizadas exibidas sobre a capa do álbum na tela de reprodução.</string>
     <string name="unsynced_font_size_player_title">Tamanho da fonte das letras não sincronizadas (tela de reprodução)</string>
     <string name="unsynced_font_size_player_summary">Ajusta o tamanho da fonte das letras não sincronizadas exibidas sobre a capa do álbum na tela de reprodução.</string>
-    <string name="synced_font_size_full_title">Tamanho da fonte das letras sincronizadas (tela cheia)</string>
-    <string name="synced_font_size_full_summary">Ajusta o tamanho da fonte das letras sincronizadas em tela cheia.</string>
-    <string name="unsynced_font_size_full_title">Tamanho da fonte das letras não sincronizadas (tela cheia)</string>
-    <string name="unsynced_font_size_full_summary">Ajusta o tamanho da fonte das letras não sincronizadas na tela cheia.</string>
 
 
 

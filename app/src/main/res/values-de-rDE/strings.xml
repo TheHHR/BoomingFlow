@@ -493,9 +493,6 @@
     <string name="lyrics_syllable_mode_title">Wort-für-Word-Liedtexte</string>
     <string name="lyrics_syllable_mode_summary">Ermöglicht die Anzeige von Liedtexten mit Wort-für-Wort-Synchronisation. Abhängig von der Verfügbarkeit der Liedtexte und einem kompatiblen Format wie LRC oder TTML.</string>
     <string name="lyrics_effects_note">Erweiterte Effekte verbessern das visuelle Erlebnis, können jedoch mehr Systemressourcen und Akku verbrauchen.</string>
-    <string name="lyrics_background_effect_title">Hintergrundeffekt</string>
-    <string name="lyrics_background_gradient">Farbverlauf</string>
-    <string name="lyrics_background_blur">Unscharf</string>
     <string name="lyrics_blur_effect_title">Unschärfe-Effekt</string>
     <string name="lyrics_blur_effect_summary">Die Zeilen neben der aktuellen Textzeileen.</string>
     <string name="lyrics_shadow_effect_title">Schatten-Effekt</string>
@@ -510,10 +507,6 @@
     <string name="synced_font_size_player_summary">Passen Sie die Schriftgröße für synchronisierte Liedtexte an, die über dem Albumcover auf dem Player-Bildschirm angezeigt werden.</string>
     <string name="unsynced_font_size_player_title">Schriftgröße von nicht synchronisierten Liedtexten (Player)</string>
     <string name="unsynced_font_size_player_summary">Passe die Schriftgröße für nicht synchronisierte Liedtexte an, die über dem Albumcover auf dem Player-Bildschirm angezeigt werden.</string>
-    <string name="synced_font_size_full_title">Schriftgröße der synchronisierten Liedtexte (Vollbild)</string>
-    <string name="synced_font_size_full_summary">Passen Sie die Schriftgröße für synchronisierte Liedtexte im Vollbildmodus an.</string>
-    <string name="unsynced_font_size_full_title">Schriftgröße von nicht synchronisierten Liedtexten (Vollbild)</string>
-    <string name="unsynced_font_size_full_summary">Passe die Schriftgröße für nicht synchronisierte Liedtexte im Vollbildmodus an.</string>
 
 
 

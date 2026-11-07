@@ -487,9 +487,6 @@
     <string name="lyrics_syllable_mode_title">逐字歌詞</string>
     <string name="lyrics_syllable_mode_summary">顯示逐字同步歌詞。需有歌詞，且格式為 LRC 或 TTML 等。</string>
     <string name="lyrics_effects_note">進階效果可增強視覺體驗，但可能需要耗費更多系統資源和電量。</string>
-    <string name="lyrics_background_effect_title">背景特效</string>
-    <string name="lyrics_background_gradient">漸層</string>
-    <string name="lyrics_background_blur">模糊</string>
     <string name="lyrics_blur_effect_title">模糊效果</string>
     <string name="lyrics_blur_effect_summary">模糊目前歌詞行上下相鄰的歌詞。</string>
     <string name="lyrics_shadow_effect_title">陰影效果</string>
@@ -504,10 +501,6 @@
     <string name="synced_font_size_player_summary">調整播放畫面中同步歌詞的字型大小。</string>
     <string name="unsynced_font_size_player_title">非同步歌詞字型大小（播放畫面）</string>
     <string name="unsynced_font_size_player_summary">調整播放畫面中非同步歌詞的字型大小。</string>
-    <string name="synced_font_size_full_title">同步歌詞字型大小（完整檢視）</string>
-    <string name="synced_font_size_full_summary">調整完整歌詞畫面中的同步歌詞字型大小。</string>
-    <string name="unsynced_font_size_full_title">非同步歌詞字型大小（完整檢視）</string>
-    <string name="unsynced_font_size_full_summary">調整完整歌詞畫面中的非同步歌詞字型大小。</string>
 
 
 

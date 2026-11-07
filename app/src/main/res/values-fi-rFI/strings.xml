@@ -494,9 +494,6 @@
     <string name="lyrics_syllable_mode_title">Sanakohtainen sanoitukset</string>
     <string name="lyrics_syllable_mode_summary">Mahdollistaa sanoitusten näyttämisen sanakohtaisella synkronoinnilla. Riippuu sanoitusten saatavuudesta ja yhteensopivasta muodosta, kuten LRC- tai TTML:stä.</string>
     <string name="lyrics_effects_note">Kehittyneet efektit parantavat visuaalista kokemusta, mutta ne saattavat vaatia enemmän järjestelmäresursseja ja akkua.</string>
-    <string name="lyrics_background_effect_title">Taustan efekti</string>
-    <string name="lyrics_background_gradient">Gradientti</string>
-    <string name="lyrics_background_blur">Blur</string>
     <string name="lyrics_blur_effect_title">Sumennus efekti</string>
     <string name="lyrics_blur_effect_summary">Sumentaa nykyisen sanoitusten viereiset rivit.</string>
     <string name="lyrics_shadow_effect_title">Varjo efekti</string>
@@ -511,10 +508,6 @@
     <string name="synced_font_size_player_summary">Säädä kirjasinkokoa synkronoitaville sanoituksille jotka näkyvät levyn kansiosassa soittimen näytössä.</string>
     <string name="unsynced_font_size_player_title">Synkronoimattomat sanoitukset kirjasimen koko (pelaaja)</string>
     <string name="unsynced_font_size_player_summary">Säädä kirjasinkokoa synkronoimattomille sanoituksille, jotka näkyvät albumin kansiosassa soittimen näytössä.</string>
-    <string name="synced_font_size_full_title">Synkronoidut sanoitukset kirjasimen koko (koko näkymä)</string>
-    <string name="synced_font_size_full_summary">Säädä kirjasinkokoa synkronoitaville sanoituksille koko sanoitusten näytöllä.</string>
-    <string name="unsynced_font_size_full_title">Synkronoimattomat sanoitukset kirjasimen koko (koko näkymä)</string>
-    <string name="unsynced_font_size_full_summary">Säädä kirjasimen kokoa synkronoimattomille sanoituksille koko sanoitusten näytössä.</string>
 
 
 

@@ -504,9 +504,6 @@
     <string name="lyrics_syllable_mode_title">Word-by-word lyrics</string>
     <string name="lyrics_syllable_mode_summary">Allows displaying lyrics with word-by-word synchronization. Depends on the availability of the lyrics and a compatible format such as LRC or TTML.</string>
     <string name="lyrics_effects_note">Advanced effects enhance the visual experience but may require more system resources and battery.</string>
-    <string name="lyrics_background_effect_title">Background effect</string>
-    <string name="lyrics_background_gradient">Gradient</string>
-    <string name="lyrics_background_blur">Blur</string>
     <string name="lyrics_blur_effect_title">Blur effect</string>
     <string name="lyrics_blur_effect_summary">Blur the lyrics lines adjacent to the current one.</string>
     <string name="lyrics_shadow_effect_title">Shadow effect</string>
@@ -521,10 +518,6 @@
     <string name="synced_font_size_player_summary">Adjust the font size for synced lyrics shown over the album cover in the player screen.</string>
     <string name="unsynced_font_size_player_title">Unsynced lyrics font size (player)</string>
     <string name="unsynced_font_size_player_summary">Adjust the font size for unsynced lyrics shown over the album cover in the player screen.</string>
-    <string name="synced_font_size_full_title">Synced lyrics font size (full view)</string>
-    <string name="synced_font_size_full_summary">Adjust the font size for synced lyrics in the full lyrics screen.</string>
-    <string name="unsynced_font_size_full_title">Unsynced lyrics font size (full view)</string>
-    <string name="unsynced_font_size_full_summary">Adjust the font size for unsynced lyrics in the full lyrics screen.</string>
 
 
 

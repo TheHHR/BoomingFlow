@@ -87,6 +87,14 @@ class CoverPagerFragment : Fragment(R.layout.fragment_player_album_cover),
     val isAllowedToLoadLyrics: Boolean
         get() = true
 
+    /**
+     * True while the player fragment is showing the full-panel expanded
+     * lyrics (which covers this fragment). The cover overlay is then
+     * temporarily hidden and the screen must stay on regardless of
+     * playback state - matching the old fullscreen lyrics page.
+     */
+    var isLyricsExpanded: Boolean = false
+
     private var callbacks: Callbacks? = null
 
     private var currentPosition = 0
@@ -119,10 +127,13 @@ class CoverPagerFragment : Fragment(R.layout.fragment_player_album_cover),
         destination: NavDestination,
         arguments: androidx.savedstate.SavedState?
     ) {
-        if (isLyricsViewVisible && isShowLyricsOnCover) {
+        if ((isLyricsViewVisible && isShowLyricsOnCover) || isLyricsExpanded) {
             // If the user opens any of queue, sound settings or song details dialogs
             // we must ensure that we don't keep the screen on unnecessarily.
-            activity?.keepScreenOn(destination.navigatorName != "dialog" && playerViewModel.isPlaying)
+            activity?.keepScreenOn(
+                destination.navigatorName != "dialog" &&
+                        (playerViewModel.isPlaying || isLyricsExpanded)
+            )
         }
     }
 
@@ -219,7 +230,9 @@ class CoverPagerFragment : Fragment(R.layout.fragment_player_album_cover),
         }
         viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
             playerViewModel.isPlayingFlow.collect {
-                activity?.keepScreenOn(isShowLyricsOnCover && isLyricsViewVisible)
+                activity?.keepScreenOn(
+                    (isShowLyricsOnCover && isLyricsViewVisible) || isLyricsExpanded
+                )
             }
         }
     }
@@ -314,7 +327,7 @@ class CoverPagerFragment : Fragment(R.layout.fragment_player_album_cover),
         }
         animatorSet.doOnStart {
             coverLyricsFragment?.let { fragment ->
-                activity?.keepScreenOn(playerViewModel.isPlaying)
+                activity?.keepScreenOn(playerViewModel.isPlaying || isLyricsExpanded)
                 if (isVisible) {
                     childFragmentManager.beginTransaction()
                         .setMaxLifecycle(fragment, Lifecycle.State.RESUMED)
@@ -344,7 +357,7 @@ class CoverPagerFragment : Fragment(R.layout.fragment_player_album_cover),
         }
         animatorSet.doOnEnd {
             coverLyricsFragment?.let { fragment ->
-                activity?.keepScreenOn(false)
+                activity?.keepScreenOn(isLyricsExpanded)
                 if (isVisible) {
                     childFragmentManager.beginTransaction()
                         .setMaxLifecycle(fragment, Lifecycle.State.STARTED)

@@ -101,20 +101,6 @@
         <item>with_expanded_player</item>
     </string-array>
 
-    <string-array name="pref_lyrics_background_effect_entries">
-        <item>@string/label_none</item>
-        <item>@string/lyrics_background_gradient</item>
-        <item>@string/lyrics_background_spatial</item>
-        <item>@string/lyrics_background_blur</item>
-    </string-array>
-
-    <string-array name="pref_lyrics_background_effect_values">
-        <item>none</item>
-        <item>gradient</item>
-        <item>spatial</item>
-        <item>blur</item>
-    </string-array>
-
     <string-array name="pref_lyrics_file_format_entries">
         <item>@string/ttml_file_lyrics</item>
         <item>@string/lrc_file_lyrics</item>

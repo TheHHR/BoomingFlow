@@ -99,7 +99,6 @@ import com.mardous.booming.ui.screen.equalizer.EqualizerFragment
 import com.mardous.booming.ui.screen.equalizer.EqualizerFragmentArgs
 import com.mardous.booming.ui.screen.library.LibraryViewModel
 import com.mardous.booming.ui.screen.lyrics.LyricsEditorFragmentArgs
-import com.mardous.booming.ui.screen.lyrics.LyricsFragment
 import com.mardous.booming.ui.screen.player.PlayerGesturesController
 import com.mardous.booming.ui.screen.player.PlayerGesturesController.GestureType
 import com.mardous.booming.ui.screen.player.PlayerViewModel
@@ -163,6 +162,10 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) : Fragment(layoutRes
 
     private var gesturesController: PlayerGesturesController? = null
     private var coverFragment: CoverPagerFragment? = null
+
+    /** The cover pager (album art + cover lyrics overlay) for style fragments. */
+    protected val coverPagerFragment: CoverPagerFragment?
+        get() = coverFragment
 
     protected abstract val colorSchemeMode: PlayerColorSchemeMode
     protected abstract val playerControlsFragment: AbsPlayerControlsFragment
@@ -575,14 +578,10 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) : Fragment(layoutRes
             }
 
             NowPlayingAction.Lyrics -> {
-                if (coverFragment?.isAllowedToLoadLyrics == true) {
-                    coverFragment?.toggleLyrics()
+                if (isLyricsExpanded) {
+                    collapseLyrics()
                 } else {
-                    if (currentFragment(R.id.fragment_container) is LyricsFragment) {
-                        (activity as? MainActivity)?.collapsePanel()
-                    } else {
-                        goToDestination(requireActivity(), R.id.nav_lyrics)
-                    }
+                    coverFragment?.toggleLyrics()
                 }
                 true
             }
@@ -649,9 +648,26 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) : Fragment(layoutRes
 
     @CallSuper
     open fun onHide() {
+        if (isLyricsExpanded) {
+            collapseLyrics()
+        }
         coverFragment?.hideLyrics()
         playerControlsFragment.onHide()
     }
+
+    /**
+     * Whether the cover lyrics are currently expanded into a full-panel
+     * takeover. Style fragments that host an expandedLyricsFragment
+     * container override this and the two methods below.
+     */
+    open val isLyricsExpanded: Boolean
+        get() = false
+
+    /** Expands the cover lyrics into a full-panel takeover. */
+    open fun expandLyrics() {}
+
+    /** Shrinks the expanded lyrics back onto the album cover. */
+    open fun collapseLyrics() {}
 
     protected fun getTintedDrawable(
         drawableRes: Int,

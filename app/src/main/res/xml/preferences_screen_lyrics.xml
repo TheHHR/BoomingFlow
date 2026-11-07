@@ -111,18 +111,6 @@
             app:widgetLayout="@layout/preference_seekbar"
             app:key="synced_lyrics_font_size_player"/>
 
-        <SeekBarPreference
-            app:iconSpaceReserved="true"
-            app:title="@string/synced_font_size_full_title"
-            app:summary="@string/synced_font_size_full_summary"
-            android:max="@integer/lyrics_font_size_max"
-            app:min="@integer/lyrics_font_size_min"
-            app:defaultValue="40"
-            app:showSeekBarValue="true"
-            app:layout="@layout/list_item_view_bottom_widget"
-            app:widgetLayout="@layout/preference_seekbar"
-            app:key="synced_lyrics_font_size_full"/>
-
     </PreferenceCategory>
 
     <PreferenceCategory
@@ -150,33 +138,11 @@
             app:widgetLayout="@layout/preference_seekbar"
             app:key="unsynced_lyrics_font_size_player"/>
 
-        <SeekBarPreference
-            app:iconSpaceReserved="true"
-            app:title="@string/unsynced_font_size_full_title"
-            app:summary="@string/unsynced_font_size_full_summary"
-            android:max="@integer/lyrics_font_size_max"
-            app:min="@integer/lyrics_font_size_min"
-            app:defaultValue="40"
-            app:showSeekBarValue="true"
-            app:layout="@layout/list_item_view_bottom_widget"
-            app:widgetLayout="@layout/preference_seekbar"
-            app:key="unsynced_lyrics_font_size_full"/>
-
     </PreferenceCategory>
 
     <PreferenceCategory
         app:title="@string/visuals_header"
         app:layout="@layout/preference_category_title">
-
-        <ListPreference
-            app:iconSpaceReserved="true"
-            app:title="@string/lyrics_background_effect_title"
-            app:entries="@array/pref_lyrics_background_effect_entries"
-            app:entryValues="@array/pref_lyrics_background_effect_values"
-            app:useSimpleSummaryProvider="true"
-            app:layout="@layout/list_item_view"
-            app:defaultValue="spatial"
-            app:key="lyrics_background_effect"/>
 
         <SwitchPreferenceCompat
             app:iconSpaceReserved="true"

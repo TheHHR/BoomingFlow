@@ -495,9 +495,6 @@
     <string name="lyrics_syllable_mode_title">Testo parola per parola</string>
     <string name="lyrics_syllable_mode_summary">Consenti la visualizzazione dei testi delle canzoni con sincronizzazione parola per parola. Dipende dalla disponibilità del testo e dai un formato compatibile come LRC o TTML.</string>
     <string name="lyrics_effects_note">Effetti avanzati migliorano l\'esperienza visiva ma potrebbero richiedere più risorse e batteria.</string>
-    <string name="lyrics_background_effect_title">Effetto sfondo</string>
-    <string name="lyrics_background_gradient">Gradiente</string>
-    <string name="lyrics_background_blur">Sfocato</string>
     <string name="lyrics_blur_effect_title">Effetto sfocato</string>
     <string name="lyrics_blur_effect_summary">Sfuoca le linee del testo adiacenti a quella corrente.</string>
     <string name="lyrics_shadow_effect_title">Effetto ombra</string>
@@ -512,10 +509,6 @@
     <string name="synced_font_size_player_summary">Regola la dimensione del font per i testi sincronizzati mostrati sopra la copertina dell\'album nella schermata del riproduttore.</string>
     <string name="unsynced_font_size_player_title">Dimensione del font di testi non sincronizzati (riproduttore)</string>
     <string name="unsynced_font_size_player_summary">Regola la dimensione del font per testi non sincronizzati mostrati sopra la copertina dell\'album nella schermata del riproduttore.</string>
-    <string name="synced_font_size_full_title">Dimensione del font dei testi sincronizzati (vista completa)</string>
-    <string name="synced_font_size_full_summary">Regola la dimensione del carattere del testo sincronizzato nella schermata del testo completo.</string>
-    <string name="unsynced_font_size_full_title">Dimensione carattere testo non sincronizzato (vista completa)</string>
-    <string name="unsynced_font_size_full_summary">Regola la dimensione del carattere per il testo non sincronizzato nella schermata del testo completo</string>
 
 
 

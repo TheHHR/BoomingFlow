@@ -495,9 +495,6 @@
     <string name="lyrics_syllable_mode_title">Word-voor-woord songteksten</string>
     <string name="lyrics_syllable_mode_summary">Staat het weergeven van songteksten toe met word-voor-woord synchronisatie. Afhankelijk van de beschikbaarheid van songteksten en een compatibel formaat zoals LRC of TTML.</string>
     <string name="lyrics_effects_note">Geavanceerde effecten verbeteren de visuele ervaring, maar vereisen mogelijk meer systeembronnen en batterij.</string>
-    <string name="lyrics_background_effect_title">Achtergrond effect</string>
-    <string name="lyrics_background_gradient">Kleurovergang</string>
-    <string name="lyrics_background_blur">Vervagen</string>
     <string name="lyrics_blur_effect_title">Vervaag effect</string>
     <string name="lyrics_blur_effect_summary">Vervaag de songtekst lijnen naast de huidige.</string>
     <string name="lyrics_shadow_effect_title">Schaduw effect</string>
@@ -512,10 +509,6 @@
     <string name="synced_font_size_player_summary">Pas de lettergrootte aan voor gesynchroniseerde songteksten die getoond worden over de albumhoes op het spelersscherm.</string>
     <string name="unsynced_font_size_player_title">Ongesynchroniseerde songtekst lettergrootte (speler)</string>
     <string name="unsynced_font_size_player_summary">Pas de lettergrootte aan voor niet gesynchroniseerde songteksten die getoond worden over de albumhoes op het spelersscherm.</string>
-    <string name="synced_font_size_full_title">Synchroniseerde songtekst lettergrootte (volledige weergave)</string>
-    <string name="synced_font_size_full_summary">Pas de lettergrootte voor gesynchroniseerde songteksten aan in het volledige songtekstscherm.</string>
-    <string name="unsynced_font_size_full_title">Ongesynchroniseerde songtekst lettergrootte (volledige weergave)</string>
-    <string name="unsynced_font_size_full_summary">Pas de lettergrootte aan voor niet-gesynchroniseerde songteksten in het volledige songteksten scherm.</string>
 
 
 

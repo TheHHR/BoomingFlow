@@ -539,9 +539,6 @@
     <string name="lyrics_syllable_mode_title">Сүзгә-сүз синхронлаштыру</string>
     <string name="lyrics_syllable_mode_summary">Катлаулы синхронлаштыру белән текстны чагылдырырга рөхсәт итә. Текст булуга һәм бергә туры килә торган форматка (LRC яки TML) бәйле.</string>
     <string name="lyrics_effects_note">Киң эффектлар визуализацияне яхшырта, ләкин күбрәк ресурслар һәм батарея зарядын кулланырга мөмкин.</string>
-    <string name="lyrics_background_effect_title">Фонның эффект</string>
-    <string name="lyrics_background_gradient">Градиент</string>
-    <string name="lyrics_background_blur">Җимерелү</string>
     <string name="lyrics_blur_effect_title">Җимерелү эффект</string>
     <string name="lyrics_blur_effect_summary">Текст юлларын җимерәлгә, агымдагы белән күршеләр.</string>
     <string name="lyrics_shadow_effect_title">Күләгә эффект</string>
@@ -639,8 +636,6 @@
     <string name="backup_file_name">Файл исем (мөмкинлекле)</string>
     <string name="lyrics_progressive_coloring_summary">Бик тиз буяу урынына актив юллар төсләренең ялкынлы күчеше.</string>
     <string name="lyrics_karaoke_style_title">Караоке өслүбтә текст</string>
-    <string name="synced_font_size_full_title">Синхронланган текстның күләме (тулы экран)</string>
-    <string name="synced_font_size_full_summary">Синхронланган текстның хәрефнең күләме тулы экранда.</string>
     <string name="label_nothing">Бернәрсә</string>
     <string name="auto_theme_name">Автоматик</string>
     <string name="light_theme_name">Якты</string>

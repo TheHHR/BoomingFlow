@@ -558,9 +558,6 @@
     <string name="lyrics_syllable_mode_title">வார்த்தைக்கு சொல் வரிகள்</string>
     <string name="lyrics_syllable_mode_summary">வார்த்தைக்கு சொல் ஒத்திசைவுடன் பாடல் வரிகளைக் காட்ட அனுமதிக்கிறது. பாடல் வரிகளின் கிடைக்கும் தன்மை மற்றும் LRC அல்லது TTML போன்ற இணக்கமான வடிவமைப்பைப் பொறுத்தது.</string>
     <string name="lyrics_effects_note">மேம்பட்ட விளைவுகள் காட்சி அனுபவத்தை மேம்படுத்துகின்றன, ஆனால் அதிக கணினி வளங்களும் பேட்டரியும் தேவைப்படலாம்.</string>
-    <string name="lyrics_background_effect_title">பின்னணி விளைவு</string>
-    <string name="lyrics_background_gradient">சரிவு</string>
-    <string name="lyrics_background_blur">தெளிவின்மை</string>
     <string name="lyrics_blur_effect_title">மங்கலான விளைவு</string>
     <string name="lyrics_blur_effect_summary">தற்போதைய வரிக்கு அருகில் உள்ள பாடல் வரிகளை மங்கலாக்கு.</string>
     <string name="lyrics_shadow_effect_title">நிழல் விளைவு</string>
@@ -579,10 +576,6 @@
     <string name="synced_font_size_player_summary">பிளேயர் திரையில் ஆல்பம் அட்டையில் காட்டப்படும் ஒத்திசைக்கப்பட்ட பாடல் வரிகளுக்கான எழுத்துரு அளவை சரிசெய்யவும்.</string>
     <string name="unsynced_font_size_player_title">ஒத்திசைக்கப்படாத பாடல் வரிகளின் எழுத்துரு அளவு (பிளேயர்)</string>
     <string name="unsynced_font_size_player_summary">பிளேயர் திரையில் ஆல்பம் அட்டையில் காட்டப்படும் ஒத்திசைக்கப்படாத பாடல் வரிகளுக்கான எழுத்துரு அளவை சரிசெய்யவும்.</string>
-    <string name="synced_font_size_full_title">ஒத்திசைக்கப்பட்ட பாடல் வரிகளின் எழுத்துரு அளவு (முழு பார்வை)</string>
-    <string name="synced_font_size_full_summary">முழு பாடல் வரிகள் திரையில் ஒத்திசைக்கப்பட்ட பாடல் வரிகளுக்கான எழுத்துரு அளவை சரிசெய்யவும்.</string>
-    <string name="unsynced_font_size_full_title">ஒத்திசைக்கப்படாத பாடல் வரிகளின் எழுத்துரு அளவு (முழு பார்வை)</string>
-    <string name="unsynced_font_size_full_summary">முழு பாடல் வரிகள் திரையில் ஒத்திசைக்கப்படாத பாடல் வரிகளுக்கான எழுத்துரு அளவை சரிசெய்யவும்.</string>
 
 
 

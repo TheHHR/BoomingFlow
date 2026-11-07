@@ -234,4 +234,15 @@
 
     </com.google.android.material.button.MaterialButtonGroup>
 
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/expandedLyricsFragment"
+        android:name="com.mardous.booming.ui.screen.player.cover.CoverLyricsFragment"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

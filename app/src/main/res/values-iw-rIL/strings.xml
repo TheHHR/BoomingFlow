@@ -504,9 +504,6 @@
     <string name="lyrics_syllable_mode_title">מילות שיר מילה במילה</string>
     <string name="lyrics_syllable_mode_summary">מאפשר הצגת מילות השיר עם סינכרון מילה-מילה. תלוי בזמינות המילים ובפורמט תואם כגון LRC או TTML.</string>
     <string name="lyrics_effects_note">אפקטים מתקדמים משפרים את החוויה החזותית אך עשויים לדרוש יותר משאבי מערכת וסוללה.</string>
-    <string name="lyrics_background_effect_title">אפקט רקע</string>
-    <string name="lyrics_background_gradient">גרדיאנט</string>
-    <string name="lyrics_background_blur">טשטוש</string>
     <string name="lyrics_blur_effect_title">אפקט טשטוש</string>
     <string name="lyrics_blur_effect_summary">טשטש את שורות המילים הסמוכות לשורה הנוכחית.</string>
     <string name="lyrics_shadow_effect_title">אפקט צל</string>
@@ -521,10 +518,6 @@
     <string name="synced_font_size_player_summary">התאם את גודל הגופן למילות שיר מסונכרנות המוצגות מעל עטיפת האלבום במסך הנגן.</string>
     <string name="unsynced_font_size_player_title">גודל גופן למילות שיר לא מסונכרנות (נגן)</string>
     <string name="unsynced_font_size_player_summary">התאם את גודל הגופן למילות שיר לא מסונכרנות המוצגות מעל עטיפת האלבום במסך הנגן.</string>
-    <string name="synced_font_size_full_title">גודל גופן למילות שיר מסונכרנות (תצוגה מלאה)</string>
-    <string name="synced_font_size_full_summary">התאם את גודל הגופן למילות שיר מסונכרנות במסך מילות השיר המלא.</string>
-    <string name="unsynced_font_size_full_title">גודל גופן למילות שיר לא מסונכרנות (תצוגה מלאה)</string>
-    <string name="unsynced_font_size_full_summary">התאם את גודל הגופן למילות שיר לא מסונכרנות במסך מילות השיר המלא.</string>
 
 
 

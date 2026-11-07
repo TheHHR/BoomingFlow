@@ -487,9 +487,6 @@
     <string name="lyrics_syllable_mode_title">逐字歌词</string>
     <string name="lyrics_syllable_mode_summary">显示逐字同步歌词。需有歌词，且格式为 LRC 或 TTML 等。</string>
     <string name="lyrics_effects_note">高级效果可增强视觉体验，但可能需要耗费更多系统资源和电量。</string>
-    <string name="lyrics_background_effect_title">背景特效</string>
-    <string name="lyrics_background_gradient">渐变</string>
-    <string name="lyrics_background_blur">模糊</string>
     <string name="lyrics_blur_effect_title">模糊效果</string>
     <string name="lyrics_blur_effect_summary">模糊当前歌词行上下相邻的几行歌词。</string>
     <string name="lyrics_shadow_effect_title">阴影效果</string>
@@ -504,10 +501,6 @@
     <string name="synced_font_size_player_summary">调整播放界面中同步歌词的字体大小。</string>
     <string name="unsynced_font_size_player_title">非同步歌词字体大小（播放界面）</string>
     <string name="unsynced_font_size_player_summary">调整播放界面中非同步歌词的字体大小。</string>
-    <string name="synced_font_size_full_title">同步歌词字体大小（全屏）</string>
-    <string name="synced_font_size_full_summary">调整全屏歌词模式下同步歌词的字体大小。</string>
-    <string name="unsynced_font_size_full_title">非同步歌词字体大小（全屏）</string>
-    <string name="unsynced_font_size_full_summary">调整全屏歌词模式下非同步歌词的字体大小。</string>
     <string name="ignore_blank_lines_title">忽略空行</string>
     <string name="ignore_blank_lines_summary">忽略 LRC 文件中的空行，而不将其显示为气泡动画。</string>
     <string name="treat_all_lyrics_files_as_utf8_title">将所有歌词文件视为 UTF-8</string>

@@ -528,9 +528,6 @@
     <string name="lyrics_syllable_mode_title">كلمات مقطعية (كلمة بكلمة)</string>
     <string name="lyrics_syllable_mode_summary">يتيح عرض الكلمات بمزامنة كلمة بكلمة. يعتمد على توفر الكلمات وصيغة متوافقة مثل LRC أو TTML.</string>
     <string name="lyrics_effects_note">تُحسّن التأثيرات المتقدمة التجربة المرئية، لكنها قد تتطلب موارد نظام وبطارية أكثر.</string>
-    <string name="lyrics_background_effect_title">تأثير الخلفية</string>
-    <string name="lyrics_background_gradient">تدرّج لوني</string>
-    <string name="lyrics_background_blur">ضبابية</string>
     <string name="lyrics_blur_effect_title">تأثير الضبابية</string>
     <string name="lyrics_blur_effect_summary">تمويه أسطر الكلمات المجاورة للسطر الحالي.</string>
     <string name="lyrics_shadow_effect_title">تأثير الظل</string>
@@ -545,10 +542,6 @@
     <string name="synced_font_size_player_summary">اضبط حجم خط الكلمات المتزامنة المعروضة فوق غلاف الألبوم في شاشة المشغل.</string>
     <string name="unsynced_font_size_player_title">حجم خط الكلمات غير المتزامنة (المشغل)</string>
     <string name="unsynced_font_size_player_summary">اضبط حجم خط الكلمات غير المتزامنة المعروضة فوق غلاف الألبوم في شاشة المشغل.</string>
-    <string name="synced_font_size_full_title">حجم خط الكلمات المتزامنة (العرض الكامل)</string>
-    <string name="synced_font_size_full_summary">اضبط حجم خط الكلمات المتزامنة في شاشة الكلمات الكاملة.</string>
-    <string name="unsynced_font_size_full_title">حجم خط الكلمات غير المتزامنة (العرض الكامل)</string>
-    <string name="unsynced_font_size_full_summary">اضبط حجم خط الكلمات غير المتزامنة في شاشة الكلمات الكاملة.</string>
 
 
 

@@ -7,12 +7,11 @@ import android.view.ViewGroup
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.Fragment
-import com.mardous.booming.MainActivity
 import com.mardous.booming.R
-import com.mardous.booming.extensions.currentFragment
-import com.mardous.booming.ui.component.base.goToDestination
+import com.mardous.booming.extensions.navigation.findActivityNavController
+import com.mardous.booming.ui.component.base.AbsPlayerFragment
 import com.mardous.booming.ui.screen.lyrics.CoverLyricsScreen
-import com.mardous.booming.ui.screen.lyrics.LyricsFragment
+import com.mardous.booming.ui.screen.lyrics.LyricsEditorFragmentArgs
 import com.mardous.booming.ui.screen.lyrics.LyricsViewModel
 import com.mardous.booming.ui.screen.player.PlayerViewModel
 import com.mardous.booming.ui.theme.BoomingMusicTheme
@@ -22,6 +21,15 @@ class CoverLyricsFragment : Fragment() {
 
     private val lyricsViewModel: LyricsViewModel by activityViewModel()
     private val playerViewModel: PlayerViewModel by activityViewModel()
+
+    /**
+     * True when this instance is hosted in the player layout's
+     * expandedLyricsFragment container (parent = the player fragment
+     * itself), false when it overlays the album cover (parent =
+     * CoverPagerFragment).
+     */
+    private val isExpandedHost: Boolean
+        get() = parentFragment is AbsPlayerFragment
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -35,17 +43,33 @@ class CoverLyricsFragment : Fragment() {
             setContent {
                 BoomingMusicTheme {
                     CoverLyricsScreen(
-                        lyricsViewModel,
-                        playerViewModel,
+                        lyricsViewModel = lyricsViewModel,
+                        playerViewModel = playerViewModel,
+                        isExpanded = isExpandedHost,
                         onExpandClick = {
-                            if (currentFragment(R.id.fragment_container) is LyricsFragment) {
-                                (activity as? MainActivity)?.collapsePanel()
-                            } else {
-                                goToDestination(requireActivity(), R.id.nav_lyrics)
-                            }
-                        })
+                            (parentFragment?.parentFragment as? AbsPlayerFragment)?.expandLyrics()
+                        },
+                        onCollapseClick = {
+                            (parentFragment as? AbsPlayerFragment)?.collapseLyrics()
+                        },
+                        onEditClick = {
+                            (parentFragment as? AbsPlayerFragment
+                                ?: parentFragment?.parentFragment as? AbsPlayerFragment)
+                                ?.collapseLyrics()
+                            openLyricsEditor()
+                        }
+                    )
                 }
             }
         }
+    }
+
+    private fun openLyricsEditor() {
+        findActivityNavController(R.id.fragment_container).navigate(
+            R.id.nav_lyrics_editor,
+            LyricsEditorFragmentArgs.Builder(playerViewModel.currentSong)
+                .build()
+                .toBundle()
+        )
     }
 }

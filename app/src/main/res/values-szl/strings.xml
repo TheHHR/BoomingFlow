@@ -16,7 +16,6 @@
     <string name="about_title">Ô aplikacyji</string>
     <string name="about_summary">Booming Music %s, tyknij, coby mieć wiyncyj info.</string>
     <string name="library_categories_title">Reskyruj kartami</string>
-    <string name="lyrics_background_blur">Rozmycie</string>
     <string name="lyrics_blur_effect_title">Efekt rozmyciŏ</string>
     <string name="light_theme_name">Widny</string>
     <string name="dark_theme_name">Ćmawy</string>
@@ -211,7 +210,6 @@
     <string name="selected">Ôbrane</string>
     <string name="unlabeled">Niyôznaczōne</string>
     <string name="labeled">Ôznaczōne</string>
-    <string name="lyrics_background_gradient">Gradient</string>
     <string name="label_never">Nigdy</string>
     <string name="never">Nigdy</string>
     <string name="backup_content_playlists">Playlisty</string>
@@ -280,7 +278,6 @@
     <string name="widget_page_next">Nŏstympne śpiywki</string>
     <string name="widget_page_previous">Zaśdowne śpiywki</string>
     <string name="lyrics_custom_font_title">Włŏsna czcionka</string>
-    <string name="lyrics_background_effect_title">Efekt tła</string>
     <string name="lyrics_shadow_effect_title">Efekt ciynia</string>
     <string name="player_color_mode_app_theme_title">Motyw aplikacyji</string>
     <string name="player_color_mode_material_you_title">Material you</string>

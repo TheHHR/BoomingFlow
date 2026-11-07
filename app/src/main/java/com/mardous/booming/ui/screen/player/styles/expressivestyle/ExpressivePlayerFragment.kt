@@ -13,6 +13,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsCompat.Type
 import androidx.core.view.isVisible
 import androidx.core.view.updatePadding
+import androidx.lifecycle.Lifecycle
 import androidx.media3.common.Player
 import com.mardous.booming.R
 import com.mardous.booming.core.model.action.NowPlayingAction
@@ -24,13 +25,16 @@ import com.mardous.booming.core.model.player.tintTarget
 import com.mardous.booming.databinding.FragmentExpressivePlayerBinding
 import com.mardous.booming.extensions.getOnBackPressedDispatcher
 import com.mardous.booming.extensions.isLandscape
+import com.mardous.booming.extensions.keepScreenOn
 import com.mardous.booming.extensions.launchAndRepeatWithViewLifecycle
+import com.mardous.booming.extensions.resources.BOOMING_ANIM_TIME
 import com.mardous.booming.extensions.resources.applyColor
 import com.mardous.booming.extensions.whichFragment
 import com.mardous.booming.ui.component.base.AbsPlayerControlsFragment
 import com.mardous.booming.ui.component.base.AbsPlayerFragment
 import androidx.compose.ui.platform.ComposeView
 import com.mardous.booming.ui.component.preferences.dialog.ExtraInfoPreferenceDialog
+import com.mardous.booming.ui.screen.player.cover.CoverLyricsFragment
 import com.mardous.booming.util.Preferences
 
 class ExpressivePlayerFragment : AbsPlayerFragment(R.layout.fragment_expressive_player),
@@ -241,6 +245,53 @@ class ExpressivePlayerFragment : AbsPlayerFragment(R.layout.fragment_expressive_
                 it.setIconResource(R.drawable.ic_lyrics_outline_24dp)
                 it.contentDescription = getString(R.string.action_show_lyrics)
             }
+        }
+    }
+
+    override val isLyricsExpanded: Boolean
+        get() = _binding?.expandedLyricsFragment?.isVisible == true
+
+    override fun expandLyrics() {
+        _binding?.let { binding ->
+            val container = binding.expandedLyricsFragment
+            if (container.isVisible) return
+            val fragment =
+                childFragmentManager.findFragmentById(R.id.expandedLyricsFragment) as? CoverLyricsFragment
+            coverPagerFragment?.isLyricsExpanded = true
+            // The cover overlay would bleed through the transparent
+            // expanded surface - hide it temporarily (the preference is
+            // untouched; collapse restores it).
+            coverPagerFragment?.hideLyrics(isPermanent = false)
+            container.alpha = 0f
+            container.isVisible = true
+            fragment?.let {
+                childFragmentManager.beginTransaction()
+                    .setMaxLifecycle(it, Lifecycle.State.RESUMED)
+                    .commitAllowingStateLoss()
+            }
+            container.animate().alpha(1f).setDuration(BOOMING_ANIM_TIME).start()
+            activity?.keepScreenOn(true)
+        }
+    }
+
+    override fun collapseLyrics() {
+        _binding?.let { binding ->
+            val container = binding.expandedLyricsFragment
+            if (!container.isVisible) return
+            val fragment =
+                childFragmentManager.findFragmentById(R.id.expandedLyricsFragment) as? CoverLyricsFragment
+            coverPagerFragment?.isLyricsExpanded = false
+            activity?.keepScreenOn(false)
+            container.animate().alpha(0f).setDuration(BOOMING_ANIM_TIME).withEndAction {
+                container.isVisible = false
+                fragment?.let {
+                    childFragmentManager.beginTransaction()
+                        .setMaxLifecycle(it, Lifecycle.State.STARTED)
+                        .commitAllowingStateLoss()
+                }
+            }.start()
+            // Restore the cover overlay if the preference still wants it.
+            coverPagerFragment?.showLyrics()
         }
     }
 

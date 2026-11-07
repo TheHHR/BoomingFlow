@@ -18,7 +18,6 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
 import com.mardous.booming.core.model.lyrics.LyricsViewSettings
-import com.mardous.booming.core.model.lyrics.LyricsViewSettings.BackgroundEffect
 import com.mardous.booming.core.model.lyrics.LyricsViewSettings.Key
 import com.mardous.booming.data.model.Song
 import com.mardous.booming.data.model.lyrics.LyricsSource
@@ -47,7 +46,6 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
-import com.mardous.booming.core.model.lyrics.LyricsViewSettings.Mode as LyricsViewMode
 
 /**
  * @author Christians M. A. (mardous)
@@ -73,11 +71,8 @@ class LyricsViewModel(
     private val _permissionRequestEvent = Channel<List<Uri>>(Channel.BUFFERED)
     val permissionRequestEvent = _permissionRequestEvent.receiveAsFlow()
 
-    private val _playerLyricsViewSettings = MutableStateFlow(createViewSettings(LyricsViewMode.Player))
-    val playerLyricsViewSettings = _playerLyricsViewSettings.asStateFlow()
-
-    private val _fullLyricsViewSettings = MutableStateFlow(createViewSettings(LyricsViewMode.Full))
-    val fullLyricsViewSettings = _fullLyricsViewSettings.asStateFlow()
+    private val _lyricsViewSettings = MutableStateFlow(createViewSettings())
+    val lyricsViewSettings = _lyricsViewSettings.asStateFlow()
 
     private var lyricsJob: Job? = null
 
@@ -558,24 +553,15 @@ class LyricsViewModel(
         return@withContext LyricsUiState.Empty(song.id)
     }
 
-    private fun createViewSettings(mode: LyricsViewMode): LyricsViewSettings {
-        val background: BackgroundEffect =
-            if (!mode.isFull) {
-                BackgroundEffect.None
-            } else when (preferences.getString(Key.BACKGROUND_EFFECT, "spatial")) {
-                "gradient" -> BackgroundEffect.Gradient
-                "spatial" -> BackgroundEffect.Spatial
-                "blur" -> BackgroundEffect.Blur
-                else -> BackgroundEffect.None
-            }
+    private fun createViewSettings(): LyricsViewSettings {
         val enableSyllableLyrics = preferences.getBoolean(Key.ENABLE_SYLLABLE_LYRICS, true)
         val enableKaraokeStyle = preferences.getBoolean(Key.ENABLE_KARAOKE_STYLE, true)
         val progressiveColoring = preferences.getBoolean(Key.PROGRESSIVE_COLORING, true)
         val showTranslation = preferences.getBoolean(Key.SHOW_TRANSLATION, true)
         val showTransliteration = preferences.getBoolean(Key.SHOW_TRANSLITERATION, false)
         val resumeOnSeek = preferences.getBoolean(Key.RESUME_ON_SEEK, false)
-        val blurEffect = !background.isNone && preferences.getBoolean(Key.BLUR_EFFECT, false)
-        val shadowEffect = !background.isNone && preferences.getBoolean(Key.SHADOW_EFFECT, false)
+        val blurEffect = preferences.getBoolean(Key.BLUR_EFFECT, false)
+        val shadowEffect = preferences.getBoolean(Key.SHADOW_EFFECT, false)
         val fontFamily: FontFamily = if (preferences.getBoolean(Key.USE_CUSTOM_FONT, false)) {
             try {
                 preferences.getString(Key.SELECTED_CUSTOM_FONT, null)
@@ -591,16 +577,8 @@ class LyricsViewModel(
             FontFamily.Default
         }
         val lineSpacing = preferences.getInt(Key.LINE_SPACING, 25)
-        val syncedFontSize = if (mode == LyricsViewMode.Player) {
-            preferences.getInt(Key.SYNCED_FONT_SIZE_PLAYER, 40)
-        } else {
-            preferences.getInt(Key.SYNCED_FONT_SIZE_FULL, 40)
-        }
-        val unsyncedFontSize = if (mode == LyricsViewMode.Player) {
-            preferences.getInt(Key.UNSYNCED_FONT_SIZE_PLAYER, 40)
-        } else {
-            preferences.getInt(Key.UNSYNCED_FONT_SIZE_FULL, 40)
-        }
+        val syncedFontSize = preferences.getInt(Key.SYNCED_FONT_SIZE, 40)
+        val unsyncedFontSize = preferences.getInt(Key.UNSYNCED_FONT_SIZE, 40)
         val syncedBoldFont = preferences.getBoolean(Key.SYNCED_BOLD_FONT, false)
         val syncedStyle = TextStyle(
             fontFamily = fontFamily,
@@ -616,13 +594,11 @@ class LyricsViewModel(
             lineHeight = (1f + (lineSpacing / 100f)).em
         )
         return LyricsViewSettings(
-            mode = mode,
             isCenterCurrentLine = preferences.getBoolean(Key.CENTER_CURRENT_LINE, true),
             isCenterHorizontally = preferences.getBoolean(Key.CENTER_HORIZONTALLY, true),
             enableSyllableLyrics = enableSyllableLyrics,
             enableKaraokeStyle = enableKaraokeStyle,
             progressiveColoring = progressiveColoring,
-            backgroundEffect = background,
             blurEffect = blurEffect,
             shadowEffect = shadowEffect,
             showTranslation = showTranslation,
@@ -647,7 +623,6 @@ class LyricsViewModel(
             Key.SHOW_TRANSLATION,
             Key.SHOW_TRANSLITERATION,
             Key.RESUME_ON_SEEK,
-            Key.BACKGROUND_EFFECT,
             Key.BLUR_EFFECT,
             Key.SHADOW_EFFECT,
             Key.SYNCED_BOLD_FONT,
@@ -657,16 +632,11 @@ class LyricsViewModel(
                     // priority applies to the playing song immediately.
                     currentLyricsSong?.let { updateSong(it) }
                 }
-                _playerLyricsViewSettings.value = createViewSettings(LyricsViewMode.Player)
-                _fullLyricsViewSettings.value = createViewSettings(LyricsViewMode.Full)
+                _lyricsViewSettings.value = createViewSettings()
             }
-            Key.SYNCED_FONT_SIZE_PLAYER,
-            Key.UNSYNCED_FONT_SIZE_PLAYER -> {
-                _playerLyricsViewSettings.value = createViewSettings(LyricsViewMode.Player)
-            }
-            Key.SYNCED_FONT_SIZE_FULL,
-            Key.UNSYNCED_FONT_SIZE_FULL -> {
-                _fullLyricsViewSettings.value = createViewSettings(LyricsViewMode.Full)
+            Key.SYNCED_FONT_SIZE,
+            Key.UNSYNCED_FONT_SIZE -> {
+                _lyricsViewSettings.value = createViewSettings()
             }
         }
     }

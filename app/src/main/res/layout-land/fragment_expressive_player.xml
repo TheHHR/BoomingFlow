@@ -179,4 +179,11 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/expandedLyricsFragment"
+        android:name="com.mardous.booming.ui.screen.player.cover.CoverLyricsFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

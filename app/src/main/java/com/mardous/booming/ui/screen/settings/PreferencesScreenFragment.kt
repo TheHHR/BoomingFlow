@@ -367,16 +367,6 @@ open class PreferenceScreenFragment : PreferenceFragmentCompat(),
 
         findPreference<Preference>(ADD_EXTRA_CONTROLS)?.isVisible = !resources.isTablet
 
-        findPreference<ListPreference>(LyricsViewSettings.Key.BACKGROUND_EFFECT)?.apply {
-            if (!hasS()) {
-                val indexOfBlur = entryValues.indexOf("blur")
-                entries = entries.filterIndexed { index, _ -> index != indexOfBlur }
-                    .toTypedArray()
-                entryValues = entryValues.filterIndexed { index, _ -> index != indexOfBlur }
-                    .toTypedArray()
-            }
-        }
-
         findPreference<Preference>(LyricsViewSettings.Key.BLUR_EFFECT)
             ?.isVisible = hasS()
 
@@ -464,7 +454,6 @@ open class PreferenceScreenFragment : PreferenceFragmentCompat(),
 
         onUpdateNowPlayingBackground()
         onUpdateCoverActions()
-        onUpdateLyricsPreferences()
         onUpdateQueuePreferences()
     }
 
@@ -580,7 +569,6 @@ open class PreferenceScreenFragment : PreferenceFragmentCompat(),
             COVER_LONG_PRESS_ACTION -> onUpdateCoverActions()
             ON_SONG_CLICK_ACTION,
             ON_CLEAR_QUEUE_ACTION -> onUpdateQueuePreferences()
-            LyricsViewSettings.Key.BACKGROUND_EFFECT -> onUpdateLyricsPreferences()
         }
     }
 
@@ -611,15 +599,6 @@ open class PreferenceScreenFragment : PreferenceFragmentCompat(),
 
         findPreference<Preference>(COVER_LONG_PRESS_ACTION)?.summary =
             getString(Preferences.coverLongPressAction.titleRes)
-    }
-
-    private fun onUpdateLyricsPreferences() {
-        val hasBackgroundEffects =
-            preferences.getString(LyricsViewSettings.Key.BACKGROUND_EFFECT, "none") != "none"
-        findPreference<Preference>(LyricsViewSettings.Key.SHADOW_EFFECT)
-            ?.isEnabled = hasBackgroundEffects
-        findPreference<Preference>(LyricsViewSettings.Key.BLUR_EFFECT)
-            ?.isEnabled = hasBackgroundEffects
     }
 
     private fun onUpdateQueuePreferences() {

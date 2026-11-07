@@ -493,9 +493,6 @@
     <string name="lyrics_syllable_mode_title">Ord för ord</string>
     <string name="lyrics_syllable_mode_summary">Tillåter att visa låttexter med ord-för-ord-synkronisering. Beror på tillgängligheten av låttexter och ett kompatibelt format som LRC eller TTML.</string>
     <string name="lyrics_effects_note">Avancerade effekter ökar den visuella upplevelsen men kan kräva mer systemresurser och batteri.</string>
-    <string name="lyrics_background_effect_title">Bakgrundseffekt</string>
-    <string name="lyrics_background_gradient">Färgövertoning</string>
-    <string name="lyrics_background_blur">Oskärpa</string>
     <string name="lyrics_blur_effect_title">Oskärpa effekt</string>
     <string name="lyrics_blur_effect_summary">Sudda texterna i anslutning till den nuvarande.</string>
     <string name="lyrics_shadow_effect_title">Skugga effekt</string>
@@ -510,10 +507,6 @@
     <string name="synced_font_size_player_summary">Justera teckenstorleken för synkroniserade låttexter som visas över skivomslaget på spelarskärmen.</string>
     <string name="unsynced_font_size_player_title">Osynkroniserad teckenstorlek för låttexter (spelare)</string>
     <string name="unsynced_font_size_player_summary">Justera teckenstorleken för osynkade låttexter som visas över skivomslaget på spelarskärmen.</string>
-    <string name="synced_font_size_full_title">Synkroniserad teckenstorlek för låttexter (full vy)</string>
-    <string name="synced_font_size_full_summary">Justera teckenstorleken för synkroniserade låttexter i hela låttextskärmen.</string>
-    <string name="unsynced_font_size_full_title">Osynkroniserad teckenstorlek för låttexter (full vy)</string>
-    <string name="unsynced_font_size_full_summary">Justera teckenstorleken för osynkade låttexter i hela låttextskärmen.</string>
     <string name="ignore_blank_lines_title">Ignorera tomma rader</string>
     <string name="ignore_blank_lines_summary">Ignorera tomma rader i LRC-filer istället för att visa animerade pratbubblor.</string>
     <string name="treat_all_lyrics_files_as_utf8_title">Behandla alla låttextfiler som UTF-8</string>

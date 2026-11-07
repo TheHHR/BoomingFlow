@@ -511,9 +511,6 @@
     <string name="lyrics_syllable_mode_title">Пословная синхронизация</string>
     <string name="lyrics_syllable_mode_summary">Позволяет отображать текст с пословной синхронизацией. Зависит от наличия текста и совместимого формата (LRC или TTML).</string>
     <string name="lyrics_effects_note">Расширенные эффекты улучшают визуализацию, но могут потреблять больше ресурсов и заряда батареи.</string>
-    <string name="lyrics_background_effect_title">Эффект фона</string>
-    <string name="lyrics_background_gradient">Градиент</string>
-    <string name="lyrics_background_blur">Размытие</string>
     <string name="lyrics_blur_effect_title">Эффект размытия</string>
     <string name="lyrics_blur_effect_summary">Размывать строки текста, соседние с текущей.</string>
     <string name="lyrics_shadow_effect_title">Эффект тени</string>
@@ -528,10 +525,6 @@
     <string name="synced_font_size_player_summary">Размер шрифта синхронизированного текста поверх обложки на экране плеера.</string>
     <string name="unsynced_font_size_player_title">Размер обычного текста (плеер)</string>
     <string name="unsynced_font_size_player_summary">Размер шрифта несинхронизированного текста поверх обложки на экране плеера.</string>
-    <string name="synced_font_size_full_title">Размер синхр. текста (полный экран)</string>
-    <string name="synced_font_size_full_summary">Размер шрифта синхронизированного текста на отдельном экране текста.</string>
-    <string name="unsynced_font_size_full_title">Размер обычного текста (полный экран)</string>
-    <string name="unsynced_font_size_full_summary">Размер шрифта несинхронизированного текста на отдельном экране текста.</string>
 
 
 

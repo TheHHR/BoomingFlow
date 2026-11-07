@@ -524,6 +524,8 @@
     <!-- Lyrics viewer -->
     <string name="action_show_lyrics">Show lyrics</string>
     <string name="action_hide_lyrics">Hide lyrics</string>
+    <string name="action_expand_lyrics">Expand lyrics</string>
+    <string name="action_collapse_lyrics">Collapse lyrics</string>
     <string name="plain_lyrics">Plain</string>
     <string name="synced_lyrics">Synced</string>
     <string name="word_by_word_lyrics">Word by word</string>
@@ -692,10 +694,6 @@
     <string name="lyrics_syllable_mode_title">Word-by-word lyrics</string>
     <string name="lyrics_syllable_mode_summary">Allows displaying lyrics with word-by-word synchronization. Depends on the availability of the lyrics and a compatible format such as LRC or TTML.</string>
     <string name="lyrics_effects_note">Advanced effects enhance the visual experience but may require more system resources and battery.</string>
-    <string name="lyrics_background_effect_title">Background effect</string>
-    <string name="lyrics_background_gradient">Gradient</string>
-    <string name="lyrics_background_spatial">Fluid</string>
-    <string name="lyrics_background_blur">Blur</string>
     <string name="lyrics_blur_effect_title">Blur effect</string>
     <string name="lyrics_blur_effect_summary">Blur the lyrics lines adjacent to the current one.</string>
     <string name="lyrics_shadow_effect_title">Shadow effect</string>
@@ -716,14 +714,10 @@
     <string name="lyrics_bold_unsynced_summary">Display unsynced lyrics in bold font.</string>
     <string name="lyrics_line_spacing_title">Line spacing</string>
     <string name="lyrics_line_spacing_summary">Adjust the space between lyric lines.</string>
-    <string name="synced_font_size_player_title">Synced lyrics font size (player)</string>
-    <string name="synced_font_size_player_summary">Adjust the font size for synced lyrics shown over the album cover in the player screen.</string>
-    <string name="unsynced_font_size_player_title">Unsynced lyrics font size (player)</string>
-    <string name="unsynced_font_size_player_summary">Adjust the font size for unsynced lyrics shown over the album cover in the player screen.</string>
-    <string name="synced_font_size_full_title">Synced lyrics font size (full view)</string>
-    <string name="synced_font_size_full_summary">Adjust the font size for synced lyrics in the full lyrics screen.</string>
-    <string name="unsynced_font_size_full_title">Unsynced lyrics font size (full view)</string>
-    <string name="unsynced_font_size_full_summary">Adjust the font size for unsynced lyrics in the full lyrics screen.</string>
+    <string name="synced_font_size_player_title">Synced lyrics font size</string>
+    <string name="synced_font_size_player_summary">Adjust the font size for synced lyrics.</string>
+    <string name="unsynced_font_size_player_title">Unsynced lyrics font size</string>
+    <string name="unsynced_font_size_player_summary">Adjust the font size for unsynced lyrics.</string>
     <string name="detect_instrumental_tracks_title">Detect instrumental tracks from title</string>
     <string name="detect_instrumental_tracks_summary">Automatically identify instrumental tracks based on their title.</string>
     <string name="ignore_blank_lines_title">Ignore blank lines</string>

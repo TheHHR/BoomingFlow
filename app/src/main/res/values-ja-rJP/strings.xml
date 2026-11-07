@@ -488,9 +488,6 @@
     <string name="lyrics_syllable_mode_title">単語ごとの歌詞</string>
     <string name="lyrics_syllable_mode_summary">単語ごとに同期させて歌詞を表示することができます。歌詞とLRCやTTMLなどの互換フォーマットによって異なります。</string>
     <string name="lyrics_effects_note">高度な効果により視覚体験が向上しますが、より多くのシステムリソースとバッテリーが必要になる場合があります。</string>
-    <string name="lyrics_background_effect_title">背景効果</string>
-    <string name="lyrics_background_gradient">グラデーション</string>
-    <string name="lyrics_background_blur">ぼかし効果</string>
     <string name="lyrics_blur_effect_title">ぼかし効果</string>
     <string name="lyrics_blur_effect_summary">現在の行の隣にある歌詞をぼかします。</string>
     <string name="lyrics_shadow_effect_title">シャドー効果</string>
@@ -505,10 +502,6 @@
     <string name="synced_font_size_player_summary">プレイヤー画面のアルバムカバーに表示される同期された歌詞のフォントサイズを調整します。</string>
     <string name="unsynced_font_size_player_title">同期されていない歌詞のフォントサイズ（プレイヤー）</string>
     <string name="unsynced_font_size_player_summary">プレイヤー画面のアルバムカバーに表示される同期されていない歌詞のフォントサイズを調整します。</string>
-    <string name="synced_font_size_full_title">同期された歌詞のフォントサイズ（全画面）</string>
-    <string name="synced_font_size_full_summary">全画面の歌詞表示で同期された歌詞のフォントサイズを調整します。</string>
-    <string name="unsynced_font_size_full_title">同期されていない歌詞のフォントサイズ（全画面）</string>
-    <string name="unsynced_font_size_full_summary">全画面の歌詞表示で同期されていない歌詞のフォントサイズを調整します。</string>
 
 
 

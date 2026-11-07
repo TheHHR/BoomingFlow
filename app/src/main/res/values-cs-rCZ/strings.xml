@@ -512,9 +512,6 @@
     <string name="lyrics_syllable_mode_title">Text slov po slovu</string>
     <string name="lyrics_syllable_mode_summary">Umožňuje zobrazovat texty s synchronizací po slovu. Závisí na dostupnosti textů a kompatibilního formátu jako je LRC nebo TTML.</string>
     <string name="lyrics_effects_note">Pokročilé efekty zlepšují vizuální zážitek, ale mohou vyžadovat více systémových zdrojů a baterie.</string>
-    <string name="lyrics_background_effect_title">Efekt pozadí</string>
-    <string name="lyrics_background_gradient">Sklon</string>
-    <string name="lyrics_background_blur">Blur</string>
     <string name="lyrics_blur_effect_title">Efekt rozostření</string>
     <string name="lyrics_blur_effect_summary">Rozostřit řádky textů vedle aktuální.</string>
     <string name="lyrics_shadow_effect_title">Stínový efekt</string>
@@ -529,10 +526,6 @@
     <string name="synced_font_size_player_summary">Upravte velikost písma pro synchronizované texty zobrazené přes obal alba na obrazovce přehrávače.</string>
     <string name="unsynced_font_size_player_title">Nesynchronizovaná velikost písma (přehrávač)</string>
     <string name="unsynced_font_size_player_summary">Upravte velikost písma pro nesynchronizované texty zobrazené přes obal alba na obrazovce přehrávače.</string>
-    <string name="synced_font_size_full_title">Velikost písma synchronizovaných textů (celé zobrazení)</string>
-    <string name="synced_font_size_full_summary">Upravte velikost písma pro synchronizované texty na celé obrazovce textu.</string>
-    <string name="unsynced_font_size_full_title">Nesynchronizovaná velikost písma (celé zobrazení)</string>
-    <string name="unsynced_font_size_full_summary">Upravte velikost písma pro nesynchronizované texty na celé obrazovce textu.</string>
 
 
 

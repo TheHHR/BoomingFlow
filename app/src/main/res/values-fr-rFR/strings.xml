@@ -503,9 +503,6 @@
     <string name="lyrics_syllable_mode_title">Paroles mot par mot</string>
     <string name="lyrics_syllable_mode_summary">Permet d\'afficher les paroles avec une synchronisation mot par mot. Cela dépend de la disponibilité des paroles et d\'un format compatible tel que LRC ou TTML.</string>
     <string name="lyrics_effects_note">Les effets avancés améliorent l\'expérience visuelle mais peuvent nécessiter plus de ressources système et de batterie.</string>
-    <string name="lyrics_background_effect_title">Effet de fond</string>
-    <string name="lyrics_background_gradient">Dégradé</string>
-    <string name="lyrics_background_blur">Flou</string>
     <string name="lyrics_blur_effect_title">Effet de flou</string>
     <string name="lyrics_blur_effect_summary">Flouter les lignes de paroles adjacentes à la ligne actuelle.</string>
     <string name="lyrics_shadow_effect_title">Effet d\'ombre</string>
@@ -520,10 +517,6 @@
     <string name="synced_font_size_player_summary">Ajuster la taille de la police pour les paroles synchronisées affichées sur la couverture de l\'album dans l\'écran du lecteur.</string>
     <string name="unsynced_font_size_player_title">Taille de police des paroles non synchronisées (lecteur)</string>
     <string name="unsynced_font_size_player_summary">Ajuster la taille de la police pour les paroles non synchronisées affichées sur la couverture de l\'album dans l\'écran du lecteur.</string>
-    <string name="synced_font_size_full_title">Taille de police des paroles synchronisées (vue complète)</string>
-    <string name="synced_font_size_full_summary">Ajuster la taille de la police pour les paroles synchronisées dans l\'écran des paroles complètes.</string>
-    <string name="unsynced_font_size_full_title">Taille de police des paroles non synchronisées (vue complète)</string>
-    <string name="unsynced_font_size_full_summary">Ajuster la taille de la police pour les paroles non synchronisées dans l\'écran des paroles complètes.</string>
     <string name="ignore_blank_lines_title">Ignorer les lignes vides</string>
     <string name="ignore_blank_lines_summary">Ignorez les lignes vides dans les fichiers LRC au lieu d\'afficher des bulles animées.</string>
     <string name="treat_all_lyrics_files_as_utf8_title">Traiter tous les fichiers de paroles comme UTF-8</string>

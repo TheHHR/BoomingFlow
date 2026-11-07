@@ -508,9 +508,6 @@
     <string name="lyrics_syllable_mode_title">متن آهنگ کلمه به کلمه</string>
     <string name="lyrics_syllable_mode_summary">به نمایش اشعار با همگام سازی کلمه به کلمه اجازه می دهد. بستگی به در دسترس بودن اشعار و فرمت سازگار مانند LRC یا TTML دارد.</string>
     <string name="lyrics_effects_note">جلوه های پیشرفته تجربه بصری را بهبود می بخشد اما ممکن است به منابع سیستم و باتری بیشتری نیاز داشته باشد.</string>
-    <string name="lyrics_background_effect_title">جلوه پس زمینه</string>
-    <string name="lyrics_background_gradient">گرادیان</string>
-    <string name="lyrics_background_blur">محو کردن</string>
     <string name="lyrics_blur_effect_title">جلوه تاری</string>
     <string name="lyrics_blur_effect_summary">خطوط ترانه مجاور متن فعلی را محو کنید.</string>
     <string name="lyrics_shadow_effect_title">افکت سایه</string>
@@ -525,10 +522,6 @@
     <string name="synced_font_size_player_summary">اندازه فونت را برای اشعار همگام‌سازی شده روی جلد آلبوم در صفحه پخش‌کننده تنظیم کنید.</string>
     <string name="unsynced_font_size_player_title">اندازه فونت اشعار همگام نشده (پخش کننده)</string>
     <string name="unsynced_font_size_player_summary">اندازه قلم را برای اشعار همگام‌نشده که روی جلد آلبوم در صفحه پخش‌کننده نشان داده می‌شود، تنظیم کنید.</string>
-    <string name="synced_font_size_full_title">اندازه فونت اشعار همگام‌سازی شده (نمایش کامل)</string>
-    <string name="synced_font_size_full_summary">اندازه فونت را برای اشعار همگام‌سازی شده در صفحه متن کامل تنظیم کنید.</string>
-    <string name="unsynced_font_size_full_title">اندازه فونت اشعار همگام نشده (نمایش کامل)</string>
-    <string name="unsynced_font_size_full_summary">اندازه فونت را برای اشعار همگام‌نشده در صفحه کامل متن آهنگ تنظیم کنید.</string>
 
 
 
