@@ -73,7 +73,7 @@ sealed class Version(
 val currentVersion: Version = Version.Stable(
     versionMajor = 1,
     versionMinor = 1,
-    versionPatch = 101
+    versionPatch = 102
 )
 val currentVersionCode = currentVersion.code
 
@@ -86,7 +86,7 @@ android {
         targetSdk = 36
 
         applicationId = "com.thehhr.boomingflow"
-        versionCode = 2110300
+        versionCode = 2120300
         versionName = currentVersion.name
         check(versionCode == currentVersionCode)
     }
