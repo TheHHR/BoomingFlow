@@ -34,8 +34,6 @@ import com.mardous.booming.core.model.sort.SortKey
 import com.mardous.booming.core.sort.PlaylistSortMode
 import com.mardous.booming.data.local.room.PlaylistWithSongs
 import com.mardous.booming.extensions.launchAndRepeatWithViewLifecycle
-import com.mardous.booming.extensions.media.autoContentType
-import com.mardous.booming.extensions.navigation.detailArgs
 import com.mardous.booming.extensions.navigation.playlistDetailArgs
 import com.mardous.booming.extensions.navigation.spotifyPlaylistArgs
 import com.mardous.booming.extensions.resources.FastScrollGate
@@ -267,15 +265,7 @@ class PlaylistListFragment : AbsRecyclerViewCustomGridSizeFragment<RecyclerView.
     }
 
     override fun playlistClick(playlist: PlaylistWithSongs) {
-        val autoContent = playlist.playlistEntity.autoContentType(requireContext())
-        if (autoContent != null) {
-            findNavController().navigate(R.id.nav_detail_list, detailArgs(autoContent))
-        } else {
-            findNavController().navigate(
-                R.id.nav_playlist_detail,
-                playlistDetailArgs(playlist.playlistEntity.playListId)
-            )
-        }
+        findNavController().navigate(R.id.nav_playlist_detail, playlistDetailArgs(playlist.playlistEntity.playListId))
     }
 
     override fun playlistMenuItemClick(playlist: PlaylistWithSongs, menuItem: MenuItem): Boolean {
