@@ -102,8 +102,13 @@ object NewPipeStreamExtractor {
         
         val quality = prefs?.getString("audio_quality", "High") ?: "High"
         val dataSaver = prefs?.getBoolean("data_saver", false) ?: false
-        val forceOpus = prefs?.getBoolean("force_opus", true) ?: true
-        
+        // force_opus has no UI writer anywhere; defaulting it to true
+        // permanently neutralized the "AAC Only" stream quality on the
+        // innertube fallback tiers (and could hand Opus bytes to an .m4a
+        // download). Derive it from the quality setting instead.
+        val forceOpus = prefs?.getBoolean("force_opus", !quality.equals("AAC Only", ignoreCase = true))
+            ?: !quality.equals("AAC Only", ignoreCase = true)
+
         val snapshot = Triple(quality, dataSaver, forceOpus)
         cachedPrefTriple = snapshot
         lastPrefReadTimestamp = now
@@ -225,16 +230,22 @@ object NewPipeStreamExtractor {
     private fun selectBestStream(
         audioStreams: List<AudioStream>,
         forceHighQuality: Boolean = false,
-        overridePreferOpus: Boolean? = null
+        overridePreferOpus: Boolean? = null,
+        overrideDataSaver: Boolean = false
     ): AudioStream? {
         if (audioStreams.isEmpty()) return null
 
         val (audioQuality, dataSaver, forceOpus) = getPreferencesSnapshot()
-        val isDataSaver = dataSaver || audioQuality.equals("Data Saver", ignoreCase = true) || audioQuality.equals("Low", ignoreCase = true)
+        val isDataSaver = overrideDataSaver || dataSaver || audioQuality.equals("Data Saver", ignoreCase = true) || audioQuality.equals("Low", ignoreCase = true)
         val preferOpus = overridePreferOpus ?: (!isDataSaver && (forceHighQuality || forceOpus || !audioQuality.equals("AAC Only", ignoreCase = true)))
 
         return if (isDataSaver) {
-            audioStreams.minByOrNull { getNormalizedBitrateKbps(it) }
+            // With an explicit AAC preference, keep the container truthful:
+            // lowest bitrate among non-Opus streams so the bytes match the
+            // .m4a file extension.
+            val candidates = if (preferOpus == false) audioStreams.filter { !isOpusStream(it) } else audioStreams
+            candidates.minByOrNull { getNormalizedBitrateKbps(it) }
+                ?: audioStreams.minByOrNull { getNormalizedBitrateKbps(it) }
         } else {
             audioStreams.maxByOrNull { getStreamScore(it, preferOpus) }
         }
@@ -269,7 +280,8 @@ object NewPipeStreamExtractor {
     suspend fun getStreamWithFormat(
         videoId: String?,
         forceHighQuality: Boolean = false,
-        preferOpus: Boolean? = null
+        preferOpus: Boolean? = null,
+        dataSaver: Boolean = false
     ): Pair<String, String>? = coroutineScope {
         if (videoId.isNullOrEmpty()) return@coroutineScope null
 
@@ -305,7 +317,7 @@ object NewPipeStreamExtractor {
                         val kbps = if (bitrate > 0) "${bitrate / 1000} kbps" else ""
                         formatTag = if (kbps.isNotEmpty()) "AAC • $kbps" else "AAC"
                     } else {
-                        val best = selectBestStream(audioStreams, forceHighQuality = forceHighQuality, overridePreferOpus = preferOpus)
+                        val best = selectBestStream(audioStreams, forceHighQuality = forceHighQuality, overridePreferOpus = preferOpus, overrideDataSaver = dataSaver)
                         bestUrl = best?.content
                         if (best != null) {
                             formatTag = getFormatTagForStream(best)

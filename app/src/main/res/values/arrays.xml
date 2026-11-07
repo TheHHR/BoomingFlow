@@ -59,6 +59,18 @@
         <item>Data Saver</item>
     </string-array>
 
+    <string-array name="pref_download_quality_entries">
+        <item>@string/download_quality_opus</item>
+        <item>@string/download_quality_aac</item>
+        <item>@string/download_quality_data_saver</item>
+    </string-array>
+
+    <string-array name="pref_download_quality_values">
+        <item>High</item>
+        <item>AAC Only</item>
+        <item>Data Saver</item>
+    </string-array>
+
     <string-array name="pref_recursive_folder_action_entries">
         <item>@string/action_play</item>
         <item>@string/action_shuffle_play</item>

@@ -171,6 +171,17 @@
             app:layout="@layout/list_item_view"
             app:key="stream_quality"/>
 
+        <ListPreference
+            app:iconSpaceReserved="true"
+            app:title="@string/download_quality_title"
+            app:summary="@string/download_quality_summary"
+            app:entries="@array/pref_download_quality_entries"
+            app:entryValues="@array/pref_download_quality_values"
+            app:defaultValue="High"
+            app:useSimpleSummaryProvider="true"
+            app:layout="@layout/list_item_view"
+            app:key="download_quality"/>
+
     </PreferenceCategory>
 
     <PreferenceCategory

@@ -385,6 +385,14 @@ object Preferences : KoinComponent {
     val squigglySeekBar: Boolean
         get() = preferences.getBoolean(SQUIGGLY_SEEK_BAR, true)
 
+    /**
+     * Quality used for downloads: "High" = Opus ~160 kbps (.opus),
+     * "AAC Only" = best AAC (256 kbps when offered, else 128, .m4a),
+     * "Data Saver" = lowest AAC (~48 kbps, .m4a).
+     */
+    val downloadQuality: String
+        get() = preferences.getString(DOWNLOAD_QUALITY, "High") ?: "High"
+
     val showOnLockScreen: Boolean
         get() = preferences.getBoolean(SHOW_ON_LOCK_SCREEN, false)
 
@@ -731,6 +739,7 @@ const val IGNORE_AUDIO_FOCUS = "ignore_audio_focus"
 const val PAUSE_ON_ZERO_VOLUME = "pause_on_zero_volume"
 const val MP3_INDEX_SEEKING = "mp3_index_seeking"
 const val USE_FOLDER_ART = "use_folder_art"
+const val DOWNLOAD_QUALITY = "download_quality"
 const val ONLY_ALBUM_ARTISTS = "only_album_artists"
 const val TRASH_MUSIC_FILES = "trash_music_files"
 const val RECURSIVE_FOLDER_ACTIONS = "recursive_folder_actions"

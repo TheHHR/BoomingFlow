@@ -228,6 +228,7 @@ object YouTubeMusic {
         artist: String? = null,
         isrc: String? = null,
         overridePreferOpus: Boolean? = null,
+        overrideDataSaver: Boolean = false,
         isRetry: Boolean = false,
         durationMs: Long? = null
     ): Result<String> = coroutineScope {
@@ -236,10 +237,10 @@ object YouTubeMusic {
         cleanExpiredCache()
         
         val (audioQuality, dataSaver, forceOpus) = NewPipeStreamExtractor.getPreferencesSnapshot()
-        val isDataSaver = dataSaver || audioQuality.equals("Data Saver", ignoreCase = true) || audioQuality.equals("Low", ignoreCase = true)
+        val isDataSaver = overrideDataSaver || dataSaver || audioQuality.equals("Data Saver", ignoreCase = true) || audioQuality.equals("Low", ignoreCase = true)
         val isAacOnly = audioQuality.equals("AAC Only", ignoreCase = true)
         val preferOpus = overridePreferOpus ?: (!isDataSaver && !isAacOnly)
-        val cacheKey = "$videoId:$audioQuality:${if (preferOpus) "opus" else "aac"}${if (isRetry) ":retry" else ""}"
+        val cacheKey = "$videoId:$audioQuality:${if (preferOpus) "opus" else "aac"}${if (overrideDataSaver) ":ds" else ""}${if (isRetry) ":retry" else ""}"
 
         // Check Level 1 Cache: Instant memory map retrieval (bypassed on retry)
         if (!forceHighQuality && !isRetry) {
@@ -290,7 +291,8 @@ object YouTubeMusic {
                             val result = NewPipeStreamExtractor.getStreamWithFormat(
                                 videoId,
                                 forceHighQuality = forceHighQuality,
-                                preferOpus = preferOpus
+                                preferOpus = preferOpus,
+                                dataSaver = isDataSaver
                             )
                             if (result != null && !result.first.isNullOrEmpty()) {
                                 bestUrl = result.first

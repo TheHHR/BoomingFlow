@@ -28,6 +28,7 @@ import com.mardous.booming.online.data.spotify.SpotifyTrack
 import com.mardous.booming.online.download.DownloadFormat
 import com.mardous.booming.online.download.DownloadRegistry
 import com.mardous.booming.online.download.SongDownloader
+import com.mardous.booming.util.Preferences
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 
@@ -111,7 +112,16 @@ class PlaylistDownloadSheet : BottomSheetDialogFragment() {
             updateButton(downloadButton)
         }
 
-        formatGroup.check(R.id.format_m4a)
+        // Preselect the container from the "Download quality" setting
+        // (High -> Opus; AAC Only / Data Saver -> M4A). The sheet has no
+        // Data Saver button, so that quality falls back to M4A here.
+        formatGroup.check(
+            if (Preferences.downloadQuality.equals("High", ignoreCase = true)) {
+                R.id.format_opus
+            } else {
+                R.id.format_m4a
+            }
+        )
         rebuildList(
             recycler, selectAll, downloadButton, downloadedIds,
             DownloadRegistry.hideDownloaded(requireContext())

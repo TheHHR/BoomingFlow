@@ -96,7 +96,7 @@ class SpotifyPlaylistFragment : AbsMainActivityFragment(R.layout.fragment_playli
             },
             onDownload = { index ->
                 viewModel.tracks.value.getOrNull(index)?.let { track ->
-                    startDownload(listOf(track), DownloadFormat.M4A)
+                    startDownload(listOf(track))
                 }
             },
             onMultipleItemsAction = { menuItem, songs ->
@@ -401,7 +401,7 @@ class SpotifyPlaylistFragment : AbsMainActivityFragment(R.layout.fragment_playli
         DownloadsManagerSheet().show(childFragmentManager, "downloads_manager")
     }
 
-    fun startDownload(tracks: List<SpotifyTrack>, format: DownloadFormat) {
+    fun startDownload(tracks: List<SpotifyTrack>, format: DownloadFormat = SongDownloader.derivedDownloadFormat()) {
         if (tracks.isEmpty()) return
         songDownloader.enqueue(tracks, format)
         showToast(getString(R.string.download_queued_toast, tracks.size))

@@ -26,6 +26,8 @@ import com.mardous.booming.online.data.spotify.SpotifyTrack
 import com.mardous.booming.online.data.spotify.thumbnailUrl
 import com.mardous.booming.online.spotify.resolveForPlayback
 import com.mardous.booming.online.ui.OnlineToast
+import com.mardous.booming.online.util.StreamClientUtils
+import com.mardous.booming.util.Preferences
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -86,6 +88,14 @@ class SongDownloader(
         OkHttpClient.Builder()
             .connectTimeout(15, TimeUnit.SECONDS)
             .readTimeout(60, TimeUnit.SECONDS)
+            // Same UA/Origin/Referer profile playback uses: googlevideo URLs
+            // are issued per client profile and can 403 a bare okhttp UA.
+            .addInterceptor { chain ->
+                val request = chain.request()
+                chain.proceed(
+                    StreamClientUtils.applyRequestProfile(request.newBuilder(), request).build()
+                )
+            }
             .build()
     }
 
@@ -234,10 +244,11 @@ class SongDownloader(
         }
     }
 
-    fun enqueue(tracks: List<SpotifyTrack>, format: DownloadFormat = DownloadFormat.M4A) {
+    fun enqueue(tracks: List<SpotifyTrack>, format: DownloadFormat = derivedDownloadFormat()) {
         if (tracks.isEmpty()) return
         worker
         notifyStart()
+        val dataSaver = derivedDataSaver(format)
         for (track in tracks) {
             scope.launch {
                 val trackKey = track.id.ifEmpty { track.name }
@@ -264,6 +275,7 @@ class SongDownloader(
                             album = track.album?.name,
                             thumbnailUrl = track.thumbnailUrl(),
                             format = format,
+                            dataSaver = dataSaver,
                             trackNumber = track.trackNumber,
                             year = releaseYear(track),
                             refreshUri = existingUri
@@ -288,20 +300,21 @@ class SongDownloader(
                     enqueuedTrackIds.remove(trackKey)
                     return@launch
                 }
-                queue.trySend(
-                    DownloadTask(
-                        videoId = videoId,
-                        spotifyTrackId = track.id,
-                        title = track.name,
-                        artist = artistOf(track),
-                        album = track.album?.name,
-                        thumbnailUrl = track.thumbnailUrl(),
-                        format = format,
-                        trackNumber = track.trackNumber,
-                        year = releaseYear(track),
-                    )
-                )
-                _activeCount.value = _activeCount.value + 1
+                 queue.trySend(
+                     DownloadTask(
+                         videoId = videoId,
+                         spotifyTrackId = track.id,
+                         title = track.name,
+                         artist = artistOf(track),
+                         album = track.album?.name,
+                         thumbnailUrl = track.thumbnailUrl(),
+                         format = format,
+                         dataSaver = dataSaver,
+                         trackNumber = track.trackNumber,
+                         year = releaseYear(track)
+                     )
+                 )
+                 _activeCount.value = _activeCount.value + 1
             }
         }
     }
@@ -406,7 +419,8 @@ class SongDownloader(
                     artist = artist,
                     album = album,
                     thumbnailUrl = thumbnailUrl,
-                    format = DownloadFormat.M4A
+                    format = derivedDownloadFormat(),
+                    dataSaver = derivedDataSaver(derivedDownloadFormat())
                 )
             )
             _activeCount.value = _activeCount.value + 1
@@ -444,7 +458,7 @@ class SongDownloader(
      * by the per-playlist "Auto download" option. Never refreshes existing
      * files, so re-running it on every playlist load is cheap.
      */
-    fun enqueueMissing(tracks: List<SpotifyTrack>, format: DownloadFormat = DownloadFormat.M4A) {
+    fun enqueueMissing(tracks: List<SpotifyTrack>, format: DownloadFormat = derivedDownloadFormat()) {
         if (tracks.isEmpty()) return
         val missing = tracks.filterNot { it.id.isNotBlank() && isSpotifyTrackDownloaded(it.id) }
         if (missing.isEmpty()) return
@@ -525,6 +539,7 @@ class SongDownloader(
             videoId = task.videoId,
             forceHighQuality = true,
             overridePreferOpus = task.format.preferOpus,
+            overrideDataSaver = task.dataSaver,
             title = task.title,
             artist = task.artist,
             isRetry = false
@@ -877,6 +892,7 @@ class SongDownloader(
         val album: String?,
         val thumbnailUrl: String?,
         val format: DownloadFormat,
+        val dataSaver: Boolean = false,
         val trackNumber: Int? = null,
         val year: Int? = null,
         val refreshUri: String? = null
@@ -890,6 +906,21 @@ class SongDownloader(
         private const val NOTIFICATION_ID = 4001
         private const val MAX_ATTEMPTS = 3
         private const val RELATIVE_PATH = "Music/BoomingFlow"
+
+        /**
+         * Download format derived from the "Download quality" setting:
+         * High = Opus ~160 kbps (.opus), AAC Only / Data Saver = .m4a.
+         */
+        fun derivedDownloadFormat(): DownloadFormat =
+            if (Preferences.downloadQuality.equals("High", ignoreCase = true)) {
+                DownloadFormat.OPUS
+            } else {
+                DownloadFormat.M4A
+            }
+
+        /** M4A downloads under the "Data Saver" quality pick the smallest AAC stream. */
+        private fun derivedDataSaver(format: DownloadFormat): Boolean =
+            format == DownloadFormat.M4A && Preferences.downloadQuality.equals("Data Saver", ignoreCase = true)
     }
 }
 
