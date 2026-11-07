@@ -138,11 +138,6 @@ class DiscoverFragment : AbsMainActivityFragment(R.layout.fragment_discover), IS
         inflater.inflate(R.menu.menu_discover, menu)
     }
 
-    override fun onPrepareMenu(menu: Menu) {
-        menu.applyPlayerAccent(requireContext())
-    }
-
-
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
         if (menuItem.itemId == R.id.action_refresh) {
             discoverViewModel.load(force = true)

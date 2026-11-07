@@ -140,11 +140,6 @@ class FolderDetailFragment : AbsMainActivityFragment(R.layout.fragment_detail_li
         SongSortMode.FolderSongs.createMenu(menu)
     }
 
-    override fun onPrepareMenu(menu: Menu) {
-        menu.applyPlayerAccent(requireContext())
-    }
-
-
     override fun onMenuItemSelected(item: MenuItem): Boolean {
         return when {
             SongSortMode.FolderSongs.sortItemSelected(item) -> {

@@ -34,7 +34,6 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import coil3.load
 import com.mardous.booming.R
-import com.mardous.booming.extensions.resources.applyPlayerAccent
 import com.mardous.booming.core.model.theme.AccentSchemes
 import com.mardous.booming.extensions.isNightMode
 import com.mardous.booming.extensions.resources.applyBadgePlayerAccent
@@ -449,7 +448,6 @@ class SearchAdapter(
                             }
                             true
                         }
-                        popup.menu.applyPlayerAccent(anchor.context)
                         popup.show()
                     }
                     visibility = View.VISIBLE

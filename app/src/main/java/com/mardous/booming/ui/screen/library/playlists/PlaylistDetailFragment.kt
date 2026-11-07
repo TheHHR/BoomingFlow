@@ -381,7 +381,6 @@ class PlaylistDetailFragment : AbsMainActivityFragment(R.layout.fragment_playlis
         if (playlistSortMode == null) {
             playlistSortMode = buildPlaylistSortMode()
         }
-        menu.applyPlayerAccent(requireContext())
         playlistSortMode?.createMenu(menu)
         if (!isLandscape()) {
             menu.removeItem(R.id.action_search)

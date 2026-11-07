@@ -43,14 +43,6 @@ class UpdateDialog : BottomSheetDialogFragment(), View.OnClickListener {
                 it.setContentView(binding.root)
                 it.behavior.state = BottomSheetBehavior.STATE_EXPANDED
             }
-            dialog.applyPlayerAccent()
-            if (com.mardous.booming.util.Preferences.followPlayerColor) {
-                val accent = com.mardous.booming.core.PlayerAccentState.accentColor.value
-                    .takeIf { it != 0 }
-                    ?: com.mardous.booming.core.model.theme.AccentSchemes.NEUTRAL_ACCENT
-                binding.infoAction.applyPlayerAccent(accent, tonal = true)
-                binding.downloadAction.applyPlayerAccent(accent, tonal = true)
-            }
             return dialog
         }
         return MaterialAlertDialogBuilder(requireContext())

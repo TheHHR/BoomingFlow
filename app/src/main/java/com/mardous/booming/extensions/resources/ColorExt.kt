@@ -27,10 +27,7 @@ import android.graphics.PorterDuffColorFilter
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.RippleDrawable
-import android.os.Build
 import android.text.style.ForegroundColorSpan
-import android.util.TypedValue
-import android.view.Menu
 import android.widget.CompoundButton
 import android.widget.ImageButton
 import android.widget.SeekBar
@@ -44,7 +41,6 @@ import androidx.appcompat.widget.SwitchCompat
 import android.view.ViewGroup
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
-import androidx.core.graphics.drawable.DrawableCompat
 import androidx.core.graphics.ColorUtils
 import androidx.core.widget.TextViewCompat
 import androidx.fragment.app.Fragment
@@ -739,14 +735,6 @@ fun AlertDialog.applyPlayerAccent() {
     val accent = PlayerAccentState.accentColor.value.takeIf { it != 0 }
         ?: AccentSchemes.NEUTRAL_ACCENT
     val scheme = AccentSchemes.viewScheme(accent, context.isNightMode)
-    // Dialog surface follows the song (M3 dialogs sit on surfaceContainerHigh).
-    window?.setBackgroundDrawable(
-        GradientDrawable().apply {
-            shape = GradientDrawable.RECTANGLE
-            cornerRadius = dialogCornerRadius(context)
-            setColor(scheme.surfaceContainerHigh)
-        }
-    )
     val buttonColors = ColorStateList(
         arrayOf(
             intArrayOf(-android.R.attr.state_enabled),
@@ -764,57 +752,36 @@ fun AlertDialog.applyPlayerAccent() {
     )) {
         getButton(which)?.setTextColor(buttonColors)
     }
-    (window?.decorView as? ViewGroup)?.applyViewHierarchyAccent(scheme)
+    (window?.decorView as? ViewGroup)?.applyDialogCheckAccent(scheme.primary)
 }
 
-/**
- * Accents an arbitrary view hierarchy with the current player scheme:
- * checkables, text-input layouts (box stroke, focused hint, end icon,
- * cursor) and progress indicators. For screens without a Compose theme
- * (tag editor, error screen). No-op when "Follow player color" is off.
- */
-fun ViewGroup.applyPlayerAccent() {
-    if (!Preferences.followPlayerColor) return
-    val accent = PlayerAccentState.accentColor.value.takeIf { it != 0 }
-        ?: AccentSchemes.NEUTRAL_ACCENT
-    applyViewHierarchyAccent(AccentSchemes.viewScheme(accent, context.isNightMode))
-}
-
-/** M3 dialog corner size, resolved from the theme with a safe fallback. */
-private fun dialogCornerRadius(context: Context): Float {
-    val tv = TypedValue()
-    if (context.theme.resolveAttribute(androidx.appcompat.R.attr.dialogCornerRadius, tv, true) &&
-        tv.type == TypedValue.TYPE_DIMENSION
-    ) {
-        return tv.getDimension(context.resources.displayMetrics)
-    }
-    return 28f * context.resources.displayMetrics.density
-}
-
-/**
- * Recursively accents every accentable child of a dialog / sheet view
- * hierarchy: checkables, text-input layouts and progress indicators.
- */
-private fun ViewGroup.applyViewHierarchyAccent(scheme: AccentSchemes.Scheme) {
+/** Recursively accents the [CompoundButton]s inside a dialog's view hierarchy. */
+private fun ViewGroup.applyDialogCheckAccent(@ColorInt checkedColor: Int) {
     for (i in 0 until childCount) {
         val child = getChildAt(i)
-        when (child) {
-            is CompoundButton -> child.applyPlayerAccent(scheme.primary)
-            is com.google.android.material.textfield.TextInputLayout -> {
-                child.boxStrokeColor = scheme.primary
-                child.hintTextColor = ColorStateList.valueOf(scheme.primary)
-                child.setEndIconTintList(ColorStateList.valueOf(scheme.primary))
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    (child.editText as? TextView)?.textCursorDrawable?.setTintList(
-                        ColorStateList.valueOf(scheme.primary)
+        when {
+            child is CompoundButton -> {
+                if (child.getTag(R.id.tag_accent_originals) == null) {
+                    child.setTag(
+                        R.id.tag_accent_originals,
+                        AccentOriginals(switchTrack = child.buttonTintList)
                     )
                 }
+                val original = (child.getTag(R.id.tag_accent_originals) as? AccentOriginals)?.switchTrack
+                child.buttonTintList = ColorStateList(
+                    arrayOf(
+                        intArrayOf(-android.R.attr.state_enabled),
+                        intArrayOf(android.R.attr.state_checked),
+                        intArrayOf()
+                    ),
+                    intArrayOf(
+                        original?.defaultColor?.withAlpha(0.38f) ?: Color.GRAY,
+                        checkedColor,
+                        original?.defaultColor ?: checkedColor
+                    )
+                )
             }
-            is com.google.android.material.progressindicator.LinearProgressIndicator ->
-                child.setIndicatorColor(scheme.primary)
-            is com.google.android.material.progressindicator.CircularProgressIndicator ->
-                child.applyPlayerAccent(scheme.primary)
-            is ViewGroup -> child.applyViewHierarchyAccent(scheme)
+            child is ViewGroup -> child.applyDialogCheckAccent(checkedColor)
         }
     }
 }
@@ -852,8 +819,7 @@ fun CompoundButton.applyPlayerAccent(@ColorInt accent: Int) {
 }
 
 /**
- * Applies the player accent to a snackbar: the surface carries the song's
- * container color and the action text the scheme primary. No-op when
+ * Tints the snackbar action text with the player accent. No-op when
  * "Follow player color" is off. Chainable, so it can sit between the
  * builder chain and [Snackbar.show].
  */
@@ -861,90 +827,5 @@ fun Snackbar.applyPlayerAccent(): Snackbar = apply {
     if (!Preferences.followPlayerColor) return@apply
     val accent = PlayerAccentState.accentColor.value.takeIf { it != 0 }
         ?: AccentSchemes.NEUTRAL_ACCENT
-    val scheme = AccentSchemes.viewScheme(accent, context.isNightMode)
-    setActionTextColor(scheme.primary)
-    view.backgroundTintList = ColorStateList.valueOf(scheme.surfaceContainer)
-    view.findViewById<TextView>(com.google.android.material.R.id.snackbar_text)
-        ?.setTextColor(scheme.onSurface)
-}
-
-/**
- * Applies the player accent to a [BottomSheetDialog]: the sheet surface
- * follows the song (M3 sheets sit on surfaceContainerLow). No-op when
- * "Follow player color" is off.
- */
-fun com.google.android.material.bottomsheet.BottomSheetDialog.applyPlayerAccent() {
-    if (!Preferences.followPlayerColor) return
-    val accent = PlayerAccentState.accentColor.value.takeIf { it != 0 }
-        ?: AccentSchemes.NEUTRAL_ACCENT
-    val scheme = AccentSchemes.viewScheme(accent, context.isNightMode)
-    findViewById<android.widget.FrameLayout>(com.google.android.material.R.id.design_bottom_sheet)
-        ?.backgroundTintList = ColorStateList.valueOf(scheme.surfaceContainerLow)
-}
-
-/**
- * Tints the fast-scroller thumb with the current player accent (creation
- * time; the strip is re-tinted when the host view is recreated). No-op
- * when "Follow player color" is off.
- */
-internal fun Drawable.accentThumbTint() {
-    if (!Preferences.followPlayerColor) return
-    val accent = PlayerAccentState.accentColor.value.takeIf { it != 0 }
-        ?: AccentSchemes.NEUTRAL_ACCENT
-    setTintList(ColorStateList.valueOf(accent))
-}
-
-/**
- * Applies the player accent to a native overflow / popup menu: enabled
- * item icons tint in the scheme primary and checkable rows carry an
- * accent check glyph - the framework draws its own
- * `colorControlActivated` marker, which cannot take runtime colors.
- * Text roles stay native so the menu remains readable. Must run
- * wherever the menu is (re)populated; with "Follow player color" off
- * this is a no-op and the menu keeps its native look.
- */
-@SuppressLint("RestrictedApi")
-fun Menu.applyPlayerAccent(context: Context) {
-    if (!Preferences.followPlayerColor) return
-    val accent = PlayerAccentState.accentColor.value.takeIf { it != 0 }
-        ?: AccentSchemes.NEUTRAL_ACCENT
-    for (i in 0 until size()) {
-        val item = getItem(i)
-        if (item.hasSubMenu()) {
-            item.subMenu?.let { it.applyPlayerAccent(context) }
-            continue
-        }
-        if (item.isCheckable) {
-            // Overflow/popup menus hide item icons by default; enable them
-            // so the accent check glyph is visible on checked rows.
-            (this as? androidx.appcompat.view.menu.MenuBuilder)
-                ?.setOptionalIconsVisible(true)
-            if (item.isChecked) {
-                ContextCompat.getDrawable(context, R.drawable.ic_check_24dp)?.mutate()?.let { check ->
-                    DrawableCompat.setTintList(check, ColorStateList.valueOf(accent))
-                    item.icon = check
-                }
-            } else {
-                // Clear a stale injected check from a previous display.
-                item.icon = null
-            }
-        }
-        item.icon?.let { icon ->
-            val tinted = DrawableCompat.wrap(icon).mutate()
-            DrawableCompat.setTintList(
-                tinted,
-                ColorStateList(
-                    arrayOf(
-                        intArrayOf(-android.R.attr.state_enabled),
-                        intArrayOf()
-                    ),
-                    intArrayOf(
-                        context.onSurfaceColor().withAlpha(0.38f),
-                        accent
-                    )
-                )
-            )
-            item.icon = tinted
-        }
-    }
+    setActionTextColor(AccentSchemes.viewScheme(accent, context.isNightMode).primary)
 }

@@ -20,7 +20,6 @@ package com.mardous.booming.ui.component.menu
 import android.view.Menu
 import android.view.View
 import androidx.appcompat.widget.PopupMenu
-import com.mardous.booming.extensions.resources.applyPlayerAccent
 
 typealias MenuConsumer = (Menu) -> Unit
 
@@ -30,7 +29,6 @@ fun newPopupMenu(anchor: View, menuRes: Int, menuConsumer: MenuConsumer? = null)
         if (menuConsumer != null) {
             menuConsumer(menu)
         }
-        menu.applyPlayerAccent(anchor.context)
     }
 }
 

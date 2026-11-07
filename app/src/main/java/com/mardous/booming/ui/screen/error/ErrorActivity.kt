@@ -12,7 +12,6 @@ import com.mardous.booming.extensions.applyWindowInsets
 import com.mardous.booming.extensions.files.asFormattedFileTime
 import com.mardous.booming.extensions.files.getFileProviderUri
 import com.mardous.booming.extensions.openUrl
-import com.mardous.booming.extensions.resources.applyPlayerAccent
 import com.mardous.booming.extensions.showToast
 import com.mardous.booming.ui.component.base.AbsThemeActivity
 import com.mardous.booming.util.Constants.ISSUE_TRACKER_LINK
@@ -53,7 +52,6 @@ class ErrorActivity : AbsThemeActivity() {
         binding.restartApp.setOnClickListener {
             CustomActivityOnCrash.restartApplication(this, config)
         }
-        binding.root.applyPlayerAccent()
         setContentView(binding.root)
     }
 

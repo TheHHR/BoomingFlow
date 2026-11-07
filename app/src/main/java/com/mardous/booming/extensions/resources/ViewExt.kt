@@ -406,8 +406,6 @@ fun RecyclerView.onVerticalScroll(
 
 fun ViewGroup.createFastScroller(disablePopup: Boolean = false): FastScroller {
     val thumbDrawable = ContextCompat.getDrawable(context, R.drawable.scroller_thumb)
-        ?.mutate()
-        ?.apply { accentThumbTint() }
     val trackDrawable = ContextCompat.getDrawable(context, R.drawable.scroller_track)
     val fastScrollerBuilder = FastScrollerBuilder(this)
     fastScrollerBuilder.useMd2Style()

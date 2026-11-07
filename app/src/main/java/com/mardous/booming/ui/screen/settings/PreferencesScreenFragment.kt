@@ -131,9 +131,6 @@ import com.mardous.booming.extensions.resources.applyCategoryTitleAccent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import com.mardous.booming.core.appwidgets.WidgetUpdater
-import androidx.annotation.ColorInt
-import com.mardous.booming.extensions.isNightMode
 import com.mardous.booming.util.YT_STREAM_TEST
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
@@ -302,21 +299,6 @@ open class PreferenceScreenFragment : PreferenceFragmentCompat(),
         rowGroup.applyPreferenceSwitchAccent(preferenceAccent, scheme.primary, scheme.onPrimary)
         rowGroup.applyPreferenceToggleAccent(preferenceAccent, scheme.secondaryContainer, scheme.onSecondaryContainer)
         applyCategoryTitleAccentToRow(rowGroup, preferenceAccent, scheme.primary)
-        // The update-check row's wavy indicator (never accented before).
-        rowGroup.walkForProgressIndicator(preferenceAccent)
-    }
-
-    private fun ViewGroup.walkForProgressIndicator(@ColorInt accent: Int) {
-        val primary = AccentSchemes.viewScheme(accent, context.isNightMode).primary
-        for (i in 0 until childCount) {
-            when (val child = getChildAt(i)) {
-                is com.google.android.material.progressindicator.LinearProgressIndicator ->
-                    child.setIndicatorColor(primary)
-                is com.google.android.material.progressindicator.CircularProgressIndicator ->
-                    child.setIndicatorColor(primary)
-                is ViewGroup -> child.walkForProgressIndicator(accent)
-            }
-        }
     }
 
     private fun applyCategoryTitleAccentToRow(row: ViewGroup, accent: Int, accentPrimary: Int) {
@@ -375,12 +357,6 @@ open class PreferenceScreenFragment : PreferenceFragmentCompat(),
         }
 
         findPreference<Preference>(FOLLOW_PLAYER_COLOR)?.setOnPreferenceChangeListener { _, _ ->
-            // Repaint the home-screen widgets too: their colors are
-            // push-driven and would otherwise stay stale until the next
-            // playback event.
-            lifecycleScope.launch {
-                WidgetUpdater.refresh(requireContext())
-            }
             requireActivity().recreate()
             true
         }

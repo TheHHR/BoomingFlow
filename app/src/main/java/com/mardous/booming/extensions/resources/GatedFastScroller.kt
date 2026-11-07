@@ -208,14 +208,11 @@ class GatedRecyclerViewHelper(
 fun RecyclerView.createGatedFastScroller(disablePopup: Boolean = false): GatedFastScroller {
     val gate = FastScrollGate()
     val helper = GatedRecyclerViewHelper(this, gate)
-    val thumbDrawable = ContextCompat.getDrawable(context, R.drawable.scroller_thumb)
-        ?.mutate()
-        ?.apply { accentThumbTint() }
     val builder = FastScrollerBuilder(this)
         .useMd2Style()
         .setViewHelper(helper)
-    if (thumbDrawable != null) {
-        builder.setThumbDrawable(thumbDrawable)
+    ContextCompat.getDrawable(context, R.drawable.scroller_thumb)?.let {
+        builder.setThumbDrawable(it)
     }
     ContextCompat.getDrawable(context, R.drawable.scroller_track)?.let {
         builder.setTrackDrawable(it)

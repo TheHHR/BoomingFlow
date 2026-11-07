@@ -232,7 +232,6 @@ abstract class AbsRecyclerViewFragment<A : RecyclerView.Adapter<*>, LM : Recycle
     }
 
     override fun onPrepareMenu(menu: Menu) {
-        menu.applyPlayerAccent(requireContext())
     }
 
     override fun onCreateMenu(menu: Menu, inflater: MenuInflater) {
