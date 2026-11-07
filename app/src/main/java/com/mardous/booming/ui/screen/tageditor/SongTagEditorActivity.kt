@@ -26,6 +26,7 @@ import android.view.ViewGroup
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.mardous.booming.R
+import com.mardous.booming.extensions.resources.applyPlayerAccent
 import com.mardous.booming.extensions.resources.showAccent
 import com.mardous.booming.coil.DEFAULT_SONG_IMAGE
 import com.mardous.booming.data.local.MetadataReader
@@ -98,6 +99,7 @@ class SongTagEditorActivity : AbsTagEditorActivity() {
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu_song_tag_editor, menu)
+        menu.applyPlayerAccent(this)
         return true
     }
 

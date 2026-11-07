@@ -368,7 +368,12 @@ abstract class AbsSlidingMusicPanelActivity : AbsBaseActivity(),
             navigationView.setItemActiveIndicatorColor(
                 ColorStateList.valueOf(resolveColor(M3R.attr.colorSecondaryContainer))
             )
-            window.setBackgroundDrawable(null)
+            // The removed nav-host container background used to paint the
+            // surface; paint the window with the same color so follow-off
+            // stays pixel-identical.
+            window.setBackgroundDrawable(
+                ColorDrawable(resolveColor(M3R.attr.colorSurface))
+            )
             lastAppliedWindowBackground = null
         }
     }

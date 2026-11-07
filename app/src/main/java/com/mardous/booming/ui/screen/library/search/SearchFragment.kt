@@ -21,6 +21,8 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.Intent
+import android.content.res.ColorStateList
+import android.os.Build
 import android.os.Bundle
 import android.speech.RecognizerIntent
 import android.view.KeyEvent
@@ -234,6 +236,16 @@ class SearchFragment : AbsMainActivityFragment(R.layout.fragment_search),
                 )
             }
             binding.keyboardPopup.applyPlayerAccent(accent)
+            // The search bar: cursor + select handles (API 29+) and the
+            // clear icon follow the accent.
+            scheme?.let { s ->
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    binding.searchView.textCursorDrawable?.setTintList(
+                        ColorStateList.valueOf(s.primary)
+                    )
+                }
+                binding.clearText.iconTint = ColorStateList.valueOf(s.primary)
+            }
             // Badges and checked (selected) rows tint at bind time; rebind
             // them (targeted, only on a real accent change) so they don't
             // keep the previous accent.

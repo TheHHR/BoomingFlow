@@ -145,6 +145,11 @@ class YearDetailFragment : AbsMainActivityFragment(R.layout.fragment_detail_list
         SongSortMode.YearSongs.createMenu(menu)
     }
 
+    override fun onPrepareMenu(menu: Menu) {
+        menu.applyPlayerAccent(requireContext())
+    }
+
+
     override fun onMenuItemSelected(item: MenuItem): Boolean {
         return if (SongSortMode.YearSongs.sortItemSelected(item)) {
             detailViewModel.loadDetail()

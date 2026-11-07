@@ -427,6 +427,7 @@ class SpotifyPlaylistFragment : AbsMainActivityFragment(R.layout.fragment_playli
         if (!isLandscape()) {
             menu.removeItem(R.id.action_search)
         }
+        menu.applyPlayerAccent(requireContext())
     }
 
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {

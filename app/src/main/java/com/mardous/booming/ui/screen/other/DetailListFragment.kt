@@ -291,6 +291,10 @@ class DetailListFragment : AbsMainActivityFragment(R.layout.fragment_detail_list
         menu.findItem(R.id.action_clear_history).isVisible = contentType.isHistoryContent
     }
 
+    override fun onPrepareMenu(menu: Menu) {
+        menu.applyPlayerAccent(requireContext())
+    }
+
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
         return when (menuItem.itemId) {
             android.R.id.home -> {

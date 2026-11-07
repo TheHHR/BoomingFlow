@@ -91,6 +91,7 @@ import com.mardous.booming.data.model.Song
 import com.mardous.booming.extensions.EXTRA_SONGS
 import com.mardous.booming.extensions.extraNotNull
 import com.mardous.booming.extensions.media.songCountStr
+import com.mardous.booming.extensions.resources.applyPlayerAccent
 import com.mardous.booming.extensions.showToast
 import com.mardous.booming.extensions.withArgs
 import com.mardous.booming.ui.component.compose.BottomSheetDialogSurface
@@ -120,6 +121,7 @@ class AddToPlaylistDialog : BottomSheetDialogFragment() {
         val dialog = super.onCreateDialog(savedInstanceState)
         (dialog as? BottomSheetDialog)?.let {
             it.behavior.state = BottomSheetBehavior.STATE_EXPANDED
+            it.applyPlayerAccent()
         }
         return dialog
     }

@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.textview.MaterialTextView
 import com.mardous.booming.R
+import com.mardous.booming.extensions.resources.applyPlayerAccent
 import com.mardous.booming.core.model.theme.AccentSchemes
 import com.mardous.booming.core.PlayerAccentState
 import com.mardous.booming.extensions.isNightMode
@@ -238,6 +239,7 @@ class SpotifyTrackAdapter(
                 }
                 true
             }
+            popup.menu.applyPlayerAccent(context)
             popup.show()
         }
     }

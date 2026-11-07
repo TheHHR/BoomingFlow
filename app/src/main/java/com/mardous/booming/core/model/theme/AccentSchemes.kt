@@ -66,7 +66,11 @@ object AccentSchemes {
         @ColorInt val inversePrimary: Int,
         @ColorInt val outline: Int,
         @ColorInt val onSurfaceVariant: Int,
-        @ColorInt val background: Int
+        @ColorInt val background: Int,
+        @ColorInt val onSurface: Int,
+        @ColorInt val surfaceContainerLow: Int,
+        @ColorInt val surfaceContainer: Int,
+        @ColorInt val surfaceContainerHigh: Int
     )
 
     fun viewScheme(@ColorInt accent: Int, isDark: Boolean): Scheme {
@@ -91,7 +95,11 @@ object AccentSchemes {
             inversePrimary = scheme.inversePrimary,
             outline = scheme.outline,
             onSurfaceVariant = scheme.onSurfaceVariant,
-            background = scheme.background
+            background = scheme.background,
+            onSurface = scheme.onSurface,
+            surfaceContainerLow = scheme.surfaceContainerLow,
+            surfaceContainer = scheme.surfaceContainer,
+            surfaceContainerHigh = scheme.surfaceContainerHigh
         )
     }
 }

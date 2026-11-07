@@ -12,6 +12,11 @@ import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import com.mardous.booming.core.PlayerAccentState
+import com.mardous.booming.extensions.resources.applyPlayerAccent
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.PickVisualMediaRequest
@@ -80,6 +85,18 @@ abstract class AbsTagEditorActivity : AbsBaseActivity(),
         binding.image.setOnClickListener(this@AbsTagEditorActivity)
         binding.actionSave.setOnClickListener(this@AbsTagEditorActivity)
         binding.appBar.setupStatusBarForeground()
+
+        // The tag editor has no Compose theme and no accent collectors:
+        // accent the save FAB and every field/checkable/indicator in the
+        // hierarchy directly from the player state.
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                PlayerAccentState.accentColor.collect {
+                    binding.actionSave.applyPlayerAccent(it)
+                    (window?.decorView as? ViewGroup)?.applyPlayerAccent()
+                }
+            }
+        }
     }
 
     override fun onDestroy() {

@@ -152,6 +152,11 @@ class GenreDetailFragment : AbsMainActivityFragment(R.layout.fragment_detail_lis
         SongSortMode.GenreSongs.createMenu(menu)
     }
 
+    override fun onPrepareMenu(menu: Menu) {
+        menu.applyPlayerAccent(requireContext())
+    }
+
+
     override fun onMenuItemSelected(item: MenuItem): Boolean {
         return if (SongSortMode.GenreSongs.sortItemSelected(item)) {
             detailViewModel.loadGenreSongs()

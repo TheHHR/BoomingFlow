@@ -36,6 +36,7 @@ import coil3.toBitmap
 import com.google.android.material.transition.MaterialArcMotion
 import com.google.android.material.transition.MaterialContainerTransform
 import com.mardous.booming.R
+import com.mardous.booming.extensions.resources.applyPlayerAccent
 import com.mardous.booming.coil.artistImage
 import com.mardous.booming.core.PlayerAccentState
 import com.mardous.booming.core.sort.AlbumSortMode
@@ -282,6 +283,7 @@ class ArtistDetailFragment : AbsMainActivityFragment(R.layout.fragment_artist_de
     private fun createSortOrderMenu(view: View, sortMode: SortMode) {
         val popupMenu = PopupMenu(view.context, view).apply {
             sortMode.createMenu(menu, hasSubMenu = false)
+            menu.applyPlayerAccent(view.context)
             setOnMenuItemClickListener { item ->
                 if (sortMode.sortItemSelected(item)) {
                     detailViewModel.loadArtistDetail()
@@ -442,6 +444,10 @@ class ArtistDetailFragment : AbsMainActivityFragment(R.layout.fragment_artist_de
         menu.findItem(R.id.action_horizontal_albums)?.isChecked = Preferences.horizontalArtistAlbums
         menu.findItem(R.id.action_ignore_singles)?.isChecked = Preferences.ignoreSingles
         menu.findItem(R.id.action_toggle_compact_song_view)?.isChecked = Preferences.compactArtistSongView
+    }
+
+    override fun onPrepareMenu(menu: Menu) {
+        menu.applyPlayerAccent(requireContext())
     }
 
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
