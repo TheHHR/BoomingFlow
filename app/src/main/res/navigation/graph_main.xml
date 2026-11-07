@@ -74,6 +74,11 @@
         android:name="com.mardous.booming.ui.screen.discover.SpotifyAlbumFragment"
         android:label="SpotifyAlbumFragment"/>
 
+    <dialog
+        android:id="@+id/nav_queue"
+        android:name="com.mardous.booming.ui.screen.queue.QueueFragment"
+        android:label="QueueFragment"/>
+
     <fragment
         android:id="@+id/nav_album_detail"
         android:name="com.mardous.booming.ui.screen.library.albums.AlbumDetailFragment"

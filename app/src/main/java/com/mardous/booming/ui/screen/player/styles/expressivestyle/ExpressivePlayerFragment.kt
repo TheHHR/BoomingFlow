@@ -15,10 +15,6 @@ import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.core.view.updatePadding
 import androidx.lifecycle.Lifecycle
-import androidx.activity.OnBackPressedCallback
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.media3.common.Player
 import com.mardous.booming.R
 import com.mardous.booming.core.model.action.NowPlayingAction
@@ -29,25 +25,17 @@ import com.mardous.booming.core.model.player.surfaceTintTarget
 import com.mardous.booming.core.model.player.tintTarget
 import com.mardous.booming.databinding.FragmentExpressivePlayerBinding
 import com.mardous.booming.extensions.getOnBackPressedDispatcher
-import com.mardous.booming.extensions.getShareSongIntent
 import com.mardous.booming.extensions.isLandscape
 import com.mardous.booming.extensions.keepScreenOn
 import com.mardous.booming.extensions.launchAndRepeatWithViewLifecycle
-import com.mardous.booming.extensions.navigation.findActivityNavController
-import com.mardous.booming.extensions.navigation.songDetailArgs
 import com.mardous.booming.extensions.resources.BOOMING_ANIM_TIME
 import com.mardous.booming.extensions.resources.applyColor
-import com.mardous.booming.extensions.toChooser
 import com.mardous.booming.extensions.whichFragment
 import com.mardous.booming.ui.component.base.AbsPlayerControlsFragment
 import com.mardous.booming.ui.component.base.AbsPlayerFragment
 import androidx.compose.ui.platform.ComposeView
 import com.mardous.booming.ui.component.preferences.dialog.ExtraInfoPreferenceDialog
-import com.mardous.booming.ui.dialogs.playlists.AddToPlaylistDialog
-import com.mardous.booming.ui.dialogs.songs.DeleteSongsDialog
 import com.mardous.booming.ui.screen.player.cover.CoverLyricsFragment
-import com.mardous.booming.ui.screen.queue.QueueDrawer
-import com.mardous.booming.ui.theme.BoomingMusicTheme
 import com.mardous.booming.util.Preferences
 
 class ExpressivePlayerFragment : AbsPlayerFragment(R.layout.fragment_expressive_player),
@@ -75,15 +63,12 @@ class ExpressivePlayerFragment : AbsPlayerFragment(R.layout.fragment_expressive_
 
     private var popupMenu: PopupMenu? = null
     private var isFavorite = false
-    private var queueDrawerOpen by mutableStateOf(false)
-    private var queueBackCallback: OnBackPressedCallback? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentExpressivePlayerBinding.bind(view)
         setupToolbar()
         setupActions()
-        setupQueueDrawer()
         viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
             playerViewModel.repeatModeFlow.collect { repeatMode ->
                 binding.repeatButton.apply {
@@ -169,52 +154,6 @@ class ExpressivePlayerFragment : AbsPlayerFragment(R.layout.fragment_expressive_
     private fun setupToolbar() {
         playerToolbar?.setNavigationOnClickListener {
             getOnBackPressedDispatcher().onBackPressed()
-        }
-    }
-
-    private fun setupQueueDrawer() {
-        queueBackCallback = object : OnBackPressedCallback(false) {
-            override fun handleOnBackPressed() {
-                closeQueueDrawer()
-            }
-        }.also {
-            requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, it)
-        }
-        binding.queueDrawerView.setContent {
-            BoomingMusicTheme {
-                QueueDrawer(
-                    isExpanded = queueDrawerOpen,
-                    onDismissRequest = { closeQueueDrawer() },
-                    onAddToPlaylistClick = { songs ->
-                        AddToPlaylistDialog.create(songs)
-                            .show(childFragmentManager, "ADD_TO_PLAYLIST")
-                    },
-                    onDeleteSongClick = { song ->
-                        DeleteSongsDialog.create(song)
-                            .show(childFragmentManager, "DELETE_SONGS")
-                    },
-                    onShareClick = { song ->
-                        startActivity(
-                            requireContext()
-                                .getShareSongIntent(song)
-                                .toChooser(getString(R.string.action_share))
-                        )
-                    },
-                    onDetailsClick = { song ->
-                        findActivityNavController(R.id.fragment_container)
-                            .navigate(R.id.nav_song_details, songDetailArgs(song))
-                    }
-                )
-            }
-        }
-        // Same auto-close behavior the modal queue had: an emptied queue
-        // must not leave an empty drawer hanging over the player.
-        viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
-            playerViewModel.queueFlow.collect { queue ->
-                if (queue.isEmpty() && queueDrawerOpen) {
-                    closeQueueDrawer()
-                }
-            }
         }
     }
 
@@ -376,24 +315,6 @@ class ExpressivePlayerFragment : AbsPlayerFragment(R.layout.fragment_expressive_
             b.playerToolbar,
             b.insetsConsumer
         ).forEach { it.isGone = gone }
-    }
-
-    override val isQueueDrawerOpen: Boolean
-        get() = queueDrawerOpen
-
-    override fun openQueueDrawer() {
-        // The drawer can't share the screen with the lyrics takeover.
-        if (isLyricsExpanded) {
-            collapseLyrics()
-        }
-        queueDrawerOpen = true
-        queueBackCallback?.isEnabled = true
-    }
-
-    override fun closeQueueDrawer() {
-        if (!queueDrawerOpen) return
-        queueDrawerOpen = false
-        queueBackCallback?.isEnabled = false
     }
 
     override fun onShow() {

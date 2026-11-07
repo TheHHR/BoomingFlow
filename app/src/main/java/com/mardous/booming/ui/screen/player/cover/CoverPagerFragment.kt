@@ -160,11 +160,7 @@ class CoverPagerFragment : Fragment(R.layout.fragment_player_album_cover),
                     GestureType.DoubleTap(GestureType.DoubleTap.TYPE_CENTER),
                     GestureType.DoubleTap(GestureType.DoubleTap.TYPE_LEFT_EDGE),
                     GestureType.DoubleTap(GestureType.DoubleTap.TYPE_RIGHT_EDGE),
-                    GestureType.LongPress,
-                    // Swipe up on the album art opens the queue drawer -
-                    // horizontal paging is untouched: non-accepted fling
-                    // directions fall through to the ViewPager.
-                    GestureType.Fling(GestureType.Fling.DIRECTION_UP)
+                    GestureType.LongPress
                 ),
                 listener = gesturesListener
             )

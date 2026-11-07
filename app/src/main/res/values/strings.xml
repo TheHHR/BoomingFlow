@@ -534,7 +534,6 @@
     <string name="plain_text_lyrics_provider_status">Plain Text</string>
     <string name="disabled_lyrics_provider_status">Disabled — tap to fetch on demand</string>
     <string name="action_done">Done</string>
-    <string name="action_close">Close</string>
     <string name="embedded_lyrics">Embedded</string>
     <string name="downloaded_lyrics">Downloaded</string>
     <string name="file_lyrics">File</string>

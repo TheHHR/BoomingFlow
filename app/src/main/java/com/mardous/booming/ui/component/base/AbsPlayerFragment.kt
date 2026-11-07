@@ -344,6 +344,16 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) : Fragment(layoutRes
         }
     }
 
+    /**
+     * Don't stack the queue onto itself: repeating the swipe while the
+     * queue is already open would silently fail (or double-navigate on
+     * some navigation versions).
+     */
+    private fun currentDestinationAllowsQueueOpen(): Boolean =
+        runCatching { findNavController().currentDestination?.id }
+            .getOrNull()
+            ?.let { it != R.id.nav_queue } == true
+
     override fun gestureDetected(gestureType: GestureType): Boolean {
         return when (gestureType) {
             is GestureType.Tap -> onQuickActionEvent(Preferences.coverSingleTapAction)
@@ -376,11 +386,8 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) : Fragment(layoutRes
             is GestureType.Fling -> {
                 when (gestureType.direction) {
                     GestureType.Fling.DIRECTION_UP -> {
-                        // No queue swipe while the expanded lyrics takeover
-                        // is up (its surface owns the gestures) or while the
-                        // drawer is already open.
-                        if (Preferences.isSwipeUpQueue && !isLyricsExpanded && !isQueueDrawerOpen) {
-                            openQueueDrawer()
+                        if (Preferences.isSwipeUpQueue && currentDestinationAllowsQueueOpen()) {
+                            findNavController().navigate(R.id.nav_queue)
                             true
                         } else false
                     }
@@ -551,7 +558,7 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) : Fragment(layoutRes
             }
 
             NowPlayingAction.OpenPlayQueue -> {
-                openQueueDrawer()
+                findNavController().navigate(R.id.nav_queue)
                 true
             }
 
@@ -644,9 +651,6 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) : Fragment(layoutRes
         if (isLyricsExpanded) {
             collapseLyrics()
         }
-        if (isQueueDrawerOpen) {
-            closeQueueDrawer()
-        }
         coverFragment?.hideLyrics()
         playerControlsFragment.onHide()
     }
@@ -664,20 +668,6 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) : Fragment(layoutRes
 
     /** Shrinks the expanded lyrics back onto the album cover. */
     open fun collapseLyrics() {}
-
-    /**
-     * Whether the sliding queue drawer is currently open over the player.
-     * Style fragments hosting a queueDrawerView override this and the two
-     * methods below.
-     */
-    open val isQueueDrawerOpen: Boolean
-        get() = false
-
-    /** Opens the in-player sliding queue drawer. */
-    open fun openQueueDrawer() {}
-
-    /** Closes the in-player sliding queue drawer (no-op when closed). */
-    open fun closeQueueDrawer() {}
 
     protected fun getTintedDrawable(
         drawableRes: Int,

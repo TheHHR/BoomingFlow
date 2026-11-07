@@ -228,6 +228,7 @@ class MainActivity : AbsSlidingMusicPanelActivity(), MediaController.Listener {
                     setBottomNavVisibility(visible = true, animate = true)
                 }
 
+                R.id.nav_queue,
                 R.id.nav_lyrics_editor,
                 R.id.nav_play_info,
                 R.id.nav_about -> {
