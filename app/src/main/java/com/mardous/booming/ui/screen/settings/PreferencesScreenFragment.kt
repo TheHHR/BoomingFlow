@@ -94,7 +94,6 @@ import com.mardous.booming.util.COVER_SINGLE_TAP_ACTION
 import com.mardous.booming.util.ENABLE_ROTATION_LOCK
 import com.mardous.booming.util.GENERAL_THEME
 import com.mardous.booming.util.BLACK_THEME
-import com.mardous.booming.util.IGNORE_MEDIA_STORE
 import com.mardous.booming.util.LANGUAGE_NAME
 import com.mardous.booming.util.LASTFM_LOGIN
 import com.mardous.booming.util.ARTIST_SEPARATORS
@@ -415,12 +414,6 @@ open class PreferenceScreenFragment : PreferenceFragmentCompat(),
                 }
             })
         }
-
-        findPreference<Preference>(IGNORE_MEDIA_STORE)?.onPreferenceChangeListener =
-            Preference.OnPreferenceChangeListener { _, _ ->
-                clearImageLoaderCache()
-                true
-            }
 
         findPreference<Preference>(USE_FOLDER_ART)?.onPreferenceChangeListener =
             Preference.OnPreferenceChangeListener { _, _ ->

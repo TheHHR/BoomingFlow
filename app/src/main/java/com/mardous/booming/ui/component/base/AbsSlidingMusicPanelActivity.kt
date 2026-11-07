@@ -106,7 +106,6 @@ import com.mardous.booming.ui.screen.onboard.OnboardActivity
 import com.mardous.booming.ui.screen.other.MiniPlayerFragment
 import com.mardous.booming.ui.screen.player.PlayerViewModel
 import com.mardous.booming.ui.screen.player.styles.expressivestyle.ExpressivePlayerFragment
-import com.mardous.booming.util.ADAPTIVE_CONTROLS
 import com.mardous.booming.util.ADD_EXTRA_CONTROLS
 import com.mardous.booming.util.CAROUSEL_EFFECT
 import com.mardous.booming.util.ENABLE_ROTATION_LOCK
@@ -681,7 +680,6 @@ abstract class AbsSlidingMusicPanelActivity : AbsBaseActivity(),
             }
             LIBRARY_CATEGORIES -> updateTabs()
 
-            ADAPTIVE_CONTROLS -> miniPlayerFragment?.setupButtonStyle()
             ADD_EXTRA_CONTROLS -> miniPlayerFragment?.setupExtraControls()
             SQUIGGLY_SEEK_BAR -> miniPlayerFragment?.setUpProgressStyle()
 

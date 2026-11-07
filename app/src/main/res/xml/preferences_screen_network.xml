@@ -191,7 +191,7 @@
             app:iconSpaceReserved="true"
             app:title="@string/use_betterlyrics_provider_title"
             app:summary="@string/use_betterlyrics_provider_summary"
-            app:defaultValue="false"
+            app:defaultValue="true"
             app:layout="@layout/list_item_view"
             app:widgetLayout="@layout/preference_switch"
             app:key="betterlyrics_enabled"/>
@@ -200,7 +200,7 @@
             app:iconSpaceReserved="true"
             app:title="@string/use_lyrically_provider_title"
             app:summary="@string/use_lyrically_provider_summary"
-            app:defaultValue="false"
+            app:defaultValue="true"
             app:layout="@layout/list_item_view"
             app:widgetLayout="@layout/preference_switch"
             app:isPreferenceVisible="@bool/enable_lyrically_provider"
@@ -210,7 +210,7 @@
             app:iconSpaceReserved="true"
             app:title="@string/use_binilyrics_provider_title"
             app:summary="@string/use_binilyrics_provider_summary"
-            app:defaultValue="false"
+            app:defaultValue="true"
             app:layout="@layout/list_item_view"
             app:widgetLayout="@layout/preference_switch"
             app:key="binilyrics_enabled"/>
@@ -219,7 +219,7 @@
             app:iconSpaceReserved="true"
             app:title="@string/use_youlyplus_provider_title"
             app:summary="@string/use_youlyplus_provider_summary"
-            app:defaultValue="false"
+            app:defaultValue="true"
             app:layout="@layout/list_item_view"
             app:widgetLayout="@layout/preference_switch"
             app:key="youlyplus_enabled"/>
@@ -228,7 +228,7 @@
             app:iconSpaceReserved="true"
             app:title="@string/use_synclrc_provider_title"
             app:summary="@string/use_synclrc_provider_summary"
-            app:defaultValue="false"
+            app:defaultValue="true"
             app:layout="@layout/list_item_view"
             app:widgetLayout="@layout/preference_switch"
             app:key="synclrc_enabled"/>
@@ -237,7 +237,7 @@
             app:iconSpaceReserved="true"
             app:title="@string/use_netease_provider_title"
             app:summary="@string/use_netease_provider_summary"
-            app:defaultValue="false"
+            app:defaultValue="true"
             app:layout="@layout/list_item_view"
             app:widgetLayout="@layout/preference_switch"
             app:key="paxsenix_netease_enabled"/>

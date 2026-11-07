@@ -114,7 +114,7 @@ object Preferences : KoinComponent {
         set(value) = preferences.edit { putBoolean(BLACK_THEME, value) }
 
     val followPlayerColor: Boolean
-        get() = preferences.getBoolean(FOLLOW_PLAYER_COLOR, false)
+        get() = preferences.getBoolean(FOLLOW_PLAYER_COLOR, true)
 
     val isCustomFont: Boolean
         get() = preferences.getBoolean(USE_CUSTOM_FONT, true)
@@ -362,9 +362,9 @@ object Preferences : KoinComponent {
             val legacy = preferences.nullString(LEGACY_COLOR_SCHEME_KEY)
             val schemeName = preferences.nullString(PLAYER_COLOR_SCHEME)
                 ?: legacy
-                ?: PlayerColorSchemeMode.Blur.name
+                ?: PlayerColorSchemeMode.Spatial.name
             val mode = schemeName.toEnum<PlayerColorSchemeMode>()
-            return mode ?: PlayerColorSchemeMode.Blur
+            return mode ?: PlayerColorSchemeMode.Spatial
         }
 
     fun setNowPlayingColorSchemeMode(schemeMode: PlayerColorSchemeMode) {
@@ -382,11 +382,8 @@ object Preferences : KoinComponent {
     val extraControls: Boolean
         get() = preferences.getBoolean(ADD_EXTRA_CONTROLS, false)
 
-    val adaptiveControls: Boolean
-        get() = preferences.getBoolean(ADAPTIVE_CONTROLS, false)
-
     val squigglySeekBar: Boolean
-        get() = preferences.getBoolean(SQUIGGLY_SEEK_BAR, false)
+        get() = preferences.getBoolean(SQUIGGLY_SEEK_BAR, true)
 
     val showOnLockScreen: Boolean
         get() = preferences.getBoolean(SHOW_ON_LOCK_SCREEN, false)
@@ -435,7 +432,7 @@ object Preferences : KoinComponent {
         get() = preferences.getBoolean(DISPLAY_ALBUM_TITLE, true)
 
     val displayExtraInfo: Boolean
-        get() = preferences.getBoolean(DISPLAY_EXTRA_INFO, false)
+        get() = preferences.getBoolean(DISPLAY_EXTRA_INFO, true)
 
     fun getExtraInfoContent(key: String, defaultContent: List<MetadataField>) =
         preferences.nullString(key).deserialize(defaultContent)
@@ -448,9 +445,8 @@ object Preferences : KoinComponent {
         MetadataField.Content.entries.map { content ->
             MetadataField(
                 content,
-                content == MetadataField.Content.Format ||
-                        content == MetadataField.Content.Bitrate ||
-                        content == MetadataField.Content.SampleRate
+                content == MetadataField.Content.Genre ||
+                        content == MetadataField.Content.Bitrate
             )
         }
 
@@ -600,7 +596,7 @@ object Preferences : KoinComponent {
         set(value) = preferences.edit { putBoolean(INITIALIZED_BLACKLIST, value) }
 
     var isSwipeUpQueue: Boolean
-        get() = preferences.getBoolean(SWIPE_UP_QUEUE, false)
+        get() = preferences.getBoolean(SWIPE_UP_QUEUE, true)
         set(value) = preferences.edit { putBoolean(SWIPE_UP_QUEUE, value) }
 
     fun SharedPreferences.nullString(key: String): String? = getString(key, null)
@@ -694,8 +690,7 @@ const val NOW_PLAYING_SCREEN = "now_playing_screen"
 const val PLAYER_COLOR_SCHEME = "player_color_scheme"
 const val LEGACY_COLOR_SCHEME_KEY = "player_expressive_color_scheme"
 const val ADD_EXTRA_CONTROLS = "add_extra_controls"
-const val ADAPTIVE_CONTROLS = "adaptive_controls"
-        const val SQUIGGLY_SEEK_BAR = "squiggly_seek_bar"
+const val SQUIGGLY_SEEK_BAR = "squiggly_seek_bar"
         const val SHOW_ON_LOCK_SCREEN = "show_on_lock_screen"
 const val SWIPE_DOWN_TO_DISMISS = "swipe_down_to_dismiss"
 const val LYRICS_ON_COVER = "lyrics_on_cover"
@@ -735,7 +730,6 @@ const val PAUSE_ON_BLUETOOTH_DISCONNECT = "pause_on_bluetooth_disconnect"
 const val IGNORE_AUDIO_FOCUS = "ignore_audio_focus"
 const val PAUSE_ON_ZERO_VOLUME = "pause_on_zero_volume"
 const val MP3_INDEX_SEEKING = "mp3_index_seeking"
-const val IGNORE_MEDIA_STORE = "ignore_media_store"
 const val USE_FOLDER_ART = "use_folder_art"
 const val ONLY_ALBUM_ARTISTS = "only_album_artists"
 const val TRASH_MUSIC_FILES = "trash_music_files"

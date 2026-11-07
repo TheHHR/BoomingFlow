@@ -68,7 +68,7 @@ private fun offlineCacheInterceptor(): Interceptor {
         val url = request.url.toString()
 
         if (url.contains("ws.audioscrobbler.com") &&
-            !com.mardous.booming.data.model.network.NetworkFeature.isOnline(ignoreWifiSetting = true)
+            !com.mardous.booming.data.model.network.NetworkFeature.isOnline()
         ) {
             val cacheControl = CacheControl.Builder()
                 .onlyIfCached()

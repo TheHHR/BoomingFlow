@@ -39,22 +39,28 @@ sealed class NetworkFeature(
 
     sealed class Images(preferenceKey: String, isOnByDefault: Boolean) :
         NetworkFeature(preferenceKey, isOnByDefault) {
-        object Artists : Images(ALLOW_ONLINE_ARTIST_IMAGES_KEY, true)
-        object Albums : Images(ALLOW_ONLINE_ALBUM_COVERS_KEY, true)
+        object Artists : Images(ALLOW_ONLINE_ARTIST_IMAGES_KEY, true) {
+            override val isEnabled: Boolean
+                get() = super.isEnabled && imageDownloadAllowed()
+        }
+        object Albums : Images(ALLOW_ONLINE_ALBUM_COVERS_KEY, true) {
+            override val isEnabled: Boolean
+                get() = super.isEnabled && imageDownloadAllowed()
+        }
     }
 
     sealed class Lyrics(preferenceKey: String, isOnByDefault: Boolean) :
         NetworkFeature(preferenceKey, isOnByDefault) {
-        object BiniLyrics : Lyrics(BINILYRICS_ENABLED_KEY, false)
-        object YouLyPlus : Lyrics(YOULYPLUS_ENABLED_KEY, false)
+        object BiniLyrics : Lyrics(BINILYRICS_ENABLED_KEY, true)
+        object YouLyPlus : Lyrics(YOULYPLUS_ENABLED_KEY, true)
         object LRCLib : Lyrics(LRCLIB_ENABLED_KEY, true)
-        object BetterLyrics : Lyrics(BETTERLYRICS_ENABLED_KEY, false)
-        object Lyrically : Lyrics(LYRICALLY_ENABLED_KEY, false) {
+        object BetterLyrics : Lyrics(BETTERLYRICS_ENABLED_KEY, true)
+        object Lyrically : Lyrics(LYRICALLY_ENABLED_KEY, true) {
             override val isAvailableForCurrentPolicy: Boolean
                 get() = boolResource(R.bool.enable_lyrically_provider)
         }
-        object SyncLRC : Lyrics(SYNCLRC_ENABLED_KEY, false)
-        object PaxsenixNetease : Lyrics(PAXSENIX_NETEASE_ENABLED_KEY, false)
+        object SyncLRC : Lyrics(SYNCLRC_ENABLED_KEY, true)
+        object PaxsenixNetease : Lyrics(PAXSENIX_NETEASE_ENABLED_KEY, true)
     }
 
     sealed class Lastfm(preferenceKey: String, isOnByDefault: Boolean) :
@@ -114,15 +120,35 @@ sealed class NetworkFeature(
         const val LISTENBRAINZ_NOW_PLAYING_ENABLED_KEY = "listenbrainz_now_playing_enabled"
         const val UPDATE_SEARCH_MODE_KEY = "update_search_mode"
 
-        fun isOnline(ignoreWifiSetting: Boolean = false): Boolean {
+        /**
+         * "Data saver": album covers and artist images only download on
+         * Wi-Fi when this is on. Lyrics, scrobbling and biographies are
+         * not affected by it.
+         */
+        val isDataSaverEnabled: Boolean
+            get() = get<SharedPreferences>().getBoolean(ONLY_WIFI_NETWORK_KEY, true)
+
+        fun isWifiConnection(): Boolean {
             val context = get<Context>()
             val cm = context.getSystemService<ConnectivityManager>() ?: return false
-            val requireWifi = !ignoreWifiSetting && get<SharedPreferences>()
-                .getBoolean(ONLY_WIFI_NETWORK_KEY, true)
+            val nc = cm.getNetworkCapabilities(cm.activeNetwork) ?: return false
+            return nc.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
+        }
+
+        private fun imageDownloadAllowed(): Boolean =
+            !isDataSaverEnabled || isWifiConnection()
+
+        /**
+         * Any connectivity counts as online; the Wi-Fi-only distinction
+         * applies only to image downloads (see [isDataSaverEnabled]).
+         */
+        fun isOnline(): Boolean {
+            val context = get<Context>()
+            val cm = context.getSystemService<ConnectivityManager>() ?: return false
             val nc = cm.getNetworkCapabilities(cm.activeNetwork)
             if (nc != null) {
                 return nc.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ||
-                        (nc.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) && !requireWifi)
+                        nc.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)
             }
             return false
         }

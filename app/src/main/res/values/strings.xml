@@ -869,8 +869,8 @@
     <!-- Network preferences -->
     <string name="network_features_title">Enable network features</string>
     <string name="network_features_summary">Enables scrobbling and the downloading of album art and lyrics.</string>
-    <string name="wifi_only_network_features_title">Use network features on Wi-Fi only</string>
-    <string name="wifi_only_network_features_summary">Allow internet features only when connected to Wi-Fi.</string>
+    <string name="wifi_only_network_features_title">Data saver</string>
+    <string name="wifi_only_network_features_summary">Only download album covers and artist images on Wi-Fi.</string>
     <string name="online_artist_images_title">Download artist images</string>
     <string name="online_album_covers_title">Download missing album covers</string>
     <string name="online_album_covers_summary">Downloaded images aren’t embedded into audio files; they’re only visible within the app.</string>

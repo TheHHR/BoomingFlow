@@ -48,7 +48,6 @@ import java.io.IOException
 
 class LyricsProviderParams(
     val providers: List<LyricsProvider> = LyricsProvider.AvailableProviders,
-    val ignoreWifiSetting: Boolean = false,
     val ignoreProviderSetting: Boolean = false
 )
 
@@ -111,7 +110,7 @@ class LyricsDownloadService(client: HttpClient) {
         check(providerParams.providers.isNotEmpty()) { "No providers configured" }
 
         val offline = SweepResult(RawLyrics.Remote(), sweptAll = false)
-        if (song == Song.emptySong || !NetworkFeature.isOnline(ignoreWifiSetting = providerParams.ignoreWifiSetting)) {
+        if (song == Song.emptySong || !NetworkFeature.isOnline()) {
             if (updateLiveResults) {
                 _liveResults.value = providerParams.providers.associate { it.displayName to null }
             }

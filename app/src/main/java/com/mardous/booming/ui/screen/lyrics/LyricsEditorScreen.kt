@@ -375,7 +375,7 @@ fun LyricsEditorScreen(
     }
 
     fun downloadLyrics() {
-        if (NetworkFeature.isOnline(ignoreWifiSetting = true)) {
+        if (NetworkFeature.isOnline()) {
             showLyricsDownloadDialog = true
         } else {
             showNoConnectionDialog =  true

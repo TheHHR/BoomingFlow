@@ -62,12 +62,9 @@ class MiniPlayerFragment : Fragment(R.layout.fragment_mini_player),
     private lateinit var primaryColorSpan: ForegroundColorSpan
     private lateinit var secondaryColorSpan: ForegroundColorSpan
 
+    // Adaptive controls are always on; the option was removed.
     private val buttonStyle: NowPlayingButtonStyle
-        get() = if (Preferences.adaptiveControls) {
-            NowPlayingButtonStyle.Expressive
-        } else {
-            NowPlayingButtonStyle.Normal
-        }
+        get() = NowPlayingButtonStyle.Expressive
 
     private var disposable: Disposable? = null
 

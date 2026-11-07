@@ -16,7 +16,6 @@ import com.mardous.booming.data.model.Genre
 import com.mardous.booming.data.model.ReleaseYear
 import com.mardous.booming.data.model.Song
 import com.mardous.booming.extensions.media.albumArtistName
-import com.mardous.booming.util.IGNORE_MEDIA_STORE
 import com.mardous.booming.util.USE_FOLDER_ART
 
 class SongMapper(private val preferences: SharedPreferences) : Mapper<Song, AudioCover> {
@@ -30,7 +29,7 @@ class SongMapper(private val preferences: SharedPreferences) : Mapper<Song, Audi
             title = data.title,
             lastModified = data.rawDateModified,
             isAlbum = false,
-            isIgnoreMediaStore = preferences.getBoolean(IGNORE_MEDIA_STORE, true),
+            isIgnoreMediaStore = true,
             isUseFolderArt = preferences.getBoolean(USE_FOLDER_ART, false)
         )
     }
@@ -51,7 +50,7 @@ class AlbumMapper(private val preferences: SharedPreferences) : Mapper<Album, Au
                 title = it.title,
                 lastModified = it.rawDateModified,
                 isAlbum = true,
-                isIgnoreMediaStore = preferences.getBoolean(IGNORE_MEDIA_STORE, true),
+                isIgnoreMediaStore = true,
                 isUseFolderArt = preferences.getBoolean(USE_FOLDER_ART, false)
             )
         }
@@ -103,7 +102,7 @@ class FileMapper(private val preferences: SharedPreferences) : Mapper<FileSystem
                 title = data.title,
                 lastModified = data.rawDateModified,
                 isAlbum = false,
-                isIgnoreMediaStore = preferences.getBoolean(IGNORE_MEDIA_STORE, true),
+                isIgnoreMediaStore = true,
                 isUseFolderArt = preferences.getBoolean(USE_FOLDER_ART, false)
             )
         }

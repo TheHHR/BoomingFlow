@@ -15,7 +15,7 @@
         app:iconSpaceReserved="true"
         app:title="@string/follow_player_color_title"
         app:summary="@string/follow_player_color_summary"
-        app:defaultValue="false"
+        app:defaultValue="true"
         app:layout="@layout/list_item_view"
         app:widgetLayout="@layout/preference_switch"
         app:key="follow_player_color"/>

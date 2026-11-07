@@ -151,7 +151,6 @@ class LyricsViewModel(
             if (uiState is LyricsEditorUiState.Visible) {
                 val providerParams = LyricsProviderParams(
                     providers = providers,
-                    ignoreWifiSetting = true,
                     ignoreProviderSetting = true
                 )
                 val onlineLyrics = repository.downloadLyrics(song, title, artist, providerParams)
@@ -563,15 +562,15 @@ class LyricsViewModel(
         val background: BackgroundEffect =
             if (!mode.isFull) {
                 BackgroundEffect.None
-            } else when (preferences.getString(Key.BACKGROUND_EFFECT, null)) {
+            } else when (preferences.getString(Key.BACKGROUND_EFFECT, "spatial")) {
                 "gradient" -> BackgroundEffect.Gradient
                 "spatial" -> BackgroundEffect.Spatial
                 "blur" -> BackgroundEffect.Blur
                 else -> BackgroundEffect.None
             }
-        val enableSyllableLyrics = preferences.getBoolean(Key.ENABLE_SYLLABLE_LYRICS, false)
-        val enableKaraokeStyle = preferences.getBoolean(Key.ENABLE_KARAOKE_STYLE, false)
-        val progressiveColoring = preferences.getBoolean(Key.PROGRESSIVE_COLORING, false)
+        val enableSyllableLyrics = preferences.getBoolean(Key.ENABLE_SYLLABLE_LYRICS, true)
+        val enableKaraokeStyle = preferences.getBoolean(Key.ENABLE_KARAOKE_STYLE, true)
+        val progressiveColoring = preferences.getBoolean(Key.PROGRESSIVE_COLORING, true)
         val showTranslation = preferences.getBoolean(Key.SHOW_TRANSLATION, true)
         val showTransliteration = preferences.getBoolean(Key.SHOW_TRANSLITERATION, false)
         val resumeOnSeek = preferences.getBoolean(Key.RESUME_ON_SEEK, false)
@@ -591,16 +590,16 @@ class LyricsViewModel(
         } else {
             FontFamily.Default
         }
-        val lineSpacing = preferences.getInt(Key.LINE_SPACING, 40)
+        val lineSpacing = preferences.getInt(Key.LINE_SPACING, 25)
         val syncedFontSize = if (mode == LyricsViewMode.Player) {
-            preferences.getInt(Key.SYNCED_FONT_SIZE_PLAYER, 20)
+            preferences.getInt(Key.SYNCED_FONT_SIZE_PLAYER, 40)
         } else {
-            preferences.getInt(Key.SYNCED_FONT_SIZE_FULL, 24)
+            preferences.getInt(Key.SYNCED_FONT_SIZE_FULL, 40)
         }
         val unsyncedFontSize = if (mode == LyricsViewMode.Player) {
-            preferences.getInt(Key.UNSYNCED_FONT_SIZE_PLAYER, 16)
+            preferences.getInt(Key.UNSYNCED_FONT_SIZE_PLAYER, 40)
         } else {
-            preferences.getInt(Key.UNSYNCED_FONT_SIZE_FULL, 20)
+            preferences.getInt(Key.UNSYNCED_FONT_SIZE_FULL, 40)
         }
         val syncedBoldFont = preferences.getBoolean(Key.SYNCED_BOLD_FONT, false)
         val syncedStyle = TextStyle(
@@ -618,8 +617,8 @@ class LyricsViewModel(
         )
         return LyricsViewSettings(
             mode = mode,
-            isCenterCurrentLine = preferences.getBoolean(Key.CENTER_CURRENT_LINE, false),
-            isCenterHorizontally = preferences.getBoolean(Key.CENTER_HORIZONTALLY, false),
+            isCenterCurrentLine = preferences.getBoolean(Key.CENTER_CURRENT_LINE, true),
+            isCenterHorizontally = preferences.getBoolean(Key.CENTER_HORIZONTALLY, true),
             enableSyllableLyrics = enableSyllableLyrics,
             enableKaraokeStyle = enableKaraokeStyle,
             progressiveColoring = progressiveColoring,

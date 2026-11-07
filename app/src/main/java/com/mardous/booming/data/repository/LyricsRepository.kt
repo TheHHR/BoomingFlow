@@ -419,7 +419,6 @@ class RealLyricsRepository(
         val lyricsId = lyricsIdFor(song)
         val params = LyricsProviderParams(
             providers = listOf(provider),
-            ignoreWifiSetting = true,
             ignoreProviderSetting = true
         )
         val remote = try {
