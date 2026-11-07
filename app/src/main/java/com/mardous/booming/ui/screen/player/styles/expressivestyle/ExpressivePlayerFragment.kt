@@ -258,9 +258,11 @@ class ExpressivePlayerFragment : AbsPlayerFragment(R.layout.fragment_expressive_
             val fragment =
                 childFragmentManager.findFragmentById(R.id.expandedLyricsFragment) as? CoverLyricsFragment
             coverPagerFragment?.isLyricsExpanded = true
-            // The cover overlay would bleed through the transparent
-            // expanded surface - hide it temporarily (the preference is
-            // untouched; collapse restores it).
+            // The expanded surface is transparent so the player's own
+            // blur/spatial background shows through - everything else
+            // (cover, title, controls, toolbar) must go away or it
+            // bleeds through beneath the lyrics.
+            setPlayerContentGone(true)
             coverPagerFragment?.hideLyrics(isPermanent = false)
             container.alpha = 0f
             container.isVisible = true
@@ -284,6 +286,7 @@ class ExpressivePlayerFragment : AbsPlayerFragment(R.layout.fragment_expressive_
             activity?.keepScreenOn(false)
             container.animate().alpha(0f).setDuration(BOOMING_ANIM_TIME).withEndAction {
                 container.isVisible = false
+                setPlayerContentGone(false)
                 fragment?.let {
                     childFragmentManager.beginTransaction()
                         .setMaxLifecycle(it, Lifecycle.State.STARTED)
@@ -293,6 +296,24 @@ class ExpressivePlayerFragment : AbsPlayerFragment(R.layout.fragment_expressive_
             // Restore the cover overlay if the preference still wants it.
             coverPagerFragment?.showLyrics()
         }
+    }
+
+    /**
+     * Hides/restores every content view of the player while the expanded
+     * lyrics are up. The background views (blur image, spatial shader)
+     * are deliberately NOT touched - the takeover rides them. Each id is
+     * only present in one layout variant, hence the null filter.
+     */
+    private fun setPlayerContentGone(gone: Boolean) {
+        val b = _binding ?: return
+        listOfNotNull(
+            b.playerAlbumCoverFragment,
+            b.titleContainer,
+            b.playbackControlsFragment,
+            b.actionGroup,
+            b.playerToolbar,
+            b.insetsConsumer
+        ).forEach { it.isGone = gone }
     }
 
     override fun onShow() {
