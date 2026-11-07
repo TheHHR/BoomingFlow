@@ -17,6 +17,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.mardous.booming.core.PlayerAccentState
 import com.mardous.booming.extensions.resources.applyPlayerAccent
+import kotlinx.coroutines.launch
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.PickVisualMediaRequest
@@ -96,8 +97,7 @@ abstract class AbsTagEditorActivity : AbsBaseActivity(),
                     (window?.decorView as? ViewGroup)?.applyPlayerAccent()
                 }
             }
-        }
-    }
+        }    }
 
     override fun onDestroy() {
         binding.image.dispose()

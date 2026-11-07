@@ -810,8 +810,10 @@ private fun ViewGroup.applyViewHierarchyAccent(scheme: AccentSchemes.Scheme) {
                     )
                 }
             }
-            is com.google.android.material.progressindicator.BaseProgressIndicator ->
+            is com.google.android.material.progressindicator.LinearProgressIndicator ->
                 child.setIndicatorColor(scheme.primary)
+            is com.google.android.material.progressindicator.CircularProgressIndicator ->
+                child.applyPlayerAccent(scheme.primary)
             is ViewGroup -> child.applyViewHierarchyAccent(scheme)
         }
     }

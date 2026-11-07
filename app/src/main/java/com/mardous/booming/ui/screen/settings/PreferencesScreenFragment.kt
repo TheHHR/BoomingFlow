@@ -307,12 +307,14 @@ open class PreferenceScreenFragment : PreferenceFragmentCompat(),
     }
 
     private fun ViewGroup.walkForProgressIndicator(@ColorInt accent: Int) {
+        val primary = AccentSchemes.viewScheme(accent, context.isNightMode).primary
         for (i in 0 until childCount) {
-            val child = getChildAt(i)
-            if (child is com.google.android.material.progressindicator.BaseProgressIndicator) {
-                child.setIndicatorColor(AccentSchemes.viewScheme(accent, child.context.isNightMode).primary)
-            } else if (child is ViewGroup) {
-                child.walkForProgressIndicator(accent)
+            when (val child = getChildAt(i)) {
+                is com.google.android.material.progressindicator.LinearProgressIndicator ->
+                    child.setIndicatorColor(primary)
+                is com.google.android.material.progressindicator.CircularProgressIndicator ->
+                    child.setIndicatorColor(primary)
+                is ViewGroup -> child.walkForProgressIndicator(accent)
             }
         }
     }
