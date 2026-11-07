@@ -86,7 +86,7 @@ android {
         targetSdk = 36
 
         applicationId = "com.thehhr.boomingflow"
-        versionCode = 2201100
+        versionCode = 2210300
         versionName = currentVersion.name
         check(versionCode == currentVersionCode)
     }
