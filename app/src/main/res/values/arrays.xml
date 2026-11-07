@@ -48,24 +48,28 @@
     </string-array>
 
     <string-array name="pref_stream_quality_entries">
+        <item>@string/stream_quality_hifi</item>
         <item>@string/stream_quality_opus</item>
         <item>@string/stream_quality_aac</item>
         <item>@string/stream_quality_data_saver</item>
     </string-array>
 
     <string-array name="pref_stream_quality_values">
+        <item>Hi-Fi</item>
         <item>High</item>
         <item>AAC Only</item>
         <item>Data Saver</item>
     </string-array>
 
     <string-array name="pref_download_quality_entries">
-        <item>@string/download_quality_opus</item>
-        <item>@string/download_quality_aac</item>
-        <item>@string/download_quality_data_saver</item>
+        <item>@string/stream_quality_hifi</item>
+        <item>@string/stream_quality_opus</item>
+        <item>@string/stream_quality_aac</item>
+        <item>@string/stream_quality_data_saver</item>
     </string-array>
 
     <string-array name="pref_download_quality_values">
+        <item>Hi-Fi</item>
         <item>High</item>
         <item>AAC Only</item>
         <item>Data Saver</item>

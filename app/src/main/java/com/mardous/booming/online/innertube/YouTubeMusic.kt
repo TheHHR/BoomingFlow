@@ -281,7 +281,38 @@ object YouTubeMusic {
 
                     com.mardous.booming.online.util.ConsoleLogger.stream("Resolving stream for $videoId (title=\"${resolvedTitle ?: "unknown"}\", artist=\"${resolvedArtist ?: "unknown"}\", duration=${resolvedDurationSeconds ?: 0}s, isRetry=$isRetry)...")
 
-                    // 1. Attempt Lossless / Hi-Fi stream resolution via MLS, Qobuz, or JioSaavn (bypassed on retry)
+                    // 1. Attempt Lossless / Hi-Fi stream resolution via JioSaavn (bypassed on retry)
+                    if (bestUrl.isNullOrEmpty() && !isRetry &&
+                        audioQuality.equals("Hi-Fi", ignoreCase = true) &&
+                        com.mardous.booming.data.model.network.NetworkFeature.Audio.JioSaavn.isAvailable
+                    ) {
+                        // Queue-built metadata is cleaner than NewPipe uploader names.
+                        val hifiMeta = com.mardous.booming.online.jiosaavn.JioSaavnStreamProvider.lookupMetadata(videoId)
+                        val hifiTitle = hifiMeta?.title ?: resolvedTitle
+                        val hifiArtist = hifiMeta?.artist ?: resolvedArtist
+                        val hifiDuration = hifiMeta?.durationSeconds ?: resolvedDurationSeconds
+                        if (!hifiTitle.isNullOrBlank()) {
+                            try {
+                                com.mardous.booming.online.util.ConsoleLogger.stream("Resolving via JioSaavn Hi-Fi for $videoId (title=\"$hifiTitle\", artist=\"$hifiArtist\")...")
+                                val jio = com.mardous.booming.online.jiosaavn.JioSaavnStreamProvider.resolveStream(
+                                    title = hifiTitle,
+                                    artist = hifiArtist,
+                                    durationSeconds = hifiDuration
+                                )
+                                if (jio != null) {
+                                    bestUrl = jio.url
+                                    formatTag = jio.formatTag
+                                    resolvedProviders[videoId] = "JioSaavn Hi-Fi (AAC 320)"
+                                    Log.d(TAG, "Hi-Fi stream obtained via JioSaavn for $videoId")
+                                    com.mardous.booming.online.util.ConsoleLogger.stream("Stream obtained via JioSaavn Hi-Fi (${jio.formatTag}) for $videoId")
+                                } else {
+                                    com.mardous.booming.online.util.ConsoleLogger.stream("No JioSaavn Hi-Fi match for $videoId; falling back to YouTube")
+                                }
+                            } catch (e: Throwable) {
+                                Log.w(TAG, "JioSaavn Hi-Fi resolution failed for $videoId: ${e.message}")
+                            }
+                        }
+                    }
 
                     // 2. Fallback to NewPipe YouTube stream (Opus / AAC)
                     if (bestUrl.isNullOrEmpty()) {
