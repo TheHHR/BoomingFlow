@@ -45,6 +45,7 @@ import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
@@ -64,6 +65,7 @@ import com.mardous.booming.data.model.lyrics.isWordLevel
 import com.mardous.booming.data.remote.lyrics.api.LyricsProvider
 import com.mardous.booming.extensions.isPowerSaveMode
 import com.mardous.booming.ui.component.compose.AnimatedEqBars
+import com.mardous.booming.ui.component.compose.color.onThis
 import com.mardous.booming.ui.component.compose.decoration.FadingEdges
 import com.mardous.booming.ui.component.compose.decoration.fadingEdges
 import com.mardous.booming.ui.component.compose.lyrics.LyricsView
@@ -136,6 +138,19 @@ fun CoverLyricsScreen(
 
     var showProviderDialog by remember { mutableStateOf(false) }
 
+    // Tonal button colors matching the player's Like/more buttons:
+    // the scheme's secondaryContainer with a contrast-computed icon
+    // color (AppTheme mode falls back to the theme roles, since
+    // PlayerTheme does not remap secondaryContainer).
+    val actionContainer =
+        if (playerColorScheme.mode == PlayerColorScheme.Mode.AppTheme ||
+            playerColorScheme.secondaryContainerColor == 0
+        ) {
+            MaterialTheme.colorScheme.secondaryContainer
+        } else {
+            Color(playerColorScheme.secondaryContainerColor)
+        }
+
     PlayerTheme(playerColorScheme) {
         Box(
             modifier = modifier
@@ -176,60 +191,34 @@ fun CoverLyricsScreen(
                         .wrapContentSize()
                         .align(Alignment.BottomEnd)
                         .padding(16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    horizontalArrangement = Arrangement.spacedBy(2.dp)
                 ) {
-                    FilledIconButton(
-                        colors = IconButtonDefaults.filledIconButtonColors(
-                            containerColor = MaterialTheme.colorScheme.onSurface,
-                            contentColor = MaterialTheme.colorScheme.surface
-                        ),
-                        onClick = { showProviderDialog = true }
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .combinedClickable(
-                                    onClick = { showProviderDialog = true },
-                                    onLongClick = onEditClick
-                                )
-                                .padding(4.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                painter = painterResource(R.drawable.ic_edit_note_24dp),
-                                contentDescription = stringResource(R.string.switch_lyrics_provider_title)
-                            )
-                        }
-                    }
-                    FilledIconButton(
-                        colors = IconButtonDefaults.filledIconButtonColors(
-                            containerColor = MaterialTheme.colorScheme.onSurface,
-                            contentColor = MaterialTheme.colorScheme.surface
-                        ),
+                    LyricsActionButton(
+                        containerColor = actionContainer,
+                        iconRes = R.drawable.ic_edit_note_24dp,
+                        contentDescription = stringResource(R.string.switch_lyrics_provider_title),
+                        onClick = { showProviderDialog = true },
+                        onLongClick = onEditClick
+                    )
+                    LyricsActionButton(
+                        containerColor = actionContainer,
+                        iconRes = R.drawable.ic_close_fullscreen_24dp,
+                        contentDescription = stringResource(R.string.action_collapse_lyrics),
                         onClick = onCollapseClick
-                    ) {
-                        Icon(
-                            painter = painterResource(R.drawable.ic_close_fullscreen_24dp),
-                            contentDescription = stringResource(R.string.action_collapse_lyrics)
-                        )
-                    }
+                    )
                 }
             } else {
-                FilledIconButton(
+                LyricsActionButton(
+                    containerColor = actionContainer,
+                    iconRes = R.drawable.ic_open_in_full_24dp,
+                    contentDescription = stringResource(R.string.action_expand_lyrics),
+                    onClick = onExpandClick,
+                    onLongClick = onEditClick,
                     modifier = Modifier
                         .wrapContentSize()
                         .align(Alignment.BottomEnd)
-                        .padding(16.dp),
-                    colors = IconButtonDefaults.filledIconButtonColors(
-                        containerColor = MaterialTheme.colorScheme.onSurface,
-                        contentColor = MaterialTheme.colorScheme.surface
-                    ),
-                    onClick = onExpandClick
-                ) {
-                    Icon(
-                        painter = painterResource(R.drawable.ic_open_in_full_24dp),
-                        contentDescription = stringResource(R.string.action_expand_lyrics)
-                    )
-                }
+                        .padding(16.dp)
+                )
             }
         }
     }
@@ -256,6 +245,47 @@ fun CoverLyricsScreen(
             onResetSyncOffset = { lyricsViewModel.resetLyricsSyncOffset() },
             onDismiss = { showProviderDialog = false }
         )
+    }
+}
+
+@Composable
+private fun LyricsActionButton(
+    containerColor: Color,
+    iconRes: Int,
+    contentDescription: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    onLongClick: (() -> Unit)? = null
+) {
+    // Same recipe as the player's Like/more buttons: a tonal
+    // secondaryContainer square with a contrast-computed icon.
+    FilledIconButton(
+        modifier = modifier,
+        shape = RoundedCornerShape(12.dp),
+        colors = IconButtonDefaults.filledIconButtonColors(
+            containerColor = containerColor,
+            contentColor = containerColor.onThis()
+        ),
+        onClick = onClick
+    ) {
+        Box(
+            modifier = if (onLongClick != null) {
+                Modifier
+                    .fillMaxSize()
+                    .combinedClickable(
+                        onClick = onClick,
+                        onLongClick = onLongClick
+                    )
+            } else {
+                Modifier
+            },
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                painter = painterResource(iconRes),
+                contentDescription = contentDescription
+            )
+        }
     }
 }
 
