@@ -26,6 +26,7 @@ import com.mardous.booming.data.local.ReplayGainTagExtractor
 import com.mardous.booming.data.local.room.PlaylistEntity
 import com.mardous.booming.data.model.Album
 import com.mardous.booming.data.model.Artist
+import com.mardous.booming.data.model.ContentType
 import com.mardous.booming.data.model.Song
 import com.mardous.booming.extensions.plurals
 import com.mardous.booming.extensions.resources.textColorPrimary
@@ -127,3 +128,11 @@ fun Song.replayGainStr(context: Context): String? {
 }
 
 fun PlaylistEntity.isFavorites(context: Context) = playlistName == context.getString(R.string.favorites_label)
+
+fun PlaylistEntity.autoContentType(context: Context): ContentType? = when {
+    playlistName.equals(context.getString(R.string.history_label), ignoreCase = true) -> ContentType.History
+    playlistName.equals(context.getString(R.string.top_tracks_label), ignoreCase = true) -> ContentType.TopTracks
+    playlistName.equals(context.getString(R.string.last_added_label), ignoreCase = true) -> ContentType.RecentSongs
+    playlistName.equals(context.getString(R.string.not_recently_played), ignoreCase = true) -> ContentType.NotRecentlyPlayed
+    else -> null
+}

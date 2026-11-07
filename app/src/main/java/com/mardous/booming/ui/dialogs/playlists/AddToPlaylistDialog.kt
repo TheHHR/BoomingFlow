@@ -90,6 +90,7 @@ import com.mardous.booming.data.local.room.PlaylistWithSongs
 import com.mardous.booming.data.model.Song
 import com.mardous.booming.extensions.EXTRA_SONGS
 import com.mardous.booming.extensions.extraNotNull
+import com.mardous.booming.extensions.media.autoContentType
 import com.mardous.booming.extensions.media.songCountStr
 import com.mardous.booming.extensions.showToast
 import com.mardous.booming.extensions.withArgs
@@ -165,6 +166,22 @@ class AddToPlaylistDialog : BottomSheetDialogFragment() {
 
         val checkedPlaylists = rememberSaveable { mutableStateListOf<Long>() }
         var searchQuery by rememberSaveable { mutableStateOf("") }
+
+        val filteredState = run {
+            val state = uiState
+            if (state is AddToPlaylistUiState.Ready) {
+                val remaining = state.playlists.filter {
+                    it.playlistEntity.autoContentType(context) == null
+                }
+                if (remaining.isEmpty()) {
+                    AddToPlaylistUiState.Empty(searchQuery)
+                } else {
+                    state.copy(playlists = remaining)
+                }
+            } else {
+                state
+            }
+        }
 
         val listBottomPadding by animateDpAsState(
             targetValue = if (checkedPlaylists.isNotEmpty()) 116.dp else 16.dp,
@@ -260,7 +277,7 @@ class AddToPlaylistDialog : BottomSheetDialogFragment() {
 
                     item { Spacer(Modifier.height(16.dp)) }
 
-                    when (val state = uiState) {
+                    when (val state = filteredState) {
                         is AddToPlaylistUiState.Loading -> {
                             item {
                                 Box(

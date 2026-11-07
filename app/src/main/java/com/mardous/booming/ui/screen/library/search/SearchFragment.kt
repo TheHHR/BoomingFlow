@@ -67,9 +67,11 @@ import com.mardous.booming.extensions.hideSoftKeyboard
 import com.mardous.booming.extensions.isEmpty
 import com.mardous.booming.extensions.launchAndRepeatWithViewLifecycle
 import com.mardous.booming.extensions.materialSharedAxis
+import com.mardous.booming.extensions.media.autoContentType
 import com.mardous.booming.extensions.navigation.albumDetailArgs
 import com.mardous.booming.extensions.navigation.artistDetailArgs
 import com.mardous.booming.extensions.navigation.asFragmentExtras
+import com.mardous.booming.extensions.navigation.detailArgs
 import com.mardous.booming.extensions.navigation.genreDetailArgs
 import com.mardous.booming.extensions.navigation.playlistDetailArgs
 import com.mardous.booming.extensions.navigation.spotifyPlaylistArgs
@@ -448,7 +450,15 @@ class SearchFragment : AbsMainActivityFragment(R.layout.fragment_search),
     }
 
     override fun playlistClick(playlist: PlaylistWithSongs) {
-        findNavController().navigate(R.id.nav_playlist_detail, playlistDetailArgs(playlist.playlistEntity.playListId))
+        val autoContent = playlist.playlistEntity.autoContentType(requireContext())
+        if (autoContent != null) {
+            findNavController().navigate(R.id.nav_detail_list, detailArgs(autoContent))
+        } else {
+            findNavController().navigate(
+                R.id.nav_playlist_detail,
+                playlistDetailArgs(playlist.playlistEntity.playListId)
+            )
+        }
     }
 
     override fun playlistMenuItemClick(playlist: PlaylistWithSongs, menuItem: MenuItem): Boolean {
