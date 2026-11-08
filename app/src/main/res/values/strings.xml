@@ -532,7 +532,7 @@
     <string name="word_by_word_lyrics_provider_status">Word-synced (Karaoke)</string>
     <string name="line_synced_lyrics_provider_status">Line-synced (LRC)</string>
     <string name="plain_text_lyrics_provider_status">Plain Text</string>
-    <string name="disabled_lyrics_provider_status">Disabled — tap to fetch on demand</string>
+    <string name="disabled_lyrics_provider_status">Disabled — tap to fetch</string>
     <string name="action_done">Done</string>
     <string name="embedded_lyrics">Embedded</string>
     <string name="downloaded_lyrics">Downloaded</string>

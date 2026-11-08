@@ -1,6 +1,9 @@
 package com.mardous.booming.ui.screen.lyrics
 
 import android.os.SystemClock
+import android.view.View
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -48,12 +51,14 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.DialogWindowProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mardous.booming.R
 import com.mardous.booming.core.model.lyrics.LyricsViewSettings
@@ -421,17 +426,24 @@ private fun ProviderSwitchDialog(
     onResetSyncOffset: () -> Unit,
     onDismiss: () -> Unit
 ) {
+    var dimmed by remember { mutableStateOf(false) }
+    val windowAlpha by animateFloatAsState(
+        targetValue = if (dimmed) 0.5f else 1f,
+        animationSpec = tween(durationMillis = 200),
+        label = "providerDialogWindowAlpha"
+    )
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.switch_lyrics_provider_title)) },
         text = {
             Column(modifier = Modifier.fillMaxWidth()) {
+                DialogWindowAlpha(windowAlpha)
                 // Every policy-available provider gets a row, including the
                 // ones disabled in network settings: the user can tap a
                 // disabled provider to fetch from just that one, on demand
                 // (applyProviderLyrics ignores the provider setting). Only
                 // ENABLED providers take part in the background race, so
-                // disabled rows start as "Disabled — tap to fetch on demand"
+                // disabled rows start as "Disabled — tap to fetch"
                 // instead of a live result.
                 val visibleProviders = remember {
                     LyricsProvider.entries.filter { it.isAvailableForCurrentPolicy }
@@ -534,8 +546,14 @@ private fun ProviderSwitchDialog(
 
                 SyncOffsetRow(
                     syncOffsetMs = syncOffsetMs,
-                    onSyncOffset = onSyncOffset,
-                    onResetSyncOffset = onResetSyncOffset,
+                    onSyncOffset = { delta ->
+                        dimmed = true
+                        onSyncOffset(delta)
+                    },
+                    onResetSyncOffset = {
+                        dimmed = true
+                        onResetSyncOffset()
+                    },
                     modifier = Modifier.padding(top = 12.dp)
                 )
             }
@@ -546,6 +564,21 @@ private fun ProviderSwitchDialog(
             }
         }
     )
+}
+
+@Composable
+private fun DialogWindowAlpha(alpha: Float) {
+    val view = LocalView.current
+    LaunchedEffect(alpha) {
+        var target: View? = view
+        while (target != null && target !is DialogWindowProvider) {
+            target = target.parent as? View
+        }
+        val window = (target as? DialogWindowProvider)?.window ?: return@LaunchedEffect
+        val attributes = window.attributes
+        attributes.alpha = alpha
+        window.attributes = attributes
+    }
 }
 
 private data class ProviderRow(
