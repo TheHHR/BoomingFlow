@@ -91,6 +91,7 @@ import com.mardous.booming.extensions.utilities.buildInfoString
 import com.mardous.booming.extensions.whichFragment
 import com.mardous.booming.ui.component.menu.newPopupMenu
 import com.mardous.booming.ui.component.menu.onSongMenu
+import com.mardous.booming.ui.component.views.QueueGestureLayout
 import com.mardous.booming.ui.dialogs.WebSearchDialog
 import com.mardous.booming.ui.dialogs.artists.GoToMenuDialog
 import com.mardous.booming.ui.dialogs.playlists.AddToPlaylistDialog
@@ -160,7 +161,6 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) : Fragment(layoutRes
 
     protected val mediaEventBus: MediaEventBus by inject()
 
-    private var gesturesController: PlayerGesturesController? = null
     private var coverFragment: CoverPagerFragment? = null
 
     /** The cover pager (album art + cover lyrics overlay) for style fragments. */
@@ -243,14 +243,13 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) : Fragment(layoutRes
     }
 
     protected open fun onPrepareViewGestures(view: View) {
-        gesturesController = PlayerGesturesController(
-            context = view.context,
-            acceptedGestures = setOf(
-                GestureType.Fling(GestureType.Fling.DIRECTION_UP)
-            ),
-            listener = this
-        )
-        view.setOnTouchListener(gesturesController)
+        // The player root (QueueGestureLayout) intercepts every touch
+        // stream - even ones already claimed by child views - and fires
+        // the queue swipe from anywhere on the screen. Taps, cover
+        // paging, sliders and scroll gestures are left to their owners.
+        (view as? QueueGestureLayout)?.queueSwipeListener = {
+            gestureDetected(GestureType.Fling(GestureType.Fling.DIRECTION_UP))
+        }
     }
 
     internal fun inflateMenuInView(view: View?): PopupMenu? {
@@ -386,7 +385,12 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) : Fragment(layoutRes
             is GestureType.Fling -> {
                 when (gestureType.direction) {
                     GestureType.Fling.DIRECTION_UP -> {
-                        if (Preferences.isSwipeUpQueue && currentDestinationAllowsQueueOpen()) {
+                        // No queue swipe while the expanded lyrics
+                        // takeover is up (its surface owns the gestures).
+                        if (Preferences.isSwipeUpQueue &&
+                            !isLyricsExpanded &&
+                            currentDestinationAllowsQueueOpen()
+                        ) {
                             findNavController().navigate(R.id.nav_queue)
                             true
                         } else false
@@ -536,9 +540,6 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) : Fragment(layoutRes
     }
 
     override fun onDestroyView() {
-        view?.setOnTouchListener(null)
-        gesturesController?.release()
-        gesturesController = null
         cancelColorAnimator()
         coverFragment = null
         super.onDestroyView()
