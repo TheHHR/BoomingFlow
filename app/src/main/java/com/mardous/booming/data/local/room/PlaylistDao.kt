@@ -69,6 +69,10 @@ interface PlaylistDao {
     @Query("SELECT * FROM PlaylistEntity WHERE playlist_id = :playlistId")
     fun playlistWithSongs(playlistId: Long): PlaylistWithSongs?
 
+    /** Cheap existence check used to skip the sync pass entirely. */
+    @Query("SELECT EXISTS(SELECT 1 FROM PlaylistEntity WHERE sync_rules IS NOT NULL)")
+    suspend fun hasSyncedPlaylists(): Boolean
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertSongsToPlaylist(songEntities: List<SongEntity>)
 

@@ -349,8 +349,12 @@ class RealPlaylistRepository(
         return syncPlaylistsWithRules(listOf(playlistWithSongs)) > 0
     }
 
-    override suspend fun syncAllPlaylists(): Int =
-        syncPlaylistsWithRules(playlistDao.playlistsWithSongs())
+    override suspend fun syncAllPlaylists(): Int {
+        // Cheap probe: skip the full playlist+songs relation load when no
+        // playlist carries rules at all (the common case).
+        if (!playlistDao.hasSyncedPlaylists()) return 0
+        return syncPlaylistsWithRules(playlistDao.playlistsWithSongs())
+    }
 
     /**
      * Re-evaluates the sync rules of every playlist that has them: songs
@@ -366,6 +370,10 @@ class RealPlaylistRepository(
         if (synced.isEmpty()) return 0
 
         val librarySongs = songRepository.songs()
+        // Data-safety guard: an empty library (MediaStore hiccup, storage
+        // unmounted, over-aggressive blacklist) must never wipe synced
+        // playlists to zero — skip the pass and keep the stored content.
+        if (librarySongs.isEmpty()) return 0
         for (playlist in synced) {
             val rules = PlaylistSyncRules.deserialize(playlist.playlistEntity.syncRules)
             if (rules == null || !rules.isValid()) continue
@@ -386,10 +394,15 @@ class RealPlaylistRepository(
             }
             val toRemove = playlist.songs.filterNot { matchedIds.contains(it.id) }
             if (toRemove.isNotEmpty()) {
-                playlistDao.deleteSongsFromPlaylist(
-                    playlist.playlistEntity.playListId,
-                    toRemove.map { it.id }
-                )
+                // Chunked like every other bulk delete in this file: a
+                // single DELETE with thousands of IDs can exceed the
+                // SQLite bind-variable limit and silently fail.
+                toRemove.map { it.id }.chunked(MAX_ITEMS_PER_CHUNK).forEach { chunkIds ->
+                    playlistDao.deleteSongsFromPlaylist(
+                        playlist.playlistEntity.playListId,
+                        chunkIds
+                    )
+                }
             }
         }
         return synced.size

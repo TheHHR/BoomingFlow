@@ -40,9 +40,25 @@ class ArtistImageKeyer(
 
 class PlaylistImageKeyer : Keyer<PlaylistImage> {
     override fun key(data: PlaylistImage, options: Options): String? {
-        return "playlist3::id=${data.playlistEntity.playListId}" +
-                "|customCoverUri=${data.playlistEntity.customCoverUri}" +
-                "|songs=${data.songs.size}"
+        // The collage is built from the first 4 songs with distinct
+        // albums, so the key must change only when THOSE candidates
+        // change. The old song-count key invalidated the cover on every
+        // add/remove — even when the visible tiles were untouched —
+        // forcing a full collage regeneration per add; a regeneration
+        // that failed (art not scanned yet, decode hiccup) left the
+        // default icon in place and, with the count stable again, was
+        // never retried. Keying on the tile identities keeps the cached
+        // collage whenever the add doesn't affect it.
+        val tiles = data.songs.distinctBy { it.albumId }.take(4)
+        return buildString {
+            append("playlist3::id=").append(data.playlistEntity.playListId)
+            append("|customCoverUri=").append(data.playlistEntity.customCoverUri)
+            tiles.forEach { song ->
+                append("|tile=").append(song.albumId)
+                .append(':').append(song.data.hashCode())
+                .append(':').append(song.rawDateModified)
+            }
+        }
     }
 }
 

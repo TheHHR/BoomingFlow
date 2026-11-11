@@ -175,10 +175,18 @@ class LibraryViewModel(
     }
 
     private suspend fun fetchPlaylists() {
-        // Re-evaluate synced playlists before the lists page reads them,
-        // so rule-driven additions/removals are visible right away.
-        runCatching { repository.syncAllPlaylists() }
+        // Post the stored state first: local playlists must appear as
+        // fast as the remote shelf (which reads a disk cache), not after
+        // the sync pass — that scans the whole library when any playlist
+        // carries rules.
         playlists.postValue(repository.playlistsWithSongs(true))
+        // Then re-evaluate synced playlists and re-post so rule-driven
+        // additions/removals are visible. The cheap probe inside makes
+        // this a no-op for users with no synced playlists.
+        val synced = runCatching { repository.syncAllPlaylists() }.getOrDefault(0)
+        if (synced > 0) {
+            playlists.postValue(repository.playlistsWithSongs(true))
+        }
     }
 
     fun savePlaylistOrder(orderedPlaylists: List<PlaylistWithSongs>) = viewModelScope.launch(IO) {
@@ -343,11 +351,14 @@ class LibraryViewModel(
     fun prepareToAddToPlaylist(searchQuery: String? = null) = viewModelScope.launch(IO) {
         _addToPlaylistUiState.update { it ?: AddToPlaylistUiState.Loading }
 
-        val playlists = if (searchQuery.isNullOrBlank()) {
+        // Synced playlists own their content and are not selectable
+        // targets — filter them out so the picker lists only real
+        // candidates (the empty/search states see the same set).
+        val playlists = (if (searchQuery.isNullOrBlank()) {
             repository.playlistsWithSongs()
         } else {
             repository.searchPlaylists(searchQuery)
-        }
+        }).filterNot { it.playlistEntity.isSynced }
 
         _addToPlaylistUiState.value = if (playlists.isEmpty()) {
             AddToPlaylistUiState.Empty(searchQuery)

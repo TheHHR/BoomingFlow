@@ -320,7 +320,7 @@ class AddToPlaylistDialog : BottomSheetDialogFragment() {
                                     index = index,
                                     count = state.playlists.size,
                                     selected = isSelected,
-                                    enabled = !state.isLoading && !playlist.playlistEntity.isSynced,
+                                    enabled = !state.isLoading,
                                     playlist = playlist
                                 )
                             }
@@ -414,22 +414,12 @@ class AddToPlaylistDialog : BottomSheetDialogFragment() {
                         .clip(RoundedCornerShape(imageCornerRadius))
                 )
             },
-            trailingContent = if (playlist.playlistEntity.isSynced) {
-                {
-                    Text(
-                        text = stringResource(R.string.synced_playlist_tag),
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            } else {
-                {
-                    Checkbox(
-                        checked = selected,
-                        enabled = enabled,
-                        onCheckedChange = null
-                    )
-                }
+            trailingContent = {
+                Checkbox(
+                    checked = selected,
+                    enabled = enabled,
+                    onCheckedChange = null
+                )
             },
             colors = ListItemDefaults.segmentedColors(
                 containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
