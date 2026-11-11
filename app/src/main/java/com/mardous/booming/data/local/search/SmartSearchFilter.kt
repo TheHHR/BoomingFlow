@@ -64,22 +64,25 @@ class SmartSearchFilter internal constructor(
             queryDispatcher.setProjection(projection)
         }
 
-        // First, add filter selection and arguments
+        // The filter selection narrows the SCOPE (this artist's/album's
+        // songs); the query itself is matched in memory by SearchMatcher,
+        // which folds accents/punctuation and matches tokens order-free
+        // instead of the old single-column SQL LIKE.
         queryDispatcher.addSelection(selectingWith.selection)
         queryDispatcher.addArguments(*selectingWith.arguments)
-
-        // Now, we add our selection based on the filter type.
-        // In other words, this is the magic thing that will filter results.
-        queryDispatcher.addSelection("${selectingWith.column} LIKE ?")
-        queryDispatcher.addArguments("%$query%")
 
         val songRepository: RealSongRepository = get()
         val songs = songRepository.makeSongCursor(queryDispatcher).let {
             songRepository.songs(it)
         }
         return when (selectingWith.mode) {
-            SearchQuery.FilterMode.Albums -> get<RealAlbumRepository>().splitIntoAlbums(songs, false)
-            else -> songs
+            SearchQuery.FilterMode.Albums -> SearchMatcher.filterRanked(
+                get<RealAlbumRepository>().splitIntoAlbums(songs, false),
+                query
+            ) { album -> SearchMatcher.SearchableText(album.name, album.albumArtistName) }
+            else -> SearchMatcher.filterRanked(songs, query) { song ->
+                SearchMatcher.SearchableText(song.title, song.artistName, song.albumName)
+            }
         }
     }
 }

@@ -20,7 +20,12 @@ package com.mardous.booming.data.repository
 import android.content.Context
 import com.mardous.booming.R
 import com.mardous.booming.data.SearchFilter
+import com.mardous.booming.data.local.search.SearchMatcher
+import com.mardous.booming.data.local.search.SearchMatcher.SearchableText
 import com.mardous.booming.data.mapper.toSongs
+import com.mardous.booming.data.model.Album
+import com.mardous.booming.data.model.Artist
+import com.mardous.booming.data.model.Genre
 import com.mardous.booming.data.model.Song
 import com.mardous.booming.data.model.search.SearchQuery
 import com.mardous.booming.util.Preferences
@@ -33,6 +38,13 @@ interface SearchRepository {
     suspend fun searchFolderSongs(folderPath: String, query: String): List<Song>
 }
 
+/**
+ * All matching goes through [SearchMatcher] (tokenized, accent/punctuation
+ * folded, relevance-ranked) over the full lists, replacing the old SQL
+ * `LIKE '%query%'` pre-filters: a contiguous one-field substring was far
+ * stricter than Spotify-style search ("eminem lose" never matched
+ * "Lose Yourself" by Eminem).
+ */
 class RealSearchRepository(
     private val albumRepository: RealAlbumRepository,
     private val songRepository: RealSongRepository,
@@ -80,26 +92,45 @@ class RealSearchRepository(
     }
 
     override suspend fun searchGenreSongs(genreId: Long, query: String): List<Song> =
-        genreRepository.songs(genreId, query)
+        SearchMatcher.filterRanked(genreRepository.songs(genreId), query, ::songText)
 
     override suspend fun searchPlaylistSongs(playlistId: Long, query: String): List<Song> =
         playlistRepository.searchPlaylistSongs(playlistId, query).toSongs()
 
     override suspend fun searchYearSongs(year: Int, query: String): List<Song> =
-        specialRepository.songsByYear(year, query)
+        SearchMatcher.filterRanked(specialRepository.songsByYear(year), query, ::songText)
 
     override suspend fun searchFolderSongs(folderPath: String, query: String): List<Song> =
-        specialRepository.songsByFolder(folderPath, query)
+        SearchMatcher.filterRanked(
+            specialRepository.songsByFolder(folderPath, includeSubfolders = false),
+            query,
+            ::songText
+        )
 
-    private fun getSongs(query: String) = songRepository.songs(query)
-    private fun getAlbums(query: String) = albumRepository.albums(query)
-    private fun getArtists(query: String, isOnlyAlbumArtists: Boolean) =
-        if (isOnlyAlbumArtists)
-            artistRepository.albumArtists(query)
-        else artistRepository.artists(query)
+    private fun getSongs(query: String): List<Song> =
+        SearchMatcher.filterRanked(songRepository.songs(), query, ::songText)
 
-    private suspend fun getGenres(query: String) = genreRepository.genres(query)
+    private fun getAlbums(query: String): List<Album> =
+        SearchMatcher.filterRanked(albumRepository.albums(), query) { album ->
+            SearchableText(album.name, album.albumArtistName)
+        }
+
+    /**
+     * Tokens match the split artist display NAME only, preserving the
+     * no-collaborator-leak semantics (searching "Eminem" must not return
+     * Rihanna/D12 split out of combined tags).
+     */
+    private fun getArtists(query: String, isOnlyAlbumArtists: Boolean): List<Artist> {
+        val artists = if (isOnlyAlbumArtists) artistRepository.albumArtists() else artistRepository.artists()
+        return SearchMatcher.filterRanked(artists, query) { artist -> SearchableText(artist.name) }
+    }
+
+    private suspend fun getGenres(query: String): List<Genre> =
+        SearchMatcher.filterRanked(genreRepository.genres(), query) { genre -> SearchableText(genre.name) }
+
     private suspend fun getPlaylists(query: String) = playlistRepository.searchPlaylists(query)
+
+    private fun songText(song: Song) = SearchableText(song.title, song.artistName, song.albumName)
 
     private fun MutableList<Any>.addTitled(results: List<Any>, header: String) {
         if (results.isNotEmpty()) {

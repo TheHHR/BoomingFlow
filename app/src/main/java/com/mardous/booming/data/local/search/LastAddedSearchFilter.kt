@@ -57,7 +57,12 @@ class LastAddedSearchFilter(private val name: CharSequence) : SearchFilter, Koin
             FilterMode.Artists -> ContentType.RecentArtists
             else -> ContentType.RecentSongs
         }
-        val songs = smartRepository.recentSongs(query, contentType)
+        // The query is matched in memory by SearchMatcher (folded,
+        // order-free tokens) over the full recent list; the split
+        // afterwards mirrors what the sections expect.
+        val songs = SearchMatcher.filterRanked(smartRepository.recentSongs(), query) { song ->
+            SearchMatcher.SearchableText(song.title, song.artistName, song.albumName)
+        }
         return when (contentType) {
             ContentType.RecentAlbums -> albumRepository.splitIntoAlbums(songs, false)
             ContentType.RecentArtists -> artistRepository.splitIntoAlbumArtists(albumRepository.splitIntoAlbums(songs))

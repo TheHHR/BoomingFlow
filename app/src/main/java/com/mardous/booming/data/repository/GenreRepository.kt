@@ -36,11 +36,9 @@ import com.mardous.booming.extensions.utilities.mapIfValid
 import com.mardous.booming.extensions.utilities.takeOrDefault
 
 interface GenreRepository {
-    suspend fun genres(query: String): List<Genre>
     suspend fun genres(): List<Genre>
     suspend fun genre(song: Song): Genre
     suspend fun songs(genreId: Long): List<Song>
-    suspend fun songs(genreId: Long, query: String): List<Song>
     fun song(genreId: Long): Song
 }
 
@@ -49,12 +47,6 @@ class RealGenreRepository(
     private val contentResolver: ContentResolver,
     private val songRepository: RealSongRepository
 ) : GenreRepository {
-
-    override suspend fun genres(query: String): List<Genre> {
-        return getGenresFromCursor(
-            makeGenreCursor(selection = "${Genres.NAME} LIKE ?", selectionValues = arrayOf("%$query%"))
-        )
-    }
 
     override suspend fun genres(): List<Genre> {
         return with(GenreSortMode.AllGenres) {
@@ -81,21 +73,6 @@ class RealGenreRepository(
         } else with(SongSortMode.GenreSongs) {
             songRepository.songs(makeGenreSongCursor(genreId)).sorted()
         }
-    }
-
-    override suspend fun songs(genreId: Long, query: String): List<Song> {
-        // The genres table only stores songs that have a genre specified,
-        // so we need to get songs without a genre a different way.
-        val pattern = RealSongRepository.generateSearchPattern(query)
-        return if (genreId == -1L) {
-            emptyList()
-        } else songRepository.songs(
-            makeGenreSongCursor(
-                genreId = genreId,
-                selection = "${RealSongRepository.BASE_SELECTION} AND (${pattern.first})",
-                selectionValues = pattern.second
-            )
-        )
     }
 
     override fun song(genreId: Long): Song {

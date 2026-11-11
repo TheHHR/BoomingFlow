@@ -30,7 +30,6 @@ import com.mardous.booming.data.mapper.toPlayCount
 import com.mardous.booming.data.mapper.toSong
 import com.mardous.booming.data.model.Album
 import com.mardous.booming.data.model.Artist
-import com.mardous.booming.data.model.ContentType
 import com.mardous.booming.data.model.Song
 import com.mardous.booming.util.Preferences
 import kotlinx.coroutines.Dispatchers.IO
@@ -43,7 +42,6 @@ interface SmartRepository {
     suspend fun topAlbums(): List<Album>
     suspend fun topAlbumArtists(): List<Artist>
     suspend fun recentSongs(): List<Song>
-    suspend fun recentSongs(query: String, contentType: ContentType): List<Song>
     suspend fun recentAlbums(): List<Album>
     suspend fun recentAlbumArtists(): List<Artist>
     suspend fun notRecentlyPlayedSongs(): List<Song>
@@ -83,10 +81,7 @@ class RealSmartRepository(
         artistRepository.splitIntoAlbumArtists(topAlbums())
 
     override suspend fun recentSongs(): List<Song> =
-        songRepository.songs(makeLastAddedCursor(null, ContentType.RecentSongs))
-
-    override suspend fun recentSongs(query: String, contentType: ContentType): List<Song> =
-        songRepository.songs(makeLastAddedCursor(query, contentType))
+        songRepository.songs(makeLastAddedCursor())
 
     override suspend fun recentAlbums(): List<Album> =
         albumRepository.splitIntoAlbums(recentSongs(), sorted = false)
@@ -192,23 +187,15 @@ class RealSmartRepository(
         historyDao.clearHistory()
     }
 
-    private fun makeLastAddedCursor(query: String?, contentType: ContentType): Cursor? {
+    private fun makeLastAddedCursor(): Cursor? {
         val cutoff = Preferences.getLastAddedCutoff(context).interval
-        val queryDispatcher = MediaQueryDispatcher()
-            .setProjection(RealSongRepository.getBaseProjection())
-            .setSelection("${AudioColumns.DATE_ADDED}>?")
-            .setSelectionArguments(arrayOf(cutoff.toString()))
-            .setSortOrder("${AudioColumns.DATE_ADDED} DESC")
-        if (!query.isNullOrEmpty()) {
-            when (contentType) {
-                ContentType.RecentAlbums -> queryDispatcher.addSelection("${AudioColumns.ALBUM} LIKE ?")
-                ContentType.RecentArtists -> queryDispatcher.addSelection("${AudioColumns.ALBUM_ARTIST} LIKE ?")
-                ContentType.RecentSongs -> queryDispatcher.addSelection("${AudioColumns.TITLE} LIKE ?")
-                else -> error("Content type is not valid: $contentType")
-            }
-            queryDispatcher.addArguments("%$query%")
-        }
-        return songRepository.makeSongCursor(queryDispatcher)
+        return songRepository.makeSongCursor(
+            MediaQueryDispatcher()
+                .setProjection(RealSongRepository.getBaseProjection())
+                .setSelection("${AudioColumns.DATE_ADDED}>?")
+                .setSelectionArguments(arrayOf(cutoff.toString()))
+                .setSortOrder("${AudioColumns.DATE_ADDED} DESC")
+        )
     }
 
     private suspend fun List<PlayCountEntity>.fromPlayCountToSongs(): List<Song> = withContext(IO) {

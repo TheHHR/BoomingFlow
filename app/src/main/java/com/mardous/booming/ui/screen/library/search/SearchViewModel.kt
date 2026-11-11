@@ -5,6 +5,7 @@ import android.app.Application
 import androidx.lifecycle.viewModelScope
 import com.mardous.booming.core.model.action.SongClickBehavior
 import com.mardous.booming.data.SearchFilter
+import com.mardous.booming.data.local.search.SearchMatcher
 import com.mardous.booming.data.model.Song
 import com.mardous.booming.data.model.search.SearchQuery
 import com.mardous.booming.data.repository.Repository
@@ -74,16 +75,23 @@ class SearchViewModel(
                 if (isScoped) {
                     // Scoped mode: filter the remote playlist's cached track
                     // list client-side; no library or web search involved.
+                    // SearchMatcher gives the same relaxed matching as the
+                    // library search (folded, order-free tokens, ranked).
                     val text = query.searched.orEmpty()
                     val scope = scopePlaylistKey
                     _searchResult.value = if (text.isBlank() || scope == null) {
                         emptyList()
                     } else {
-                        SpotifyPlaylistCache.loadTracks(getApplication(), scope)
-                            .filter { track ->
-                                track.name.contains(text, true) ||
-                                    track.artists.any { it.name.contains(text, true) }
-                            }
+                        SearchMatcher.filterRanked(
+                            SpotifyPlaylistCache.loadTracks(getApplication(), scope),
+                            text
+                        ) { track ->
+                            SearchMatcher.SearchableText(
+                                track.name,
+                                track.artists.joinToString(" ") { it.name },
+                                track.album?.name
+                            )
+                        }
                     }
                     _spotifyResult.value = null
                     return@onEach

@@ -29,7 +29,6 @@ import com.mardous.booming.util.Preferences
 interface AlbumRepository {
     fun album(albumId: Long): Album
     fun albums(): List<Album>
-    fun albums(query: String): List<Album>
     fun similarAlbums(album: Album): List<Album>
 }
 
@@ -45,21 +44,6 @@ class RealAlbumRepository(private val songRepository: RealSongRepository) : Albu
             songRepository.songs(cursor).sorted()
         }
         return getAlbumFromSongs(albumId, songs)
-    }
-
-    override fun albums(query: String): List<Album> {
-        val songs = songRepository.songs(
-            songRepository.makeSongCursor(
-                selection = "(${AudioColumns.ALBUM} LIKE ? OR ${AudioColumns.ALBUM_ARTIST} LIKE ?)",
-                selectionValues = arrayOf("%$query%", "%$query"),
-                sortOrder = DEFAULT_SORT_ORDER
-            )
-        )
-        return splitIntoAlbums(
-            with(SongSortMode.AlbumSongs) {
-                songs.sorted()
-            }
-        )
     }
 
     override fun albums(): List<Album> {

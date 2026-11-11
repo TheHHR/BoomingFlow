@@ -30,6 +30,8 @@ import com.mardous.booming.data.local.room.PlaylistDao
 import com.mardous.booming.data.local.room.PlaylistEntity
 import com.mardous.booming.data.local.room.PlaylistWithSongs
 import com.mardous.booming.data.local.room.SongEntity
+import com.mardous.booming.data.local.search.SearchMatcher
+import com.mardous.booming.data.local.search.SearchMatcher.SearchableText
 import com.mardous.booming.data.mapper.toSongEntity
 import com.mardous.booming.data.mapper.toSongs
 import com.mardous.booming.data.mapper.updateMetadata
@@ -152,11 +154,20 @@ class RealPlaylistRepository(
     override fun playlistSongsObservable(playListId: Long): LiveData<List<SongEntity>> =
         playlistDao.songsFromPlaylistObservable(playListId)
 
+    /** In-memory [SearchMatcher] matching over the full playlist list —
+     *  the Room `playlist_name LIKE` query couldn't fold accents or match
+     *  tokens order-free. Filtering preserves the custom playlist order. */
     override suspend fun searchPlaylists(searchQuery: String): List<PlaylistWithSongs> =
-        playlistDao.searchPlaylists("%$searchQuery%").map { it.withOrderedSongs() }
+        SearchMatcher.filterRanked(playlistsWithSongs(), searchQuery) { playlist ->
+            SearchableText(playlist.playlistEntity.playlistName)
+        }
 
+    /** In-memory [SearchMatcher] matching over the playlist's songs in
+     *  `song_key` (custom) order — the old SQL blob match was strict. */
     override suspend fun searchPlaylistSongs(playlistId: Long, searchQuery: String): List<SongEntity> =
-        playlistDao.searchSongs(playlistId, "%$searchQuery%")
+        SearchMatcher.filterRanked(playlistSongs(playlistId), searchQuery) { song ->
+            SearchableText(song.title, song.artistName, song.albumName)
+        }
 
     /**
      * Room @Relation results have no guaranteed order: the generated

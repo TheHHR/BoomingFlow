@@ -37,11 +37,9 @@ import com.mardous.booming.util.Preferences
 
 interface ArtistRepository {
     fun artists(): List<Artist>
-    fun artists(query: String): List<Artist>
     fun artist(artistId: Long): Artist
     fun albumArtists(): List<Artist>
     fun albumArtist(artistName: String): Artist
-    fun albumArtists(query: String): List<Artist>
     fun similarAlbumArtists(artist: Artist): List<Artist>
 }
 
@@ -155,21 +153,6 @@ class RealArtistRepository(
         )
     }
 
-    override fun artists(query: String): List<Artist> {
-        val songs = songRepository.songs(
-            songRepository.makeSongCursor(AudioColumns.ARTIST + " LIKE ?", arrayOf("%$query%"), DEFAULT_SORT_ORDER)
-        )
-        // The SQL pre-filter matches songs whose artist tag CONTAINS the
-        // query; splitting creates entries for every part of those names,
-        // so collaborators would leak into the results without this
-        // display-name check.
-        val trimmedQuery = query.trim()
-        val artists = splitIntoArtists(songs).filter {
-            it.name.contains(trimmedQuery, ignoreCase = true)
-        }
-        return sortArtists(artists)
-    }
-
     override fun albumArtists(): List<Artist> {
         val songs = songRepository.songs(
             songRepository.makeSongCursor(null, null, "lower(${AudioColumns.ALBUM_ARTIST})")
@@ -233,23 +216,6 @@ class RealArtistRepository(
             albums = albums,
             filterSingles = filterSingles
         )
-    }
-
-    override fun albumArtists(query: String): List<Artist> {
-        val songs = songRepository.songs(
-            songRepository.makeSongCursor(
-                "${AudioColumns.ALBUM_ARTIST} LIKE ?",
-                arrayOf("%$query%"),
-                DEFAULT_SORT_ORDER
-            )
-        )
-        // Same reason as artists(query): drop split entries whose display
-        // name doesn't actually match the query.
-        val trimmedQuery = query.trim()
-        val artists = splitIntoAlbumArtists(songs).filter {
-            it.name.contains(trimmedQuery, ignoreCase = true)
-        }
-        return sortArtists(artists)
     }
 
     @RequiresApi(Build.VERSION_CODES.R)

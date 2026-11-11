@@ -31,11 +31,10 @@ import com.mardous.booming.util.StorageUtil
 interface SpecialRepository {
     suspend fun releaseYears(): List<ReleaseYear>
     suspend fun releaseYear(year: Int): ReleaseYear
-    suspend fun songsByYear(year: Int, query: String?): List<Song>
+    suspend fun songsByYear(year: Int): List<Song>
     suspend fun musicFolders(): FileSystemQuery
     suspend fun folderByPath(path: String): Folder
     suspend fun songsByFolder(path: String, includeSubfolders: Boolean): List<Song>
-    suspend fun songsByFolder(path: String, query: String): List<Song>
     suspend fun musicFilesInPath(path: String, recursiveSubfolders: Boolean = true): FileSystemQuery
 }
 
@@ -60,19 +59,11 @@ class RealSpecialRepository(private val songRepository: RealSongRepository) : Sp
         return ReleaseYear(year, with(SongSortMode.YearSongs) { songs.sorted() })
     }
 
-    override suspend fun songsByYear(year: Int, query: String?): List<Song> {
-        val cursor = if (query.isNullOrEmpty()) {
-            songRepository.makeSongCursor(
-                selection = "${AudioColumns.YEAR}=?",
-                selectionValues = arrayOf(year.toString())
-            )
-        } else {
-            val pattern = RealSongRepository.generateSearchPattern(query)
-            songRepository.makeSongCursor(
-                selection = "${AudioColumns.YEAR}=? AND (${pattern.first})",
-                selectionValues = arrayOf(year.toString()) + pattern.second
-            )
-        }
+    override suspend fun songsByYear(year: Int): List<Song> {
+        val cursor = songRepository.makeSongCursor(
+            selection = "${AudioColumns.YEAR}=?",
+            selectionValues = arrayOf(year.toString())
+        )
         return songRepository.songs(cursor)
     }
 
@@ -106,17 +97,6 @@ class RealSpecialRepository(private val songRepository: RealSongRepository) : Sp
             songRepository.songs().filter { song -> path == song.folderPath() }
         }
         return with(SongSortMode.FolderSongs) { songs.sorted() }
-    }
-
-    override suspend fun songsByFolder(path: String, query: String): List<Song> {
-        val pattern = RealSongRepository.generateSearchPattern(query)
-        val cursor = songRepository.makeSongCursor(
-            selection = pattern.first,
-            selectionValues = pattern.second
-        )
-        return songRepository.songs(cursor).filter { song ->
-            path == song.folderPath()
-        }
     }
 
     override suspend fun musicFilesInPath(path: String, recursiveSubfolders: Boolean): FileSystemQuery {

@@ -374,7 +374,7 @@ class RealRepository(
 
     override suspend fun yearById(year: Int): ReleaseYear = specialRepository.releaseYear(year)
 
-    override suspend fun songsByYear(year: Int): List<Song> = specialRepository.songsByYear(year, null)
+    override suspend fun songsByYear(year: Int): List<Song> = specialRepository.songsByYear(year)
 
     override suspend fun folderByPath(path: String): Folder = specialRepository.folderByPath(path)
 
