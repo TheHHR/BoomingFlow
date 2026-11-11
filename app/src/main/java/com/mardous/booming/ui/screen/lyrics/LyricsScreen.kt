@@ -82,7 +82,7 @@ import java.util.Locale
 sealed class LyricsUiState(open val id: Long) {
     data class Loading(override val id: Long) : LyricsUiState(id)
     data class Empty(override val id: Long) : LyricsUiState(id)
-    data class Instrumental(override val id: Long) : LyricsUiState(id)
+    data class Instrumental(override val id: Long, val provider: String? = null) : LyricsUiState(id)
     data class Plain(override val id: Long, val lyrics: String, val provider: String? = null) : LyricsUiState(id)
     data class Synced(override val id: Long, val syncedLyrics: SyncedLyrics) : LyricsUiState(id)
 }
@@ -178,7 +178,11 @@ fun CoverLyricsScreen(
                 } else {
                     FadingEdges(top = 72.dp, bottom = 64.dp)
                 },
-                textAlign = if (isExpanded) TextAlign.Start else TextAlign.Center,
+                // Plain text follows the user's lyrics centering setting
+                // (the synced view's preference, default on) instead of a
+                // hardcoded expanded/mini split - fullscreen plain text was
+                // left-aligned while the setting says center.
+                textAlign = if (lyricsViewSettings.isCenterHorizontally) TextAlign.Center else TextAlign.Start,
                 isPlaying = isPlaying,
                 isPowerSaveMode = isPowerSaveMode,
                 onSeekTo = { position ->
@@ -239,6 +243,7 @@ fun CoverLyricsScreen(
         val activeProvider = when (val state = uiState) {
             is LyricsUiState.Synced -> state.syncedLyrics.provider
             is LyricsUiState.Plain -> state.provider
+            is LyricsUiState.Instrumental -> state.provider
             else -> null
         }
         // The active row's subtitle comes from the DISPLAYED lyrics, not
@@ -251,6 +256,7 @@ fun CoverLyricsScreen(
                 if (state.syncedLyrics.isWordSynced) ProviderRowStatus.WordSynced
                 else ProviderRowStatus.LineSynced
             is LyricsUiState.Plain -> ProviderRowStatus.Plain
+            is LyricsUiState.Instrumental -> ProviderRowStatus.Instrumental
             else -> null
         }
         ProviderSwitchDialog(
@@ -380,8 +386,12 @@ private fun LyricsSurface(
                     Text(
                         text = uiState.lyrics,
                         color = contentColor,
+                        // Fill the width so textAlign actually applies: a
+                        // wrap-content Text centers within its own widest
+                        // line, leaving short-line lyrics left-aligned.
                         textAlign = textAlign,
-                        style = settings.syncedStyle
+                        style = settings.syncedStyle,
+                        modifier = Modifier.fillMaxWidth()
                     )
                     if (isExpanded && !uiState.provider.isNullOrEmpty()) {
                         Text(
@@ -468,14 +478,16 @@ private fun ProviderSwitchDialog(
                 // ENABLED providers take part in the background race, so
                 // disabled rows start as "Disabled — tap to fetch"
                 // instead of a live result.
-                val visibleProviders = remember {
-                    LyricsProvider.entries.filter { it.isAvailableForCurrentPolicy }
-                }
+                // Recomputed per recomposition (a 7-entry filter, free) so a
+                // network-policy change mid-dialog is reflected immediately
+                // instead of showing rows the race would no longer include.
+                val visibleProviders = LyricsProvider.entries.filter { it.isAvailableForCurrentPolicy }
                 val searchingLabel = stringResource(R.string.searching_lyrics_provider)
                 val noLyricsLabel = stringResource(R.string.no_lyrics_found)
                 val wordSyncedLabel = stringResource(R.string.word_by_word_lyrics_provider_status)
                 val lineSyncedLabel = stringResource(R.string.line_synced_lyrics_provider_status)
                 val plainLabel = stringResource(R.string.plain_text_lyrics_provider_status)
+                val instrumentalLabel = stringResource(R.string.instrumental_lyrics_provider_status)
                 val disabledLabel = stringResource(R.string.disabled_lyrics_provider_status)
                 val rows = remember(
                     activeProvider, activeStatus, switchState, liveResults, visibleProviders
@@ -491,6 +503,7 @@ private fun ProviderSwitchDialog(
                         wordSyncedLabel = wordSyncedLabel,
                         lineSyncedLabel = lineSyncedLabel,
                         plainLabel = plainLabel,
+                        instrumentalLabel = instrumentalLabel,
                         disabledLabel = disabledLabel
                     )
                 }
@@ -619,7 +632,7 @@ private fun DialogWindowAlpha(alpha: Float) {
 }
 
 /** Status of the currently displayed lyrics, used to label the active provider row. */
-private enum class ProviderRowStatus { WordSynced, LineSynced, Plain }
+private enum class ProviderRowStatus { WordSynced, LineSynced, Plain, Instrumental }
 
 private data class ProviderRow(
     val provider: LyricsProvider,
@@ -643,6 +656,7 @@ private fun sortedProviderRows(
     wordSyncedLabel: String,
     lineSyncedLabel: String,
     plainLabel: String,
+    instrumentalLabel: String,
     disabledLabel: String
 ): List<ProviderRow> {
     val rows = visibleProviders.map { provider ->
@@ -672,6 +686,7 @@ private fun sortedProviderRows(
                 ProviderRowStatus.WordSynced -> wordSyncedLabel
                 ProviderRowStatus.LineSynced -> lineSyncedLabel
                 ProviderRowStatus.Plain -> plainLabel
+                ProviderRowStatus.Instrumental -> instrumentalLabel
             }
             switchState.failureProvider == provider -> noLyricsLabel
             isLoading -> searchingLabel

@@ -223,8 +223,19 @@ class LyricsDownloadService(client: HttpClient) {
                             pending.remove(providerAndDeferred)
 
                             // Feed the provider sheet a live row update.
-                            _liveResults.value = _liveResults.value +
-                                    (providerAndDeferred.first.displayName to response)
+                            // Gated by updateLiveResults: a background sweep
+                            // (word-synced upgrade, manual switch) must never
+                            // write rows into the sheet's flow - the flow is
+                            // not song-scoped, so a still-running sweep for
+                            // the PREVIOUS song would flip the current song's
+                            // rows to the old song's results mid-browse (and
+                            // race the sheet's own sweep writing the same
+                            // map). Same-song overlap is already prevented by
+                            // the ViewModel cancelling the upgrade first.
+                            if (updateLiveResults) {
+                                _liveResults.value = _liveResults.value +
+                                        (providerAndDeferred.first.displayName to response)
+                            }
 
                             if (response != null) {
                                 outcome.remote = outcome.remote.accept(response)

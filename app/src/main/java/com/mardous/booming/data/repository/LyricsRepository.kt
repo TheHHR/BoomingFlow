@@ -432,9 +432,17 @@ class RealLyricsRepository(
         val remote = try {
             // updateLiveResults = false: a manual provider switch must not
             // wipe the other rows' live results mid-search.
+            //
+            // The query must match the sheet's sweep exactly (title + ALBUM
+            // artist, the service's defaults): the sweep races with the
+            // album-artist query first and falls back to the track artist,
+            // while passing the track artist here meant the fallback
+            // degenerated to the same query - so whenever the album-artist
+            // spelling was the one that matched (compilations, feat. tags,
+            // unsplittable duet spellings), a row the sheet labeled "Plain
+            // text" failed to switch on tap and read "No lyrics found".
             lyricsDownloadService.remoteLyrics(
-                song, song.title, song.artistName, params,
-                updateLiveResults = false
+                song, providerParams = params, updateLiveResults = false
             )
         } catch (e: CancellationException) {
             throw e
@@ -445,12 +453,22 @@ class RealLyricsRepository(
         val stored = remote.prepareToStore() ?: return ParsedLyrics.Empty
         lyricsDao.insertLyrics(
             if (stored.instrumental) {
-                LyricsEntity(lyricsId, instrumental = true)
+                LyricsEntity(
+                    lyricsId,
+                    instrumental = true,
+                    // Even an instrumental re-store preserves the offset so
+                    // switching back to synced lyrics keeps the user's tune.
+                    syncOffsetMs = lyricsDao.getLyrics(lyricsId)?.syncOffsetMs ?: 0
+                )
             } else {
                 LyricsEntity(
                     id = lyricsId,
                     lyrics = stored.lyrics,
-                    provider = stored.provider
+                    provider = stored.provider,
+                    // The user tuned the sync offset for this song; a
+                    // provider change must not silently reset it (@Upsert
+                    // overwrites every column).
+                    syncOffsetMs = lyricsDao.getLyrics(lyricsId)?.syncOffsetMs ?: 0
                 )
             }
         )
@@ -489,7 +507,10 @@ class RealLyricsRepository(
             LyricsEntity(
                 id = lyricsId,
                 lyrics = stored.lyrics,
-                provider = stored.provider
+                provider = stored.provider,
+                // Preserve the user's manual sync offset across the
+                // upgrade: @Upsert overwrites every column.
+                syncOffsetMs = lyricsDao.getLyrics(lyricsId)?.syncOffsetMs ?: 0
             )
         )
         removeCachedLyrics(LyricsSource.Downloaded, lyricsId)
@@ -551,7 +572,11 @@ class RealLyricsRepository(
                                     id = lyricsId,
                                     lyrics = it.newContent,
                                     provider = it.newContentProvider,
-                                    instrumental = it.instrumental
+                                    instrumental = it.instrumental,
+                                    // Editing lyrics must not reset the
+                                    // manual sync offset (@Upsert overwrites
+                                    // every column).
+                                    syncOffsetMs = lyricsDao.getLyrics(lyricsId)?.syncOffsetMs ?: 0
                                 )
                             )
                             true

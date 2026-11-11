@@ -122,6 +122,11 @@ class LyricsViewModel(
                 // The user edited the lyrics on purpose: block the
                 // automatic word-by-word upgrade from replacing them.
                 synchronized(wordUpgradeAttempted) { wordUpgradeAttempted.add(song.id) }
+                // The stored lyrics changed under the provider sheet's
+                // cache: drop it so tapping a provider row refetches
+                // instead of replaying the pre-edit text (the cache-hit
+                // path does not re-store).
+                providerSwitchResults.clear()
                 // Lyrics need to be updated to avoid unnecessary save operations
                 val newLyrics = getEditorLyricsBySources(song, newLyrics.keys.toList())
                 _lyricsEditorUiState.value = uiState.copy(isLoading = false, lyrics = newLyrics)
@@ -166,6 +171,13 @@ class LyricsViewModel(
         repository.deleteAllLyrics()
         // Fresh start: stored lyrics are gone, allow new upgrade sweeps.
         synchronized(wordUpgradeAttempted) { wordUpgradeAttempted.clear() }
+        // And every surface that tracked stored lyrics follows suit: the
+        // sheet's Clear button no longer has anything to remove, the
+        // provider-switch cache is stale, and the current song's display
+        // must re-run the ladder (nothing stored -> local sources).
+        providerSwitchResults.clear()
+        _hasStoredLyrics.value = false
+        currentLyricsSong?.let { updateSong(it) }
     }
 
     fun importCustomFont(context: Context, uri: Uri) = liveData(IO) {
@@ -331,6 +343,10 @@ class LyricsViewModel(
      */
     fun refreshProviderResults(song: Song) {
         if (song == Song.emptySong) return
+        // Fresh slate for the sheet's own sweep: a failure badge from an
+        // earlier attempt (possibly for an older song) must not mark a row
+        // while this sweep is still searching.
+        _providerSwitchState.value = _providerSwitchState.value.copy(failureProvider = null)
         // The sheet's sweep supersedes an in-flight word-synced upgrade
         // for the same song: both race the same providers into the same
         // live-results flow (duplicated traffic), and the upgrade resets
@@ -409,7 +425,11 @@ class LyricsViewModel(
                 _hasStoredLyrics.value = true
                 if (song.id == _lyricsUiState.value.id) {
                     when (parsed) {
-                        is ParsedLyrics.Instrumental -> _lyricsUiState.value = LyricsUiState.Instrumental(song.id)
+                        is ParsedLyrics.Instrumental ->
+                            // Keep the provider attribution so the sheet's
+                            // active-row checkmark survives an instrumental
+                            // pick.
+                            _lyricsUiState.value = LyricsUiState.Instrumental(song.id, provider.displayName)
                         is ParsedLyrics.Synced -> _lyricsUiState.value = LyricsUiState.Synced(song.id, parsed.lyrics)
                         is ParsedLyrics.Plain -> _lyricsUiState.value = LyricsUiState.Plain(song.id, parsed.lyrics, parsed.provider)
                         is ParsedLyrics.Empty -> Unit
@@ -466,8 +486,15 @@ class LyricsViewModel(
     fun updateSong(song: Song) {
         currentLyricsSong = song
         loadLyricsSyncOffset(song)
+        // A stale failure from the previous song must not paint the new
+        // song's provider rows ("No lyrics found" outranks Searching in
+        // the subtitle chain).
+        _providerSwitchState.value = _providerSwitchState.value.copy(failureProvider = null)
         lyricsJob?.cancel()
-        lyricsJob = viewModelScope.launch {
+        lyricsJob = viewModelScope.launch(IO) {
+            // IO: the block parses raw lyrics text (regex over the whole
+            // blob) and reads files; on Main it janked the UI for large
+            // plain lyrics.
             if (song == Song.emptySong) {
                 _lyricsUiState.value = LyricsUiState.Empty(song.id)
                 _hasStoredLyrics.value = false
