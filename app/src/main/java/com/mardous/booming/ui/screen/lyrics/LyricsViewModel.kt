@@ -239,6 +239,14 @@ class LyricsViewModel(
     private val _providerSwitchState = MutableStateFlow(ProviderSwitchState())
     val providerSwitchState = _providerSwitchState.asStateFlow()
 
+    /**
+     * Whether the current song has stored (downloaded or provider-picked)
+     * lyrics - i.e. whether the provider sheet's Clear action can remove
+     * anything. Maintained by the load, switch, download and clear paths.
+     */
+    private val _hasStoredLyrics = MutableStateFlow(false)
+    val hasStoredLyrics = _hasStoredLyrics.asStateFlow()
+
     /** Live per-provider results for the fullscreen provider sheet rows. */
     val providerLiveResults = repository.providerLiveResults
 
@@ -305,6 +313,15 @@ class LyricsViewModel(
     }
 
     private var refreshJob: Job? = null
+    private var wordUpgradeJob: Job? = null
+    private var wordUpgradeSongId: Long? = null
+
+    /**
+     * The song whose word-synced upgrade sweep was cancelled because the
+     * provider sheet opened (the sheet's own sweep supersedes it); the
+     * sweep resumes when the sheet closes.
+     */
+    private var suspendedWordUpgradeSong: Song? = null
 
     /**
      * Runs a background sweep for the provider sheet without persisting
@@ -314,12 +331,43 @@ class LyricsViewModel(
      */
     fun refreshProviderResults(song: Song) {
         if (song == Song.emptySong) return
+        // The sheet's sweep supersedes an in-flight word-synced upgrade
+        // for the same song: both race the same providers into the same
+        // live-results flow (duplicated traffic), and the upgrade resets
+        // that flow at its start, which flipped the sheet's rows back to
+        // Searching mid-browse. Cancel it first - the join guarantees
+        // its settle writes land BEFORE this sweep resets the flow - and
+        // remember it so providerDialogClosed() can resume the upgrade.
+        val upgradeToCancel = wordUpgradeJob
+            ?.takeIf { it.isActive && wordUpgradeSongId == song.id }
+        if (upgradeToCancel != null) {
+            suspendedWordUpgradeSong = song
+        }
         refreshJob?.cancel()
         refreshJob = viewModelScope.launch(IO) {
+            if (upgradeToCancel != null) {
+                upgradeToCancel.cancel()
+                upgradeToCancel.join()
+            }
             try {
                 repository.refreshProviderResults(song)
             } catch (_: Exception) {
             }
+        }
+    }
+
+    /**
+     * Called when the provider sheet closes: resumes a word-synced upgrade
+     * sweep that was cancelled to make room for the sheet's own sweep.
+     * Only the current song resumes - a skipped song's upgrade is
+     * abandoned until the next app start (wordUpgradeAttempted still
+     * holds it), which keeps background sweeps from stacking up.
+     */
+    fun providerDialogClosed() {
+        val song = suspendedWordUpgradeSong ?: return
+        suspendedWordUpgradeSong = null
+        if (wordUpgradeJob?.isActive != true && currentLyricsSong?.id == song.id) {
+            launchWordSyncedUpgrade(song)
         }
     }
 
@@ -336,10 +384,21 @@ class LyricsViewModel(
         viewModelScope.launch {
             _providerSwitchState.value = ProviderSwitchState(loadingProvider = provider)
             val cacheKey = song.id to provider
-            val parsed = providerSwitchResults[cacheKey]
-                ?: repository.applyProviderLyrics(song, provider)
+            // The whole switch is exception-guarded: a throw in parsing or
+            // the DB write would otherwise leave loadingProvider set, and
+            // the gate above then silently blocks EVERY further provider
+            // tap while the row spins, until the screen is left.
+            val parsed = try {
+                providerSwitchResults[cacheKey]
+                    ?: repository.applyProviderLyrics(song, provider)
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Log.e("LyricsViewModel", "Switch to ${provider.displayName} failed", e)
+                null
+            }
 
-            if (parsed is ParsedLyrics.Empty) {
+            if (parsed == null || parsed is ParsedLyrics.Empty) {
                 _providerSwitchState.value = ProviderSwitchState(failureProvider = provider)
             } else {
                 // The user picked this provider on purpose: block the
@@ -347,6 +406,7 @@ class LyricsViewModel(
                 synchronized(wordUpgradeAttempted) { wordUpgradeAttempted.add(song.id) }
                 providerSwitchResults.clear()
                 providerSwitchResults[cacheKey] = parsed
+                _hasStoredLyrics.value = true
                 if (song.id == _lyricsUiState.value.id) {
                     when (parsed) {
                         is ParsedLyrics.Instrumental -> _lyricsUiState.value = LyricsUiState.Instrumental(song.id)
@@ -357,6 +417,38 @@ class LyricsViewModel(
                 }
                 _providerSwitchState.value = ProviderSwitchState()
             }
+        }
+    }
+
+    /**
+     * The provider sheet's Clear action: removes the song's stored
+     * (downloaded) lyrics and falls back to what the file itself offers -
+     * embedded tags, .lrc sidecars - WITHOUT the download stage, since
+     * the user just removed the downloaded lyrics on purpose. The
+     * repository records a negative-cache miss so the automatic download
+     * doesn't re-fetch them on the next play (retries after the 30-min
+     * miss TTL).
+     */
+    fun clearStoredLyrics(song: Song) = viewModelScope.launch {
+        if (song.id == Song.emptySong.id) return@launch
+        // The sync offset lives on the lyrics row being deleted: stop any
+        // pending offset save/load and reset it - it was tuned for the
+        // lyrics being removed.
+        syncOffsetSaveJob?.cancel()
+        syncOffsetLoadJob?.cancel()
+        _lyricsSyncOffsetMs.value = 0L
+        try {
+            withContext(IO) { repository.clearStoredLyrics(song) }
+        } catch (e: kotlinx.coroutines.CancellationException) {
+            throw e
+        } catch (_: Exception) {
+        }
+        providerSwitchResults.clear()
+        _hasStoredLyrics.value = false
+        if (song.id == _lyricsUiState.value.id) {
+            _lyricsUiState.value = getBestLocalLyrics(
+                song, listOf(LyricsSource.File, LyricsSource.Embedded)
+            )
         }
     }
 
@@ -378,6 +470,7 @@ class LyricsViewModel(
         lyricsJob = viewModelScope.launch {
             if (song == Song.emptySong) {
                 _lyricsUiState.value = LyricsUiState.Empty(song.id)
+                _hasStoredLyrics.value = false
             } else {
                 _lyricsUiState.value = LyricsUiState.Loading(song.id)
 
@@ -386,6 +479,7 @@ class LyricsViewModel(
                 // song.
                 val stored = repository.storedLyrics(song, allowDownload = false)
                 if (stored != null) {
+                    _hasStoredLyrics.value = true
                     val parsed = repository.parseRawLyrics(song, stored)
                     if (isActive) {
                         _lyricsUiState.value = when (parsed) {
@@ -403,6 +497,7 @@ class LyricsViewModel(
                         }
                     }
                 } else {
+                    _hasStoredLyrics.value = false
                     // Nothing stored: sidecar files and embedded tags show
                     // instantly, then the download stage replaces them when
                     // it finds something better (synced preferred over
@@ -420,6 +515,11 @@ class LyricsViewModel(
                         }
                         val downloaded = fetchLyrics(song)
                         if (isActive) {
+                            if (downloaded != null) {
+                                // The download stage stored lyrics: the
+                                // Clear action can remove them again.
+                                _hasStoredLyrics.value = true
+                            }
                             if (downloaded != null && isUpgrade(localState, downloaded)) {
                                 _lyricsUiState.value = downloaded
                             } else if (localState is LyricsUiState.Empty) {
@@ -454,7 +554,20 @@ class LyricsViewModel(
     private fun maybeUpgradeToWordSynced(song: Song) {
         if (synchronized(wordUpgradeAttempted) { wordUpgradeAttempted.contains(song.id) }) return
         synchronized(wordUpgradeAttempted) { wordUpgradeAttempted.add(song.id) }
-        viewModelScope.launch {
+        launchWordSyncedUpgrade(song)
+    }
+
+    /**
+     * The upgrade sweep races every enabled provider - the exact sweep
+     * the provider sheet runs for its live rows, into the SAME
+     * live-results flow. While the sheet is open the two would duplicate
+     * traffic and interleave, so refreshProviderResults() cancels an
+     * in-flight sweep for the same song and providerDialogClosed()
+     * resumes it.
+     */
+    private fun launchWordSyncedUpgrade(song: Song) {
+        wordUpgradeSongId = song.id
+        wordUpgradeJob = viewModelScope.launch {
             val upgraded = withContext(IO) {
                 try {
                     repository.downloadWordSyncedUpgrade(song)

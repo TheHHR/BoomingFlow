@@ -82,9 +82,17 @@ interface LyricsRepository {
     /**
      * Deletes the stored (downloaded) lyrics row for one song and evicts
      * every cache for it, so the next playback re-downloads from scratch.
-     * Used by the provider sheet's clear action.
      */
     suspend fun deleteLyrics(song: Song)
+
+    /**
+     * The provider sheet's Clear action: like [deleteLyrics], but records
+     * a negative-cache miss too, so the automatic download doesn't
+     * immediately re-fetch what the user just removed on the next play
+     * (it retries after the standard miss TTL). The caller then falls
+     * back to the song's local sources without the download stage.
+     */
+    suspend fun clearStoredLyrics(song: Song)
 
     /**
      * Runs a provider sweep for the provider sheet's live rows without
@@ -456,9 +464,16 @@ class RealLyricsRepository(
         val lyricsId = lyricsIdFor(song)
         if (lyricsId == Song.emptySong.id || isRecentlyMissed(lyricsId)) return null
         val sweep = try {
+            // updateLiveResults = false: this background sweep must never
+            // reset or settle the provider sheet's live results - every
+            // sweep RESETS that flow at its start, so an upgrade running
+            // while the sheet is open flipped its rows back to Searching.
+            // The sheet runs its own sweep; this one only reinforces rows
+            // with identical data (same song, same query).
             lyricsDownloadService.remoteLyricsDetailed(
                 song,
-                providerParams = LyricsProviderParams()
+                providerParams = LyricsProviderParams(),
+                updateLiveResults = false
             )
         } catch (e: CancellationException) {
             throw e
@@ -587,6 +602,16 @@ class RealLyricsRepository(
         memoryCache.remove(song.id)
         memoryCache.remove(lyricsId)
         clearNegativeCache(lyricsId)
+    }
+
+    override suspend fun clearStoredLyrics(song: Song) {
+        if (song.id == Song.emptySong.id) return
+        deleteLyrics(song)
+        // deleteLyrics clears the negative cache: record the miss again
+        // so the download ladder doesn't restore the removed lyrics on
+        // the very next play of the song (it retries after the 30-min
+        // miss TTL).
+        recordMiss(lyricsIdFor(song))
     }
 
     override suspend fun refreshProviderResults(song: Song): RawLyrics.Remote? {

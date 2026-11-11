@@ -231,6 +231,7 @@ fun CoverLyricsScreen(
     if (showProviderDialog) {
         val switchState by lyricsViewModel.providerSwitchState.collectAsState()
         val liveResults by lyricsViewModel.providerLiveResults.collectAsState()
+        val hasStoredLyrics by lyricsViewModel.hasStoredLyrics.collectAsState()
         val currentSong by playerViewModel.currentSongFlow.collectAsStateWithLifecycle()
         LaunchedEffect(currentSong.id) {
             lyricsViewModel.refreshProviderResults(currentSong)
@@ -240,15 +241,33 @@ fun CoverLyricsScreen(
             is LyricsUiState.Plain -> state.provider
             else -> null
         }
+        // The active row's subtitle comes from the DISPLAYED lyrics, not
+        // from the sheet's live results: a disabled active provider never
+        // takes part in the sheet's refresh sweep (only enabled providers
+        // do), so its row would otherwise show the tap-to-fetch hint even
+        // with its lyrics on screen.
+        val activeStatus = when (val state = uiState) {
+            is LyricsUiState.Synced ->
+                if (state.syncedLyrics.isWordSynced) ProviderRowStatus.WordSynced
+                else ProviderRowStatus.LineSynced
+            is LyricsUiState.Plain -> ProviderRowStatus.Plain
+            else -> null
+        }
         ProviderSwitchDialog(
             activeProvider = activeProvider,
+            activeStatus = activeStatus,
             switchState = switchState,
             liveResults = liveResults,
             syncOffsetMs = syncOffsetMs,
+            canClearStored = hasStoredLyrics,
             onSwitch = { provider -> lyricsViewModel.switchToProvider(currentSong, provider) },
             onSyncOffset = { delta -> lyricsViewModel.adjustLyricsSyncOffset(delta) },
             onResetSyncOffset = { lyricsViewModel.resetLyricsSyncOffset() },
-            onDismiss = { showProviderDialog = false }
+            onClearStored = { lyricsViewModel.clearStoredLyrics(currentSong) },
+            onDismiss = {
+                lyricsViewModel.providerDialogClosed()
+                showProviderDialog = false
+            }
         )
     }
 }
@@ -418,17 +437,21 @@ private fun LyricsSurface(
 @Composable
 private fun ProviderSwitchDialog(
     activeProvider: String?,
+    activeStatus: ProviderRowStatus?,
     switchState: LyricsViewModel.ProviderSwitchState,
     liveResults: Map<String, RawLyrics.Remote?>,
     syncOffsetMs: Long,
+    canClearStored: Boolean,
     onSwitch: (LyricsProvider) -> Unit,
     onSyncOffset: (Long) -> Unit,
     onResetSyncOffset: () -> Unit,
+    onClearStored: () -> Unit,
     onDismiss: () -> Unit
 ) {
     var dimmed by remember { mutableStateOf(false) }
     val windowAlpha by animateFloatAsState(
-        targetValue = if (dimmed) 0.5f else 1f,
+        // 30% while nudging the offset: the lyrics behind stay readable.
+        targetValue = if (dimmed) 0.3f else 1f,
         animationSpec = tween(durationMillis = 200),
         label = "providerDialogWindowAlpha"
     )
@@ -455,10 +478,11 @@ private fun ProviderSwitchDialog(
                 val plainLabel = stringResource(R.string.plain_text_lyrics_provider_status)
                 val disabledLabel = stringResource(R.string.disabled_lyrics_provider_status)
                 val rows = remember(
-                    activeProvider, switchState, liveResults, visibleProviders
+                    activeProvider, activeStatus, switchState, liveResults, visibleProviders
                 ) {
                     sortedProviderRows(
                         activeProvider = activeProvider,
+                        activeStatus = activeStatus,
                         switchState = switchState,
                         liveResults = liveResults,
                         visibleProviders = visibleProviders,
@@ -528,8 +552,12 @@ private fun ProviderSwitchDialog(
                             },
                             modifier = Modifier
                                 .fillMaxWidth()
+                                // Dim only rows that offer nothing: no
+                                // lyrics, nothing pending, and not the
+                                // active provider (a disabled active
+                                // provider has its lyrics on screen).
                                 .alpha(
-                                    if ((!row.hasLyrics && !row.isPending) || row.isDisabled) {
+                                    if (!row.hasLyrics && !row.isPending && !row.isSelected) {
                                         0.5f
                                     } else {
                                         1f
@@ -558,6 +586,15 @@ private fun ProviderSwitchDialog(
                 )
             }
         },
+        // M3 lays the dismiss slot out to the LEFT of the confirm slot.
+        dismissButton = {
+            // Clear removes the stored (downloaded) lyrics and falls
+            // back to embedded tags / .lrc files; disabled when there
+            // is nothing stored to remove.
+            TextButton(onClick = onClearStored, enabled = canClearStored) {
+                Text(stringResource(R.string.clear_action))
+            }
+        },
         confirmButton = {
             TextButton(onClick = onDismiss) {
                 Text(stringResource(R.string.action_done))
@@ -581,6 +618,9 @@ private fun DialogWindowAlpha(alpha: Float) {
     }
 }
 
+/** Status of the currently displayed lyrics, used to label the active provider row. */
+private enum class ProviderRowStatus { WordSynced, LineSynced, Plain }
+
 private data class ProviderRow(
     val provider: LyricsProvider,
     val subtitle: String,
@@ -594,6 +634,7 @@ private data class ProviderRow(
 
 private fun sortedProviderRows(
     activeProvider: String?,
+    activeStatus: ProviderRowStatus?,
     switchState: LyricsViewModel.ProviderSwitchState,
     liveResults: Map<String, RawLyrics.Remote?>,
     visibleProviders: List<LyricsProvider>,
@@ -619,7 +660,19 @@ private fun sortedProviderRows(
         // forever waiting for a result the race never produces.
         val isPending = provider.isEnabled && !liveResults.containsKey(provider.displayName)
         val isLoading = switchState.loadingProvider == provider
+        val isActive = provider.displayName == activeProvider
         val subtitle = when {
+            // The active row is what's on screen right now: label it from
+            // the DISPLAYED lyrics, not from the live results. A disabled
+            // active provider never takes part in the sheet's refresh
+            // sweep (only enabled providers do), so its row has no live
+            // result and would otherwise show the tap-to-fetch hint even
+            // while its lyrics are playing.
+            isActive && activeStatus != null -> when (activeStatus) {
+                ProviderRowStatus.WordSynced -> wordSyncedLabel
+                ProviderRowStatus.LineSynced -> lineSyncedLabel
+                ProviderRowStatus.Plain -> plainLabel
+            }
             switchState.failureProvider == provider -> noLyricsLabel
             isLoading -> searchingLabel
             isPending -> searchingLabel
@@ -634,7 +687,7 @@ private fun sortedProviderRows(
             ProviderRow(
                 provider = provider,
                 subtitle = subtitle,
-                isSelected = provider.displayName == activeProvider,
+                isSelected = isActive,
                 hasLyrics = hasLyrics,
                 isPending = isPending || isLoading,
                 isLoading = isPending || isLoading,
@@ -645,12 +698,14 @@ private fun sortedProviderRows(
             else if (hasLyrics) 1 else 0
         )
     }
-    // Enabled providers first (active > has lyrics > no result), disabled
-    // providers pinned below them: they can't take part in the race, so
-    // they never have live results to rank.
+    // The active provider sorts first - even when it's a disabled one,
+    // its lyrics are on screen - then enabled rows (has lyrics > no
+    // result), then disabled rows without results: they never take part
+    // in the race, so they have no live results to rank.
     return rows
         .sortedWith(
-            compareByDescending<Triple<LyricsProvider, ProviderRow, Int>> { it.second.isDisabled.not() }
+            compareByDescending<Triple<LyricsProvider, ProviderRow, Int>> { it.first.displayName == activeProvider }
+                .thenByDescending { it.second.isDisabled.not() }
                 .thenByDescending { it.third }
         )
         .mapIndexed { index, (_, row, _) ->
