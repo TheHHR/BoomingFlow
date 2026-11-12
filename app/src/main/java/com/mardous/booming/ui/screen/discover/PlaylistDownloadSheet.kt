@@ -66,7 +66,7 @@ class PlaylistDownloadSheet : BottomSheetDialogFragment() {
         if (playlistKey != null) {
             autoDownload.isChecked = DownloadRegistry.autoDownload(requireContext(), playlistKey)
             autoDownload.setOnCheckedChangeListener { _, checked ->
-                DownloadRegistry.setAutoDownload(requireContext(), playlistKey, checked)
+                DownloadRegistry.setAutoDownload(requireContext(), playlistKey, checked, playlistFragment?.playlistName)
                 if (checked) {
                     playlistFragment?.startAutoDownload()
                 }

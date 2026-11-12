@@ -55,6 +55,7 @@ import com.mardous.booming.ui.screen.discover.SpotifyCardAdapter
 import com.mardous.booming.ui.screen.discover.SpotifyPlaylistFragment
 import com.mardous.booming.ui.screen.library.ReloadType
 import com.mardous.booming.online.viewmodel.StreamingAuthViewModel
+import com.mardous.booming.util.Preferences
 import kotlinx.coroutines.launch
 import me.zhanghai.android.fastscroll.FastScroller
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
@@ -118,7 +119,10 @@ class PlaylistListFragment : AbsRecyclerViewCustomGridSizeFragment<RecyclerView.
                         .isConnected(requireContext())
                     spotifyConnected = state == SpotifyAuthState.CONNECTED ||
                         (hasStoredSession && state != SpotifyAuthState.NOT_CONNECTED)
-                    if (spotifyConnected) {
+                    // The Playlists tab skips the sections load entirely when
+                    // the Spotify library lives on Discover instead: no
+                    // network round-trips for data nothing here displays.
+                    if (spotifyConnected && Preferences.showSpotifyLibraryInPlaylists) {
                         sectionsViewModel.load()
                     }
                     refreshSectionVisibility()
@@ -140,9 +144,10 @@ class PlaylistListFragment : AbsRecyclerViewCustomGridSizeFragment<RecyclerView.
     }
 
     private fun refreshSectionVisibility() {
+        val showSpotify = Preferences.showSpotifyLibraryInPlaylists
         val hasLocal = playlists.isNotEmpty()
-        val likedVisible = spotifyConnected && likedTotal != null
-        val spotifyVisible = spotifyConnected && spotifyPlaylists.isNotEmpty()
+        val likedVisible = showSpotify && spotifyConnected && likedTotal != null
+        val spotifyVisible = showSpotify && spotifyConnected && spotifyPlaylists.isNotEmpty()
 
         yourHeaderAdapter?.setVisible(hasLocal)
         likedHeaderAdapter?.setVisible(likedVisible)
@@ -151,7 +156,7 @@ class PlaylistListFragment : AbsRecyclerViewCustomGridSizeFragment<RecyclerView.
             subtitle = likedTotal?.let { getString(R.string.liked_songs_subtitle, it) }.orEmpty()
         )
         spotifyShelf?.setVisible(spotifyVisible)
-        spotifyCardAdapter?.dataSet = mapToCards(spotifyPlaylists)
+        spotifyCardAdapter?.dataSet = if (showSpotify) mapToCards(spotifyPlaylists) else emptyList()
     }
 
     private fun mapToCards(list: List<SpotifyPlaylist>): List<SpotifyHomeItem.Playlist> {

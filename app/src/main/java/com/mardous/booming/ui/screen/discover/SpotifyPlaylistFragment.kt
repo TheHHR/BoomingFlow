@@ -344,6 +344,14 @@ class SpotifyPlaylistFragment : AbsMainActivityFragment(R.layout.fragment_playli
     val playlistKey: String
         get() = playlistId ?: "liked"
 
+    /**
+     * Display name of the loaded playlist (or "Liked Songs"), used by the
+     * download sheet to persist the auto-download name.
+     */
+    val playlistName: String?
+        get() = viewModel.playlist.value?.name
+            ?: if (viewModel.isLiked.value) getString(R.string.liked_songs_label) else null
+
     fun startAutoDownload() {
         songDownloader.enqueueMissing(viewModel.tracks.value)
     }

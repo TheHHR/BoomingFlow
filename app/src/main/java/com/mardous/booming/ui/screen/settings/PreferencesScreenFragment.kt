@@ -76,6 +76,7 @@ import com.mardous.booming.ui.screen.scrobbling.ScrobblingServiceLoginFragment
 import com.mardous.booming.online.data.innertube.SearchFilter
 import com.mardous.booming.online.data.innertube.SearchItem
 import com.mardous.booming.online.data.innertube.YouTubeMusic
+import com.mardous.booming.online.download.DownloadRegistry
 import com.mardous.booming.online.playback.buildOnlineQueueItem
 import com.mardous.booming.ui.screen.player.PlayerViewModel
 import com.mardous.booming.ui.screen.settings.streaming.StreamingLoginDialogFragment
@@ -109,6 +110,7 @@ import com.mardous.booming.util.ON_CLEAR_QUEUE_ACTION
 import com.mardous.booming.util.ON_SONG_CLICK_ACTION
 import com.mardous.booming.util.GeneralTheme
 import com.mardous.booming.util.Preferences
+import com.mardous.booming.util.AUTO_DOWNLOAD_PLAYLISTS
 import com.mardous.booming.util.SPOTIFY_LOGIN
 import com.mardous.booming.util.SPOTIFY_TOKEN_LOGIN
 import com.mardous.booming.util.TRASH_MUSIC_FILES
@@ -209,6 +211,23 @@ class LibraryPreferencesFragment : PreferenceScreenFragment() {
 class NetworkPreferencesFragment : PreferenceScreenFragment() {
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         addPreferencesFromResource(R.xml.preferences_screen_network)
+        findPreference<Preference>(AUTO_DOWNLOAD_PLAYLISTS)?.apply {
+            summaryProvider = Preference.SummaryProvider<Preference> { preference ->
+                val count = DownloadRegistry.autoDownloadPlaylists(preference.context).size
+                if (count == 0) {
+                    preference.context.getString(R.string.auto_download_playlists_none)
+                } else {
+                    preference.context.resources.getQuantityString(
+                        R.plurals.auto_download_playlists_count, count, count
+                    )
+                }
+            }
+            onPreferenceClickListener = Preference.OnPreferenceClickListener {
+                AutoDownloadPlaylistsDialog()
+                    .show(childFragmentManager, "AUTO_DOWNLOAD_PLAYLISTS")
+                true
+            }
+        }
     }
 }
 

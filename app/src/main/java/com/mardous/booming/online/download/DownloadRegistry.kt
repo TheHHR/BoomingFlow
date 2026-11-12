@@ -103,9 +103,34 @@ object DownloadRegistry {
     fun autoDownload(context: Context, playlistKey: String): Boolean =
         prefs(context).getBoolean("auto_download_$playlistKey", false)
 
-    fun setAutoDownload(context: Context, playlistKey: String, value: Boolean) {
-        prefs(context).edit().putBoolean("auto_download_$playlistKey", value).apply()
+    fun setAutoDownload(context: Context, playlistKey: String, value: Boolean, name: String? = null) {
+        val editor = prefs(context).edit()
+        if (value) {
+            editor.putBoolean("auto_download_$playlistKey", true)
+            // Persist the display name with the flag so the Network
+            // settings list can show it offline, with no network and no
+            // cache dependency.
+            if (!name.isNullOrBlank()) {
+                editor.putString("auto_download_name_$playlistKey", name)
+            }
+        } else {
+            editor.remove("auto_download_$playlistKey")
+                .remove("auto_download_name_$playlistKey")
+        }
+        editor.apply()
     }
+
+    /** Playlist keys (ids, or "liked") with auto download enabled. */
+    fun autoDownloadPlaylists(context: Context): List<String> =
+        prefs(context).all.entries
+            .filter { it.key.startsWith("auto_download_") &&
+                !it.key.startsWith("auto_download_name_") &&
+                it.value == true }
+            .map { it.key.removePrefix("auto_download_") }
+
+    /** Display name persisted when auto download was enabled, if any. */
+    fun autoDownloadName(context: Context, playlistKey: String): String? =
+        prefs(context).getString("auto_download_name_$playlistKey", null)
 
     // ── Context-free helpers (app-wide registry initialized at startup) ───────
 

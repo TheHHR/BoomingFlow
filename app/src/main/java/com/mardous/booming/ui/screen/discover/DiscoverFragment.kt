@@ -18,16 +18,22 @@ import com.mardous.booming.extensions.collectPlayerAccent
 import com.mardous.booming.extensions.resources.applyPlayerAccent
 import com.mardous.booming.extensions.navigation.spotifyPlaylistArgs
 import com.mardous.booming.online.data.spotify.SpotifyHomeItem
+import com.mardous.booming.online.data.spotify.SpotifyPlaylist
+import com.mardous.booming.online.data.spotify.SpotifyPrefs
+import com.mardous.booming.online.data.spotify.thumbnailUrl
 import com.mardous.booming.online.viewmodel.SpotifyAuthState
 import com.mardous.booming.online.viewmodel.StreamingAuthViewModel
 import com.mardous.booming.ui.IScrollHelper
 import com.mardous.booming.ui.adapters.HorizontalListAdapter
 import com.mardous.booming.ui.component.base.AbsMainActivityFragment
+import com.mardous.booming.ui.screen.library.playlists.PlaylistsSectionsViewModel
 import com.mardous.booming.ui.screen.settings.streaming.StreamingLoginDialogFragment
 import com.mardous.booming.ui.screen.settings.streaming.StreamingLoginMode
 import com.mardous.booming.ui.screen.settings.streaming.StreamingService
+import com.mardous.booming.util.Preferences
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class DiscoverFragment : AbsMainActivityFragment(R.layout.fragment_discover), IScrollHelper {
 
@@ -36,6 +42,18 @@ class DiscoverFragment : AbsMainActivityFragment(R.layout.fragment_discover), IS
 
     private val discoverViewModel: DiscoverViewModel by activityViewModel()
     private val authViewModel: StreamingAuthViewModel by activityViewModel()
+
+    /**
+     * Own fragment-scoped sections instance (not shared with the Playlists
+     * tab, whose per-visit reload behavior must not change): it reads and
+     * revalidates the same playlist_cache/sections.json, so the Discover
+     * library shelf restores instantly and works offline.
+     */
+    private val sectionsViewModel: PlaylistsSectionsViewModel by viewModel()
+
+    private var spotifyPlaylists: List<SpotifyPlaylist> = emptyList()
+    private var likedTotal: Int? = null
+    private var spotifyConnected = false
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -78,7 +96,31 @@ class DiscoverFragment : AbsMainActivityFragment(R.layout.fragment_discover), IS
                         SpotifyAuthState.NOT_CONNECTED -> discoverViewModel.onNotConnected()
                         else -> Unit
                     }
-                    previousState = state
+                        // Same stored-session-counts-as-connected rule as the
+                        // Playlists tab: the cached library shelf must not
+                        // wait for the live verifySession() roundtrip.
+                        val hasStoredSession = SpotifyPrefs.isConnected(requireContext())
+                        spotifyConnected = state == SpotifyAuthState.CONNECTED ||
+                            (hasStoredSession && state != SpotifyAuthState.NOT_CONNECTED)
+                        // Only pull the library sections when they are
+                        // actually displayed here (Playlists tab local-only).
+                        if (spotifyConnected && !Preferences.showSpotifyLibraryInPlaylists) {
+                            sectionsViewModel.load()
+                        }
+                        render(discoverViewModel.uiState.value)
+                        previousState = state
+                    }
+            }
+            launch {
+                sectionsViewModel.likedTotal.collect { total ->
+                    likedTotal = total
+                    render(discoverViewModel.uiState.value)
+                }
+            }
+            launch {
+                sectionsViewModel.spotifyPlaylists.collect { list ->
+                    spotifyPlaylists = list
+                    render(discoverViewModel.uiState.value)
                 }
             }
         }
@@ -90,6 +132,28 @@ class DiscoverFragment : AbsMainActivityFragment(R.layout.fragment_discover), IS
         binding.errorContainer.isVisible = false
         binding.recyclerView.isVisible = false
         binding.stateContainer.isVisible = true
+
+        // The connect card takes over when there is no session: the
+        // library shelf requires one just like the home feed.
+        if (state == DiscoverUiState.NotConnected) {
+            binding.connectContainer.isVisible = true
+            return
+        }
+
+        // The Spotify library lives on Discover ("Show Spotify library in
+        // Playlists tab" off): its shelf renders from the cache while the
+        // home feed loads, and feed errors never blank the library out.
+        val libraryShelf = libraryShelfAdapter()
+        if (libraryShelf != null) {
+            binding.stateContainer.isVisible = false
+            binding.recyclerView.isVisible = true
+            val adapters = mutableListOf<RecyclerView.Adapter<*>>(libraryShelf)
+            if (state is DiscoverUiState.Success) {
+                adapters += feedShelfAdapters(state)
+            }
+            binding.recyclerView.adapter = ConcatAdapter(adapters)
+            return
+        }
 
         when (state) {
             DiscoverUiState.Loading -> {
@@ -113,25 +177,72 @@ class DiscoverFragment : AbsMainActivityFragment(R.layout.fragment_discover), IS
             is DiscoverUiState.Success -> {
                 binding.stateContainer.isVisible = false
                 binding.recyclerView.isVisible = true
-
-                val adapters = mutableListOf<RecyclerView.Adapter<*>>()
-                for (section in state.feed.sections) {
-                    val playlists = section.items.filterIsInstance<SpotifyHomeItem.Playlist>()
-                    if (playlists.isEmpty()) continue
-                    val inner = SpotifyCardAdapter { playlistId ->
-                        findNavController().navigate(
-                            R.id.nav_spotify_playlist,
-                            spotifyPlaylistArgs(playlistId)
-                        )
-                    }
-                    inner.dataSet = playlists
-                    val shelf = HorizontalListAdapter(section.title.orEmpty(), inner)
-                    shelf.setVisible(true)
-                    adapters += shelf
-                }
-                binding.recyclerView.adapter = ConcatAdapter(adapters)
+                binding.recyclerView.adapter = ConcatAdapter(feedShelfAdapters(state))
             }
         }
+    }
+
+    /**
+     * "Your Spotify library" shelf (Liked Songs + your playlists), shown
+     * only while the Playlists tab is local-only so the library stays
+     * reachable from Discover. Null when the switch is on, no session, or
+     * nothing cached/loaded yet.
+     */
+    private fun libraryShelfAdapter(): HorizontalListAdapter? {
+        if (Preferences.showSpotifyLibraryInPlaylists) return null
+        if (!spotifyConnected) return null
+        if (likedTotal == null && spotifyPlaylists.isEmpty()) return null
+
+        val cards = mutableListOf<SpotifyHomeItem.Playlist>()
+        likedTotal?.let { total ->
+            cards += SpotifyHomeItem.Playlist(
+                uri = "spotify:playlist:liked",
+                id = "liked",
+                name = getString(R.string.liked_songs_label),
+                description = null,
+                imageUrl = null,
+                ownerName = getString(R.string.liked_songs_subtitle, total)
+            )
+        }
+        cards += spotifyPlaylists.map { playlist ->
+            SpotifyHomeItem.Playlist(
+                uri = playlist.uri ?: "spotify:playlist:${playlist.id}",
+                id = playlist.id,
+                name = playlist.name,
+                description = playlist.description,
+                imageUrl = playlist.thumbnailUrl(),
+                ownerName = playlist.owner?.displayName
+            )
+        }
+
+        val inner = SpotifyCardAdapter { playlistId ->
+            findNavController().navigate(
+                R.id.nav_spotify_playlist,
+                spotifyPlaylistArgs(playlistId)
+            )
+        }
+        inner.dataSet = cards
+        return HorizontalListAdapter(getString(R.string.spotify_library_shelf_title), inner)
+            .also { it.setVisible(true) }
+    }
+
+    private fun feedShelfAdapters(state: DiscoverUiState.Success): List<RecyclerView.Adapter<*>> {
+        val adapters = mutableListOf<RecyclerView.Adapter<*>>()
+        for (section in state.feed.sections) {
+            val playlists = section.items.filterIsInstance<SpotifyHomeItem.Playlist>()
+            if (playlists.isEmpty()) continue
+            val inner = SpotifyCardAdapter { playlistId ->
+                findNavController().navigate(
+                    R.id.nav_spotify_playlist,
+                    spotifyPlaylistArgs(playlistId)
+                )
+            }
+            inner.dataSet = playlists
+            val shelf = HorizontalListAdapter(section.title.orEmpty(), inner)
+            shelf.setVisible(true)
+            adapters += shelf
+        }
+        return adapters
     }
 
     override fun onCreateMenu(menu: Menu, inflater: MenuInflater) {

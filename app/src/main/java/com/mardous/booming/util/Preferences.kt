@@ -119,6 +119,14 @@ object Preferences : KoinComponent {
     val isCustomFont: Boolean
         get() = preferences.getBoolean(USE_CUSTOM_FONT, true)
 
+    /**
+     * Whether the Playlists tab shows the Spotify library (Liked Songs row +
+     * the Spotify shelf). When off, the tab is local-only and the Spotify
+     * library surfaces as a shelf on the Discover tab instead.
+     */
+    val showSpotifyLibraryInPlaylists: Boolean
+        get() = preferences.getBoolean(SHOW_SPOTIFY_LIBRARY_IN_PLAYLISTS, true)
+
     val appBarMode: TopAppBarLayout.AppBarMode
         get() = TopAppBarLayout.AppBarMode.SIMPLE
 
@@ -684,6 +692,8 @@ const val ARTIST_ALIASES = "artist_aliases"
 private const val ARTIST_ALIAS_MAX_CHAIN = 10
 const val FOLLOW_PLAYER_COLOR = "follow_player_color"
 const val USE_CUSTOM_FONT = "use_custom_font"
+const val SHOW_SPOTIFY_LIBRARY_IN_PLAYLISTS = "show_spotify_library_in_playlists"
+const val AUTO_DOWNLOAD_PLAYLISTS = "auto_download_playlists"
 const val GENERAL_THEME = "general_theme"
 const val LIBRARY_CATEGORIES = "library_categories"
 const val REMEMBER_LAST_PAGE = "remember_last_page"

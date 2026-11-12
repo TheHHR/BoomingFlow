@@ -1077,4 +1077,15 @@
     <string name="spotify_artist_subtitle">Top tracks • Spotify</string>
     <string name="spotify_album_subtitle">Spotify Album</string>
     <string name="download_started_label">Download</string>
+    <string name="network_downloads_title">Downloads</string>
+    <string name="auto_download_playlists_title">Auto-download playlists</string>
+    <string name="auto_download_playlists_none">No playlists are set to auto download</string>
+    <string name="visibility_title">Visibility</string>
+    <string name="show_spotify_library_in_playlists_title">Show Spotify library in Playlists tab</string>
+    <string name="show_spotify_library_in_playlists_summary">When off, the Playlists tab shows only local playlists and your Spotify library appears on the Discover tab</string>
+    <string name="spotify_library_shelf_title">Your Spotify library</string>
+    <plurals name="auto_download_playlists_count">
+        <item quantity="one">%d playlist set to auto download</item>
+        <item quantity="other">%d playlists set to auto download</item>
+    </plurals>
 </resources>

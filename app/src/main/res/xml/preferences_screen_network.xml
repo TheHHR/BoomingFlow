@@ -20,6 +20,21 @@
         app:key="wifi_only_network"/>
 
     <PreferenceCategory
+        app:title="@string/visibility_title"
+        app:layout="@layout/preference_category_title">
+
+        <SwitchPreferenceCompat
+            app:icon="@drawable/ic_library_music_24dp"
+            app:title="@string/show_spotify_library_in_playlists_title"
+            app:summary="@string/show_spotify_library_in_playlists_summary"
+            app:defaultValue="true"
+            app:layout="@layout/list_item_view"
+            app:widgetLayout="@layout/preference_switch"
+            app:key="show_spotify_library_in_playlists"/>
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
         app:title="@string/images_title"
         app:layout="@layout/preference_category_title"
         app:dependency="network_features">
@@ -181,6 +196,19 @@
             app:useSimpleSummaryProvider="true"
             app:layout="@layout/list_item_view"
             app:key="download_quality"/>
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        app:title="@string/network_downloads_title"
+        app:layout="@layout/preference_category_title"
+        app:dependency="network_features">
+
+        <Preference
+            app:icon="@drawable/ic_download_24dp"
+            app:title="@string/auto_download_playlists_title"
+            app:layout="@layout/list_item_view"
+            app:key="auto_download_playlists"/>
 
     </PreferenceCategory>
 
