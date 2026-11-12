@@ -2,8 +2,13 @@ package com.mardous.booming.ui.screen.lyrics
 
 import android.os.SystemClock
 import android.view.View
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -146,8 +151,10 @@ fun CoverLyricsScreen(
     // Tonal button colors matching the player's Like/more buttons:
     // the scheme's secondaryContainer with a contrast-computed icon
     // color (AppTheme mode falls back to the theme roles, since
-    // PlayerTheme does not remap secondaryContainer).
-    val actionContainer =
+    // PlayerTheme does not remap secondaryContainer). Animated with the
+    // player tint duration so the buttons ride the same fade as the
+    // View-side surfaces instead of snapping mid-transition.
+    val actionContainerTarget =
         if (playerColorScheme.mode == PlayerColorScheme.Mode.AppTheme ||
             playerColorScheme.secondaryContainerColor == 0
         ) {
@@ -155,6 +162,11 @@ fun CoverLyricsScreen(
         } else {
             Color(playerColorScheme.secondaryContainerColor)
         }
+    val actionContainer by animateColorAsState(
+        targetValue = actionContainerTarget,
+        animationSpec = tween(playerColorScheme.mode.preferredAnimDuration.toInt()),
+        label = "lyricsActionContainer"
+    )
 
     PlayerTheme(playerColorScheme) {
         Box(
@@ -337,108 +349,120 @@ private fun LyricsSurface(
 ) {
     val contentColor = MaterialTheme.colorScheme.onSurface
     Box(modifier) {
-        when (uiState) {
-            is LyricsUiState.Empty -> {
-                Text(
-                    text = stringResource(R.string.no_lyrics_found),
-                    color = contentColor,
-                    style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier
-                        .padding(horizontal = 16.dp)
-                        .align(Alignment.Center)
-                )
-            }
-
-            is LyricsUiState.Loading -> {
-                CircularWavyProgressIndicator(
-                    color = contentColor,
-                    modifier = Modifier.align(Alignment.Center)
-                )
-            }
-
-            is LyricsUiState.Instrumental -> {
-                AnimatedEqBars(
-                    color = contentColor,
-                    isPlaying = isPlaying,
-                    barCount = 5,
-                    modifier = Modifier
-                        .size(56.dp)
-                        .align(Alignment.Center)
-                )
-            }
-
-            is LyricsUiState.Plain -> {
-                val scrollState = rememberScrollState()
-
-                val song by playerViewModel.currentSongFlow.collectAsStateWithLifecycle()
-                LaunchedEffect(song) {
-                    scrollState.scrollTo(0)
+        // Fade between lyrics states (Loading <-> lyrics, old song <->
+        // new song, provider switch) instead of hard-cutting: 350ms to
+        // match BOOMING_ANIM_TIME, fade-only (the AnimatedContent fills
+        // the surface, so there is no size transform). The centered
+        // branches lean on contentAlignment instead of BoxScope align.
+        AnimatedContent(
+            targetState = uiState,
+            transitionSpec = {
+                fadeIn(tween(durationMillis = 350)) togetherWith
+                        fadeOut(tween(durationMillis = 350))
+            },
+            contentAlignment = Alignment.Center,
+            modifier = Modifier.fillMaxSize(),
+            label = "lyricsUiState"
+        ) { state ->
+            when (state) {
+                is LyricsUiState.Empty -> {
+                    Text(
+                        text = stringResource(R.string.no_lyrics_found),
+                        color = contentColor,
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp)
+                    )
                 }
 
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .nestedScroll(rememberNestedScrollInteropConnection())
-                        .fadingEdges(fadingEdges)
-                        .verticalScroll(scrollState)
-                        .padding(contentPadding)
-                ) {
-                    Text(
-                        text = uiState.lyrics,
-                        color = contentColor,
-                        // Fill the width so textAlign actually applies: a
-                        // wrap-content Text centers within its own widest
-                        // line, leaving short-line lyrics left-aligned.
-                        textAlign = textAlign,
-                        style = settings.syncedStyle,
-                        modifier = Modifier.fillMaxWidth()
+                is LyricsUiState.Loading -> {
+                    CircularWavyProgressIndicator(
+                        color = contentColor
                     )
-                    if (isExpanded && !uiState.provider.isNullOrEmpty()) {
+                }
+
+                is LyricsUiState.Instrumental -> {
+                    AnimatedEqBars(
+                        color = contentColor,
+                        isPlaying = isPlaying,
+                        barCount = 5,
+                        modifier = Modifier.size(56.dp)
+                    )
+                }
+
+                is LyricsUiState.Plain -> {
+                    val scrollState = rememberScrollState()
+
+                    val song by playerViewModel.currentSongFlow.collectAsStateWithLifecycle()
+                    LaunchedEffect(song) {
+                        scrollState.scrollTo(0)
+                    }
+
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .nestedScroll(rememberNestedScrollInteropConnection())
+                            .fadingEdges(fadingEdges)
+                            .verticalScroll(scrollState)
+                            .padding(contentPadding)
+                    ) {
                         Text(
-                            text = stringResource(R.string.lyrics_by_x, uiState.provider!!),
-                            style = MaterialTheme.typography.labelSmall,
-                            color = contentColor.copy(alpha = .5f),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .wrapContentWidth(Alignment.CenterHorizontally)
-                                .padding(top = 56.dp)
+                            text = state.lyrics,
+                            color = contentColor,
+                            // Fill the width so textAlign actually applies: a
+                            // wrap-content Text centers within its own widest
+                            // line, leaving short-line lyrics left-aligned.
+                            textAlign = textAlign,
+                            style = settings.syncedStyle,
+                            modifier = Modifier.fillMaxWidth()
                         )
+                        if (isExpanded && !state.provider.isNullOrEmpty()) {
+                            Text(
+                                text = stringResource(R.string.lyrics_by_x, state.provider!!),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = contentColor.copy(alpha = .5f),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .wrapContentWidth(Alignment.CenterHorizontally)
+                                    .padding(top = 56.dp)
+                            )
+                        }
                     }
                 }
-            }
 
-            is LyricsUiState.Synced -> {
-                val lyricsViewState = rememberLyricsViewState(uiState.syncedLyrics)
+                is LyricsUiState.Synced -> {
+                    val lyricsViewState = rememberLyricsViewState(state.syncedLyrics)
 
-                val song by playerViewModel.currentSongFlow.collectAsStateWithLifecycle()
-                val playerProgress by playerViewModel.progressFlow.collectAsStateWithLifecycle()
-                val playbackSpeed by playerViewModel.playbackSpeed.collectAsStateWithLifecycle()
+                    val song by playerViewModel.currentSongFlow.collectAsStateWithLifecycle()
+                    val playerProgress by playerViewModel.progressFlow.collectAsStateWithLifecycle()
+                    val playbackSpeed by playerViewModel.playbackSpeed.collectAsStateWithLifecycle()
 
-                val smoothProgress = rememberSmoothPlaybackPosition(
-                    id = song.id,
-                    playerProgress = playerProgress,
-                    playbackSpeed = playbackSpeed,
-                    isPlaying = isPlaying
-                )
+                    val smoothProgress = rememberSmoothPlaybackPosition(
+                        id = song.id,
+                        playerProgress = playerProgress,
+                        playbackSpeed = playbackSpeed,
+                        isPlaying = isPlaying
+                    )
 
-                // Keyed on the frame-smoothed position so the karaoke word
-                // fill advances at display frame rate instead of the 100ms
-                // progress-tick rate. The manual sync offset shifts the
-                // cursor so lines land earlier or later as requested.
-                LaunchedEffect(smoothProgress, syncOffsetMs) {
-                    lyricsViewState.updatePosition(smoothProgress - syncOffsetMs)
+                    // Keyed on the frame-smoothed position so the karaoke word
+                    // fill advances at display frame rate instead of the 100ms
+                    // progress-tick rate. The manual sync offset shifts the
+                    // cursor so lines land earlier or later as requested.
+                    LaunchedEffect(smoothProgress, syncOffsetMs) {
+                        lyricsViewState.updatePosition(smoothProgress - syncOffsetMs)
+                    }
+
+                    LyricsView(
+                        state = lyricsViewState,
+                        settings = settings,
+                        contentPadding = contentPadding,
+                        fadingEdges = fadingEdges,
+                        contentColor = contentColor,
+                        isPowerSaveMode = isPowerSaveMode,
+                        isExpanded = isExpanded,
+                        onSeekTo = onSeekTo
+                    )
                 }
-
-                LyricsView(
-                    state = lyricsViewState,
-                    settings = settings,
-                    contentPadding = contentPadding,
-                    fadingEdges = fadingEdges,
-                    contentColor = contentColor,
-                    isPowerSaveMode = isPowerSaveMode,
-                    isExpanded = isExpanded,
-                    onSeekTo = onSeekTo
-                )
             }
         }
     }

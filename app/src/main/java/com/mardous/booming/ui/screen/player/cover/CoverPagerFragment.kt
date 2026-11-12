@@ -183,16 +183,18 @@ class CoverPagerFragment : Fragment(R.layout.fragment_player_album_cover),
                         currentAdapterSongs = queue
                         pager.adapter = AlbumCoverPagerAdapter(parentFragmentManager, queue)
                         applyCurrentTransition()
-                        pager.doOnPreDraw {
-                            val itemCount = pager.adapter?.count ?: 0
-                            val lastIndex = (itemCount - 1).coerceAtLeast(0)
-                            val target = playerViewModel.position.current.coerceIn(0, lastIndex)
-                            if (itemCount > 0) {
-                                if (pager.currentItem != target) {
-                                    pager.setCurrentItem(target, false)
-                                }
-                                onPageSelected(target)
-                            }
+                        // doOnPreDraw never fires while the pager is not
+                        // drawn (lyrics overlay INVISIBLE, fullscreen
+                        // takeover's GONE container), which would strand a
+                        // freshly built adapter on page 0 with no color
+                        // refresh until the pager is drawn again. Position
+                        // directly instead - right after an adapter swap the
+                        // mFirstLayout path dispatches onPageSelected
+                        // without needing a layout pass.
+                        if (pager.isShown) {
+                            pager.doOnPreDraw { positionAdapterTo(pager) }
+                        } else {
+                            positionAdapterTo(pager)
                         }
                     } else if (pager.currentItem != playerViewModel.position.current) {
                         // Same queue, different position - just scroll there,
@@ -213,7 +215,22 @@ class CoverPagerFragment : Fragment(R.layout.fragment_player_album_cover),
                     if (pager.currentItem != position.current) {
                         // Playback-driven page change: suppress the redundant
                         // playSongAt round-trip from onPageSelected.
-                        if (isAnimatingTransition) {
+                        //
+                        // A ViewPager settle is DRAW-driven: computeScroll
+                        // (and with it onPageScrollStateChanged(IDLE)) only
+                        // runs while the pager draws. While the lyrics
+                        // overlay has it INVISIBLE or the fullscreen takeover
+                        // hides its container, a smooth settle freezes
+                        // mid-flight forever - isAnimatingTransition then
+                        // latches true and every later song change only
+                        // queues a pending position: no onPageSelected, no
+                        // palette, stale colors. So while the pager is not
+                        // drawn, snap instead: onPageSelected still fires
+                        // (colors refresh) and completeScroll dispatches IDLE
+                        // synchronously, clearing any frozen settle.
+                        // isShown (not ktx isVisible) covers the GONE
+                        // ancestor of the fullscreen takeover too.
+                        if (isAnimatingTransition && pager.isShown) {
                             // A tap/scroll seek is still settling: remember the
                             // newest target and let it settle instead of
                             // interrupting the in-flight fling, which is what
@@ -221,7 +238,7 @@ class CoverPagerFragment : Fragment(R.layout.fragment_player_album_cover),
                             pendingTransitionPosition = position.current
                         } else {
                             suppressOnPageSelectedPlayback = true
-                            pager.setCurrentItem(position.current, true)
+                            pager.setCurrentItem(position.current, pager.isShown)
                             suppressOnPageSelectedPlayback = false
                         }
                     }
@@ -274,13 +291,33 @@ class CoverPagerFragment : Fragment(R.layout.fragment_player_album_cover),
         }
     }
 
+    /**
+     * Positions a freshly (re)built pager adapter at the playing song, and
+     * re-runs the color request for it. Called from doOnPreDraw when the
+     * pager is drawn, or directly while it is not (doOnPreDraw never fires
+     * on an undrawn view).
+     */
+    private fun positionAdapterTo(pager: androidx.viewpager.widget.ViewPager) {
+        val itemCount = pager.adapter?.count ?: 0
+        val lastIndex = (itemCount - 1).coerceAtLeast(0)
+        val target = playerViewModel.position.current.coerceIn(0, lastIndex)
+        if (itemCount > 0) {
+            if (pager.currentItem != target) {
+                pager.setCurrentItem(target, false)
+            }
+            onPageSelected(target)
+        }
+    }
+
     private fun smoothScrollToPosition(pager: androidx.viewpager.widget.ViewPager, position: Int) {
         // Skip the scroll animation when the jump spans more than the
         // visible window: the pager only holds offscreenPageLimit + 1
         // pages per side, so scrolling across a long queue scrubs through
-        // unloaded pages and stutters. Snap directly instead.
+        // unloaded pages and stutters. Snap directly instead. Also snap
+        // while the pager is not drawn (lyrics overlay/takeover) - a
+        // settle would freeze forever and latch isAnimatingTransition.
         val span = kotlin.math.abs(pager.currentItem - position)
-        val smooth = span <= (pager.offscreenPageLimit + 1)
+        val smooth = span <= (pager.offscreenPageLimit + 1) && pager.isShown
         suppressOnPageSelectedPlayback = true
         pager.setCurrentItem(position, smooth)
         suppressOnPageSelectedPlayback = false

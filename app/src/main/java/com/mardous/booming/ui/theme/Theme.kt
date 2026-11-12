@@ -1,6 +1,8 @@
 package com.mardous.booming.ui.theme
 
 import android.os.Build
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
@@ -165,7 +167,7 @@ fun PlayerTheme(
 ) {
     val base = MaterialTheme.colorScheme
 
-    val scheme = remember(playerColorScheme) {
+    val targetScheme = remember(playerColorScheme) {
         if (playerColorScheme.mode == PlayerColorScheme.Mode.AppTheme) {
             base
         } else {
@@ -179,8 +181,29 @@ fun PlayerTheme(
         }
     }
 
+    // Animate the remapped roles so the Compose lyrics recolor in lockstep
+    // with the View-side player tint AnimatorSet (mode.preferredAnimDuration:
+    // 500ms default, 1000ms MaterialYou/Spatial) instead of snapping to the
+    // new song's colors mid-transition while the player surfaces still fade.
+    val durationMillis = playerColorScheme.mode.preferredAnimDuration.toInt()
+    val surface by animateColorAsState(targetScheme.surface, tween(durationMillis), label = "playerSurface")
+    val primary by animateColorAsState(targetScheme.primary, tween(durationMillis), label = "playerPrimary")
+    val onPrimary by animateColorAsState(targetScheme.onPrimary, tween(durationMillis), label = "playerOnPrimary")
+    val onSurface by animateColorAsState(targetScheme.onSurface, tween(durationMillis), label = "playerOnSurface")
+    val onSurfaceVariant by animateColorAsState(
+        targetScheme.onSurfaceVariant,
+        tween(durationMillis),
+        label = "playerOnSurfaceVariant"
+    )
+
     MaterialTheme(
-        colorScheme = scheme,
+        colorScheme = targetScheme.copy(
+            surface = surface,
+            primary = primary,
+            onPrimary = onPrimary,
+            onSurface = onSurface,
+            onSurfaceVariant = onSurfaceVariant
+        ),
         typography = customTypography,
         content = content
     )
