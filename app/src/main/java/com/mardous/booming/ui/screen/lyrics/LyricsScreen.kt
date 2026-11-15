@@ -75,6 +75,7 @@ import com.mardous.booming.ui.component.compose.color.onThis
 import com.mardous.booming.ui.component.compose.decoration.FadingEdges
 import com.mardous.booming.ui.component.compose.decoration.fadingEdges
 import com.mardous.booming.ui.component.compose.lyrics.LyricsView
+import com.mardous.booming.ui.component.compose.lyrics.swipeUpToQueueAtEnd
 import com.mardous.booming.ui.screen.player.PlayerViewModel
 import com.mardous.booming.ui.theme.PlayerTheme
 import kotlinx.coroutines.isActive
@@ -127,6 +128,7 @@ fun CoverLyricsScreen(
     onExpandClick: () -> Unit,
     onCollapseClick: () -> Unit,
     onEditClick: () -> Unit,
+    onSwipeUpToQueue: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -193,6 +195,7 @@ fun CoverLyricsScreen(
                 textAlign = if (lyricsViewSettings.isCenterHorizontally) TextAlign.Center else TextAlign.Start,
                 isPlaying = isPlaying,
                 isPowerSaveMode = isPowerSaveMode,
+                onSwipeUpToQueue = onSwipeUpToQueue,
                 onSeekTo = { position ->
                     playerViewModel.seekTo(position)
                     if (lyricsViewSettings.resumeOnSeek) {
@@ -341,6 +344,7 @@ private fun LyricsSurface(
     isPlaying: Boolean,
     isPowerSaveMode: Boolean,
     onSeekTo: (Long) -> Unit,
+    onSwipeUpToQueue: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     val contentColor = MaterialTheme.colorScheme.onSurface
@@ -388,12 +392,16 @@ private fun LyricsSurface(
                 //
                 // Mini cover host: the padding moves OUTSIDE the scroll and
                 // the height wraps the content. Touches on the bands around
-                // the text never start a Compose scroll, so they never set
-                // the nested-scroll requestDisallowInterceptTouchEvent flag
+                // the text never start a Compose scroll, so they never
+                // trigger the requestDisallowInterceptTouchEvent flag
+                // (AndroidComposeView sets it for ANY consumed movement)
                 // and the player root's swipe-up gate can claim them to open
-                // the queue. Drags that start ON the text still scroll the
-                // lyrics: the interop connection keeps the root from
-                // intercepting once the scroll is in progress.
+                // the queue. Drags that start ON the text scroll it and the
+                // root's interception is then skipped for the rest of the
+                // gesture, so the on-text queue trigger lives INSIDE Compose
+                // where the scroll state is: the observe-only
+                // swipeUpToQueueAtEnd below fires once the finger keeps
+                // traveling 48dp upward WHILE the text is at its end.
                 val scrollModifier = if (isExpanded) {
                     Modifier
                         .fillMaxSize()
@@ -412,6 +420,10 @@ private fun LyricsSurface(
                         .fillMaxWidth()
                         .nestedScroll(rememberNestedScrollInteropConnection())
                         .fadingEdges(fade)
+                        .swipeUpToQueueAtEnd(
+                            canScrollForward = { scrollState.canScrollForward },
+                            onSwipeUp = onSwipeUpToQueue
+                        )
                         .verticalScroll(scrollState)
                 }
 
@@ -470,7 +482,8 @@ private fun LyricsSurface(
                     contentColor = contentColor,
                     isPowerSaveMode = isPowerSaveMode,
                     isExpanded = isExpanded,
-                    onSeekTo = onSeekTo
+                    onSeekTo = onSeekTo,
+                    onSwipeUpToQueue = onSwipeUpToQueue
                 )
             }
         }

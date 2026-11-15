@@ -38,6 +38,14 @@ import kotlin.math.abs
  * the bottom sheet behavior), horizontal drags never cross the 2:1
  * verticality gate (cover paging is untouched), and ACTION_DOWN is never
  * claimed (taps, long-presses and sliders keep working).
+ *
+ * Claiming steals the child's stream (its target receives ACTION_CANCEL),
+ * so [queueSwipeEligibility] gates the claim itself: while the queue
+ * swipe is off in preferences or the expanded lyrics takeover owns the
+ * screen, no stream is ever claimed. Streams Compose has consumed (cover
+ * lyrics scrolls) never reach interception at all - the on-text queue
+ * trigger lives in the lyrics' own Compose-side observer
+ * (swipeUpToQueueAtEnd), routed through the same Fling(UP) handling.
  */
 class QueueGestureLayout @JvmOverloads constructor(
     context: Context,
@@ -50,6 +58,22 @@ class QueueGestureLayout @JvmOverloads constructor(
      * crossed. When unset the layout is a pure pass-through container.
      */
     var queueSwipeListener: (() -> Unit)? = null
+
+    /**
+     * Live eligibility, consulted right before a claim. Defaults to
+     * eligible so hosts that only set [queueSwipeListener] keep the
+     * original behavior.
+     */
+    var queueSwipeEligibility: () -> Boolean = { true }
+
+    init {
+        // The empty-area path needs the group to self-target touches that
+        // hit no child (see onTouchEvent): without clickable, a
+        // self-targeted DOWN returns false and the layout never sees the
+        // stream. This used to rely on android:clickable="true" in the
+        // player layout XML.
+        isClickable = true
+    }
 
     private val swipeThresholdPx = context.resources.displayMetrics.density * SWIPE_UP_DP
 
@@ -86,14 +110,21 @@ class QueueGestureLayout @JvmOverloads constructor(
         }
         val dx = ev.x - downX
         val dy = ev.y - downY
-        if (-dy >= swipeThresholdPx && abs(dy) >= abs(dx) * 2) {
+        if (-dy >= swipeThresholdPx &&
+            abs(dy) >= abs(dx) * 2 &&
+            queueSwipeEligibility()
+        ) {
             swipeClaimed = true
             queueSwipeListener?.invoke()
         }
     }
 
     companion object {
-        /** Upward travel (dp) that opens the queue, wherever the swipe starts. */
-        private const val SWIPE_UP_DP = 48f
+        /**
+         * Upward travel (dp) that opens the queue, wherever the swipe
+         * starts. Shared with the Compose-side at-the-end observer so both
+         * triggers feel identical.
+         */
+        internal const val SWIPE_UP_DP = 48f
     }
 }

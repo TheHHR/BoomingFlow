@@ -88,7 +88,8 @@ fun LyricsView(
     isPowerSaveMode: Boolean,
     isExpanded: Boolean = false,
     modifier: Modifier = Modifier,
-    onSeekTo: (Long) -> Unit
+    onSeekTo: (Long) -> Unit,
+    onSwipeUpToQueue: (() -> Unit)? = null
 ) {
     val density = LocalDensity.current
     val textStyle = settings.syncedStyle
@@ -164,12 +165,16 @@ fun LyricsView(
         //
         // Mini cover host: the inset moves OUT of the list (becomes the
         // modifier padding below) so the bands around the lyric lines never
-        // start a Compose scroll — touches there never set the nested-scroll
-        // requestDisallowInterceptTouchEvent flag and the player root's
-        // swipe-up gate can claim them to open the queue. Drags that start
-        // ON the lines still scroll them: once the scroll begins, the interop
-        // connection keeps the root from intercepting. The auto-centering
-        // math reads the live list viewport, so it adapts to the bounded list.
+        // start a Compose scroll — touches there never trigger the
+        // requestDisallowInterceptTouchEvent flag (AndroidComposeView sets
+        // it for ANY consumed movement) and the player root's swipe-up gate
+        // can claim them to open the queue. Drags that start ON the lines
+        // scroll them and the root's interception is then skipped for the
+        // rest of the gesture, so the on-text queue trigger lives INSIDE
+        // Compose where the list state is: the observe-only
+        // swipeUpToQueueAtEnd below fires once the finger keeps traveling
+        // 48dp upward WHILE the list is at its end. The auto-centering math
+        // reads the live list viewport, so it adapts to the bounded list.
         contentPadding = if (isExpanded) contentPadding else PaddingValues(0.dp),
         verticalArrangement = Arrangement.spacedBy(settings.lineSpacing.dp),
         modifier = modifier
@@ -185,6 +190,10 @@ fun LyricsView(
                         .fillMaxWidth()
                         .nestedScroll(rememberNestedScrollInteropConnection())
                         .fadingEdges(edges = if (hasScrollRange) fadingEdges else FadingEdges.None)
+                        .swipeUpToQueueAtEnd(
+                            canScrollForward = { listState.canScrollForward },
+                            onSwipeUp = onSwipeUpToQueue
+                        )
                 }
             )
     ) {
