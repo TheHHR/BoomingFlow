@@ -42,7 +42,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -52,9 +51,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.res.painterResource
@@ -78,7 +75,6 @@ import com.mardous.booming.ui.component.compose.color.onThis
 import com.mardous.booming.ui.component.compose.decoration.FadingEdges
 import com.mardous.booming.ui.component.compose.decoration.fadingEdges
 import com.mardous.booming.ui.component.compose.lyrics.LyricsView
-import com.mardous.booming.ui.component.compose.lyrics.swipeUpToQueueAtEnd
 import com.mardous.booming.ui.screen.player.PlayerViewModel
 import com.mardous.booming.ui.theme.PlayerTheme
 import kotlinx.coroutines.isActive
@@ -131,7 +127,6 @@ fun CoverLyricsScreen(
     onExpandClick: () -> Unit,
     onCollapseClick: () -> Unit,
     onEditClick: () -> Unit,
-    onSwipeUpToQueue: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -198,7 +193,6 @@ fun CoverLyricsScreen(
                 textAlign = if (lyricsViewSettings.isCenterHorizontally) TextAlign.Center else TextAlign.Start,
                 isPlaying = isPlaying,
                 isPowerSaveMode = isPowerSaveMode,
-                onSwipeUpToQueue = onSwipeUpToQueue,
                 onSeekTo = { position ->
                     playerViewModel.seekTo(position)
                     if (lyricsViewSettings.resumeOnSeek) {
@@ -347,7 +341,6 @@ private fun LyricsSurface(
     isPlaying: Boolean,
     isPowerSaveMode: Boolean,
     onSeekTo: (Long) -> Unit,
-    onSwipeUpToQueue: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     val contentColor = MaterialTheme.colorScheme.onSurface
@@ -390,68 +383,14 @@ private fun LyricsSurface(
                     scrollState.scrollTo(0)
                 }
 
-                // Expanded takeover: full-bleed scroll surface whose padding
-                // scrolls with the content (unchanged).
-                //
-                // Mini cover host: the padding moves OUTSIDE the scroll and
-                // the height wraps the content. Touches on the bands around
-                // the text never start a Compose scroll, so they never
-                // trigger the requestDisallowInterceptTouchEvent flag
-                // (AndroidComposeView sets it for ANY consumed movement)
-                // and the player root's swipe-up gate can claim them to open
-                // the queue. Drags that start ON the text scroll it and the
-                // root's interception is then skipped for the rest of the
-                // gesture, so the on-text queue trigger lives INSIDE Compose
-                // where the scroll state is: the observe-only
-                // swipeUpToQueueAtEnd below fires once the finger keeps
-                // traveling 48dp upward WHILE the text is at its end, or
-                // when the drag STARTS inside the bottom fade band (the
-                // queueZoneTop arg) - a tall text block fills the surface
-                // and its last fadingEdges.bottom dp fade to alpha 0, so
-                // that band looks blank above the title while it is scroll
-                // surface. Short blocks have no fade (maxValue == 0) and end
-                // mid-surface: below the text there is nothing to scroll,
-                // the zone stays off and the root claims those drags.
-                val density = LocalDensity.current
-                var miniSurfaceHeightPx by remember { mutableFloatStateOf(0f) }
-                val scrollModifier = if (isExpanded) {
-                    Modifier
+                Column(
+                    modifier = Modifier
                         .fillMaxSize()
                         .nestedScroll(rememberNestedScrollInteropConnection())
                         .fadingEdges(fadingEdges)
                         .verticalScroll(scrollState)
                         .padding(contentPadding)
-                } else {
-                    // Fade only while there is scroll range: on short wrapped
-                    // text the fade bands would otherwise cover the content
-                    // itself (with the full-bleed layout they sat over the
-                    // padding, which no longer scrolls).
-                    val fade = if (scrollState.maxValue > 0) fadingEdges else FadingEdges.None
-                    Modifier
-                        .padding(contentPadding)
-                        .fillMaxWidth()
-                        .nestedScroll(rememberNestedScrollInteropConnection())
-                        .fadingEdges(fade)
-                        .onSizeChanged { miniSurfaceHeightPx = it.height.toFloat() }
-                        .swipeUpToQueueAtEnd(
-                            canScrollForward = { scrollState.canScrollForward },
-                            // Bottom FADE band = queue territory (the synced
-                            // branch documents why); 0f before the first
-                            // measure keeps the zone off for that gesture.
-                            queueZoneTop = {
-                                if (scrollState.maxValue > 0 && miniSurfaceHeightPx > 0f) {
-                                    miniSurfaceHeightPx -
-                                            with(density) { fadingEdges.bottom.toPx() }
-                                } else {
-                                    null
-                                }
-                            },
-                            onSwipeUp = onSwipeUpToQueue
-                        )
-                        .verticalScroll(scrollState)
-                }
-
-                Column(modifier = scrollModifier) {
+                ) {
                     Text(
                         text = uiState.lyrics,
                         color = contentColor,
@@ -506,8 +445,7 @@ private fun LyricsSurface(
                     contentColor = contentColor,
                     isPowerSaveMode = isPowerSaveMode,
                     isExpanded = isExpanded,
-                    onSeekTo = onSeekTo,
-                    onSwipeUpToQueue = onSwipeUpToQueue
+                    onSeekTo = onSeekTo
                 )
             }
         }

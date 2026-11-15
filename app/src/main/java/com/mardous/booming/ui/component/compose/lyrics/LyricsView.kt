@@ -88,8 +88,7 @@ fun LyricsView(
     isPowerSaveMode: Boolean,
     isExpanded: Boolean = false,
     modifier: Modifier = Modifier,
-    onSeekTo: (Long) -> Unit,
-    onSwipeUpToQueue: (() -> Unit)? = null
+    onSeekTo: (Long) -> Unit
 ) {
     val density = LocalDensity.current
     val textStyle = settings.syncedStyle
@@ -150,77 +149,14 @@ fun LyricsView(
         }
     }
 
-    // True once the list actually has scroll range (content fills or
-    // overflows its bounded height). Used to keep the fade edges off short
-    // wrapped lyric blocks, where the gradient bands would otherwise sit
-    // over the lines instead of over empty padding.
-    val hasScrollRange by remember {
-        derivedStateOf { listState.canScrollForward || listState.canScrollBackward }
-    }
-
     LazyColumn(
         state = listState,
-        // Expanded takeover: full-bleed list whose contentPadding scrolls
-        // with the content (unchanged).
-        //
-        // Mini cover host: the inset moves OUT of the list (becomes the
-        // modifier padding below) so the bands around the lyric lines never
-        // start a Compose scroll — touches there never trigger the
-        // requestDisallowInterceptTouchEvent flag (AndroidComposeView sets
-        // it for ANY consumed movement) and the player root's swipe-up gate
-        // can claim them to open the queue. Drags that start ON the lines
-        // scroll them and the root's interception is then skipped for the
-        // rest of the gesture, so the on-text queue trigger lives INSIDE
-        // Compose where the list state is: the observe-only
-        // swipeUpToQueueAtEnd below fires once the finger keeps traveling
-        // 48dp upward WHILE the list is at its end, or when the drag
-        // STARTS inside the bottom fade band (the queueZoneTop arg) -
-        // that band fades to alpha 0 so it looks blank above the title,
-        // but it is scroll surface. The auto-centering math reads the
-        // live list viewport, so it adapts to the bounded list.
-        contentPadding = if (isExpanded) contentPadding else PaddingValues(0.dp),
+        contentPadding = contentPadding,
         verticalArrangement = Arrangement.spacedBy(settings.lineSpacing.dp),
         modifier = modifier
-            .then(
-                if (isExpanded) {
-                    Modifier
-                        .nestedScroll(rememberNestedScrollInteropConnection())
-                        .fadingEdges(edges = fadingEdges)
-                        .fillMaxSize()
-                } else {
-                    Modifier
-                        .padding(contentPadding)
-                        .fillMaxWidth()
-                        .nestedScroll(rememberNestedScrollInteropConnection())
-                        .fadingEdges(edges = if (hasScrollRange) fadingEdges else FadingEdges.None)
-                        .swipeUpToQueueAtEnd(
-                            canScrollForward = { listState.canScrollForward },
-                            // Bottom FADE band = queue territory. The mini
-                            // lyrics fade their last fadingEdges.bottom dp
-                            // to alpha 0, so that band LOOKS like blank
-                            // space above the title while it is genuine
-                            // scroll surface - a drag starting there must
-                            // open the queue even mid-list. Anchoring to
-                            // the last rendered item instead would put the
-                            // zone off exactly there (a filled viewport
-                            // always has an item past its bottom edge).
-                            // No zone without a scroll range: the surface
-                            // wraps the text, the fade is off, and
-                            // below-text is outside the surface - the
-                            // player root claims those drags already.
-                            queueZoneTop = {
-                                val li = listState.layoutInfo
-                                val vh = li.viewportEndOffset - li.viewportStartOffset
-                                if (hasScrollRange && vh > 0) {
-                                    vh - with(density) { fadingEdges.bottom.toPx() }
-                                } else {
-                                    null
-                                }
-                            },
-                            onSwipeUp = onSwipeUpToQueue
-                        )
-                }
-            )
+            .nestedScroll(rememberNestedScrollInteropConnection())
+            .fadingEdges(edges = fadingEdges)
+            .fillMaxSize()
     ) {
         val lines = state.lyrics?.lines ?: emptyList()
         itemsIndexed(lines, key = { _, line -> line.id }) { index, line ->

@@ -52,16 +52,6 @@ class CoverLyricsFragment : Fragment() {
                         onCollapseClick = {
                             (parentFragment as? AbsPlayerFragment)?.collapseLyrics()
                         },
-                        onSwipeUpToQueue = {
-                            // Mini host: player fragment is two fragments up
-                            // (pager page -> pager fragment -> player).
-                            // Expanded host: its surface owns the gestures
-                            // and openQueueFromLyricsSwipe's gates ignore
-                            // it, so resolving both hosts here is safe.
-                            (parentFragment as? AbsPlayerFragment
-                                ?: parentFragment?.parentFragment as? AbsPlayerFragment)
-                                ?.openQueueFromLyricsSwipe()
-                        },
                         onEditClick = {
                             (parentFragment as? AbsPlayerFragment
                                 ?: parentFragment?.parentFragment as? AbsPlayerFragment)

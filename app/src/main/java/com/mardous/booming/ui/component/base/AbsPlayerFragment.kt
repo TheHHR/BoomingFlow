@@ -247,31 +247,9 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) : Fragment(layoutRes
         // stream - even ones already claimed by child views - and fires
         // the queue swipe from anywhere on the screen. Taps, cover
         // paging, sliders and scroll gestures are left to their owners.
-        (view as? QueueGestureLayout)?.apply {
-            queueSwipeListener = {
-                gestureDetected(GestureType.Fling(GestureType.Fling.DIRECTION_UP))
-            }
-            // Claiming steals the child's stream (it receives
-            // ACTION_CANCEL), so the root must only claim when the queue
-            // swipe could actually fire: while it is off in preferences
-            // or the expanded lyrics takeover owns the screen, child
-            // gestures keep their streams untouched.
-            queueSwipeEligibility = {
-                Preferences.isSwipeUpQueue &&
-                    !isLyricsExpanded &&
-                    currentDestinationAllowsQueueOpen()
-            }
+        (view as? QueueGestureLayout)?.queueSwipeListener = {
+            gestureDetected(GestureType.Fling(GestureType.Fling.DIRECTION_UP))
         }
-    }
-
-    /**
-     * Entry point of the lyrics' own at-the-end swipe-up gesture (the
-     * observe-only Compose trigger on the mini cover lyrics). Routes
-     * through the same Fling(UP) handling as the player root's swipe so
-     * both gestures share one set of gates.
-     */
-    internal fun openQueueFromLyricsSwipe() {
-        gestureDetected(GestureType.Fling(GestureType.Fling.DIRECTION_UP))
     }
 
     internal fun inflateMenuInView(view: View?): PopupMenu? {
