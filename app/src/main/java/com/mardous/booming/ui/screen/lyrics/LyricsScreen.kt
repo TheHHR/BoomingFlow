@@ -42,6 +42,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -51,7 +52,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.res.painterResource
@@ -401,10 +404,16 @@ private fun LyricsSurface(
                 // gesture, so the on-text queue trigger lives INSIDE Compose
                 // where the scroll state is: the observe-only
                 // swipeUpToQueueAtEnd below fires once the finger keeps
-                // traveling 48dp upward WHILE the text is at its end.
-                // No queueZoneTop here: this surface wraps the text, so
-                // the area below the last line is outside it and the
-                // player root already claims those drags.
+                // traveling 48dp upward WHILE the text is at its end, or
+                // when the drag STARTS inside the bottom fade band (the
+                // queueZoneTop arg) - a tall text block fills the surface
+                // and its last fadingEdges.bottom dp fade to alpha 0, so
+                // that band looks blank above the title while it is scroll
+                // surface. Short blocks have no fade (maxValue == 0) and end
+                // mid-surface: below the text there is nothing to scroll,
+                // the zone stays off and the root claims those drags.
+                val density = LocalDensity.current
+                var miniSurfaceHeightPx by remember { mutableFloatStateOf(0f) }
                 val scrollModifier = if (isExpanded) {
                     Modifier
                         .fillMaxSize()
@@ -423,8 +432,20 @@ private fun LyricsSurface(
                         .fillMaxWidth()
                         .nestedScroll(rememberNestedScrollInteropConnection())
                         .fadingEdges(fade)
+                        .onSizeChanged { miniSurfaceHeightPx = it.height.toFloat() }
                         .swipeUpToQueueAtEnd(
                             canScrollForward = { scrollState.canScrollForward },
+                            // Bottom FADE band = queue territory (the synced
+                            // branch documents why); 0f before the first
+                            // measure keeps the zone off for that gesture.
+                            queueZoneTop = {
+                                if (scrollState.maxValue > 0 && miniSurfaceHeightPx > 0f) {
+                                    miniSurfaceHeightPx -
+                                            with(density) { fadingEdges.bottom.toPx() }
+                                } else {
+                                    null
+                                }
+                            },
                             onSwipeUp = onSwipeUpToQueue
                         )
                         .verticalScroll(scrollState)

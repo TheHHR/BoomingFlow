@@ -35,15 +35,18 @@ import kotlin.math.abs
  * [canScrollForward] flips, so merely scrolling TO the end never fires
  * by itself - only dragging 48dp further upward does.
  *
- * [queueZoneTop] widens this to "below the last line": a drag whose DOWN
+ * [queueZoneTop] widens this to a positional zone: a drag whose DOWN
  * lands at or below the returned viewport Y opens the queue on the same
  * 48dp / 2:1 gate even while the lyrics are mid-list (the returned null
  * disables the zone for that gesture). Zone membership is decided at
  * DOWN time - the finger placement IS the intent - so the drags stay
- * predictable. Without a scrollable range this is moot (at-end is
- * already true from the DOWN); with upcoming lines filling the viewport
- * bottom the zone shrinks to nothing, exactly like the empty area below
- * a text block does.
+ * predictable. The callers anchor it to the bottom FADE band, not to the
+ * last rendered item: with a filled viewport the mini lyrics fade their
+ * last FadingEdges.bottom dp to alpha 0, so that band LOOKS blank
+ * while it is genuine scroll surface - anchoring to the item bottoms
+ * would put the zone off exactly where the user sees empty space and
+ * swipes. Below-the-fade drags mean "queue"; visible text stays scroll
+ * territory.
  */
 @Composable
 fun Modifier.swipeUpToQueueAtEnd(

@@ -174,11 +174,10 @@ fun LyricsView(
         // Compose where the list state is: the observe-only
         // swipeUpToQueueAtEnd below fires once the finger keeps traveling
         // 48dp upward WHILE the list is at its end, or when the drag
-        // STARTS below the last rendered line (the queueZoneTop arg) -
-        // the viewport area under a short lyric block is scroll surface
-        // too, so without it a swipe near the title would only scroll.
-        // The auto-centering math reads the live list viewport, so it
-        // adapts to the bounded list.
+        // STARTS inside the bottom fade band (the queueZoneTop arg) -
+        // that band fades to alpha 0 so it looks blank above the title,
+        // but it is scroll surface. The auto-centering math reads the
+        // live list viewport, so it adapts to the bounded list.
         contentPadding = if (isExpanded) contentPadding else PaddingValues(0.dp),
         verticalArrangement = Arrangement.spacedBy(settings.lineSpacing.dp),
         modifier = modifier
@@ -196,18 +195,27 @@ fun LyricsView(
                         .fadingEdges(edges = if (hasScrollRange) fadingEdges else FadingEdges.None)
                         .swipeUpToQueueAtEnd(
                             canScrollForward = { listState.canScrollForward },
-                            // "Below the last line" zone: a drag whose DOWN
-                            // lands under the last rendered line opens the
-                            // queue on the same 48dp gate even while the
-                            // lyrics are mid-list (null while nothing is
-                            // rendered). The plain-text branch needs no
-                            // equivalent - its scroll surface wraps the
-                            // text, so the area below it is already outside
-                            // the surface and reaches the player root.
+                            // Bottom FADE band = queue territory. The mini
+                            // lyrics fade their last fadingEdges.bottom dp
+                            // to alpha 0, so that band LOOKS like blank
+                            // space above the title while it is genuine
+                            // scroll surface - a drag starting there must
+                            // open the queue even mid-list. Anchoring to
+                            // the last rendered item instead would put the
+                            // zone off exactly there (a filled viewport
+                            // always has an item past its bottom edge).
+                            // No zone without a scroll range: the surface
+                            // wraps the text, the fade is off, and
+                            // below-text is outside the surface - the
+                            // player root claims those drags already.
                             queueZoneTop = {
-                                listState.layoutInfo.visibleItemsInfo
-                                    .lastOrNull()
-                                    ?.let { (it.offset + it.size).toFloat() }
+                                val li = listState.layoutInfo
+                                val vh = li.viewportEndOffset - li.viewportStartOffset
+                                if (hasScrollRange && vh > 0) {
+                                    vh - with(density) { fadingEdges.bottom.toPx() }
+                                } else {
+                                    null
+                                }
                             },
                             onSwipeUp = onSwipeUpToQueue
                         )
