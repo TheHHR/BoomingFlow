@@ -173,8 +173,12 @@ fun LyricsView(
         // rest of the gesture, so the on-text queue trigger lives INSIDE
         // Compose where the list state is: the observe-only
         // swipeUpToQueueAtEnd below fires once the finger keeps traveling
-        // 48dp upward WHILE the list is at its end. The auto-centering math
-        // reads the live list viewport, so it adapts to the bounded list.
+        // 48dp upward WHILE the list is at its end, or when the drag
+        // STARTS below the last rendered line (the queueZoneTop arg) -
+        // the viewport area under a short lyric block is scroll surface
+        // too, so without it a swipe near the title would only scroll.
+        // The auto-centering math reads the live list viewport, so it
+        // adapts to the bounded list.
         contentPadding = if (isExpanded) contentPadding else PaddingValues(0.dp),
         verticalArrangement = Arrangement.spacedBy(settings.lineSpacing.dp),
         modifier = modifier
@@ -192,6 +196,19 @@ fun LyricsView(
                         .fadingEdges(edges = if (hasScrollRange) fadingEdges else FadingEdges.None)
                         .swipeUpToQueueAtEnd(
                             canScrollForward = { listState.canScrollForward },
+                            // "Below the last line" zone: a drag whose DOWN
+                            // lands under the last rendered line opens the
+                            // queue on the same 48dp gate even while the
+                            // lyrics are mid-list (null while nothing is
+                            // rendered). The plain-text branch needs no
+                            // equivalent - its scroll surface wraps the
+                            // text, so the area below it is already outside
+                            // the surface and reaches the player root.
+                            queueZoneTop = {
+                                listState.layoutInfo.visibleItemsInfo
+                                    .lastOrNull()
+                                    ?.let { (it.offset + it.size).toFloat() }
+                            },
                             onSwipeUp = onSwipeUpToQueue
                         )
                 }

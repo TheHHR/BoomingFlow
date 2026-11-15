@@ -34,16 +34,28 @@ import kotlin.math.abs
  * swipe opens the queue. The accumulation resets whenever
  * [canScrollForward] flips, so merely scrolling TO the end never fires
  * by itself - only dragging 48dp further upward does.
+ *
+ * [queueZoneTop] widens this to "below the last line": a drag whose DOWN
+ * lands at or below the returned viewport Y opens the queue on the same
+ * 48dp / 2:1 gate even while the lyrics are mid-list (the returned null
+ * disables the zone for that gesture). Zone membership is decided at
+ * DOWN time - the finger placement IS the intent - so the drags stay
+ * predictable. Without a scrollable range this is moot (at-end is
+ * already true from the DOWN); with upcoming lines filling the viewport
+ * bottom the zone shrinks to nothing, exactly like the empty area below
+ * a text block does.
  */
 @Composable
 fun Modifier.swipeUpToQueueAtEnd(
     canScrollForward: () -> Boolean,
+    queueZoneTop: (() -> Float?)? = null,
     onSwipeUp: (() -> Unit)?
 ): Modifier {
     if (onSwipeUp == null) {
         return this
     }
     val liveCanScrollForward by rememberUpdatedState(canScrollForward)
+    val liveQueueZoneTop by rememberUpdatedState(queueZoneTop)
     val liveOnSwipeUp by rememberUpdatedState(onSwipeUp)
 
     return pointerInput(Unit) {
@@ -52,9 +64,17 @@ fun Modifier.swipeUpToQueueAtEnd(
         val swipeUpThresholdPx = QueueGestureLayout.SWIPE_UP_DP.dp.toPx()
         awaitEachGesture {
             val down = awaitFirstDown(requireUnconsumed = false)
+            // The zone is read once per gesture: positionChangeIgnoreConsumed
+            // deltas below scroll the lyrics, but the finger's START point
+            // already told us whether this swipe means "queue".
+            val inQueueZone = liveQueueZoneTop?.invoke()
+                ?.let { zoneTop -> down.position.y >= zoneTop }
+                ?: false
             var atEnd = !liveCanScrollForward()
             var dyAtEnd = 0f
             var dxAtEnd = 0f
+            var dyInZone = 0f
+            var dxInZone = 0f
             var fired = false
             while (!fired) {
                 val event = awaitPointerEvent()
@@ -65,6 +85,16 @@ fun Modifier.swipeUpToQueueAtEnd(
                 // change reports zero movement.
                 val delta = change.positionChangeIgnoreConsumed()
                 if (delta.x != 0f || delta.y != 0f) {
+                    if (inQueueZone) {
+                        dyInZone += delta.y
+                        dxInZone += delta.x
+                        if (-dyInZone >= swipeUpThresholdPx &&
+                            abs(dyInZone) >= abs(dxInZone) * 2
+                        ) {
+                            fired = true
+                            liveOnSwipeUp()
+                        }
+                    }
                     val nowAtEnd = !liveCanScrollForward()
                     if (nowAtEnd != atEnd) {
                         // The lyrics just ran out of (or regained) forward

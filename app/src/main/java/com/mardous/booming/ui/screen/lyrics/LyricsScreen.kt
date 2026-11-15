@@ -402,6 +402,9 @@ private fun LyricsSurface(
                 // where the scroll state is: the observe-only
                 // swipeUpToQueueAtEnd below fires once the finger keeps
                 // traveling 48dp upward WHILE the text is at its end.
+                // No queueZoneTop here: this surface wraps the text, so
+                // the area below the last line is outside it and the
+                // player root already claims those drags.
                 val scrollModifier = if (isExpanded) {
                     Modifier
                         .fillMaxSize()
