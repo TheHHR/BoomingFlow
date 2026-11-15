@@ -383,14 +383,39 @@ private fun LyricsSurface(
                     scrollState.scrollTo(0)
                 }
 
-                Column(
-                    modifier = Modifier
+                // Expanded takeover: full-bleed scroll surface whose padding
+                // scrolls with the content (unchanged).
+                //
+                // Mini cover host: the padding moves OUTSIDE the scroll and
+                // the height wraps the content. Touches on the bands around
+                // the text never start a Compose scroll, so they never set
+                // the nested-scroll requestDisallowInterceptTouchEvent flag
+                // and the player root's swipe-up gate can claim them to open
+                // the queue. Drags that start ON the text still scroll the
+                // lyrics: the interop connection keeps the root from
+                // intercepting once the scroll is in progress.
+                val scrollModifier = if (isExpanded) {
+                    Modifier
                         .fillMaxSize()
                         .nestedScroll(rememberNestedScrollInteropConnection())
                         .fadingEdges(fadingEdges)
                         .verticalScroll(scrollState)
                         .padding(contentPadding)
-                ) {
+                } else {
+                    // Fade only while there is scroll range: on short wrapped
+                    // text the fade bands would otherwise cover the content
+                    // itself (with the full-bleed layout they sat over the
+                    // padding, which no longer scrolls).
+                    val fade = if (scrollState.maxValue > 0) fadingEdges else FadingEdges.None
+                    Modifier
+                        .padding(contentPadding)
+                        .fillMaxWidth()
+                        .nestedScroll(rememberNestedScrollInteropConnection())
+                        .fadingEdges(fade)
+                        .verticalScroll(scrollState)
+                }
+
+                Column(modifier = scrollModifier) {
                     Text(
                         text = uiState.lyrics,
                         color = contentColor,

@@ -149,14 +149,44 @@ fun LyricsView(
         }
     }
 
+    // True once the list actually has scroll range (content fills or
+    // overflows its bounded height). Used to keep the fade edges off short
+    // wrapped lyric blocks, where the gradient bands would otherwise sit
+    // over the lines instead of over empty padding.
+    val hasScrollRange by remember {
+        derivedStateOf { listState.canScrollForward || listState.canScrollBackward }
+    }
+
     LazyColumn(
         state = listState,
-        contentPadding = contentPadding,
+        // Expanded takeover: full-bleed list whose contentPadding scrolls
+        // with the content (unchanged).
+        //
+        // Mini cover host: the inset moves OUT of the list (becomes the
+        // modifier padding below) so the bands around the lyric lines never
+        // start a Compose scroll — touches there never set the nested-scroll
+        // requestDisallowInterceptTouchEvent flag and the player root's
+        // swipe-up gate can claim them to open the queue. Drags that start
+        // ON the lines still scroll them: once the scroll begins, the interop
+        // connection keeps the root from intercepting. The auto-centering
+        // math reads the live list viewport, so it adapts to the bounded list.
+        contentPadding = if (isExpanded) contentPadding else PaddingValues(0.dp),
         verticalArrangement = Arrangement.spacedBy(settings.lineSpacing.dp),
         modifier = modifier
-            .nestedScroll(rememberNestedScrollInteropConnection())
-            .fadingEdges(edges = fadingEdges)
-            .fillMaxSize()
+            .then(
+                if (isExpanded) {
+                    Modifier
+                        .nestedScroll(rememberNestedScrollInteropConnection())
+                        .fadingEdges(edges = fadingEdges)
+                        .fillMaxSize()
+                } else {
+                    Modifier
+                        .padding(contentPadding)
+                        .fillMaxWidth()
+                        .nestedScroll(rememberNestedScrollInteropConnection())
+                        .fadingEdges(edges = if (hasScrollRange) fadingEdges else FadingEdges.None)
+                }
+            )
     ) {
         val lines = state.lyrics?.lines ?: emptyList()
         itemsIndexed(lines, key = { _, line -> line.id }) { index, line ->
