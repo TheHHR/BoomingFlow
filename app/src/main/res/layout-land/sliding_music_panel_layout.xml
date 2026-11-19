@@ -38,7 +38,7 @@
         app:behavior_peekHeight="@dimen/mini_player_height"
         app:enableEdgeToEdge="true"
         app:gestureInsetBottomIgnored="true"
-        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
+        app:layout_behavior="com.mardous.booming.ui.component.views.PlayerSheetBehavior">
 
         <androidx.fragment.app.FragmentContainerView
             android:id="@+id/player_container"
