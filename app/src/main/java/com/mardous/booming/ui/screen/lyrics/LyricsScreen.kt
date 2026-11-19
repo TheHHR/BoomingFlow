@@ -44,6 +44,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
@@ -75,8 +76,10 @@ import com.mardous.booming.ui.component.compose.color.onThis
 import com.mardous.booming.ui.component.compose.decoration.FadingEdges
 import com.mardous.booming.ui.component.compose.decoration.fadingEdges
 import com.mardous.booming.ui.component.compose.lyrics.LyricsView
+import com.mardous.booming.ui.component.compose.lyrics.lyricsLineBounds
 import com.mardous.booming.ui.screen.player.PlayerViewModel
 import com.mardous.booming.ui.theme.PlayerTheme
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.isActive
 import java.util.Locale
 
@@ -91,32 +94,6 @@ sealed class LyricsUiState(open val id: Long) {
 @Composable
 private fun rememberLyricsViewState(lyrics: SyncedLyrics): LyricsViewState {
     return remember(lyrics) { LyricsViewState(lyrics) }
-}
-
-@Composable
-fun rememberSmoothPlaybackPosition(
-    id: Long,
-    playerProgress: Long,
-    playbackSpeed: Float,
-    isPlaying: Boolean
-): Long {
-    var position by remember(id) { mutableStateOf(playerProgress) }
-    LaunchedEffect(id, playerProgress, isPlaying) {
-        val baseRealtime = SystemClock.elapsedRealtime()
-        if (!isPlaying) {
-            position = playerProgress
-            return@LaunchedEffect
-        }
-
-        while (isActive) {
-            withFrameNanos {
-                val elapsed = SystemClock.elapsedRealtime() - baseRealtime
-                position = playerProgress + (elapsed * playbackSpeed).toLong()
-            }
-        }
-    }
-
-    return position
 }
 
 @Composable
@@ -194,7 +171,8 @@ fun CoverLyricsScreen(
                 isPlaying = isPlaying,
                 isPowerSaveMode = isPowerSaveMode,
                 onSeekTo = { position ->
-                    playerViewModel.seekTo(position)
+                    // Lines are highlighted at progress - offset, so seek to line time + offset.
+                    playerViewModel.seekTo((position + syncOffsetMs).coerceAtLeast(0))
                     if (lyricsViewSettings.resumeOnSeek) {
                         playerViewModel.play()
                     }
@@ -399,7 +377,9 @@ private fun LyricsSurface(
                         // line, leaving short-line lyrics left-aligned.
                         textAlign = textAlign,
                         style = settings.syncedStyle,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .lyricsLineBounds("plain")
                     )
                     if (isExpanded && !uiState.provider.isNullOrEmpty()) {
                         Text(
@@ -418,23 +398,33 @@ private fun LyricsSurface(
             is LyricsUiState.Synced -> {
                 val lyricsViewState = rememberLyricsViewState(uiState.syncedLyrics)
 
-                val song by playerViewModel.currentSongFlow.collectAsStateWithLifecycle()
-                val playerProgress by playerViewModel.progressFlow.collectAsStateWithLifecycle()
                 val playbackSpeed by playerViewModel.playbackSpeed.collectAsStateWithLifecycle()
+                val currentSpeed by rememberUpdatedState(playbackSpeed)
 
-                val smoothProgress = rememberSmoothPlaybackPosition(
-                    id = song.id,
-                    playerProgress = playerProgress,
-                    playbackSpeed = playbackSpeed,
-                    isPlaying = isPlaying
-                )
-
-                // Keyed on the frame-smoothed position so the karaoke word
-                // fill advances at display frame rate instead of the 100ms
-                // progress-tick rate. The manual sync offset shifts the
-                // cursor so lines land earlier or later as requested.
-                LaunchedEffect(smoothProgress, syncOffsetMs) {
-                    lyricsViewState.updatePosition(smoothProgress - syncOffsetMs)
+                // Frame-smoothed position written straight into the view
+                // state, so the karaoke word fill advances at display frame
+                // rate instead of the 100ms progress-tick rate. Progress is
+                // collected here, not as Compose state: reading it (or a
+                // per-frame position) in composition recomposed this whole
+                // surface and restarted an effect on every frame. The manual
+                // sync offset shifts the cursor so lines land earlier or
+                // later as requested.
+                LaunchedEffect(lyricsViewState, isPlaying, syncOffsetMs) {
+                    playerViewModel.progressFlow.collectLatest { playerProgress ->
+                        if (!isPlaying) {
+                            lyricsViewState.updatePosition(playerProgress - syncOffsetMs)
+                            return@collectLatest
+                        }
+                        val baseRealtime = SystemClock.elapsedRealtime()
+                        while (isActive) {
+                            withFrameNanos {
+                                val elapsed = SystemClock.elapsedRealtime() - baseRealtime
+                                lyricsViewState.updatePosition(
+                                    playerProgress + (elapsed * currentSpeed).toLong() - syncOffsetMs
+                                )
+                            }
+                        }
+                    }
                 }
 
                 LyricsView(

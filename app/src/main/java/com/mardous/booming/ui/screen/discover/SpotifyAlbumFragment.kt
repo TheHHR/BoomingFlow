@@ -171,23 +171,7 @@ class SpotifyAlbumFragment : AbsMainActivityFragment(R.layout.fragment_detail_li
                 showToast(getString(R.string.no_youtube_match_found, track.name))
                 return@launch
             }
-            playerViewModel.playOnlineQueue(listOf(item))
-            viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
-                val rest = tracks.drop(index + 1)
-                playerViewModel.addOnlineQueue(rest.resolveBatchForPlayback(20))
-            }
-            if (index > 0) {
-                viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
-                    var insertIndex = 0
-                    tracks.take(index).chunked(20).forEach { chunk ->
-                        val items = chunk.resolveBatchForPlayback(20)
-                        if (items.isNotEmpty()) {
-                            playerViewModel.addOnlineQueueAt(insertIndex, items)
-                            insertIndex += items.size
-                        }
-                    }
-                }
-            }
+            playerViewModel.playSpotifyList(item, tracks.take(index), tracks.drop(index + 1), 20)
         }
     }
 
@@ -233,10 +217,7 @@ class SpotifyAlbumFragment : AbsMainActivityFragment(R.layout.fragment_detail_li
                 showToast(getString(R.string.no_youtube_match_found, ordered.first().name))
                 return@launch
             }
-            playerViewModel.playOnlineQueue(listOf(first))
-            viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
-                playerViewModel.addOnlineQueue(ordered.drop(1).resolveBatchForPlayback(20))
-            }
+            playerViewModel.playSpotifyList(first, emptyList(), ordered.drop(1), 20)
         }
     }
 

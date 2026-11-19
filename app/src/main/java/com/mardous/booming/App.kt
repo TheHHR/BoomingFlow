@@ -96,6 +96,17 @@ class App : Application(), SingletonImageLoader.Factory {
         com.mardous.booming.online.data.innertube.NewPipeStreamExtractor.init(this)
         com.mardous.booming.online.ui.OnlineToast.init(this)
         com.mardous.booming.online.download.DownloadRegistry.init(this)
+        // Restore saved sessions at process start: the cookie was persisted but never reloaded, so
+        // after a restart every InnerTube call went out as a guest while settings said "logged in".
+        com.mardous.booming.online.data.innertube.YouTubeMusic.setCookie(
+            com.mardous.booming.online.data.innertube.AccountManager.getAuthCookie(this)
+        )
+        com.mardous.booming.online.data.spotify.SpotifyPrefs.let { sp ->
+            val token = sp.getAccessToken(this)
+            if (token.isNotBlank() && !sp.isTokenExpiringSoon(this)) {
+                com.mardous.booming.online.data.spotify.SpotifyClient.setToken(token)
+            }
+        }
         org.koin.core.context.GlobalContext.get()
             .getOrNull<com.mardous.booming.online.download.SongDownloader>()
             ?.purgeStaleEntries()

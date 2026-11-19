@@ -95,6 +95,7 @@ import com.mardous.booming.ui.component.menu.onArtistMenu
 import com.mardous.booming.ui.component.menu.onPlaylistMenu
 import com.mardous.booming.ui.component.menu.onSongMenu
 import com.mardous.booming.ui.component.menu.onSongsMenu
+import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
@@ -383,12 +384,15 @@ class SearchFragment : AbsMainActivityFragment(R.layout.fragment_search),
 
     private fun handleOnlineSongsMenu(menuItem: MenuItem, songs: List<com.mardous.booming.data.model.Song>) {
         val tracks = songs.mapNotNull { song ->
-            viewModel.searchResult.value.filterIsInstance<SpotifyTrack>()
+            // Outside scoped search the Spotify tracks live in spotifyResult, not searchResult.
+            (viewModel.searchResult.value.filterIsInstance<SpotifyTrack>() +
+                    viewModel.spotifyResult.value?.tracks.orEmpty())
                 .firstOrNull { it.id == song.data.removePrefix("yt:") }
         }
         when (menuItem.itemId) {
             R.id.action_play_next, R.id.action_add_to_playing_queue -> {
-                viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
+                // One-shot action: launch, not repeatOnLifecycle (which re-ran it on every resume).
+                viewLifecycleOwner.lifecycleScope.launch {
                     val items = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
                         tracks.mapNotNull { it.resolveForPlayback() }
                     }
@@ -477,24 +481,22 @@ class SearchFragment : AbsMainActivityFragment(R.layout.fragment_search),
     }
 
     override fun spotifyTrackPlay(track: SpotifyTrack, tracks: List<SpotifyTrack>) {
-        viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
+        viewLifecycleOwner.lifecycleScope.launch {
             val item = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
                 track.resolveForPlayback()
             }
             if (item == null) {
                 showToast(getString(R.string.no_youtube_match_found, track.name))
-                return@launchAndRepeatWithViewLifecycle
+                return@launch
             }
-            playerViewModel.playOnlineQueue(listOf(item))
-            kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
-                val rest = tracks.dropWhile { it.id != track.id }.drop(1)
-                playerViewModel.addOnlineQueue(rest.resolveBatchForPlayback(20))
-            }
+            playerViewModel.playSpotifyList(
+                item, emptyList(), tracks.dropWhile { it.id != track.id }.drop(1), 20
+            )
         }
     }
 
     override fun spotifyTrackPlayNext(track: SpotifyTrack) {
-        viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
+        viewLifecycleOwner.lifecycleScope.launch {
             val item = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
                 track.resolveForPlayback()
             }
@@ -508,7 +510,7 @@ class SearchFragment : AbsMainActivityFragment(R.layout.fragment_search),
     }
 
     override fun spotifyTrackEnqueue(track: SpotifyTrack) {
-        viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
+        viewLifecycleOwner.lifecycleScope.launch {
             val item = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
                 track.resolveForPlayback()
             }

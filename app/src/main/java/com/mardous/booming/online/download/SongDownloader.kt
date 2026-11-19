@@ -38,6 +38,7 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
@@ -255,10 +256,13 @@ class SongDownloader(
                 if (!enqueuedTrackIds.add(trackKey)) {
                     return@launch
                 }
+                // Counted from here; every early return below calls endTask().
+                beginTask()
                 val resolved = withContext(Dispatchers.IO) { track.resolveForPlayback() }
                 if (resolved == null) {
                     mark(track.id, track.name, DownloadProgress.State.FAILED, 0)
                     enqueuedTrackIds.remove(trackKey)
+                    endTask()
                     return@launch
                 }
                 val videoId = resolved.song.data.removePrefix("yt:")
@@ -281,7 +285,6 @@ class SongDownloader(
                             refreshUri = existingUri
                         )
                     )
-                    _activeCount.value = _activeCount.value + 1
                     return@launch
                 }
                 // A matching file may already exist in the user's music library
@@ -298,6 +301,7 @@ class SongDownloader(
                     mark(videoId, track.name, DownloadProgress.State.DONE, 100)
                     _events.tryEmit(DownloadEvent.Completed(videoId, track.id))
                     enqueuedTrackIds.remove(trackKey)
+                    endTask()
                     return@launch
                 }
                  queue.trySend(
@@ -314,7 +318,6 @@ class SongDownloader(
                          year = releaseYear(track)
                      )
                  )
-                 _activeCount.value = _activeCount.value + 1
             }
         }
     }
@@ -400,6 +403,7 @@ class SongDownloader(
             if (isDownloaded(videoId) || !enqueuedTrackIds.add(key)) {
                 return@launch
             }
+            beginTask()
             val existing = withContext(Dispatchers.IO) { findExistingLocalFile(title, artist, 0) }
             if (existing != null) {
                 DownloadRegistry.put(context, videoId, existing.toString(), title)
@@ -409,6 +413,7 @@ class SongDownloader(
                 mark(videoId, title, DownloadProgress.State.DONE, 100)
                 _events.tryEmit(DownloadEvent.Completed(videoId, trackId))
                 enqueuedTrackIds.remove(key)
+                endTask()
                 return@launch
             }
             queue.trySend(
@@ -423,7 +428,6 @@ class SongDownloader(
                     dataSaver = derivedDataSaver(derivedDownloadFormat())
                 )
             )
-            _activeCount.value = _activeCount.value + 1
         }
     }
 
@@ -438,9 +442,15 @@ class SongDownloader(
             var removed = 0
             for ((key, uri) in entries) {
                 if (key.startsWith("sp:")) continue
-                val alive = runCatching {
+                // Only "file not found" means dead: a revoked READ_MEDIA_AUDIO or unmounted
+                // storage throws SecurityException/others and must not wipe the registry.
+                val alive = try {
                     context.contentResolver.openInputStream(Uri.parse(uri))?.use { true } ?: false
-                }.getOrDefault(false)
+                } catch (_: java.io.FileNotFoundException) {
+                    false
+                } catch (_: Exception) {
+                    true
+                }
                 if (!alive) {
                     DownloadRegistry.removeByUri(context, uri)
                     removed++
@@ -509,9 +519,8 @@ class SongDownloader(
                         performDownload(task)
                     }
                     mark(task.videoId, task.title, DownloadProgress.State.DONE, 100)
-                    _progress.value = _progress.value - task.videoId
+                    _progress.update { it - task.videoId }
                     _events.tryEmit(DownloadEvent.Completed(task.videoId, task.spotifyTrackId))
-                    notifyUpdate()
                     applyPendingActions(task.videoId)
                     return@withContext
                 } catch (e: Exception) {
@@ -526,7 +535,7 @@ class SongDownloader(
                 OnlineToast.show(context.getString(R.string.favorite_download_failed))
             }
         } finally {
-            _activeCount.value = (_activeCount.value - 1).coerceAtLeast(0)
+            endTask()
             if (!task.spotifyTrackId.isNullOrBlank()) {
                 enqueuedTrackIds.remove(task.spotifyTrackId)
             }
@@ -617,9 +626,17 @@ class SongDownloader(
         val uri = Uri.parse(task.refreshUri.orEmpty())
         val genre = fetchGenre(task.title, task.artist)
 
-        val opened = runCatching {
+        // Only a missing file drops the entry. A file we may read but not write (adopted
+        // from another app, or ours from before a reinstall: RecoverableSecurityException)
+        // stays downloaded; its tags are just left as they are.
+        val opened = try {
             context.contentResolver.openFileDescriptor(uri, "rw")
-        }.getOrNull() ?: run {
+        } catch (e: java.io.FileNotFoundException) {
+            null
+        } catch (e: SecurityException) {
+            Log.i(TAG, "Refresh skipped, no write access for ${task.videoId}")
+            return
+        } ?: run {
             DownloadRegistry.removeByUri(context, task.refreshUri.orEmpty())
             throw IOException("Refresh target missing for ${task.videoId}")
         }
@@ -802,9 +819,14 @@ class SongDownloader(
             "BoomingFlow"
         )
         if (!dir.exists() && !dir.mkdirs()) return null
-        val outFile = File(dir, fileName)
+        // Two songs with the same "Title - Artist" must not overwrite each other.
+        val base = fileName.substringBeforeLast('.')
+        val ext = fileName.substringAfterLast('.', "")
+        val outFile = generateSequence(1) { it + 1 }
+            .map { n -> File(dir, if (n == 1) fileName else "$base ($n).$ext") }
+            .first { !it.exists() }
         return try {
-            tempFile.copyTo(outFile, overwrite = true)
+            tempFile.copyTo(outFile, overwrite = false)
             MediaScannerConnection.scanFile(context, arrayOf(outFile.absolutePath), arrayOf(task.format.mimeType), null)
             Uri.fromFile(outFile)
         } catch (e: Exception) {
@@ -822,7 +844,20 @@ class SongDownloader(
     }
 
     private fun mark(videoId: String, title: String, state: DownloadProgress.State, percent: Int) {
-        _progress.value = _progress.value + (videoId to DownloadProgress(videoId, title, percent, state))
+        _progress.update { it + (videoId to DownloadProgress(videoId, title, percent, state)) }
+    }
+
+    // Atomic: enqueue jobs and the worker run concurrently. The notification
+    // follows the count, so it disappears when the last task ends (it used to
+    // stay "ongoing" because the final update ran before the decrement).
+    private fun beginTask() {
+        _activeCount.update { it + 1 }
+        notifyUpdate()
+    }
+
+    private fun endTask() {
+        _activeCount.update { (it - 1).coerceAtLeast(0) }
+        notifyUpdate()
     }
 
     private fun notifyStart() {
@@ -836,17 +871,8 @@ class SongDownloader(
                 )
             )
         }
-        if (!canNotify()) return
-        val notification = NotificationCompat.Builder(context, CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_download_24dp)
-            .setContentTitle(context.getString(R.string.download_notification_title))
-            .setOngoing(true)
-            .setOnlyAlertOnce(true)
-            .build()
-        try {
-            manager.notify(NOTIFICATION_ID, notification)
-        } catch (_: SecurityException) {
-        }
+        // The notification itself is posted by beginTask(): posting here left an
+        // ongoing notification behind when every track was skipped as a duplicate.
     }
 
     private fun notifyUpdate() {
@@ -882,7 +908,26 @@ class SongDownloader(
     private fun releaseYear(track: SpotifyTrack): Int? =
         track.album?.releaseDate?.take(4)?.toIntOrNull()
 
-    private fun sanitize(name: String): String = name.replace(Regex("[\\\\/:*?\"<>|]"), "_")
+    /**
+     * Reserved and control characters out, then capped at [MAX_NAME_BYTES] UTF-8 bytes
+     * (the filesystem limit is 255 bytes; long CJK titles at 3 bytes/char used to fail every attempt).
+     */
+    private fun sanitize(name: String): String {
+        val clean = name.replace(Regex("[\\\\/:*?\"<>|\\p{Cntrl}]"), "_").trim()
+        if (clean.toByteArray(Charsets.UTF_8).size <= MAX_NAME_BYTES) return clean
+        val out = StringBuilder()
+        var bytes = 0
+        var i = 0
+        while (i < clean.length) {
+            val cp = clean.codePointAt(i)
+            val len = String(Character.toChars(cp)).toByteArray(Charsets.UTF_8).size
+            if (bytes + len > MAX_NAME_BYTES) break
+            out.appendCodePoint(cp)
+            bytes += len
+            i += Character.charCount(cp)
+        }
+        return out.toString().trim()
+    }
 
     private data class DownloadTask(
         val videoId: String,
@@ -905,6 +950,8 @@ class SongDownloader(
         private const val CHANNEL_ID = "booming_downloads"
         private const val NOTIFICATION_ID = 4001
         private const val MAX_ATTEMPTS = 3
+        /** Name budget before the extension (and any " (n)" collision suffix). */
+        private const val MAX_NAME_BYTES = 200
         private const val RELATIVE_PATH = "Music/BoomingFlow"
 
         /**

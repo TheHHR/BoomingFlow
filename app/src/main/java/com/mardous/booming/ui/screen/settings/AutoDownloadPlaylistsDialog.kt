@@ -90,11 +90,16 @@ class AutoDownloadPlaylistsDialog : DialogFragment() {
             rows += Row(key, displayName(key))
         }
         val unresolved = rows.filter { it.name == it.key }
-        if (unresolved.isNotEmpty() && SpotifyPrefs.isConnected(context)) {
+        if (unresolved.isNotEmpty()) {
+            val canFetch = SpotifyPrefs.isConnected(context)
             lifecycleScope.launch {
                 for (row in unresolved) {
+                    // The playlist cache is a full track-list JSON: decode it off the main thread.
                     val name = withContext(Dispatchers.IO) {
-                        runCatching { SpotifyClient.playlist(row.key).getOrNull()?.name }.getOrNull()
+                        SpotifyPlaylistCache.read(context, row.key)?.playlist?.name
+                            ?: if (canFetch) {
+                                runCatching { SpotifyClient.playlist(row.key).getOrNull()?.name }.getOrNull()
+                            } else null
                     }
                     if (!name.isNullOrBlank()) {
                         row.name = name
@@ -108,7 +113,6 @@ class AutoDownloadPlaylistsDialog : DialogFragment() {
     private fun displayName(key: String): String {
         val context = requireContext()
         return DownloadRegistry.autoDownloadName(context, key)
-            ?: SpotifyPlaylistCache.read(context, key)?.playlist?.name
             ?: if (key == LIKED_KEY) getString(R.string.liked_songs_label) else key
     }
 

@@ -24,6 +24,7 @@ import okhttp3.Request
 import java.io.IOException
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeoutOrNull
 
 const val ONLINE_MEDIA_ID_PREFIX = "yt:"
 
@@ -78,11 +79,16 @@ fun createStreamingDataSourceFactory(context: Context): DataSource.Factory {
             val videoId = uri.host
                 ?: throw IOException("innertube URI is missing a video id: $uri")
             val localUri = DownloadRegistry.get(context, videoId)
+                ?.takeIf { localCopyReadable(context, it, videoId) }
             if (localUri != null) {
                 dataSpec.buildUpon().setUri(Uri.parse(localUri)).build()
             } else {
+                // Bounded: the resolver chain (NewPipe + several InnerTube clients) could otherwise
+                // keep the player buffering for minutes with no error.
                 val url = runBlocking {
-                    YouTubeMusic.getStreamUrl(videoId = videoId)
+                    withTimeoutOrNull(STREAM_RESOLVE_TIMEOUT_MS) {
+                        YouTubeMusic.getStreamUrl(videoId = videoId)
+                    } ?: Result.failure(IOException("Timed out resolving a stream for $videoId"))
                 }.getOrElse { cause ->
                     throw IOException("Failed to resolve a stream for $videoId", cause)
                 }
@@ -90,6 +96,22 @@ fun createStreamingDataSourceFactory(context: Context): DataSource.Factory {
             }
         }
     }
+}
+
+private const val STREAM_RESOLVE_TIMEOUT_MS = 30_000L
+
+/**
+ * A downloaded copy deleted outside the app (file manager) must not win over
+ * streaming: drop its registry entry and stream instead. Other failures
+ * (revoked permission, unmounted storage) stream without forgetting the file.
+ */
+private fun localCopyReadable(context: Context, uri: String, videoId: String): Boolean = try {
+    context.contentResolver.openFileDescriptor(Uri.parse(uri), "r")?.use { } != null
+} catch (_: java.io.FileNotFoundException) {
+    DownloadRegistry.remove(context, videoId)
+    false
+} catch (_: Exception) {
+    false
 }
 
 data class OnlineQueueItem(

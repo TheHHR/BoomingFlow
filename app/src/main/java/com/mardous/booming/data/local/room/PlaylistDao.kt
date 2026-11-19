@@ -52,11 +52,18 @@ interface PlaylistDao {
     @Query("SELECT MAX(playlist_order) FROM PlaylistEntity")
     suspend fun maxPlaylistOrder(): Int?
 
+    @Query("UPDATE PlaylistEntity SET playlist_order = :order WHERE playlist_id = :playlistId")
+    suspend fun setPlaylistOrder(playlistId: Long, order: Int)
+
+    /**
+     * Writes only the order column: the entities come from the adapter's snapshot, and a
+     * whole-row @Update undid a rename/cover/rule edit made since that snapshot was taken.
+     */
     @Transaction
     suspend fun savePlaylistOrder(orderedEntities: List<PlaylistEntity>) {
         orderedEntities.forEachIndexed { index, entity ->
             if (entity.playlistOrder != index) {
-                updatePlaylist(entity.copy(playlistOrder = index))
+                setPlaylistOrder(entity.playListId, index)
             }
         }
     }

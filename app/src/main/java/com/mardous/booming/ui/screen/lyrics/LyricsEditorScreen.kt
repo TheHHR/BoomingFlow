@@ -253,9 +253,13 @@ fun LyricsEditorScreen(
     }
 
     ObserveAsEvent(viewModel.downloadEvent) { downloadedLyrics ->
+        val availableModes = listOf(
+            downloadedLyrics.hasPlain, downloadedLyrics.hasSynced, downloadedLyrics.hasWordSynced
+        ).count { it }
         when {
-            downloadedLyrics.hasBoth || downloadedLyrics.hasWordSynced ->
-                downloadedLyricsForSelector = downloadedLyrics
+            // Ask only when there is a real choice; a single version is applied directly.
+            availableModes > 1 -> downloadedLyricsForSelector = downloadedLyrics
+            downloadedLyrics.hasWordSynced -> setLyricsContent(downloadedLyrics.wordSynced?.lyrics)
             downloadedLyrics.hasPlain -> setLyricsContent(downloadedLyrics.plain?.lyrics)
             downloadedLyrics.hasSynced -> setLyricsContent(downloadedLyrics.synced?.lyrics)
             else -> showManualSearchDialog = true
@@ -289,6 +293,8 @@ fun LyricsEditorScreen(
     if (downloadedLyricsForSelector != null) {
         val downloaded = downloadedLyricsForSelector!!
         LyricsSelectorDialog(
+            hasPlain = downloaded.hasPlain,
+            hasSynced = downloaded.hasSynced,
             hasWordByWord = downloaded.hasWordSynced,
             onDismissRequest = {
                 downloadedLyricsForSelector = null
@@ -576,36 +582,52 @@ fun LyricsEditorScreen(
 
 @Composable
 fun LyricsSelectorDialog(
+    hasPlain: Boolean,
+    hasSynced: Boolean,
     hasWordByWord: Boolean,
     onDismissRequest: () -> Unit,
     onModeSelected: (LyricsMode) -> Unit
 ) {
-    var selectedMode by remember { mutableStateOf(LyricsMode.Synced) }
+    // Only versions that exist are offered (picking a missing one emptied the editor),
+    // and the best one is preselected.
+    var selectedMode by remember {
+        mutableStateOf(
+            when {
+                hasWordByWord -> LyricsMode.WordByWord
+                hasSynced -> LyricsMode.Synced
+                else -> LyricsMode.Plain
+            }
+        )
+    }
 
     AlertDialog(
         onDismissRequest = onDismissRequest,
         title = { Text(stringResource(R.string.choose_lyrics)) },
         text = {
             Column(Modifier.fillMaxWidth()) {
-                DialogListItemWithRadio(
-                    title = stringResource(R.string.plain_lyrics),
-                    onClick = {
-                        selectedMode = LyricsMode.Plain
-                    },
-                    isSelected = selectedMode == LyricsMode.Plain,
-                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 12.dp),
-                    modifier = Modifier.fillMaxWidth()
-                )
+                if (hasPlain) {
+                    DialogListItemWithRadio(
+                        title = stringResource(R.string.plain_lyrics),
+                        onClick = {
+                            selectedMode = LyricsMode.Plain
+                        },
+                        isSelected = selectedMode == LyricsMode.Plain,
+                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 12.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
 
-                DialogListItemWithRadio(
-                    title = stringResource(R.string.synced_lyrics),
-                    onClick = {
-                        selectedMode = LyricsMode.Synced
-                    },
-                    isSelected = selectedMode == LyricsMode.Synced,
-                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 12.dp),
-                    modifier = Modifier.fillMaxWidth()
-                )
+                if (hasSynced) {
+                    DialogListItemWithRadio(
+                        title = stringResource(R.string.synced_lyrics),
+                        onClick = {
+                            selectedMode = LyricsMode.Synced
+                        },
+                        isSelected = selectedMode == LyricsMode.Synced,
+                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 12.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
 
                 if (hasWordByWord) {
                     DialogListItemWithRadio(

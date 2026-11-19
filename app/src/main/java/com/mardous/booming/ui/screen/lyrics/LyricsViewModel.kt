@@ -101,10 +101,17 @@ class LyricsViewModel(
     }
 
     fun disposeEditorContent() = viewModelScope.launch(IO) {
+        // A download still running would deliver its result into the NEXT editor session
+        // (possibly another song) and flip the state back to Visible.
+        editorDownloadJob?.cancel()
         _lyricsEditorUiState.value = LyricsEditorUiState.Disposed
     }
 
+    private var editorDownloadJob: Job? = null
+
     fun saveLyrics(song: Song, newLyrics: Map<LyricsSource, String>) = viewModelScope.launch(IO) {
+        // A running upgrade sweep would overwrite the edit when it finishes.
+        if (wordUpgradeSongId == song.id) cancelWordUpgrade()
         val uiState = _lyricsEditorUiState.updateAndGet {
             if (it is LyricsEditorUiState.Visible) {
                 it.copy(isLoading = true)
@@ -141,8 +148,9 @@ class LyricsViewModel(
         }
     }
 
-    fun downloadLyrics(song: Song, title: String, artist: String, providers: List<LyricsProvider>) =
-        viewModelScope.launch(IO) {
+    fun downloadLyrics(song: Song, title: String, artist: String, providers: List<LyricsProvider>) {
+        editorDownloadJob?.cancel()
+        editorDownloadJob = viewModelScope.launch(IO) {
             val uiState = _lyricsEditorUiState.updateAndGet {
                 if (it is LyricsEditorUiState.Visible) {
                     it.copy(isLoading = true)
@@ -162,6 +170,7 @@ class LyricsViewModel(
                 _lyricsEditorUiState.value = uiState.copy(isLoading = false)
             }
         }
+    }
 
     fun preparePermissionRequest(song: Song) = viewModelScope.launch(IO) {
         _permissionRequestEvent.send(repository.writableUris(song))
@@ -309,12 +318,14 @@ class LyricsViewModel(
         syncOffsetSaveJob?.cancel()
         val song = currentLyricsSong ?: return
         if (debounced) {
+            // Capture now: after the delay a skip may have loaded the next song's offset.
+            val offset = _lyricsSyncOffsetMs.value
             syncOffsetSaveJob = viewModelScope.launch {
                 // Debounce: each tap writes at most once, 500ms after the
                 // last adjustment.
                 delay(500)
                 withContext(IO) {
-                    runCatching { repository.saveSyncOffset(song, _lyricsSyncOffsetMs.value) }
+                    runCatching { repository.saveSyncOffset(song, offset) }
                 }
             }
         } else {
@@ -334,6 +345,18 @@ class LyricsViewModel(
      * sweep resumes when the sheet closes.
      */
     private var suspendedWordUpgradeSong: Song? = null
+
+    /**
+     * Stops a running or suspended upgrade sweep. Used when the user picks
+     * lyrics by hand (provider switch, edit, clear) - the sweep would
+     * otherwise overwrite them when it lands - and when the song changes,
+     * so sweeps don't pile up while skipping.
+     */
+    private fun cancelWordUpgrade() {
+        wordUpgradeJob?.cancel()
+        wordUpgradeJob = null
+        suspendedWordUpgradeSong = null
+    }
 
     /**
      * Runs a background sweep for the provider sheet without persisting
@@ -397,6 +420,7 @@ class LyricsViewModel(
         if (_providerSwitchState.value.loadingProvider != null) return
         // Cancel any in-flight fetch so it can't overwrite the user's pick.
         lyricsJob?.cancel()
+        if (wordUpgradeSongId == song.id) cancelWordUpgrade()
         viewModelScope.launch {
             _providerSwitchState.value = ProviderSwitchState(loadingProvider = provider)
             val cacheKey = song.id to provider
@@ -451,6 +475,7 @@ class LyricsViewModel(
      */
     fun clearStoredLyrics(song: Song) = viewModelScope.launch {
         if (song.id == Song.emptySong.id) return@launch
+        if (wordUpgradeSongId == song.id) cancelWordUpgrade()
         // The sync offset lives on the lyrics row being deleted: stop any
         // pending offset save/load and reset it - it was tuned for the
         // lyrics being removed.
@@ -484,6 +509,8 @@ class LyricsViewModel(
     }
 
     fun updateSong(song: Song) {
+        // A skipped song's sweep is abandoned (it stays in wordUpgradeAttempted).
+        if (wordUpgradeSongId != null && wordUpgradeSongId != song.id) cancelWordUpgrade()
         currentLyricsSong = song
         loadLyricsSyncOffset(song)
         // A stale failure from the previous song must not paint the new

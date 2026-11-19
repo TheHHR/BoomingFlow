@@ -25,19 +25,21 @@ import kotlin.math.abs
 /**
  * The now playing screen's root: watches EVERY touch entering the player
  * and claims the stream mid-flight once an upward drag crosses the swipe
- * gate, so the queue gesture works from anywhere on the screen and cannot
- * be consumed by a child first.
+ * gate, so the queue gesture works from anywhere on the screen.
  *
- * The gate is evaluated on both dispatch paths Android offers a ViewGroup:
- * [onInterceptTouchEvent] steals streams already claimed by child views
- * (album cover pager, controls, toolbar - their target receives
- * ACTION_CANCEL), while [onTouchEvent] covers empty-area touches, which
- * never reach interception because the group self-targets them.
+ * The gate runs in [dispatchTouchEvent], not onInterceptTouchEvent: a
+ * scrolling Compose child (the cover lyrics) calls
+ * requestDisallowInterceptTouchEvent as soon as it moves, which switches
+ * interception off for the rest of the stream - that is why the swipe was
+ * dead over the cover lyrics. dispatchTouchEvent always runs first, so on a
+ * successful claim the children get ACTION_CANCEL and the rest of the
+ * stream is consumed here.
  *
  * Downward drags are never claimed (swipe-to-collapse keeps its owner:
  * the bottom sheet behavior), horizontal drags never cross the 2:1
  * verticality gate (cover paging is untouched), and ACTION_DOWN is never
- * claimed (taps, long-presses and sliders keep working).
+ * claimed (taps, long-presses and sliders keep working). The root must be
+ * clickable so empty-area touches keep delivering events here.
  */
 class QueueGestureLayout @JvmOverloads constructor(
     context: Context,
@@ -46,50 +48,68 @@ class QueueGestureLayout @JvmOverloads constructor(
 ) : ConstraintLayout(context, attrs, defStyleAttr) {
 
     /**
-     * Fired at most once per gesture, when the upward swipe gate is
-     * crossed. When unset the layout is a pure pass-through container.
+     * Called at most once per gesture, when the upward swipe gate is
+     * crossed. Returns true if the queue opened; only then is the stream
+     * claimed, so a disabled setting or the fullscreen lyrics takeover
+     * leaves the gesture with its child. When unset the layout is a pure
+     * pass-through container.
      */
-    var queueSwipeListener: (() -> Unit)? = null
+    var queueSwipeListener: (() -> Boolean)? = null
+
+    /**
+     * Window-coordinate hit test for areas that keep their own vertical
+     * swipe (the cover lyrics lines). A gesture whose DOWN lands inside is
+     * never claimed.
+     */
+    var swipeExclusion: ((windowX: Float, windowY: Float) -> Boolean)? = null
 
     private val swipeThresholdPx = context.resources.displayMetrics.density * SWIPE_UP_DP
+    private val windowLocation = IntArray(2)
 
     private var downX = 0f
     private var downY = 0f
+    private var gateChecked = false
     private var swipeClaimed = false
 
-    override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
+    override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
         when (ev.actionMasked) {
-            MotionEvent.ACTION_DOWN -> resetGesture(ev)
-            MotionEvent.ACTION_MOVE -> maybeClaim(ev)
+            MotionEvent.ACTION_DOWN -> {
+                downX = ev.x
+                downY = ev.y
+                swipeClaimed = false
+                getLocationInWindow(windowLocation)
+                // An excluded start (lyric lines) skips the gate for the whole gesture.
+                gateChecked = swipeExclusion?.invoke(
+                    windowLocation[0] + ev.x,
+                    windowLocation[1] + ev.y
+                ) == true
+            }
+
+            MotionEvent.ACTION_MOVE -> if (!swipeClaimed && !gateChecked && crossesGate(ev)) {
+                gateChecked = true
+                if (queueSwipeListener?.invoke() == true) {
+                    swipeClaimed = true
+                    val cancel = MotionEvent.obtain(ev).apply { action = MotionEvent.ACTION_CANCEL }
+                    super.dispatchTouchEvent(cancel)
+                    cancel.recycle()
+                    return true
+                }
+            }
         }
-        return swipeClaimed
+        if (swipeClaimed) {
+            if (ev.actionMasked == MotionEvent.ACTION_UP || ev.actionMasked == MotionEvent.ACTION_CANCEL) {
+                swipeClaimed = false
+            }
+            return true
+        }
+        return super.dispatchTouchEvent(ev)
     }
 
-    override fun onTouchEvent(ev: MotionEvent): Boolean {
-        when (ev.actionMasked) {
-            MotionEvent.ACTION_DOWN -> resetGesture(ev)
-            MotionEvent.ACTION_MOVE -> maybeClaim(ev)
-            MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> swipeClaimed = false
-        }
-        return if (swipeClaimed) true else super.onTouchEvent(ev)
-    }
-
-    private fun resetGesture(ev: MotionEvent) {
-        downX = ev.x
-        downY = ev.y
-        swipeClaimed = false
-    }
-
-    private fun maybeClaim(ev: MotionEvent) {
-        if (swipeClaimed || queueSwipeListener == null || ev.pointerCount != 1) {
-            return
-        }
+    private fun crossesGate(ev: MotionEvent): Boolean {
+        if (queueSwipeListener == null || ev.pointerCount != 1) return false
         val dx = ev.x - downX
         val dy = ev.y - downY
-        if (-dy >= swipeThresholdPx && abs(dy) >= abs(dx) * 2) {
-            swipeClaimed = true
-            queueSwipeListener?.invoke()
-        }
+        return -dy >= swipeThresholdPx && abs(dy) >= abs(dx) * 2
     }
 
     companion object {

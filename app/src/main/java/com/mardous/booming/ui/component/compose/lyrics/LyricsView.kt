@@ -173,12 +173,20 @@ fun LyricsView(
                 enableBlurEffect = settings.blurEffect && disableBlurEffect.not(),
                 enableShadowEffect = settings.shadowEffect && disableAdvancedEffects.not(),
                 contentColor = contentColor,
-                progressMillis = state.position,
+                // Only the lines around the current one read the per-frame
+                // position (adjacent lines can overlap in duets); the rest get
+                // a fixed "done"/"not yet" value so they stop recomposing every frame.
+                progressMillis = when {
+                    abs(index - state.currentLineIndex) <= 1 -> state.position
+                    index < state.currentLineIndex -> Long.MAX_VALUE / 2
+                    else -> Long.MIN_VALUE / 2
+                },
                 line = line,
                 textStyle = textStyle,
                 lineSpacing = lineSpacing,
                 modifier = Modifier
-                    .animateItem(placementSpec = tween(durationMillis = 500)),
+                    .animateItem(placementSpec = tween(durationMillis = 500))
+                    .lyricsLineBounds(line.id),
                 onClick = {
                     // A positive [offset] on a 0-start intro line would seek
                     // to a negative position.

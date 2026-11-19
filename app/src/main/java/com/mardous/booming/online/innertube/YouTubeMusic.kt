@@ -240,7 +240,7 @@ object YouTubeMusic {
         val isDataSaver = overrideDataSaver || dataSaver || audioQuality.equals("Data Saver", ignoreCase = true) || audioQuality.equals("Low", ignoreCase = true)
         val isAacOnly = audioQuality.equals("AAC Only", ignoreCase = true)
         val preferOpus = overridePreferOpus ?: (!isDataSaver && !isAacOnly)
-        val cacheKey = "$videoId:$audioQuality:${if (preferOpus) "opus" else "aac"}${if (overrideDataSaver) ":ds" else ""}${if (isRetry) ":retry" else ""}"
+        val cacheKey = "$videoId:$audioQuality:${if (preferOpus) "opus" else "aac"}${if (overrideDataSaver) ":ds" else ""}${if (isRetry) ":retry" else ""}${if (forceHighQuality) ":hq" else ""}"
 
         // Check Level 1 Cache: Instant memory map retrieval (bypassed on retry)
         if (!forceHighQuality && !isRetry) {
@@ -332,9 +332,11 @@ object YouTubeMusic {
                             resolvedFormatTags[videoId] = formatTag
                         }
                         if (!forceHighQuality) {
-                            streamUrlCache[cacheKey] = finalUrl to (System.currentTimeMillis() + CACHE_TTL)
+                            // The URL's own expire= decides, not a fixed 6h on top of the extractor's cache age.
+                            val expiresAt = NewPipeStreamExtractor.urlExpiresAtMs(finalUrl, CACHE_TTL)
+                            streamUrlCache[cacheKey] = finalUrl to expiresAt
                             if (preferOpus) {
-                                streamUrlCache[videoId] = finalUrl to (System.currentTimeMillis() + CACHE_TTL)
+                                streamUrlCache[videoId] = finalUrl to expiresAt
                             }
                         }
                         com.mardous.booming.online.util.ConsoleLogger.stream("Playback Ready: $videoId -> $formatTag")

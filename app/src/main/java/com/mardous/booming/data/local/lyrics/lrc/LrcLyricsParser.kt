@@ -235,7 +235,9 @@ class LrcLyricsParser : LyricsParser {
         val length = attributes["length"]
             ?.let { parseTime(it) }
             ?.takeIf { it > LrcNode.INVALID_DURATION }
-            ?: trackLength
+            ?: trackLength.takeIf { it > 0 }
+            // Unknown duration (online songs can report 0): last line + 10s, instead of dropping every line.
+            ?: ((rawLines.maxOfOrNull { it.start } ?: 0L) + 10_000L)
 
         try {
             for ((i, entry) in rawLines.withIndex()) {

@@ -236,12 +236,9 @@ class StreamingAuthViewModel(application: Application) : AndroidViewModel(applic
 
     private fun isOfflineTolerableFailure(e: Throwable): Boolean {
         if (!SpotifyPrefs.isConnected(context) || !SpotifyClient.isAuthenticated()) return false
-        val message = e.message.orEmpty().lowercase()
-        val offlineHints = listOf(
-            "timeout", "timed out", "resolve host", "unresolved", "unreachable",
-            "connection", "connect", "network", "no address associated", "software caused connection abort"
-        )
-        return offlineHints.any { message.contains(it) }
+        // Transport failures only (DNS, timeout, refused...). An HTTP answer such as 401 for a
+        // revoked token is a SpotifyException and must not be masked as "offline".
+        return generateSequence(e) { it.cause }.any { it is java.io.IOException }
     }
 
     fun ytOnLoggedIn(cookies: String) {

@@ -426,8 +426,11 @@ object SpotifyClient {
                 email = null,
                 images = parseGqlImages(profile.obj("avatar")?.arr("sources")),
             )
+        } catch (e: kotlinx.coroutines.CancellationException) {
+            throw e
         } catch (e: Exception) {
-            authenticatedGet("me")
+            // Absolute URL: the shared client has no base URL, so "me" went to http://localhost/me.
+            authenticatedGet("https://api.spotify.com/v1/me")
         }
     }
 

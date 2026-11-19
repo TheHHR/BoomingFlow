@@ -64,7 +64,9 @@ sealed interface RawLyrics : Parcelable {
 
         override fun accept(other: RawLyrics?): Remote {
             if (other is Remote) {
-                return accept(other.plain, other.synced, other.wordSynced)
+                val merged = accept(other.plain, other.synced, other.wordSynced)
+                // Keep a provider's instrumental verdict; prepareToStore only uses it when no provider had text.
+                return if (other.instrumental) merged.copy(instrumental = true) else merged
             }
             return this
         }
@@ -96,13 +98,13 @@ sealed interface RawLyrics : Parcelable {
         fun prepareToStore(): Stored? {
             val contentToStore = wordSynced ?: synced ?: plain
             if (contentToStore != null) {
+                // Real lyrics from any provider beat another provider's "instrumental" flag.
                 return Stored(
                     lyrics = contentToStore.lyrics,
                     provider = contentToStore.source,
-                    instrumental = instrumental
                 )
             }
-            return null
+            return if (instrumental) Stored(instrumental = true) else null
         }
 
         @Parcelize

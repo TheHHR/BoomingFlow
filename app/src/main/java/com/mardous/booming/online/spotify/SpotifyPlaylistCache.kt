@@ -36,7 +36,14 @@ object SpotifyPlaylistCache {
     fun save(context: Context, key: String, playlist: SpotifyPlaylist?, tracks: List<SpotifyTrack>) {
         if (tracks.isEmpty()) return
         runCatching {
-            cacheFile(context, key).writeText(json.encodeToString(Cached(playlist, tracks)))
+            // Temp file + rename: a crash mid-write used to leave a truncated, undecodable cache.
+            val target = cacheFile(context, key)
+            val temp = File(target.parentFile, "${target.name}.tmp")
+            temp.writeText(json.encodeToString(Cached(playlist, tracks)))
+            if (!temp.renameTo(target)) {
+                target.delete()
+                temp.renameTo(target)
+            }
         }
     }
 

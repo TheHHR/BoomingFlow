@@ -109,3 +109,9 @@
 
 # Prevent R8 from merging widget classes and mixing their IDs.
 -keepnames class com.mardous.booming.core.appwidgets.widget.**
+
+# Release builds drop debug/verbose logging (stream URLs, drag traces, request details).
+-assumenosideeffects class android.util.Log {
+    public static int d(...);
+    public static int v(...);
+}

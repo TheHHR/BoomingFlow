@@ -197,20 +197,19 @@ class TtmlLyricsParser : LyricsParser {
                             }
 
                             TtmlNode.TAG_TRANSLITERATION -> {
+                                // An accompaniment we can't use is skipped, not fatal: throwing
+                                // threw away the (valid) lyrics lines too.
                                 val lang = parser.getAttributeValue(null, "xml:lang")
                                 if (nodeTree.createTransliteration(lang) == null) {
-                                    throw XmlPullParserException("transliteration format isn't valid")
+                                    skipDepth = 1
                                 }
                             }
 
                             TtmlNode.TAG_TRANSLATION -> {
                                 val type = parser.getAttributeValue(null, "type")
-                                if (type != "subtitle") {
-                                    throw XmlPullParserException("unknown translation type: $type")
-                                }
                                 val lang = parser.getAttributeValue(null, "xml:lang")
-                                if (nodeTree.createTranslation(lang) == null) {
-                                    throw XmlPullParserException("translation format isn't valid")
+                                if (type != "subtitle" || nodeTree.createTranslation(lang) == null) {
+                                    skipDepth = 1
                                 }
                             }
 

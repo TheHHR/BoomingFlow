@@ -71,7 +71,9 @@ object SearchMatcher {
      * heavily across a library, so most lookups hit after the first
      * keystroke of a session.
      */
-    private val normalizedCache = LruCache<String, String>(8192)
+    // Sized for ~10k-song libraries (title + artist + album per song): at 8192 a full scan
+    // evicted entries before reuse, so every keystroke re-normalized the whole library.
+    private val normalizedCache = LruCache<String, String>(32768)
 
     private val jaroWinkler = JaroWinklerSimilarity()
 

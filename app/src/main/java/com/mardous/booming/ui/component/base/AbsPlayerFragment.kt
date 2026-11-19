@@ -243,10 +243,11 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) : Fragment(layoutRes
     }
 
     protected open fun onPrepareViewGestures(view: View) {
-        // The player root (QueueGestureLayout) intercepts every touch
-        // stream - even ones already claimed by child views - and fires
-        // the queue swipe from anywhere on the screen. Taps, cover
-        // paging, sliders and scroll gestures are left to their owners.
+        // The player root (QueueGestureLayout) sees every touch stream -
+        // even ones already claimed by child views, the cover lyrics
+        // included - and fires the queue swipe from anywhere on the screen.
+        // It claims the stream only when this returns true (setting on, no
+        // fullscreen lyrics, queue not already open).
         (view as? QueueGestureLayout)?.queueSwipeListener = {
             gestureDetected(GestureType.Fling(GestureType.Fling.DIRECTION_UP))
         }

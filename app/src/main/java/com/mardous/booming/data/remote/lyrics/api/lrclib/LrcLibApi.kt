@@ -23,7 +23,8 @@ class LrcLibApi(private val client: HttpClient) : LyricsApi {
     private val rateLimiter = RateLimiter("LrcLibApi")
 
     override suspend fun downloadLyrics(song: Song, title: String, artist: String): RawLyrics.Remote? {
-        if (rateLimiter.isRateLimited) return null
+        // Rate limiting throws: a throttled provider is a failed one, not "no lyrics" (no negative cache).
+        if (rateLimiter.isRateLimited) throw java.io.IOException("LRCLib rate limited")
 
         val response = client.get(LRCLIB_API_URL) {
             userAgent(USER_AGENT)
@@ -36,7 +37,7 @@ class LrcLibApi(private val client: HttpClient) : LyricsApi {
             url.encodedParameters.append("album_name", song.albumName.encodeURLParameter())
         }
 
-        if (rateLimiter.handleResponse(response)) return null
+        if (rateLimiter.handleResponse(response)) throw java.io.IOException("LRCLib rate limited")
 
         val lyrics = response.body<List<LRCLibResponse>>()
         if (lyrics.isEmpty()) {

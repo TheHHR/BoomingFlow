@@ -343,11 +343,14 @@ open class PreferenceScreenFragment : PreferenceFragmentCompat(),
 
         updateStreamingPreferenceSummaries()
 
-        findPreference<Preference>(YT_STREAM_TEST)?.onPreferenceClickListener =
-            Preference.OnPreferenceClickListener {
+        findPreference<Preference>(YT_STREAM_TEST)?.apply {
+            // Debug-only smoke test: in release it replaced the user's queue with a test video.
+            isVisible = BuildConfig.DEBUG
+            onPreferenceClickListener = Preference.OnPreferenceClickListener {
                 playTestYouTubeStream()
                 true
             }
+        }
 
         findPreference<ThemePreference>(GENERAL_THEME)?.apply {
             customCallback = object : ThemePreference.Callback {

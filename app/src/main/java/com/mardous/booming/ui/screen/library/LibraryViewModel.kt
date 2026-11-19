@@ -183,11 +183,20 @@ class LibraryViewModel(
         // Then re-evaluate synced playlists and re-post so rule-driven
         // additions/removals are visible. The cheap probe inside makes
         // this a no-op for users with no synced playlists.
+        // The tab reloads on every resume; the rule pass scans the whole library, so it runs
+        // at most once a minute.
+        // shortcut: time-based throttle, upgrade to a MediaStore-change trigger if a minute's lag shows.
+        val now = android.os.SystemClock.elapsedRealtime()
+        if (lastPlaylistSyncMs != 0L && now - lastPlaylistSyncMs < PLAYLIST_SYNC_INTERVAL_MS) return
+        lastPlaylistSyncMs = now
         val synced = runCatching { repository.syncAllPlaylists() }.getOrDefault(0)
         if (synced > 0) {
             playlists.postValue(repository.playlistsWithSongs(true))
         }
     }
+
+    private var lastPlaylistSyncMs = 0L
+    private val PLAYLIST_SYNC_INTERVAL_MS = 60_000L
 
     fun savePlaylistOrder(orderedPlaylists: List<PlaylistWithSongs>) = viewModelScope.launch(IO) {
         // Persist only — the UI already reflects the dragged order, and

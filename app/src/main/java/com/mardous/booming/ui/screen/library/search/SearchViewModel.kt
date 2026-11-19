@@ -26,7 +26,8 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.mapLatest
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 
 class SearchViewModel(
@@ -65,13 +66,15 @@ class SearchViewModel(
     private var spotifyJob: Job? = null
     private var spotifyOffset = 0
     private var loadingMoreSpotify = false
+    private var loadMoreJob: Job? = null
 
     init {
-        @OptIn(FlowPreview::class)
+        @OptIn(FlowPreview::class, kotlinx.coroutines.ExperimentalCoroutinesApi::class)
         combine(searchQuery, searchFilter) { query, filter -> query to filter }
             .debounce(300)
             .distinctUntilChanged()
-            .onEach { (query, filter) ->
+            // mapLatest: a newer query cancels the older search instead of queueing behind it.
+            .mapLatest { (query, filter) ->
                 if (isScoped) {
                     // Scoped mode: filter the remote playlist's cached track
                     // list client-side; no library or web search involved.
@@ -94,9 +97,10 @@ class SearchViewModel(
                         }
                     }
                     _spotifyResult.value = null
-                    return@onEach
+                    return@mapLatest
                 }
                 val result = repository.search(query, filter)
+                kotlinx.coroutines.currentCoroutineContext().ensureActive()
                 _searchResult.value = result
                 // Category-restricted searches (opened from a detail screen)
                 // are library-only: no Spotify web results.
@@ -117,6 +121,9 @@ class SearchViewModel(
             return
         }
         spotifyJob?.cancel()
+        // A page still loading for the previous query must not append to this one.
+        loadMoreJob?.cancel()
+        loadingMoreSpotify = false
         spotifyOffset = 0
         spotifyJob = viewModelScope.launch(Dispatchers.IO) {
             val mode = query.filterMode
@@ -165,7 +172,7 @@ class SearchViewModel(
         val text = query.searched ?: return
         if (text.isBlank()) return
         loadingMoreSpotify = true
-        viewModelScope.launch(Dispatchers.IO) {
+        loadMoreJob = viewModelScope.launch(Dispatchers.IO) {
             try {
                 val pageSize = SPOTIFY_PAGE
                 val offset = spotifyOffset + pageSize
@@ -187,11 +194,11 @@ class SearchViewModel(
                     SearchQuery.FilterMode.Albums -> {
                         val more = SpotifyClient.searchAlbums(text, limit = pageSize, offset = offset)
                         spotifyOffset = offset
-                        _spotifyResult.value = if (more.isNotEmpty()) {
+                        publishIfCurrent(current, if (more.isNotEmpty()) {
                             current.copy(albums = current.albums + more, canLoadMore = true)
                         } else {
                             current.copy(canLoadMore = false)
-                        }
+                        })
                     }
                     else -> {
                         val more = SpotifyClient.searchTracks(text, limit = pageSize, offset = offset)
@@ -215,11 +222,16 @@ class SearchViewModel(
         pageSize: Int,
         merge: (SpotifySearchResults, List<T>, Boolean) -> SpotifySearchResults
     ) {
-        _spotifyResult.value = if (more.isNotEmpty()) {
+        publishIfCurrent(current, if (more.isNotEmpty()) {
             merge(current, more, more.size >= pageSize)
         } else {
             current.copy(canLoadMore = false)
-        }
+        })
+    }
+
+    /** Writes a load-more page only if no new search replaced [current] meanwhile. */
+    private fun publishIfCurrent(current: SpotifySearchResults, updated: SpotifySearchResults) {
+        _spotifyResult.compareAndSet(current, updated)
     }
 
     fun updateFilter(filter: SearchFilter?) {

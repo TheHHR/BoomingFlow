@@ -243,6 +243,22 @@ class RealLyricsRepository(
         return ParsedLyrics.Empty
     }
 
+    /**
+     * Keeps only the best slot that actually parses (word > line > plain). Stored lyrics
+     * are final, so a word-synced blob that only looked word-level (regex guess) and fails
+     * to parse used to hide a good line-synced result forever. Nothing parses: text dropped,
+     * the instrumental flag kept.
+     */
+    private suspend fun parsableRemote(song: Song, remote: RawLyrics.Remote): RawLyrics.Remote {
+        val candidates = listOfNotNull(
+            remote.wordSynced?.let { remote.copy(plain = null, synced = null) },
+            remote.synced?.let { remote.copy(plain = null, wordSynced = null) },
+            remote.plain?.let { remote.copy(synced = null, wordSynced = null) },
+        )
+        return candidates.firstOrNull { parseRawLyrics(song, it) !is ParsedLyrics.Empty }
+            ?: remote.copy(plain = null, synced = null, wordSynced = null)
+    }
+
     private fun parseTextLyrics(
         song: Song,
         lyrics: String?,
@@ -362,16 +378,19 @@ class RealLyricsRepository(
                 // The download attempt is failure-isolated: a network error
                 // must never discard the stored lyrics.
                 val sweep = try {
+                    // Background auto-download: only the provider sheet's own sweep writes
+                    // its live rows (this one would paint a skipped song's results there).
                     lyricsDownloadService.remoteLyricsDetailed(
                         song,
-                        providerParams = LyricsProviderParams()
+                        providerParams = LyricsProviderParams(),
+                        updateLiveResults = false
                     )
                 } catch (e: CancellationException) {
                     throw e
                 } catch (_: Exception) {
                     null
                 }
-                val storableLyrics = sweep?.remote?.prepareToStore()
+                val storableLyrics = sweep?.remote?.let { parsableRemote(song, it) }?.prepareToStore()
                 if (storableLyrics != null) {
                     if (storableLyrics.instrumental) {
                         lyricsDao.insertLyrics(
@@ -414,7 +433,9 @@ class RealLyricsRepository(
             return null
         }
         return try {
-            lyricsDownloadService.remoteLyrics(song, searchTitle, searchArtist, providerParams)
+            lyricsDownloadService.remoteLyrics(
+                song, searchTitle, searchArtist, providerParams, updateLiveResults = false
+            )
         } catch (e: CancellationException) {
             throw e
         } catch (_: Exception) {
@@ -450,7 +471,7 @@ class RealLyricsRepository(
             null
         } ?: return ParsedLyrics.Empty
 
-        val stored = remote.prepareToStore() ?: return ParsedLyrics.Empty
+        val stored = parsableRemote(song, remote).prepareToStore() ?: return ParsedLyrics.Empty
         lyricsDao.insertLyrics(
             if (stored.instrumental) {
                 LyricsEntity(

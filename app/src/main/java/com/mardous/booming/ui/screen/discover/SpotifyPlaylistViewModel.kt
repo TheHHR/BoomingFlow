@@ -31,7 +31,8 @@ class SpotifyPlaylistViewModel(application: Application) : AndroidViewModel(appl
     fun load(playlistId: String?) {
         if (loaded) return
         loaded = true
-        viewModelScope.launch {
+        // IO: the on-disk cache (multi-MB JSON for big libraries) is read, decoded and written here.
+        viewModelScope.launch(kotlinx.coroutines.Dispatchers.IO) {
             if (playlistId == null) loadLikedSongs() else loadPlaylist(playlistId)
         }
     }
@@ -66,6 +67,7 @@ class SpotifyPlaylistViewModel(application: Application) : AndroidViewModel(appl
         var hasMore = true
         var anyPageFailed = false
         val allTracks = mutableListOf<SpotifyTrack>()
+        val seenIds = HashSet<String>()
         while (hasMore) {
             SpotifyClient.playlistTracks(playlistId, limit = 100, offset = offset)
                 .onSuccess { page ->
@@ -73,9 +75,7 @@ class SpotifyPlaylistViewModel(application: Application) : AndroidViewModel(appl
                         item.track?.takeUnless { track -> track.isLocal }
                     }
                     for (track in pageTracks) {
-                        if (allTracks.none { it.id == track.id }) {
-                            allTracks.add(track)
-                        }
+                        if (seenIds.add(track.id)) allTracks.add(track)
                     }
                     _tracks.value = allTracks.toList()
                     offset += page.items.size
@@ -114,14 +114,13 @@ class SpotifyPlaylistViewModel(application: Application) : AndroidViewModel(appl
         var hasMore = true
         var anyPageFailed = false
         val allTracks = mutableListOf<SpotifyTrack>()
+        val seenIds = HashSet<String>()
         while (hasMore) {
             SpotifyClient.likedSongs(limit = 50, offset = offset)
                 .onSuccess { page ->
                     val pageTracks = page.items.mapNotNull { it.track }
                     for (track in pageTracks) {
-                        if (allTracks.none { it.id == track.id }) {
-                            allTracks.add(track)
-                        }
+                        if (seenIds.add(track.id)) allTracks.add(track)
                     }
                     offset += page.items.size
                     // Keep paging while the library total hasn't been reached

@@ -41,6 +41,7 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.selects.select
 import kotlinx.coroutines.selects.onTimeout
 import kotlinx.coroutines.withTimeoutOrNull
@@ -186,6 +187,9 @@ class LyricsDownloadService(client: HttpClient) {
         updateLiveResults: Boolean = true
     ): RaceOutcome {
         val outcome = RaceOutcome()
+        // A provider that threw (network error, bad response) did not "find nothing":
+        // such a sweep must not record a 30-minute miss.
+        val anyProviderFailed = java.util.concurrent.atomic.AtomicBoolean(false)
         val timedOut: Boolean = try {
             withTimeoutOrNull(RACE_TIMEOUT_MILLIS) {
                 coroutineScope {
@@ -196,6 +200,7 @@ class LyricsDownloadService(client: HttpClient) {
                             } catch (e: CancellationException) {
                                 throw e
                             } catch (e: Exception) {
+                                anyProviderFailed.set(true)
                                 Log.e(TAG, "Error during lyrics request (${provider.displayName})", e)
                                 null
                             }
@@ -233,8 +238,9 @@ class LyricsDownloadService(client: HttpClient) {
                             // map). Same-song overlap is already prevented by
                             // the ViewModel cancelling the upgrade first.
                             if (updateLiveResults) {
-                                _liveResults.value = _liveResults.value +
-                                        (providerAndDeferred.first.displayName to response)
+                                _liveResults.update {
+                                    it + (providerAndDeferred.first.displayName to response)
+                                }
                             }
 
                             if (response != null) {
@@ -250,17 +256,12 @@ class LyricsDownloadService(client: HttpClient) {
                         // timed-out providers must not spin forever in
                         // the provider sheet.
                         if (updateLiveResults) {
-                            val settled = _liveResults.value.toMutableMap()
-                            var changed = false
-                            pending.forEach { candidate ->
-                                val name = candidate.first.displayName
-                                if (!settled.containsKey(name)) {
-                                    settled[name] = null
-                                    changed = true
-                                }
-                            }
-                            if (changed) {
-                                _liveResults.value = settled
+                            _liveResults.update { current ->
+                                val missing = pending
+                                    .map { it.first.displayName }
+                                    .filterNot { current.containsKey(it) }
+                                if (missing.isEmpty()) current
+                                else current + missing.associateWith { null }
                             }
                         }
                         pending.forEach { it.second.cancel() }
@@ -271,7 +272,7 @@ class LyricsDownloadService(client: HttpClient) {
             throw e
         }
 
-        outcome.sweptAll = !timedOut && !outcome.remote.hasSynced &&
+        outcome.sweptAll = !timedOut && !anyProviderFailed.get() && !outcome.remote.hasSynced &&
                 !outcome.remote.hasWordSynced && !outcome.remote.hasPlain
         return outcome
     }

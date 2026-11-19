@@ -18,6 +18,7 @@ import androidx.media3.session.SessionError
 import androidx.media3.session.SessionResult
 import com.mardous.booming.core.model.PaletteColor
 import com.mardous.booming.online.playback.OnlineQueueItem
+import com.mardous.booming.online.spotify.resolveBatchForPlayback
 import com.mardous.booming.core.model.action.QueueClearingBehavior
 import com.mardous.booming.core.model.action.SongClickBehavior
 import com.mardous.booming.core.model.player.MetadataField
@@ -281,7 +282,57 @@ class PlayerViewModel(
         )
     }
 
+    private var onlineQueueBuildJob: kotlinx.coroutines.Job? = null
+
+    /**
+     * Plays [first] now, then resolves and fills in the rest of the list: [after] behind it,
+     * [before] in front in order, so the whole list is queued with the tapped song playing.
+     * Runs in the ViewModel (leaving the screen no longer cuts the queue short) as one job
+     * that the next play request cancels (a quick second tap no longer mixes two lists).
+     */
+    fun playSpotifyList(
+        first: OnlineQueueItem,
+        before: List<com.mardous.booming.online.data.spotify.SpotifyTrack>,
+        after: List<com.mardous.booming.online.data.spotify.SpotifyTrack>,
+        batchSize: Int
+    ) {
+        onlineQueueBuildJob?.cancel()
+        onlineQueueBuildJob = viewModelScope.launch {
+            val controller = mediaController ?: return@launch
+            withContext(IO) { repository.registerOnlineSong(first.song.data, first.song) }
+            controller.setMediaItems(listOf(first.mediaItem), 0, C.TIME_UNSET)
+            controller.playWhenReady = true
+            controller.prepare()
+            launch {
+                addOnlineItems(controller, withContext(IO) { after.resolveBatchForPlayback(batchSize) }, null)
+            }
+            launch {
+                var insertIndex = 0
+                before.chunked(batchSize).forEach { chunk ->
+                    val items = withContext(IO) { chunk.resolveBatchForPlayback(batchSize) }
+                    if (items.isNotEmpty()) {
+                        addOnlineItems(controller, items, insertIndex)
+                        insertIndex += items.size
+                    }
+                }
+            }
+        }
+    }
+
+    private suspend fun addOnlineItems(controller: MediaController, items: List<OnlineQueueItem>, index: Int?) {
+        if (items.isEmpty()) return
+        withContext(IO) {
+            items.forEach { repository.registerOnlineSong(it.song.data, it.song) }
+        }
+        if (index == null) {
+            controller.addMediaItems(items.map { it.mediaItem })
+        } else {
+            controller.addMediaItems(index.coerceIn(0, controller.mediaItemCount), items.map { it.mediaItem })
+        }
+    }
+
     fun playOnlineQueue(items: List<OnlineQueueItem>, startPlaying: Boolean = true) = viewModelScope.launch {
+        onlineQueueBuildJob?.cancel()
         mediaController?.let { controller ->
             if (items.isNotEmpty()) {
                 withContext(IO) {
@@ -305,23 +356,6 @@ class PlayerViewModel(
         }
     }
 
-    /**
-     * Inserts online items at [index] in the queue — used to place the
-     * tracks preceding a tapped song so remote playlists behave like local
-     * ones (whole playlist queued, tapped song playing).
-     */
-    fun addOnlineQueueAt(index: Int, items: List<OnlineQueueItem>) = viewModelScope.launch {
-        mediaController?.let { controller ->
-            if (items.isNotEmpty()) {
-                withContext(IO) {
-                    items.forEach { repository.registerOnlineSong(it.song.data, it.song) }
-                }
-                val safeIndex = index.coerceIn(0, controller.mediaItemCount)
-                controller.addMediaItems(safeIndex, items.map { it.mediaItem })
-            }
-        }
-    }
-
     fun playOnlineQueueNext(items: List<OnlineQueueItem>) = viewModelScope.launch {
         mediaController?.let { controller ->
             if (items.isNotEmpty()) {
@@ -341,6 +375,7 @@ class PlayerViewModel(
         startPlaying: Boolean = true,
         shuffleMode: OpenShuffleMode = OpenShuffleMode.Remember
     ) = viewModelScope.launch {
+        onlineQueueBuildJob?.cancel() // a new queue replaces any online list still filling in
         mediaController?.let { controller ->
             var shuffleModeEnabled = controller.shuffleModeEnabled
             if (!preferences.getBoolean(REMEMBER_SHUFFLE_MODE, true)) {

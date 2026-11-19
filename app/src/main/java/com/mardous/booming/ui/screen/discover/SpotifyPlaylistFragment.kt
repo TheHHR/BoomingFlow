@@ -245,26 +245,7 @@ class SpotifyPlaylistFragment : AbsMainActivityFragment(R.layout.fragment_playli
                 showToast(getString(R.string.no_youtube_match_found, track.name))
                 return@launch
             }
-            playerViewModel.playOnlineQueue(listOf(item))
-            viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
-                val batch = tracks.drop(index + 1).resolveBatchForPlayback(30)
-                playerViewModel.addOnlineQueue(batch)
-            }
-            // Queue the tracks BEFORE the tapped one, inserted at the front in
-            // order, so the queue mirrors local playlists: whole list queued,
-            // tapped song playing.
-            if (index > 0) {
-                viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
-                    var insertIndex = 0
-                    tracks.take(index).chunked(30).forEach { chunk ->
-                        val items = chunk.resolveBatchForPlayback(30)
-                        if (items.isNotEmpty()) {
-                            playerViewModel.addOnlineQueueAt(insertIndex, items)
-                            insertIndex += items.size
-                        }
-                    }
-                }
-            }
+            playerViewModel.playSpotifyList(item, tracks.take(index), tracks.drop(index + 1), 30)
         }
     }
 
@@ -331,10 +312,7 @@ class SpotifyPlaylistFragment : AbsMainActivityFragment(R.layout.fragment_playli
                 showToast(getString(R.string.no_youtube_match_found, ordered.first().name))
                 return@launch
             }
-            playerViewModel.playOnlineQueue(listOf(first))
-            viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
-                playerViewModel.addOnlineQueue(ordered.drop(1).resolveBatchForPlayback(30))
-            }
+            playerViewModel.playSpotifyList(first, emptyList(), ordered.drop(1), 30)
         }
     }
 

@@ -7,4 +7,9 @@
         <exclude domain="sharedpref" path="artist_signatures.xml"/>
         <exclude domain="sharedpref" path="custom_artist_images.xml"/>
     </cloud-backup>
+    <!-- Phone-to-phone transfer copies everything unless excluded: AppSettings.xml holds the
+         Spotify/YouTube session cookies and tokens, which must not leave the device. -->
+    <device-transfer>
+        <exclude domain="sharedpref" path="AppSettings.xml"/>
+    </device-transfer>
 </data-extraction-rules>

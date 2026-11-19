@@ -32,19 +32,34 @@ object NewPipeStreamExtractor {
     // googlevideo URLs carry a built-in expiry, so cached entries are stamped and treated as
     // misses once stale. Without this, an expired URL is handed to ExoPlayer, fails with 403/404,
     // and costs a full re-resolution round-trip — slower than never having cached it at all.
-    private data class CachedUrl(val url: String, val cachedAtMs: Long)
+    private data class CachedUrl(val url: String, val expiresAtMs: Long)
     private val streamUrlCache = LruCache<String, CachedUrl>(500)
     private const val STREAM_URL_TTL_MS = 5 * 60 * 60 * 1000L // 5h, under YouTube's ~6h expiry
-    typealias CachedStreamInfo = StreamInfo
-    // Tier 2: Slowest to fetch, but fast to re-parse.
+    private const val EXPIRY_SAFETY_MS = 10 * 60 * 1000L
+    private val EXPIRE_PARAM = Regex("[?&]expire=(\\d+)")
+
+    /**
+     * When a googlevideo URL stops working: its `expire=` (epoch seconds) minus a
+     * safety margin, capped at now + [fallbackTtlMs]. URLs without the param get the fallback.
+     */
+    internal fun urlExpiresAtMs(url: String, fallbackTtlMs: Long = STREAM_URL_TTL_MS): Long {
+        val fallback = System.currentTimeMillis() + fallbackTtlMs
+        val expireMs = EXPIRE_PARAM.find(url)?.groupValues?.get(1)?.toLongOrNull()?.times(1000)
+            ?: return fallback
+        return minOf(expireMs - EXPIRY_SAFETY_MS, fallback)
+    }
+
+    // Tier 2: Slowest to fetch, but fast to re-parse. Its URLs expire too, so entries are dropped
+    // with the same lifetime as Tier 1 (a stale StreamInfo used to hand out dead URLs forever).
+    private class CachedStreamInfo(val info: StreamInfo, val expiresAtMs: Long)
     private val streamInfoCache = LruCache<String, CachedStreamInfo>(200)
     // Tier 3: Parsed UI data.
     private val playerResultCache = LruCache<String, PlayerResult>(200)
 
-    /** Reads a cached stream URL, treating anything past its TTL as absent. */
+    /** Reads a cached stream URL, treating anything past its expiry as absent. */
     private fun getFreshCachedUrl(videoId: String): String? {
         val entry = streamUrlCache.get(videoId) ?: return null
-        if (System.currentTimeMillis() - entry.cachedAtMs >= STREAM_URL_TTL_MS) {
+        if (System.currentTimeMillis() >= entry.expiresAtMs) {
             streamUrlCache.remove(videoId)
             return null
         }
@@ -138,7 +153,12 @@ object NewPipeStreamExtractor {
      */
     internal suspend fun fetchStreamInfo(videoId: String): StreamInfo? {
         ensureInitialized()
-        val cachedInfo = synchronized(cacheLock) { streamInfoCache.get(videoId) }
+        val cachedInfo = synchronized(cacheLock) {
+            streamInfoCache.get(videoId)?.let { cached ->
+                if (System.currentTimeMillis() < cached.expiresAtMs) cached.info
+                else null.also { streamInfoCache.remove(videoId) }
+            }
+        }
         if (cachedInfo != null) return cachedInfo
 
         return try {
@@ -146,7 +166,9 @@ object NewPipeStreamExtractor {
             val infoStart = System.currentTimeMillis()
             val info = StreamInfo.getInfo(ServiceList.YouTube, url)
             Log.d(TAG, "StreamInfo.getInfo took ${System.currentTimeMillis() - infoStart}ms for $videoId")
-            synchronized(cacheLock) { streamInfoCache.put(videoId, info) }
+            val expiresAt = info.audioStreams.firstOrNull()?.content?.let { urlExpiresAtMs(it) }
+                ?: urlExpiresAtMs("")
+            synchronized(cacheLock) { streamInfoCache.put(videoId, CachedStreamInfo(info, expiresAt)) }
             info
         } catch (e: Throwable) {
             Log.e(TAG, "Stream extraction failed for $videoId: ${e.message}")
@@ -297,7 +319,10 @@ object NewPipeStreamExtractor {
             }
         }
 
-        val deferred = inFlightRequests.computeIfAbsent(videoId) {
+        // Key by every selection input: a prefetch (Opus) and an M4A download of the same video
+        // must not share one result.
+        val requestKey = "$videoId:$forceHighQuality:$preferOpus:$dataSaver"
+        val deferred = inFlightRequests.computeIfAbsent(requestKey) {
             extractorScope.async {
                 try {
                     val start = System.currentTimeMillis()
@@ -331,7 +356,7 @@ object NewPipeStreamExtractor {
                         }
                         if (!forceHighQuality) {
                             synchronized(cacheLock) {
-                                streamUrlCache.put(videoId, CachedUrl(bestUrl, System.currentTimeMillis()))
+                                streamUrlCache.put(videoId, CachedUrl(bestUrl, urlExpiresAtMs(bestUrl)))
                             }
                         }
                     }
@@ -341,7 +366,7 @@ object NewPipeStreamExtractor {
                     Log.e(TAG, "Extraction failed: ${e.message}", e)
                     null
                 } finally {
-                    inFlightRequests.remove(videoId)
+                    inFlightRequests.remove(requestKey)
                 }
             }
         }
@@ -424,7 +449,7 @@ object NewPipeStreamExtractor {
                     synchronized(cacheLock) {
                         playerResultCache.put(videoId, result)
                         // Also seed the URL cache while we're at it!
-                        streamUrlCache.put(videoId, CachedUrl(bestStream.content, System.currentTimeMillis()))
+                        streamUrlCache.put(videoId, CachedUrl(bestStream.content, urlExpiresAtMs(bestStream.content)))
                     }
                     
                     result
